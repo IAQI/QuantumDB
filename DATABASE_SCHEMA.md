@@ -1,0 +1,197 @@
+# Database Schema for QuantumDB
+
+## Core Tables
+
+### 1. conferences
+```sql
+CREATE TABLE conferences (
+    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    venue           ENUM('qip', 'qcrypt', 'tqc') NOT NULL,
+    year            INT NOT NULL,
+    start_date      DATE NOT NULL,
+    end_date        DATE NOT NULL,
+    location        TEXT NOT NULL,
+    website_url     TEXT,
+    proceedings_url TEXT,
+    submission_count INT,
+    acceptance_count INT,
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    creator         TEXT NOT NULL,        -- Who/what created this record
+    modifier        TEXT NOT NULL,        -- Who/what last modified this record
+    metadata        JSONB DEFAULT '{}'::jsonb,
+    
+    UNIQUE (venue, year)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
+
+### 2. publications
+```sql
+CREATE TABLE publications (
+    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    conference_id   UUID NOT NULL REFERENCES conferences(id),
+    lastmodified    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    creationdate    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    canonicalkey    TEXT NOT NULL,        -- Unique identifier for the paper
+    creator         TEXT NOT NULL,        -- Who/what created this record
+    modifier        TEXT NOT NULL,        -- Who/what last modified this record
+    title           TEXT NOT NULL,
+    abstract        TEXT,
+    videourl        TEXT,
+    youtube         TEXT,
+    presentationurl TEXT,
+    award           TEXT,                 -- e.g., "Best Paper", "Best Student Paper"
+    publisheddate   DATE,
+    awarddate       DATE,
+    invited         TEXT,                 -- For invited talks
+    doi             TEXT,
+    metadata        JSONB DEFAULT '{}'::jsonb,
+    search_vector   tsvector GENERATED ALWAYS AS (
+        setweight(to_tsvector('english', title), 'A') ||
+        setweight(to_tsvector('english', COALESCE(abstract, '')), 'B')
+    ) STORED,
+    
+    PRIMARY KEY (pubkey),
+    UNIQUE KEY (canonicalkey),
+    
+    FOREIGN KEY (conference_id) REFERENCES conferences(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Create indexes for publications
+CREATE INDEX idx_publications_search ON publications USING GIN(search_vector);
+CREATE INDEX idx_publications_conference ON publications(conference_id);
+CREATE INDEX idx_publications_metadata ON publications USING GIN(metadata);
+```
+
+### 3. authors
+```sql
+CREATE TABLE authors (
+    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    fullname        TEXT NOT NULL,
+    lastname        TEXT NOT NULL,
+    email           TEXT,
+    show_email      BOOLEAN DEFAULT false,
+    affiliation     TEXT,                -- Latest known affiliation
+    bio             TEXT,
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    creator         TEXT NOT NULL,
+    modifier        TEXT NOT NULL,
+    orcid          TEXT,
+    orcidsrc       TEXT,                -- Source of ORCID information
+    metadata        JSONB DEFAULT '{}'::jsonb,
+    
+    UNIQUE (email)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Create index for authors
+CREATE INDEX idx_authors_metadata ON authors USING GIN(metadata);
+```
+
+### 4. authorships
+```sql
+CREATE TABLE authorships (
+    publication_id  UUID NOT NULL REFERENCES publications(id),
+    author_id       UUID NOT NULL REFERENCES authors(id),
+    authornumber    INT NOT NULL,         -- Order of authors
+    publishedasname TEXT NOT NULL,        -- Name as it appeared on the paper
+    affiliation     TEXT,                 -- Affiliation at time of publication
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    creator         TEXT NOT NULL,
+    modifier        TEXT NOT NULL,
+    
+    PRIMARY KEY (publication_id, author_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Create indexes for authorships
+CREATE INDEX idx_authorships_author ON authorships(author_id);
+CREATE INDEX idx_authorships_publication ON authorships(publication_id);
+```
+
+### 5. committee_roles (previously service)
+```sql
+CREATE TABLE committee_roles (
+    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    conference_id   UUID NOT NULL REFERENCES conferences(id),
+    author_id       UUID NOT NULL REFERENCES authors(id),
+    role            ENUM('pc', 'sc', 'chair', 'local') NOT NULL,
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    creator         TEXT NOT NULL,
+    modifier        TEXT NOT NULL,
+    
+    UNIQUE (conference_id, author_id, role)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Create indexes for committee_roles
+CREATE INDEX idx_committee_roles_conference ON committee_roles(conference_id);
+CREATE INDEX idx_committee_roles_author ON committee_roles(author_id);
+```
+
+## Materialized Views
+```sql
+-- Author statistics
+CREATE MATERIALIZED VIEW author_stats AS
+SELECT 
+    a.id,
+    a.fullname,
+    COUNT(DISTINCT p.id) as publication_count,
+    COUNT(DISTINCT cr.id) as committee_roles_count,
+    array_agg(DISTINCT c.venue) as venues,
+    array_agg(DISTINCT c.year) as years
+FROM authors a
+LEFT JOIN authorships au ON a.id = au.author_id
+LEFT JOIN publications p ON au.publication_id = p.id
+LEFT JOIN committee_roles cr ON a.id = cr.author_id
+LEFT JOIN conferences c ON 
+    (p.conference_id = c.id OR cr.conference_id = c.id)
+GROUP BY a.id, a.fullname;
+
+-- Conference statistics
+CREATE MATERIALIZED VIEW conference_stats AS
+SELECT 
+    c.id,
+    c.venue,
+    c.year,
+    COUNT(DISTINCT p.id) as publication_count,
+    COUNT(DISTINCT cr.id) as committee_count,
+    COUNT(DISTINCT a.id) as unique_authors,
+    c.submission_count,
+    c.acceptance_count,
+    CASE 
+        WHEN c.submission_count > 0 
+        THEN ROUND((c.acceptance_count::float / c.submission_count::float) * 100, 2)
+        ELSE NULL
+    END as acceptance_rate
+FROM conferences c
+LEFT JOIN publications p ON c.id = p.conference_id
+LEFT JOIN committee_roles cr ON c.id = cr.conference_id
+LEFT JOIN authorships au ON p.id = au.publication_id
+LEFT JOIN authors a ON au.author_id = a.id
+GROUP BY c.id, c.venue, c.year;
+
+## Changes from Original Schema
+
+1. Modernized for PostgreSQL:
+   - Changed to UUID primary keys
+   - Added TIMESTAMPTZ for timestamps
+   - Added JSONB for flexible metadata
+   - Added full-text search capabilities
+   - Added materialized views for performance
+
+2. Added conferences table:
+   - Central reference for conference instances
+   - Tracks venue details and statistics
+   - Links to proceedings and websites
+
+3. Enhanced tracking:
+   - Better audit trails with created_at/updated_at
+   - Flexible metadata storage
+   - Improved indexing strategy
+
+4. Preserved core functionality:
+   - Author name changes
+   - Multiple affiliations
+   - Committee roles
+   - Paper types and awards
