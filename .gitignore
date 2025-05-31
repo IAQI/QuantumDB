@@ -22,3 +22,8 @@ target/
 
 # OS specific
 .DS_Store
+
+
+# Added by cargo
+
+/target
