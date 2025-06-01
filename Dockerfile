@@ -20,8 +20,10 @@ RUN rm src/*.rs
 # Copy source code
 COPY src ./src
 COPY migrations ./migrations
+COPY .sqlx ./.sqlx
 
-# Build for release
+# Build for release with SQLX_OFFLINE mode
+ENV SQLX_OFFLINE=true
 RUN rm ./target/release/deps/quantumdb*
 RUN cargo build --release
 
@@ -36,6 +38,6 @@ RUN apt-get update && apt-get install -y \
 COPY --from=builder /usr/src/app/quantumdb/target/release/quantumdb /usr/local/bin/
 
 ENV RUST_LOG=info
-EXPOSE 8080
+EXPOSE 3000
 
 CMD ["quantumdb"] 

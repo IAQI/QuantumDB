@@ -5,4 +5,5 @@ target/
 !README.md
 docker-compose.yml
 Dockerfile
-.dockerignore 
+.dockerignore
+!.sqlx/ 

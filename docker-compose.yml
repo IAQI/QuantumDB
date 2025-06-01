@@ -22,6 +22,7 @@ services:
       - POSTGRES_DB=quantumdb
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./migrations:/docker-entrypoint-initdb.d
     restart: unless-stopped
 
   pgadmin:
