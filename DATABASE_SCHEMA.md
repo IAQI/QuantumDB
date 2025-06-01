@@ -79,24 +79,23 @@ CREATE INDEX idx_publications_metadata ON publications USING GIN(metadata);
 ```sql
 CREATE TABLE authors (
     id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    fullname        TEXT NOT NULL,
-    lastname        TEXT NOT NULL,
-    email           TEXT,
-    show_email      BOOLEAN DEFAULT false,
-    affiliation     TEXT,                -- Latest known affiliation
-    bio             TEXT,
-    created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    creator         TEXT NOT NULL,
-    modifier        TEXT NOT NULL,
-    orcid          TEXT,
-    orcidsrc       TEXT,                -- Source of ORCID information
-    metadata        JSONB DEFAULT '{}'::jsonb,
+    full_name       TEXT NOT NULL,
+    normalized_name TEXT NOT NULL,  -- Lowercase, no accents, for matching
+    orcid          TEXT,           -- ORCID identifier
+    email          TEXT,
+    affiliation    TEXT,
+    created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at     TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    creator        TEXT NOT NULL,
+    modifier       TEXT NOT NULL,
+    metadata       JSONB DEFAULT '{}'::jsonb,
     
-    UNIQUE (email)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    -- Ensure normalized names are unique
+    UNIQUE (normalized_name)
+);
 
--- Create index for authors
+-- Index for faster name lookups
+CREATE INDEX idx_authors_normalized_name ON authors(normalized_name);
 CREATE INDEX idx_authors_metadata ON authors USING GIN(metadata);
 ```
 
@@ -121,24 +120,60 @@ CREATE INDEX idx_authorships_author ON authorships(author_id);
 CREATE INDEX idx_authorships_publication ON authorships(publication_id);
 ```
 
-### 5. committee_roles (previously service)
+### 5. committee_roles
 ```sql
+-- Committee types (PC = Program Committee, SC = Steering Committee)
+CREATE TYPE committee_type AS ENUM ('PC', 'SC', 'Local');
+
+-- Position types within a committee
+CREATE TYPE position_type AS ENUM ('chair', 'co-chair', 'member');
+
 CREATE TABLE committee_roles (
     id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     conference_id   UUID NOT NULL REFERENCES conferences(id),
     author_id       UUID NOT NULL REFERENCES authors(id),
-    role            ENUM('pc', 'sc', 'chair', 'local') NOT NULL,
+    committee       committee_type NOT NULL,
+    position        position_type NOT NULL DEFAULT 'member',
+    title           TEXT,           -- Optional custom title (e.g., "General Chair", "Local Arrangements Chair")
+    start_date      DATE,
+    end_date        DATE,
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     creator         TEXT NOT NULL,
     modifier        TEXT NOT NULL,
+    metadata        JSONB DEFAULT '{}'::jsonb,
     
-    UNIQUE (conference_id, author_id, role)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    -- Ensure no duplicate roles for same person at same conference and committee
+    UNIQUE (conference_id, author_id, committee),
+    
+    -- Constraint: Only one chair per committee per conference
+    UNIQUE (conference_id, committee, position) 
+    WHERE position = 'chair'
+);
 
--- Create indexes for committee_roles
+-- Indexes for faster lookups
 CREATE INDEX idx_committee_roles_conference ON committee_roles(conference_id);
 CREATE INDEX idx_committee_roles_author ON committee_roles(author_id);
+CREATE INDEX idx_committee_roles_metadata ON committee_roles USING GIN(metadata);
+```
+
+Example committee role assignments:
+```sql
+-- Program Committee Chair
+INSERT INTO committee_roles (conference_id, author_id, committee, position, title)
+VALUES ('123', '456', 'pc', 'chair', 'Program Committee Chair');
+
+-- Program Committee Co-Chair
+INSERT INTO committee_roles (conference_id, author_id, committee, position, title)
+VALUES ('123', '789', 'pc', 'co-chair', 'Program Committee Co-Chair');
+
+-- Regular PC member
+INSERT INTO committee_roles (conference_id, author_id, committee, position)
+VALUES ('123', '012', 'pc', 'member');
+
+-- Local Chair
+INSERT INTO committee_roles (conference_id, author_id, committee, position, title)
+VALUES ('123', '345', 'local', 'chair', 'Local Arrangements Chair');
 ```
 
 ## Materialized Views
