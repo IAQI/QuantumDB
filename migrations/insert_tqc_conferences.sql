@@ -16,6 +16,6 @@ INSERT INTO conferences (venue, year, city, country, country_code, is_virtual, i
 ('TQC', 2011, 'Madrid', 'Spain', 'ES', false, false, NULL, 'https://drops.dagstuhl.de/opus/portals/lipics/index.php?semnr=16173', 'system', 'system'),
 ('TQC', 2010, 'Leeds', 'United Kingdom', 'GB', false, false, 'https://tqc2010.leeds.ac.uk', 'https://drops.dagstuhl.de/opus/portals/lipics/index.php?semnr=16172', 'system', 'system'),
 ('TQC', 2009, 'Waterloo', 'Canada', 'CA', false, false, NULL, 'https://drops.dagstuhl.de/opus/portals/lipics/index.php?semnr=16171', 'system', 'system'),
-('TQC', 2008, 'Tokyo', 'Japan', 'JP', false, false, NULL, 'https://drops.dagstuhl.de/opus/portals/lipics/index.php?semnr=16170', 'system', 'system'),
-('TQC', 2007, 'Nara', 'Japan', 'JP', false, false, NULL, NULL, 'system', 'system'),
-('TQC', 2006, 'Kanagawa', 'Japan', 'JP', false, false, NULL, NULL, 'system', 'system'); 
+('TQC', 2008, 'Tokyo', 'Japan', 'JP', false, false, 'https://web.archive.org/web/20180528173251/http://www.kecl.ntt.co.jp/tqc/2008/index.html', 'https://drops.dagstuhl.de/opus/portals/lipics/index.php?semnr=16170', 'system', 'system'),
+('TQC', 2007, 'Nara', 'Japan', 'JP', false, false, 'https://web.archive.org/web/20170629061934/http://www.kecl.ntt.co.jp/tqc/2007/index.html', NULL, 'system', 'system'),
+('TQC', 2006, 'Kanagawa', 'Japan', 'JP', false, false, 'https://web.archive.org/web/20170629061833/http://www.kecl.ntt.co.jp/tqc/2006/index.html', NULL, 'system', 'system'); 

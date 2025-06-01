@@ -1,0 +1,125 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        UPDATE conferences \n        SET \n            venue = $1, \n            year = $2,\n            start_date = $3,\n            end_date = $4,\n            city = $5,\n            country = $6,\n            country_code = $7,\n            is_virtual = $8,\n            is_hybrid = $9,\n            timezone = $10,\n            venue_name = $11,\n            website_url = $12,\n            proceedings_url = $13,\n            updated_at = NOW()\n        WHERE id = $14\n        RETURNING \n            id, venue, year, start_date, end_date,\n            city, country, country_code, is_virtual, is_hybrid,\n            timezone, venue_name, website_url, proceedings_url,\n            created_at, updated_at\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "venue",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "year",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "start_date",
+        "type_info": "Date"
+      },
+      {
+        "ordinal": 4,
+        "name": "end_date",
+        "type_info": "Date"
+      },
+      {
+        "ordinal": 5,
+        "name": "city",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "country",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "country_code",
+        "type_info": "Bpchar"
+      },
+      {
+        "ordinal": 8,
+        "name": "is_virtual",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 9,
+        "name": "is_hybrid",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 10,
+        "name": "timezone",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 11,
+        "name": "venue_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 12,
+        "name": "website_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 13,
+        "name": "proceedings_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 14,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 15,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Int4",
+        "Date",
+        "Date",
+        "Text",
+        "Text",
+        "Bpchar",
+        "Bool",
+        "Bool",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "155d37e6847852f6deadb7e20eb31e9670ab529c7f4c63f2f354e13a4f75f259"
+}

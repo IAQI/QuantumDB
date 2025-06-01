@@ -1,0 +1,112 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT \n            id, venue, year, start_date, end_date,\n            city, country, country_code, is_virtual, is_hybrid,\n            timezone, venue_name, website_url, proceedings_url,\n            created_at, updated_at\n        FROM conferences \n        WHERE id = $1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "venue",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "year",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "start_date",
+        "type_info": "Date"
+      },
+      {
+        "ordinal": 4,
+        "name": "end_date",
+        "type_info": "Date"
+      },
+      {
+        "ordinal": 5,
+        "name": "city",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "country",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "country_code",
+        "type_info": "Bpchar"
+      },
+      {
+        "ordinal": 8,
+        "name": "is_virtual",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 9,
+        "name": "is_hybrid",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 10,
+        "name": "timezone",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 11,
+        "name": "venue_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 12,
+        "name": "website_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 13,
+        "name": "proceedings_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 14,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 15,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "4c5ac92fe663e752a9a592bddaf8774977a4d9fd3706ec96ac9e2254542a72c3"
+}
