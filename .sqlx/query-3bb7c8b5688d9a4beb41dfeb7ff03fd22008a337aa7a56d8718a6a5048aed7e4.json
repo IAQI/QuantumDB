@@ -1,0 +1,196 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        INSERT INTO conferences (\n            venue, year, start_date, end_date,\n            city, country, country_code, is_virtual, is_hybrid,\n            timezone, venue_name, website_url, proceedings_url,\n            proceedings_publisher, proceedings_volume, proceedings_doi,\n            submission_count, acceptance_count,\n            archive_url, archive_organizers_url, archive_pc_url,\n            archive_steering_url, archive_program_url,\n            creator, modifier\n        )\n        VALUES (\n            $1, $2, $3, $4, $5, $6, $7, $8, $9,\n            $10, $11, $12, $13, $14, $15, $16, $17, $18,\n            $19, $20, $21, $22, $23, $24, $25\n        )\n        RETURNING\n            id, venue, year, start_date, end_date,\n            city, country, country_code, is_virtual, is_hybrid,\n            timezone, venue_name, website_url, proceedings_url,\n            proceedings_publisher, proceedings_volume, proceedings_doi,\n            submission_count, acceptance_count,\n            archive_url, archive_organizers_url, archive_pc_url,\n            archive_steering_url, archive_program_url,\n            created_at, updated_at\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "venue",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "year",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "start_date",
+        "type_info": "Date"
+      },
+      {
+        "ordinal": 4,
+        "name": "end_date",
+        "type_info": "Date"
+      },
+      {
+        "ordinal": 5,
+        "name": "city",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "country",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "country_code",
+        "type_info": "Bpchar"
+      },
+      {
+        "ordinal": 8,
+        "name": "is_virtual",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 9,
+        "name": "is_hybrid",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 10,
+        "name": "timezone",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 11,
+        "name": "venue_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 12,
+        "name": "website_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 13,
+        "name": "proceedings_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 14,
+        "name": "proceedings_publisher",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 15,
+        "name": "proceedings_volume",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 16,
+        "name": "proceedings_doi",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 17,
+        "name": "submission_count",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 18,
+        "name": "acceptance_count",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 19,
+        "name": "archive_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 20,
+        "name": "archive_organizers_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 21,
+        "name": "archive_pc_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 22,
+        "name": "archive_steering_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 23,
+        "name": "archive_program_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 24,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 25,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Int4",
+        "Date",
+        "Date",
+        "Text",
+        "Text",
+        "Bpchar",
+        "Bool",
+        "Bool",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Int4",
+        "Int4",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "3bb7c8b5688d9a4beb41dfeb7ff03fd22008a337aa7a56d8718a6a5048aed7e4"
+}

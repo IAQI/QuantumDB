@@ -1,0 +1,84 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        UPDATE authors\n        SET\n            full_name = $1,\n            family_name = $2,\n            given_name = $3,\n            normalized_name = $4,\n            orcid = $5,\n            homepage_url = $6,\n            affiliation = $7,\n            modifier = $8,\n            updated_at = NOW()\n        WHERE id = $9\n        RETURNING\n            id, full_name, family_name, given_name,\n            normalized_name, orcid, homepage_url, affiliation,\n            created_at, updated_at\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "full_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "family_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "given_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "normalized_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "orcid",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "homepage_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "affiliation",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 9,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      true,
+      false,
+      true,
+      true,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "b8dbf689c810ac2144fee42a9a40433e7d38b6adfab412c824397f0aa16d282a"
+}

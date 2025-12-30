@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C /Users/chris/Github/QuantumDB log --oneline)",
+      "WebFetch(domain:iacr.org)",
+      "Bash(grep:*)",
+      "Bash(done)",
+      "Bash(wc:*)",
+      "WebSearch",
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(pg_isready:*)",
+      "Bash(curl:*)",
+      "Bash(docker exec:*)",
+      "Bash(docker logs:*)",
+      "Bash(chmod:*)",
+      "Bash(cargo check:*)",
+      "Bash(cargo sqlx prepare:*)",
+      "Bash(timeout 5 cargo run:*)",
+      "Bash(cargo test:*)",
+      "Bash(docker compose:*)",
+      "Bash(RUST_LOG=error cargo test:*)",
+      "Bash(SQLX_OFFLINE=true cargo check:*)",
+      "Bash(SQLX_OFFLINE=true cargo test:*)",
+      "Bash(fi)",
+      "Bash(cargo add:*)",
+      "Bash(sqlx migrate run:*)",
+      "Bash(timeout 60 head:*)"
+    ]
+  }
+}

@@ -1,0 +1,139 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT\n                id, conference_id, canonical_key, doi,\n                COALESCE(arxiv_ids, ARRAY[]::text[]) as \"arxiv_ids!\",\n                title, abstract as \"abstract_text\",\n                paper_type as \"paper_type: PaperType\",\n                pages, session_name, presentation_url, video_url, youtube_id,\n                award, award_date, published_date,\n                created_at, updated_at\n            FROM publications\n            ORDER BY created_at DESC\n            LIMIT $1 OFFSET $2\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "conference_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "canonical_key",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "doi",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "arxiv_ids!",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 5,
+        "name": "title",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "abstract_text",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "paper_type: PaperType",
+        "type_info": {
+          "Custom": {
+            "name": "paper_type",
+            "kind": {
+              "Enum": [
+                "regular",
+                "short",
+                "poster",
+                "invited",
+                "tutorial",
+                "keynote"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "pages",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "session_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 10,
+        "name": "presentation_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 11,
+        "name": "video_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 12,
+        "name": "youtube_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 13,
+        "name": "award",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 14,
+        "name": "award_date",
+        "type_info": "Date"
+      },
+      {
+        "ordinal": 15,
+        "name": "published_date",
+        "type_info": "Date"
+      },
+      {
+        "ordinal": 16,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 17,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      null,
+      false,
+      true,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "624b94cdf08eb732667e16bf5964bfb69b8ee5a7a1a36d689c21b633376801e0"
+}

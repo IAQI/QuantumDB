@@ -1,7 +1,7 @@
 # QuantumDB - Architecture Document
 
 ## Project Overview
-A REST API service for tracking quantum computing conferences (QIP, QCrypt, TQC) including papers, videos, committee memberships, and awards.
+A REST API service for tracking quantum computing conferences (QIP, QCrypt, TQC) including papers, videos, committee memberships, and awards. **All core CRUD operations are fully implemented** with complete modular architecture, Swagger UI, and production-ready features.
 
 ## Technology Stack
 
@@ -11,6 +11,8 @@ A REST API service for tracking quantum computing conferences (QIP, QCrypt, TQC)
   - Async runtime with Tokio
   - SQLx for type-safe database access
   - Tower middleware for request handling
+  - OpenAPI/Swagger via utoipa for API documentation
+  - unicode-normalization for name processing
 
 - **Database:**
   - PostgreSQL 15+
@@ -18,100 +20,135 @@ A REST API service for tracking quantum computing conferences (QIP, QCrypt, TQC)
   - JSONB for flexible metadata
   - Materialized views for performance
 
-### Project Structure
+### Current Project Structure
 ```
 quantumdb/
 ├── Cargo.toml
 ├── src/
-│   ├── main.rs               # Application entry point
-│   ├── config.rs             # Configuration management
-│   ├── error.rs              # Error handling
-│   ├── models/              # Database models
-│   │   ├── conference.rs
-│   │   ├── publication.rs
-│   │   ├── author.rs
-│   │   ├── authorship.rs
-│   │   └── committee.rs
-│   ├── handlers/            # API request handlers
-│   │   ├── conferences.rs
-│   │   ├── publications.rs
-│   │   ├── authors.rs
-│   │   └── committees.rs
-│   ├── db/                  # Database interaction
+│   ├── main.rs               # Application entry point, router setup, Swagger config
+│   ├── lib.rs                # Library exports
+│   ├── models/              # Database models (IMPLEMENTED)
 │   │   ├── mod.rs
-│   │   ├── connection.rs
-│   │   └── queries.rs
-│   ├── api/                 # API route definitions
+│   │   ├── conference.rs    # Conference, CreateConference, UpdateConference
+│   │   ├── publication.rs   # Publication, CreatePublication, UpdatePublication
+│   │   ├── author.rs        # Author, CreateAuthor, UpdateAuthor
+│   │   └── committee.rs     # CommitteeRole, CreateCommitteeRole, UpdateCommitteeRole
+│   ├── handlers/            # API request handlers (IMPLEMENTED)
 │   │   ├── mod.rs
-│   │   ├── v1/
-│   │   └── openapi.rs
-│   └── utils/              # Shared utilities
-│       ├── pagination.rs
-│       └── validation.rs
-└── migrations/            # Database migrations
+│   │   ├── conferences.rs   # Full CRUD operations
+│   │   ├── publications.rs  # Full CRUD operations
+│   │   ├── authors.rs       # Full CRUD operations
+│   │   ├── authorships.rs   # Full CRUD operations
+│   │   └── committees.rs    # Full CRUD operations
+│   └── utils/              # Shared utilities (IMPLEMENTED)
+│       ├── mod.rs
+│       ├── normalize.rs     # Unicode normalization, name similarity, variants
+│       └── conference.rs    # Conference slug parsing (e.g., "QIP2024")
+├── migrations/              # Database migrations (SQLx)
+├── seeds/                   # Initial/sample data
+└── tests/
+    └── api_tests.rs         # Comprehensive test suite (1155 lines)
 ```
+
+**Note**: Error handling is done directly in handlers with `StatusCode` returns. Database connection uses SQLx's `Extension(Pool<Postgres>)` pattern. No separate `config.rs`, `error.rs`, `db/`, or `api/` modules exist.
 
 ## API Design
 
-### RESTful Endpoints
+### Interactive API Documentation
 
-1. Conferences
-```
-GET    /api/v1/conferences
-GET    /api/v1/conferences/{id}
-POST   /api/v1/conferences
-PUT    /api/v1/conferences/{id}
-GET    /api/v1/conferences/{id}/publications
-GET    /api/v1/conferences/{id}/committee
-```
+**Swagger UI**: `GET /swagger-ui/` - Interactive API explorer with live testing  
+**OpenAPI Spec**: `GET /api-docs/openapi.json` - OpenAPI 3.0 specification
 
-2. Publications
+All endpoints are fully documented with request/response schemas in Swagger UI.
+
+### Implemented RESTful Endpoints
+
+**Health Check**:
 ```
-GET    /api/v1/publications
-GET    /api/v1/publications/{id}
-POST   /api/v1/publications
-PUT    /api/v1/publications/{id}
-GET    /api/v1/publications/search
+GET    /                      # API health check
 ```
 
-3. Authors
+**Conferences** (full CRUD):
 ```
-GET    /api/v1/authors
-GET    /api/v1/authors/{id}
-POST   /api/v1/authors
-PUT    /api/v1/authors/{id}
-GET    /api/v1/authors/{id}/publications
-GET    /api/v1/authors/{id}/service
+GET    /conferences           # List all conferences
+GET    /conferences/:id       # Get conference by UUID
+POST   /conferences           # Create new conference
+PUT    /conferences/:id       # Update conference
+DELETE /conferences/:id       # Delete conference
 ```
 
-4. Committee Roles
+**Publications** (full CRUD):
 ```
-GET    /api/v1/committees
-POST   /api/v1/committees
-DELETE /api/v1/committees/{id}
+GET    /publications          # List all publications
+GET    /publications/:id      # Get publication by UUID
+POST   /publications          # Create new publication
+PUT    /publications/:id      # Update publication
+DELETE /publications/:id      # Delete publication
+```
+
+**Authors** (full CRUD):
+```
+GET    /authors               # List all authors
+GET    /authors/:id           # Get author by UUID
+POST   /authors               # Create new author
+PUT    /authors/:id           # Update author
+DELETE /authors/:id           # Delete author
+```
+
+**Authorships** (full CRUD):
+```
+GET    /authorships           # List all authorships
+GET    /authorships/:id       # Get authorship by UUID
+POST   /authorships           # Create new authorship
+PUT    /authorships/:id       # Update authorship
+DELETE /authorships/:id       # Delete authorship
+```
+
+**Committee Roles** (full CRUD):
+```
+GET    /committees            # List all committee roles
+GET    /committees/:id        # Get committee role by UUID
+POST   /committees            # Create new committee role
+PUT    /committees/:id        # Update committee role
+DELETE /committees/:id        # Delete committee role
 ```
 
 ### Common Features
 
-1. Pagination
-   - Limit/offset based
-   - Configurable page size
-   - Total count included
+1. **Error Handling** (implemented)
+   - Handlers return `(StatusCode, Json<T>)` tuples
+   - Success: `(StatusCode::OK, Json(data))` or `(StatusCode::CREATED, Json(data))`
+   - Not found: `(StatusCode::NOT_FOUND, Json(error_message))`
+   - Database errors: `(StatusCode::INTERNAL_SERVER_ERROR, Json(error_message))`
+   - Validation errors: `(StatusCode::BAD_REQUEST, Json(error_message))`
 
-2. Filtering
-   - Query parameters for filtering
-   - Advanced search capabilities
+2. **Type Safety** (implemented)
+   - SQLx `query!` and `query_as!` macros for compile-time verification
+   - No raw SQL strings
+   - Automatic type inference from database schema
+
+3. **OpenAPI Integration** (implemented)
+   - `#[utoipa::path(...)]` annotations on all handlers
+   - Automatic schema generation from Rust types
+   - Interactive Swagger UI at `/swagger-ui/`
+
+4. **Name Normalization** (implemented)
+   - Unicode NFKD normalization for author names
+   - Name similarity scoring for fuzzy matching
+   - Automatic name variant generation
+   - Loose matching for search
+
+5. **Source Tracking** (implemented)
+   - Two-tier system: table-level comments + row-level JSONB metadata
+   - JSONB metadata on authorships and committee_roles
+   - Tracks source_type, source_url, scraped_date, notes
+
+6. **Future Features**
+   - Pagination (limit/offset)
    - Full-text search for publications
-
-3. Error Handling
-   - Consistent error responses
-   - Detailed error messages
-   - Appropriate HTTP status codes
-
-4. Authentication (future)
-   - JWT-based authentication
-   - Role-based access control
-   - API keys for external access
+   - Advanced filtering
+   - Authentication (JWT-based)
+   - Export to BibTeX, CSV
 
 ## Development Workflow
 

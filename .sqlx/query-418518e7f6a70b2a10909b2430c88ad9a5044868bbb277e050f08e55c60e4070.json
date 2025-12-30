@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        UPDATE conferences \n        SET \n            venue = $1, \n            year = $2,\n            start_date = $3,\n            end_date = $4,\n            city = $5,\n            country = $6,\n            country_code = $7,\n            is_virtual = $8,\n            is_hybrid = $9,\n            timezone = $10,\n            venue_name = $11,\n            website_url = $12,\n            proceedings_url = $13,\n            updated_at = NOW()\n        WHERE id = $14\n        RETURNING \n            id, venue, year, start_date, end_date,\n            city, country, country_code, is_virtual, is_hybrid,\n            timezone, venue_name, website_url, proceedings_url,\n            created_at, updated_at\n        ",
+  "query": "\n            SELECT\n                id, venue, year, start_date, end_date,\n                city, country, country_code, is_virtual, is_hybrid,\n                timezone, venue_name, website_url, proceedings_url,\n                proceedings_publisher, proceedings_volume, proceedings_doi,\n                submission_count, acceptance_count,\n                archive_url, archive_organizers_url, archive_pc_url,\n                archive_steering_url, archive_program_url,\n                created_at, updated_at\n            FROM conferences\n            WHERE id = $1\n            ",
   "describe": {
     "columns": [
       {
@@ -75,30 +75,67 @@
       },
       {
         "ordinal": 14,
+        "name": "proceedings_publisher",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 15,
+        "name": "proceedings_volume",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 16,
+        "name": "proceedings_doi",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 17,
+        "name": "submission_count",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 18,
+        "name": "acceptance_count",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 19,
+        "name": "archive_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 20,
+        "name": "archive_organizers_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 21,
+        "name": "archive_pc_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 22,
+        "name": "archive_steering_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 23,
+        "name": "archive_program_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 24,
         "name": "created_at",
         "type_info": "Timestamptz"
       },
       {
-        "ordinal": 15,
+        "ordinal": 25,
         "name": "updated_at",
         "type_info": "Timestamptz"
       }
     ],
     "parameters": {
       "Left": [
-        "Text",
-        "Int4",
-        "Date",
-        "Date",
-        "Text",
-        "Text",
-        "Bpchar",
-        "Bool",
-        "Bool",
-        "Text",
-        "Text",
-        "Text",
-        "Text",
         "Uuid"
       ]
     },
@@ -117,9 +154,19 @@
       true,
       true,
       true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
       false,
       false
     ]
   },
-  "hash": "155d37e6847852f6deadb7e20eb31e9670ab529c7f4c63f2f354e13a4f75f259"
+  "hash": "418518e7f6a70b2a10909b2430c88ad9a5044868bbb277e050f08e55c60e4070"
 }

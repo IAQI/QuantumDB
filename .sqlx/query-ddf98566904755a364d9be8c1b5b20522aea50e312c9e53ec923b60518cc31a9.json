@@ -1,0 +1,114 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT\n                id, conference_id, author_id,\n                committee as \"committee: CommitteeType\",\n                position as \"position: CommitteePosition\",\n                role_title, term_start, term_end,\n                affiliation,\n                COALESCE(metadata, '{}'::jsonb) as \"metadata!\",\n                created_at, updated_at\n            FROM committee_roles\n            WHERE author_id = $1\n            ORDER BY created_at DESC\n            LIMIT $2 OFFSET $3\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "conference_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "author_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "committee: CommitteeType",
+        "type_info": {
+          "Custom": {
+            "name": "committee_type",
+            "kind": {
+              "Enum": [
+                "OC",
+                "PC",
+                "SC",
+                "Local"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "position: CommitteePosition",
+        "type_info": {
+          "Custom": {
+            "name": "committee_position",
+            "kind": {
+              "Enum": [
+                "chair",
+                "co_chair",
+                "area_chair",
+                "member"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "role_title",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "term_start",
+        "type_info": "Date"
+      },
+      {
+        "ordinal": 7,
+        "name": "term_end",
+        "type_info": "Date"
+      },
+      {
+        "ordinal": 8,
+        "name": "affiliation",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "metadata!",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 10,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 11,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Int8",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      null,
+      false,
+      false
+    ]
+  },
+  "hash": "ddf98566904755a364d9be8c1b5b20522aea50e312c9e53ec923b60518cc31a9"
+}

@@ -15,21 +15,23 @@ QuantumDB provides a comprehensive system for tracking:
 
 - [Architecture](ARCHITECTURE.md) - System design and technical stack
 - [Database Schema](DATABASE_SCHEMA.md) - Detailed database structure
-- [Features](FEATURES.md) - Complete feature list and requirements
-- [Rust Implementation Guide](RUST_GUIDE.md) - Development and deployment guide
+- [Testing](TESTING.md) - Test suite and development testing guide
 
 ## Technology Stack
 
 - **Backend:**
   - Rust with Axum web framework
-  - PostgreSQL database
-  - Full-text search
-  - REST API with pagination
+  - PostgreSQL database with full-text search capabilities
+  - SQLx for type-safe database queries
+  - OpenAPI/Swagger UI for interactive API documentation
+  - Unicode normalization for author name processing
+  - REST API with CRUD operations for all entities
 
 ## Key Features
 
 ### Conference Management
 - Track conference details (dates, locations, URLs)
+- Archive URLs for static website backups
 - Monitor submission and acceptance statistics
 - Store proceedings and website links
 
@@ -80,69 +82,39 @@ QuantumDB provides a comprehensive system for tracking:
 
 3. **Run the Application**
    ```bash
-   # Development mode
+   # Development mode with auto-reload
    cargo watch -x run
    
    # Production mode
    cargo run --release
+   
+   # Access Swagger UI
+   # http://localhost:3000/swagger-ui/
    ```
 
 ## API Documentation
 
-The API provides the following main endpoints:
+**Interactive API Explorer**: Visit `/swagger-ui/` when running the server for complete interactive API documentation with live testing capabilities.
+
+The API provides full CRUD operations for:
 
 ```
-/api/v1/conferences    # Conference management
-/api/v1/publications   # Publication tracking
-/api/v1/authors       # Author profiles
-/api/v1/committees    # Committee management
+/conferences          # Conference management
+/publications         # Publication tracking
+/authors             # Author profiles
+/authorships         # Author-publication relationships
+/committees          # Committee role management
 ```
 
-Each endpoint supports:
-- Pagination
-- Full-text search
-- Filtering
-- Sorting
-
-For detailed API documentation, run the server and visit `/api/docs`.
-
-## API Implementation
-
-See [RUST_GUIDE.md](RUST_GUIDE.md) for detailed API implementation with pagination and search functionality.
-
-## Deployment
-
-See [POSTGRES_GUIDE.md](POSTGRES_GUIDE.md) for deployment configuration on Jelastic Cloud.
-
-## Development Workflow
-
-1. **Local Development**
-   ```bash
-   # Install Rust
-   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-   
-   # Install PostgreSQL
-   brew install postgresql@15
-   
-   # Setup local database
-   createdb quantumdb
-   ```
+All endpoints are documented with:
+- Request/response schemas
+- Example payloads
+- Live testing interface
+- OpenAPI 3.0 specification at `/api-docs/openapi.json`
 
 ## Development
 
-See [RUST_GUIDE.md](RUST_GUIDE.md) for detailed development instructions, including:
-- Project setup
-- Database migrations
-- Testing
-- Deployment
-
-## Database Schema
-
-See [DATABASE_SCHEMA.md](DATABASE_SCHEMA.md) for the complete database structure, including:
-- Table definitions
-- Relationships
-- Indexes
-- Materialized views
+See [TESTING.md](TESTING.md) for testing instructions and [DATABASE_SCHEMA.md](DATABASE_SCHEMA.md) for the complete database structure.
 
 ## Contributing
 
@@ -150,6 +122,7 @@ See [DATABASE_SCHEMA.md](DATABASE_SCHEMA.md) for the complete database structure
 2. Create your feature branch
 3. Commit your changes
 4. Push to the branch
+5. Create a Pull Request
 5. Create a Pull Request
 
 ## License
