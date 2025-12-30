@@ -12,6 +12,8 @@ WORKDIR /usr/src/app/quantumdb
 
 # Copy manifests
 COPY Cargo.toml Cargo.lock ./
+# Create dummy workspace member to avoid errors
+RUN mkdir -p tools/scrape_committees && echo '[package]\nname = "scrape_committees"\nversion = "0.1.0"\nedition = "2021"' > tools/scrape_committees/Cargo.toml && mkdir -p tools/scrape_committees/src && echo 'fn main() {}' > tools/scrape_committees/src/main.rs
 
 # Create a dummy lib.rs for dependency caching (project has lib crate)
 RUN echo "pub fn dummy() {}" > src/lib.rs
@@ -26,6 +28,7 @@ RUN rm -rf ./target/release/deps/quantumdb* ./target/release/deps/libquantumdb* 
 # Copy source code
 COPY src ./src
 COPY migrations ./migrations
+COPY templates ./templates
 COPY .sqlx ./.sqlx
 
 # Build for release with SQLX_OFFLINE mode

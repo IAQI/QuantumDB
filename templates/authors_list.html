@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Authors - QuantumDB{% endblock %}
+
+{% block content %}
+<article>
+    <header>
+        <h1>Authors</h1>
+        <p>Browse and search quantum computing researchers</p>
+    </header>
+
+    <section class="search-box">
+        <form>
+            <input 
+                type="search" 
+                name="search" 
+                placeholder="Search by author name..."
+                value="{{ search_term }}"
+                hx-get="/authors"
+                hx-trigger="input changed delay:300ms, search"
+                hx-target="#authors-table"
+                hx-indicator="#search-indicator"
+                autofocus
+            >
+            <span id="search-indicator" class="htmx-indicator">Searching...</span>
+        </form>
+    </section>
+
+    <section id="authors-table">
+        {% if authors.is_empty() %}
+        <p>{% if search_term.is_empty() %}No authors found.{% else %}No authors matching "{{ search_term }}".{% endif %}</p>
+        {% else %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Affiliation</th>
+                    <th>Publications</th>
+                    <th>Committee Roles</th>
+                    <th>Years Active</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for author in authors %}
+                <tr>
+                    <td><a href="/authors/{{ author.id }}" class="author-link">{{ author.full_name }}</a></td>
+                    <td>{{ author.affiliation }}</td>
+                    <td>{{ author.publication_count }}</td>
+                    <td>{{ author.committee_role_count }}</td>
+                    <td>{% if !author.first_year.is_empty() %}{{ author.first_year }}–{{ author.last_year }}{% else %}-{% endif %}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        {% if authors.len() >= 100 %}
+        <p><em>Showing first 100 results. Use search to narrow down.</em></p>
+        {% endif %}
+        {% endif %}
+    </section>
+</article>
+{% endblock %}

@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}QuantumDB - Quantum Computing Conference Database{% endblock %}
+
+{% block content %}
+<article>
+    <header>
+        <h1>QuantumDB</h1>
+        <p>Comprehensive database of quantum computing conferences (QIP, QCrypt, TQC), publications, authors, and committee memberships</p>
+    </header>
+
+    <section class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value">{{ total_authors }}</div>
+            <div class="stat-label">Authors</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ total_publications }}</div>
+            <div class="stat-label">Publications</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ total_conferences }}</div>
+            <div class="stat-label">Conferences</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ total_committee_roles }}</div>
+            <div class="stat-label">Committee Roles</div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Recent Conferences</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Conference</th>
+                    <th>Year</th>
+                    <th>Location</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for conf in recent_conferences %}
+                <tr>
+                    <td><a href="/conferences/{{ conf.slug }}" class="conference-link">{{ conf.venue }} {{ conf.year }}</a></td>
+                    <td>{{ conf.year }}</td>
+                    <td>{{ conf.location }}</td>
+                    <td>{{ conf.start_date }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+
+    <section>
+        <h2>Quick Start</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+            <article>
+                <h3>Browse Authors</h3>
+                <p>Search and explore author profiles, publications, and committee service history.</p>
+                <a href="/authors" role="button">View Authors</a>
+            </article>
+            <article>
+                <h3>Browse Conferences</h3>
+                <p>Explore conference proceedings, papers, and organizing committees.</p>
+                <a href="/conferences" role="button">View Conferences</a>
+            </article>
+            <article>
+                <h3>API Access</h3>
+                <p>Programmatic access to the database via RESTful JSON API.</p>
+                <a href="/api/swagger-ui/" role="button" class="secondary">API Docs</a>
+            </article>
+        </div>
+    </section>
+</article>
+{% endblock %}

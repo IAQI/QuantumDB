@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}{{ author.full_name }} - QuantumDB{% endblock %}
+
+{% block content %}
+<article>
+    <header>
+        <h1>{{ author.full_name }}</h1>
+        {% if !author.affiliation.is_empty() %}
+        <p><strong>Affiliation:</strong> {{ author.affiliation }}</p>
+        {% endif %}
+        <nav>
+            <ul>
+                {% if !author.orcid.is_empty() %}
+                <li><a href="https://orcid.org/{{ author.orcid }}" target="_blank">ORCID</a></li>
+                {% endif %}
+                {% if !author.homepage_url.is_empty() %}
+                <li><a href="{{ author.homepage_url }}" target="_blank">Homepage</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+
+    <section class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value">{{ author.publication_count }}</div>
+            <div class="stat-label">Publications</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ author.committee_role_count }}</div>
+            <div class="stat-label">Committee Roles</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ author.leadership_count }}</div>
+            <div class="stat-label">Leadership Roles</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{% if !author.first_year.is_empty() %}{{ author.first_year }}–{{ author.last_year }}{% else %}-{% endif %}</div>
+            <div class="stat-label">Years Active</div>
+        </div>
+    </section>
+
+    {% if !author.venues.is_empty() %}
+    <section>
+        <p><strong>Venues:</strong> {{ author.venues }}</p>
+    </section>
+    {% endif %}
+
+    {% if !publications.is_empty() %}
+    <section>
+        <h2>Publications</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Conference</th>
+                    <th>Type</th>
+                    <th>Co-authors</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pub in publications %}
+                <tr>
+                    <td>{{ pub.title }}</td>
+                    <td><a href="/conferences/{{ pub.conference_slug }}" class="conference-link">{{ pub.conference_venue }} {{ pub.conference_year }}</a></td>
+                    <td>{{ pub.paper_type }}</td>
+                    <td>{% if !pub.coauthors.is_empty() %}{{ pub.coauthors }}{% else %}-{% endif %}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+    {% endif %}
+
+    {% if !committee_roles.is_empty() %}
+    <section>
+        <h2>Committee Service</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Conference</th>
+                    <th>Committee</th>
+                    <th>Position</th>
+                    <th>Title</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for role in committee_roles %}
+                <tr>
+                    <td><a href="/conferences/{{ role.conference_slug }}" class="conference-link">{{ role.conference_venue }} {{ role.conference_year }}</a></td>
+                    <td>{{ role.committee_type }}</td>
+                    <td>{{ role.position }}</td>
+                    <td>{% if !role.role_title.is_empty() %}{{ role.role_title }}{% else %}-{% endif %}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+    {% endif %}
+
+    {% if !coauthors.is_empty() %}
+    <section>
+        <h2>Collaborators</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Co-author</th>
+                    <th>Joint Publications</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for coauthor in coauthors %}
+                <tr>
+                    <td><a href="/authors/{{ coauthor.coauthor_id }}" class="author-link">{{ coauthor.coauthor_name }}</a></td>
+                    <td>{{ coauthor.collaboration_count }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+    {% endif %}
+</article>
+{% endblock %}

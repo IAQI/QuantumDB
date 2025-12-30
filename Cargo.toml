@@ -3,6 +3,9 @@ name = "quantumdb"
 version = "0.1.0"
 edition = "2021"
 
+[workspace]
+members = [".", "tools/scrape_committees"]
+
 [lib]
 name = "quantumdb"
 path = "src/lib.rs"
@@ -27,6 +30,8 @@ chrono = { version = "0.4", features = ["serde"] }
 unicode-normalization = "0.1"
 utoipa = { version = "5.4.0", features = ["axum_extras", "uuid", "chrono"] }
 utoipa-swagger-ui = { version = "9", features = ["axum"] }
+askama = "0.12"
+askama_axum = "0.4"
 
 [dev-dependencies]
 axum-test = "17"

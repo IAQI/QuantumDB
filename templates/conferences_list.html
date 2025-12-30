@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Conferences - QuantumDB{% endblock %}
+
+{% block content %}
+<article>
+    <header>
+        <h1>Conferences</h1>
+        <p>Browse quantum computing conferences: QIP, QCrypt, and TQC</p>
+    </header>
+
+    <section>
+        <details>
+            <summary>Filter Options</summary>
+            <form>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                    <label>
+                        Venue
+                        <select name="venue" hx-get="/conferences" hx-trigger="change" hx-target="#conference-table">
+                            <option value="">All Venues</option>
+                            <option value="QIP">QIP</option>
+                            <option value="QCRYPT">QCrypt</option>
+                            <option value="TQC">TQC</option>
+                        </select>
+                    </label>
+                    <label>
+                        Year
+                        <input type="number" name="year" placeholder="Filter by year" 
+                               hx-get="/conferences" hx-trigger="input changed delay:300ms" hx-target="#conference-table">
+                    </label>
+                </div>
+            </form>
+        </details>
+    </section>
+
+    <section id="conference-table">
+        {% if conferences.is_empty() %}
+        <p>No conferences found.</p>
+        {% else %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Conference</th>
+                    <th>Location</th>
+                    <th>Date</th>
+                    <th>Papers</th>
+                    <th>Committee</th>
+                    <th>Acceptance Rate</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for conf in conferences %}
+                <tr>
+                    <td><a href="/conferences/{{ conf.slug }}" class="conference-link"><strong>{{ conf.venue }} {{ conf.year }}</strong></a></td>
+                    <td>{{ conf.location }}</td>
+                    <td>{{ conf.start_date }}</td>
+                    <td>{{ conf.publication_count }}</td>
+                    <td>{{ conf.committee_member_count }}</td>
+                    <td>{% if !conf.acceptance_rate.is_empty() %}{{ conf.acceptance_rate }}{% else %}-{% endif %}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+    </section>
+</article>
+{% endblock %}

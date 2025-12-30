@@ -1,0 +1,143 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT \n            c.id,\n            c.venue,\n            c.year,\n            CONCAT(c.venue, c.year::text) as slug,\n            c.city,\n            c.country,\n            c.start_date,\n            c.end_date,\n            c.website_url,\n            c.proceedings_url,\n            c.is_virtual,\n            c.is_hybrid,\n            c.submission_count,\n            c.acceptance_count,\n            COALESCE(cs.publication_count, 0) as \"publication_count!\",\n            COALESCE(cs.regular_paper_count, 0) as \"regular_paper_count!\",\n            COALESCE(cs.invited_talk_count, 0) as \"invited_talk_count!\",\n            COALESCE(cs.award_count, 0) as \"award_count!\",\n            COALESCE(cs.committee_member_count, 0) as \"committee_member_count!\",\n            COALESCE(cs.unique_author_count, 0) as \"unique_author_count!\",\n            cs.acceptance_rate::text as acceptance_rate\n        FROM conferences c\n        LEFT JOIN conference_stats cs ON c.id = cs.id\n        WHERE c.venue = $1 AND c.year = $2\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "venue",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "year",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "slug",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "city",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "country",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "start_date",
+        "type_info": "Date"
+      },
+      {
+        "ordinal": 7,
+        "name": "end_date",
+        "type_info": "Date"
+      },
+      {
+        "ordinal": 8,
+        "name": "website_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "proceedings_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 10,
+        "name": "is_virtual",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 11,
+        "name": "is_hybrid",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 12,
+        "name": "submission_count",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 13,
+        "name": "acceptance_count",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 14,
+        "name": "publication_count!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 15,
+        "name": "regular_paper_count!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 16,
+        "name": "invited_talk_count!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 17,
+        "name": "award_count!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 18,
+        "name": "committee_member_count!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 19,
+        "name": "unique_author_count!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 20,
+        "name": "acceptance_rate",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      null,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "86017fc4932981601175ff262dd528a28c6132dc43d59eeabf93e1d7510c498d"
+}

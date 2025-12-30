@@ -1,0 +1,71 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT \n                c.venue,\n                c.year,\n                CONCAT(c.venue, c.year::text) as slug,\n                c.city,\n                c.country,\n                c.start_date,\n                COALESCE(cs.publication_count, 0) as \"publication_count!\",\n                COALESCE(cs.committee_member_count, 0) as \"committee_member_count!\",\n                CASE \n                    WHEN cs.acceptance_rate IS NOT NULL \n                    THEN cs.acceptance_rate::text || '%'\n                    ELSE ''\n                END as \"acceptance_rate!\"\n            FROM conferences c\n            LEFT JOIN conference_stats cs ON c.id = cs.id\n            WHERE c.venue = $1 AND c.year = $2\n            ORDER BY c.year DESC, c.venue\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "venue",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "year",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 2,
+        "name": "slug",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "city",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "country",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "start_date",
+        "type_info": "Date"
+      },
+      {
+        "ordinal": 6,
+        "name": "publication_count!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 7,
+        "name": "committee_member_count!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 8,
+        "name": "acceptance_rate!",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      null,
+      true,
+      true,
+      true,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "8b3a497cfe951c81a91277b73df207a9e43bc9bb76c1baeb63004279c8f1cbe4"
+}

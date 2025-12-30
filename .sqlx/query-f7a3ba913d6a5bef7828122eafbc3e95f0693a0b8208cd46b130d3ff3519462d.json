@@ -1,0 +1,34 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT \n            a.id as coauthor_id,\n            a.full_name as coauthor_name,\n            cp.collaboration_count\n        FROM coauthor_pairs cp\n        JOIN authors a ON (\n            CASE \n                WHEN cp.author1_id = $1 THEN cp.author2_id\n                ELSE cp.author1_id\n            END = a.id\n        )\n        WHERE cp.author1_id = $1 OR cp.author2_id = $1\n        ORDER BY cp.collaboration_count DESC, a.full_name\n        LIMIT 20\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "coauthor_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "coauthor_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "collaboration_count",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "f7a3ba913d6a5bef7828122eafbc3e95f0693a0b8208cd46b130d3ff3519462d"
+}

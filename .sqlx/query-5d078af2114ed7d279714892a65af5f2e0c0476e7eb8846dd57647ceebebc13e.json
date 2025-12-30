@@ -1,0 +1,52 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT \n            c.venue as \"conference_venue!\",\n            c.year as \"conference_year!\",\n            CONCAT(c.venue, c.year::text) as \"conference_slug!\",\n            cr.committee::text as \"committee_type!\",\n            cr.position::text as \"position!\",\n            COALESCE(cr.role_title, '') as \"role_title!\"\n        FROM committee_roles cr\n        JOIN conferences c ON cr.conference_id = c.id\n        WHERE cr.author_id = $1\n        ORDER BY c.year DESC, c.venue, cr.committee\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "conference_venue!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "conference_year!",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 2,
+        "name": "conference_slug!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "committee_type!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "position!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "role_title!",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "5d078af2114ed7d279714892a65af5f2e0c0476e7eb8846dd57647ceebebc13e"
+}

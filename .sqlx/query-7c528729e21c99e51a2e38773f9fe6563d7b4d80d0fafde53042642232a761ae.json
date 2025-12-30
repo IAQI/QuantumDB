@@ -1,0 +1,52 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT \n            p.title,\n            c.venue as \"conference_venue!\",\n            c.year as \"conference_year!\",\n            CONCAT(c.venue, c.year::text) as \"conference_slug!\",\n            p.paper_type::text as \"paper_type!\",\n            array_to_string(\n                array_agg(a2.full_name ORDER BY au2.author_position) \n                FILTER (WHERE a2.id != $1),\n                ', '\n            ) as coauthors\n        FROM authorships au\n        JOIN publications p ON au.publication_id = p.id\n        JOIN conferences c ON p.conference_id = c.id\n        LEFT JOIN authorships au2 ON p.id = au2.publication_id AND au2.author_id != $1\n        LEFT JOIN authors a2 ON au2.author_id = a2.id\n        WHERE au.author_id = $1\n        GROUP BY p.id, p.title, c.venue, c.year, p.paper_type\n        ORDER BY c.year DESC, c.venue\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "title",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "conference_venue!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "conference_year!",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "conference_slug!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "paper_type!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "coauthors",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "7c528729e21c99e51a2e38773f9fe6563d7b4d80d0fafde53042642232a761ae"
+}

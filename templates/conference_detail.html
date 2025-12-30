@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}{{ conference.venue }} {{ conference.year }} - QuantumDB{% endblock %}
+
+{% block content %}
+<article>
+    <header>
+        <h1>{{ conference.venue }} {{ conference.year }}</h1>
+        <p><strong>{{ conference.location }}</strong></p>
+        {% if !conference.start_date.is_empty() && conference.start_date != "-" %}
+        <p>{{ conference.start_date }}{% if !conference.end_date.is_empty() && conference.end_date != "-" %} – {{ conference.end_date }}{% endif %}</p>
+        {% endif %}
+        {% if conference.is_virtual %}
+        <p><em>Virtual Conference</em></p>
+        {% else if conference.is_hybrid %}
+        <p><em>Hybrid Conference</em></p>
+        {% endif %}
+        <nav>
+            <ul>
+                {% if !conference.website_url.is_empty() %}
+                <li><a href="{{ conference.website_url }}" target="_blank">Website</a></li>
+                {% endif %}
+                {% if !conference.proceedings_url.is_empty() %}
+                <li><a href="{{ conference.proceedings_url }}" target="_blank">Proceedings</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+
+    <section class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value">{{ conference.publication_count }}</div>
+            <div class="stat-label">Publications</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ conference.regular_paper_count }}</div>
+            <div class="stat-label">Regular Papers</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ conference.invited_talk_count }}</div>
+            <div class="stat-label">Invited Talks</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ conference.award_count }}</div>
+            <div class="stat-label">Awards</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ conference.unique_author_count }}</div>
+            <div class="stat-label">Unique Authors</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ conference.committee_member_count }}</div>
+            <div class="stat-label">Committee Members</div>
+        </div>
+    </section>
+
+    {% if !conference.submission_count.is_empty() && conference.submission_count != "-" %}
+    <section>
+        <p><strong>Submissions:</strong> {{ conference.submission_count }} | 
+           <strong>Accepted:</strong> {{ conference.acceptance_count }} | 
+           <strong>Acceptance Rate:</strong> {{ conference.acceptance_rate }}</p>
+    </section>
+    {% endif %}
+
+    {% if !publications.is_empty() %}
+    <section>
+        <h2>Publications</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Type</th>
+                    <th>Authors</th>
+                    <th>Award</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pub in publications %}
+                <tr>
+                    <td>{{ pub.title }}</td>
+                    <td>{{ pub.paper_type }}</td>
+                    <td>{{ pub.authors }}</td>
+                    <td>{% if !pub.award.is_empty() %}{{ pub.award }}{% else %}-{% endif %}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+    {% endif %}
+
+    {% if !committee_by_type.is_empty() %}
+    <section>
+        <h2>Committees</h2>
+        {% for section in committee_by_type %}
+        <h3>{{ section.committee_type }}</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Position</th>
+                    <th>Role</th>
+                    <th>Affiliation</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for member in section.members %}
+                <tr>
+                    <td><a href="/authors/{{ member.author_id }}" class="author-link">{{ member.author_name }}</a></td>
+                    <td>{{ member.position }}</td>
+                    <td>{% if !member.role_title.is_empty() %}{{ member.role_title }}{% else %}-{% endif %}</td>
+                    <td>{% if !member.affiliation.is_empty() %}{{ member.affiliation }}{% else %}-{% endif %}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endfor %}
+    </section>
+    {% endif %}
+</article>
+{% endblock %}

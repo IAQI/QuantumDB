@@ -1,7 +1,7 @@
 use dotenvy::dotenv;
 use sqlx::postgres::PgPoolOptions;
 
-use axum::{routing::get, Router};
+use axum::{response::Json, routing::get, Router};
 use tracing::{info, Level};
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
@@ -67,9 +67,8 @@ async fn main() -> Result<(), sqlx::Error> {
 
     tracing_subscriber::fmt().with_max_level(Level::INFO).init();
 
-    let app = Router::new()
-        // Root route
-        .route("/", get(root))
+    // API routes (JSON endpoints)
+    let api_routes = Router::new()
         // Conference routes
         .route(
             "/conferences",
@@ -125,21 +124,38 @@ async fn main() -> Result<(), sqlx::Error> {
                 .put(handlers::update_authorship)
                 .delete(handlers::delete_authorship),
         )
-        // Swagger UI
-        .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
+        // OpenAPI spec endpoint
+        .route("/openapi.json", get(|| async { Json(ApiDoc::openapi()) }))
+        // Swagger UI (will be served at /api/swagger-ui/)
+        .merge(SwaggerUi::new("/swagger-ui").url("/api/openapi.json", ApiDoc::openapi()));
+
+    // Web routes (HTML pages)
+    let web_routes = Router::new()
+        .route("/", get(handlers::web::home))
+        .route("/authors", get(handlers::web::authors_list))
+        .route("/authors/{id}", get(handlers::web::author_detail))
+        .route("/conferences", get(handlers::web::conferences_list))
+        .route("/conferences/{slug}", get(handlers::web::conference_detail))
+        .route("/admin/refresh-stats", get(handlers::web::refresh_stats))
+        .route("/health", get(health));
+
+    let app = Router::new()
+        .merge(web_routes)
+        .nest("/api", api_routes)
         // Database pool state
         .with_state(pool);
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
 
     info!("Server is running on http://0.0.0.0:3000");
-    info!("Swagger UI available at http://0.0.0.0:3000/swagger-ui/");
+    info!("Web interface available at http://0.0.0.0:3000/");
+    info!("API documentation at http://0.0.0.0:3000/api/swagger-ui/");
     axum::serve(listener, app).await.unwrap();
 
     Ok(())
 }
 
-// handler for GET /
-async fn root() -> &'static str {
-    "QuantumDB API - Quantum Computing Conference Database"
+// Health check endpoint
+async fn health() -> &'static str {
+    "OK"
 }

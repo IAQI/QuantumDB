@@ -1,0 +1,24 @@
+[package]
+name = "scrape_committees"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "scrape_committees"
+path = "src/main.rs"
+
+[dependencies]
+quantumdb = { path = "../.." }
+tokio = { version = "1.0", features = ["full"] }
+sqlx = { version = "0.8", features = ["runtime-tokio", "tls-rustls", "postgres", "uuid", "chrono"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+uuid = { version = "1.0", features = ["v4"] }
+chrono = { version = "0.4", features = ["serde"] }
+dotenvy = "0.15"
+anyhow = "1.0"
+clap = { version = "4.0", features = ["derive"] }
+reqwest = { version = "0.12", features = ["blocking"] }
+scraper = "0.22"
+tracing = "0.1"
+tracing-subscriber = "0.3"

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}QuantumDB{% endblock %}</title>
+    <meta name="description" content="Quantum Computing Conference Database - Track publications, authors, and committees for QIP, QCrypt, and TQC">
+    
+    <!-- Pico CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+    
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+    
+    <style>
+        :root {
+            --pico-font-size: 16px;
+        }
+        
+        nav.container-fluid {
+            padding: 0.5rem 1rem;
+        }
+        
+        nav ul li {
+            padding: 0 0.5rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        
+        .stat-card {
+            background: var(--pico-card-background-color);
+            padding: 1.5rem;
+            border-radius: var(--pico-border-radius);
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--pico-primary);
+        }
+        
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--pico-muted-color);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        table {
+            width: 100%;
+        }
+        
+        .author-link, .conference-link {
+            text-decoration: none;
+            color: var(--pico-primary);
+        }
+        
+        .author-link:hover, .conference-link:hover {
+            text-decoration: underline;
+        }
+        
+        .search-box {
+            margin: 2rem 0;
+        }
+        
+        .htmx-indicator {
+            display: none;
+            color: var(--pico-primary);
+            font-size: 0.875rem;
+            margin-left: 0.5rem;
+        }
+        
+        .htmx-request .htmx-indicator {
+            display: inline;
+        }
+        
+        .htmx-request.htmx-indicator {
+            display: inline;
+        }
+        
+        footer {
+            margin-top: 3rem;
+            padding: 2rem 0;
+            border-top: 1px solid var(--pico-muted-border-color);
+            text-align: center;
+            color: var(--pico-muted-color);
+            font-size: 0.875rem;
+        }
+    </style>
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <nav class="container-fluid">
+        <ul>
+            <li><strong><a href="/" style="text-decoration: none; color: inherit;">QuantumDB</a></strong></li>
+        </ul>
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/authors">Authors</a></li>
+            <li><a href="/conferences">Conferences</a></li>
+            <li>
+                <details class="dropdown">
+                    <summary>Quick Links</summary>
+                    <ul>
+                        <li><a href="/conferences/QIP2024">QIP 2024</a></li>
+                        <li><a href="/conferences/QIP2023">QIP 2023</a></li>
+                        <li><a href="/conferences/QCRYPT2024">QCrypt 2024</a></li>
+                        <li><a href="/conferences/QCRYPT2023">QCrypt 2023</a></li>
+                        <li><a href="/conferences/TQC2024">TQC 2024</a></li>
+                        <li><a href="/conferences/TQC2023">TQC 2023</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li><a href="/api/swagger-ui/">API Docs</a></li>
+        </ul>
+    </nav>
+
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="container">
+        <p>QuantumDB - Quantum Computing Conference Database</p>
+        <p>Tracking QIP, QCrypt, and TQC conferences | <a href="/api/swagger-ui/">API Documentation</a> | <a href="/admin/refresh-stats">Refresh Statistics</a></p>
+    </footer>
+</body>
+</html>
