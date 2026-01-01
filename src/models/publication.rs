@@ -1,19 +1,32 @@
-use chrono::{DateTime, NaiveDate, Utc};
+use chrono::{DateTime, NaiveDate, NaiveTime, Utc};
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 use uuid::Uuid;
 
 /// Paper type enum matching the database
+/// Types represent what appears in conference programs, not selection mechanism
 #[derive(Debug, Clone, Serialize, Deserialize, sqlx::Type, ToSchema)]
-#[sqlx(type_name = "paper_type", rename_all = "lowercase")]
+#[sqlx(type_name = "paper_type", rename_all = "snake_case")]
 #[serde(rename_all = "lowercase")]
 pub enum PaperType {
+    /// Standard contributed talk (peer-reviewed)
     Regular,
-    Short,
+    /// Poster presentation (peer-reviewed)
     Poster,
+    /// Invited talk
     Invited,
+    /// Tutorial session
     Tutorial,
+    /// Keynote address
     Keynote,
+    /// Contributed plenary talk (peer-reviewed, more prestigious)
+    Plenary,
+    /// Short plenary talk at QIP (15 min, peer-reviewed)
+    #[serde(rename = "plenary_short")]
+    PlenaryShort,
+    /// Long plenary talk at QIP (25+ min, peer-reviewed)
+    #[serde(rename = "plenary_long")]
+    PlenaryLong,
 }
 
 /// Publication response model
@@ -37,6 +50,18 @@ pub struct Publication {
     pub award: Option<String>,
     pub award_date: Option<NaiveDate>,
     pub published_date: Option<NaiveDate>,
+    /// Author who presented the talk (must be one of the authors)
+    /// Often unknown for contributed talks, may be inferred from video/slides
+    pub presenter_author_id: Option<Uuid>,
+    /// Whether this is in the formal proceedings track (TQC only)
+    /// TQC has both proceedings and workshop tracks; QIP/QCrypt are workshop-style only
+    pub is_proceedings_track: bool,
+    /// Date when the talk was given (if known)
+    pub talk_date: Option<NaiveDate>,
+    /// Time when the talk started (if known)
+    pub talk_time: Option<NaiveTime>,
+    /// Duration of the talk in minutes (if known)
+    pub duration_minutes: Option<i32>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
@@ -60,6 +85,16 @@ pub struct CreatePublication {
     pub award: Option<String>,
     pub award_date: Option<NaiveDate>,
     pub published_date: Option<NaiveDate>,
+    /// Author who presented the talk (must be one of the authors)
+    pub presenter_author_id: Option<Uuid>,
+    /// Whether this is in the formal proceedings track
+    pub is_proceedings_track: Option<bool>,
+    /// Date when the talk was given
+    pub talk_date: Option<NaiveDate>,
+    /// Time when the talk started
+    pub talk_time: Option<NaiveTime>,
+    /// Duration of the talk in minutes
+    pub duration_minutes: Option<i32>,
     pub creator: String,
     pub modifier: String,
 }
@@ -81,6 +116,16 @@ pub struct UpdatePublication {
     pub award: Option<String>,
     pub award_date: Option<NaiveDate>,
     pub published_date: Option<NaiveDate>,
+    /// Author who presented the talk (must be one of the authors)
+    pub presenter_author_id: Option<Uuid>,
+    /// Whether this is in the formal proceedings track
+    pub is_proceedings_track: Option<bool>,
+    /// Date when the talk was given
+    pub talk_date: Option<NaiveDate>,
+    /// Time when the talk started
+    pub talk_time: Option<NaiveTime>,
+    /// Duration of the talk in minutes
+    pub duration_minutes: Option<i32>,
     pub modifier: String,
 }
 

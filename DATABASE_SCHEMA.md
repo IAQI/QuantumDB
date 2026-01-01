@@ -125,14 +125,16 @@ CREATE INDEX idx_author_variants_normalized ON author_name_variants(normalized_v
 
 ### 4. publications
 ```sql
--- Paper types
+-- Paper types represent what appears in conference programs, not selection mechanism
 CREATE TYPE paper_type AS ENUM (
-    'regular',          -- Full paper
-    'short',            -- Short/extended abstract
+    'regular',          -- Standard contributed talk
     'poster',           -- Poster presentation
     'invited',          -- Invited talk
-    'tutorial',         -- Tutorial
-    'keynote'           -- Keynote address
+    'tutorial',         -- Tutorial session
+    'keynote',          -- Keynote address
+    'plenary',          -- Contributed plenary talk (more prestigious)
+    'plenary_short',    -- Short plenary at QIP (15 min)
+    'plenary_long'      -- Long plenary at QIP (25+ min)
 );
 
 CREATE TABLE publications (
@@ -157,6 +159,17 @@ CREATE TABLE publications (
     presentation_url    TEXT,                 -- Slides/presentation link
     video_url           TEXT,                 -- Video recording
     youtube_id          TEXT,                 -- YouTube video ID
+
+    -- Presenter tracking
+    presenter_author_id UUID REFERENCES authors(id) ON DELETE SET NULL,  -- Who presented the talk
+
+    -- Proceedings tracking
+    is_proceedings_track BOOLEAN NOT NULL DEFAULT FALSE,  -- Formal proceedings vs workshop
+
+    -- Talk scheduling
+    talk_date           DATE,                 -- Date when the talk was given
+    talk_time           TIME,                 -- Time when the talk started
+    duration_minutes    INTEGER CHECK (duration_minutes >= 0),  -- Talk duration in minutes
 
     -- Awards
     award               TEXT,                 -- e.g., "Best Paper", "Best Student Paper"
@@ -187,7 +200,45 @@ CREATE INDEX idx_publications_arxiv ON publications USING GIN(arxiv_ids) WHERE a
 CREATE INDEX idx_publications_doi ON publications(doi) WHERE doi IS NOT NULL;
 CREATE INDEX idx_publications_award ON publications(award) WHERE award IS NOT NULL;
 CREATE INDEX idx_publications_metadata ON publications USING GIN(metadata);
+CREATE INDEX idx_publications_presenter ON publications(presenter_author_id) WHERE presenter_author_id IS NOT NULL;
 ```
+
+**Paper Type Guide:**
+Paper types represent what appears in conference programs, not the selection mechanism behind them:
+
+- `regular` - Standard contributed talk (use for both historical single-track conferences and modern parallel-session contributed talks)
+- `poster` - Poster presentation
+- `invited` - Invited speaker
+- `tutorial` - Tutorial session
+- `keynote` - Keynote address
+- `plenary` - Contributed plenary talk (use only for modern parallel-track era prestigious talks)
+- `plenary_short` - Short plenary at QIP (~15 min)
+- `plenary_long` - Long plenary at QIP (~25+ min)
+
+**Note:** The `short` type was removed in favor of using `duration_minutes` to track talk length. Historical short talks should use `regular` with appropriate duration values.
+
+**Usage Conventions:**
+- For historical single-track conferences (where all talks were effectively plenary format), use `regular` for contributed talks
+- Use `plenary` types only for prestigious talks in the modern parallel-track era (roughly 2010s onward)
+- Types represent what appears in the conference program, not the selection mechanism (PC-reviewed vs SC-invited)
+
+**Presenter vs Authors:**
+- `presenter_author_id`: The author who actually gave the talk
+- Must be one of the authors in the `authorships` table (enforced by database trigger)
+- Often unknown for contributed talks, may be inferred from videos/slides
+- For rare cases where presenter is not an author, leave this NULL and store presenter info in `metadata` field
+
+**Proceedings Track:**
+- `is_proceedings_track`: Boolean flag indicating formal proceedings vs workshop track
+- `FALSE` for QIP/QCrypt (all workshop-style, no formal proceedings)
+- TQC has both proceedings track (published in LIPIcs) and workshop track
+- Affects citation format and archival status
+
+**Talk Scheduling:**
+- `talk_date`: Date when the talk was given (if known). Useful for multi-day conferences
+- `talk_time`: Start time of the talk (if known). Useful for detailed schedule tracking
+- `duration_minutes`: Talk duration in minutes (if known). Replaces the need for a 'short' paper type
+- All scheduling fields are optional - populate when data is available from conference programs or videos
 
 ### 5. authorships
 Links authors to publications with ordering and point-in-time affiliation.

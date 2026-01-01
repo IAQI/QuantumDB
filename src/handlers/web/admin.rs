@@ -5,8 +5,8 @@ use sqlx::PgPool;
 
 /// Admin endpoint to refresh all materialized views
 pub async fn refresh_stats(State(pool): State<PgPool>) -> Result<Response, StatusCode> {
-    // Refresh all materialized views concurrently
-    sqlx::query("REFRESH MATERIALIZED VIEW CONCURRENTLY author_stats")
+    // Refresh all materialized views (non-concurrent for views without unique indexes)
+    sqlx::query("REFRESH MATERIALIZED VIEW author_stats")
         .execute(&pool)
         .await
         .map_err(|e| {
@@ -14,7 +14,7 @@ pub async fn refresh_stats(State(pool): State<PgPool>) -> Result<Response, Statu
             StatusCode::INTERNAL_SERVER_ERROR
         })?;
 
-    sqlx::query("REFRESH MATERIALIZED VIEW CONCURRENTLY conference_stats")
+    sqlx::query("REFRESH MATERIALIZED VIEW conference_stats")
         .execute(&pool)
         .await
         .map_err(|e| {
@@ -22,7 +22,7 @@ pub async fn refresh_stats(State(pool): State<PgPool>) -> Result<Response, Statu
             StatusCode::INTERNAL_SERVER_ERROR
         })?;
 
-    sqlx::query("REFRESH MATERIALIZED VIEW CONCURRENTLY coauthor_pairs")
+    sqlx::query("REFRESH MATERIALIZED VIEW coauthor_pairs")
         .execute(&pool)
         .await
         .map_err(|e| {

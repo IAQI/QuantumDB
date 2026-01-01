@@ -1142,7 +1142,7 @@ async fn test_authorship_metadata_empty_by_default() {
     response.assert_status(axum::http::StatusCode::CREATED);
     let created: serde_json::Value = response.json();
     let authorship_id = created["id"].as_str().unwrap();
-    
+
     // Verify metadata defaults to empty object
     assert!(created["metadata"].is_object(), "metadata should be an object");
     assert_eq!(created["metadata"].as_object().unwrap().len(), 0, "metadata should be empty object");
@@ -1151,4 +1151,397 @@ async fn test_authorship_metadata_empty_by_default() {
     server.delete(&format!("/authorships/{}", authorship_id)).await;
     server.delete(&format!("/publications/{}", publication_id)).await;
     server.delete(&format!("/authors/{}", author_id)).await;
+}
+
+// ============================================================================
+// New Talk/Publication Features Tests
+// ============================================================================
+
+#[tokio::test]
+#[serial]
+async fn test_publication_with_presenter() {
+    let server = setup().await;
+    let unique_suffix = Uuid::new_v4().simple().to_string();
+
+    // Create two authors
+    let author1_body = json!({
+        "full_name": format!("Author One {}", unique_suffix),
+        "creator": "test_user",
+        "modifier": "test_user"
+    });
+    let response = server.post("/authors").json(&author1_body).await;
+    response.assert_status(axum::http::StatusCode::CREATED);
+    let author1: serde_json::Value = response.json();
+    let author1_id = author1["id"].as_str().unwrap();
+
+    let author2_body = json!({
+        "full_name": format!("Author Two {}", unique_suffix),
+        "creator": "test_user",
+        "modifier": "test_user"
+    });
+    let response = server.post("/authors").json(&author2_body).await;
+    response.assert_status(axum::http::StatusCode::CREATED);
+    let author2: serde_json::Value = response.json();
+    let author2_id = author2["id"].as_str().unwrap();
+
+    // Get a conference ID
+    let response = server.get("/conferences").await;
+    let conferences: Vec<serde_json::Value> = response.json();
+    let conference_id = conferences[0]["id"].as_str().unwrap();
+
+    // Create publication without presenter
+    let pub_body = json!({
+        "conference_id": conference_id,
+        "canonical_key": format!("presenter-test-{}", unique_suffix),
+        "title": "Publication with Presenter Test",
+        "creator": "test_user",
+        "modifier": "test_user"
+    });
+    let response = server.post("/publications").json(&pub_body).await;
+    response.assert_status(axum::http::StatusCode::CREATED);
+    let publication: serde_json::Value = response.json();
+    let publication_id = publication["id"].as_str().unwrap();
+
+    // Verify presenter_author_id is initially null
+    assert!(publication["presenter_author_id"].is_null(), "presenter_author_id should be null initially");
+
+    // Create authorships for both authors
+    let authorship1_body = json!({
+        "publication_id": publication_id,
+        "author_id": author1_id,
+        "author_position": 1,
+        "published_as_name": format!("Author One {}", unique_suffix),
+        "creator": "test_user",
+        "modifier": "test_user"
+    });
+    let response = server.post("/authorships").json(&authorship1_body).await;
+    response.assert_status(axum::http::StatusCode::CREATED);
+    let authorship1: serde_json::Value = response.json();
+    let authorship1_id = authorship1["id"].as_str().unwrap();
+
+    let authorship2_body = json!({
+        "publication_id": publication_id,
+        "author_id": author2_id,
+        "author_position": 2,
+        "published_as_name": format!("Author Two {}", unique_suffix),
+        "creator": "test_user",
+        "modifier": "test_user"
+    });
+    let response = server.post("/authorships").json(&authorship2_body).await;
+    response.assert_status(axum::http::StatusCode::CREATED);
+    let authorship2: serde_json::Value = response.json();
+    let authorship2_id = authorship2["id"].as_str().unwrap();
+
+    // Update publication to set presenter_author_id to one of the authors
+    let update_body = json!({
+        "presenter_author_id": author1_id,
+        "modifier": "test_user"
+    });
+    let response = server.put(&format!("/publications/{}", publication_id)).json(&update_body).await;
+    response.assert_status_ok();
+    let updated: serde_json::Value = response.json();
+
+    // Verify presenter is set correctly
+    assert_eq!(updated["presenter_author_id"].as_str().unwrap(), author1_id, "presenter_author_id should be set to author1");
+
+    // Cleanup
+    server.delete(&format!("/authorships/{}", authorship1_id)).await;
+    server.delete(&format!("/authorships/{}", authorship2_id)).await;
+    server.delete(&format!("/publications/{}", publication_id)).await;
+    server.delete(&format!("/authors/{}", author1_id)).await;
+    server.delete(&format!("/authors/{}", author2_id)).await;
+}
+
+#[tokio::test]
+#[serial]
+async fn test_new_paper_types() {
+    let server = setup().await;
+    let unique_suffix = Uuid::new_v4().simple().to_string();
+
+    // Get a conference ID
+    let response = server.get("/conferences").await;
+    let conferences: Vec<serde_json::Value> = response.json();
+    let conference_id = conferences[0]["id"].as_str().unwrap();
+
+    // Test plenary paper type
+    let pub_body = json!({
+        "conference_id": conference_id,
+        "canonical_key": format!("plenary-test-{}", unique_suffix),
+        "title": "Plenary Talk Test",
+        "paper_type": "plenary",
+        "creator": "test_user",
+        "modifier": "test_user"
+    });
+    let response = server.post("/publications").json(&pub_body).await;
+    response.assert_status(axum::http::StatusCode::CREATED);
+    let publication: serde_json::Value = response.json();
+    let plenary_id = publication["id"].as_str().unwrap();
+    assert_eq!(publication["paper_type"].as_str().unwrap(), "plenary", "paper_type should be plenary");
+
+    // Test plenary_short paper type
+    let pub_body2 = json!({
+        "conference_id": conference_id,
+        "canonical_key": format!("plenary-short-test-{}", unique_suffix),
+        "title": "Short Plenary Talk Test",
+        "paper_type": "plenary_short",
+        "creator": "test_user",
+        "modifier": "test_user"
+    });
+    let response = server.post("/publications").json(&pub_body2).await;
+    response.assert_status(axum::http::StatusCode::CREATED);
+    let publication2: serde_json::Value = response.json();
+    let plenary_short_id = publication2["id"].as_str().unwrap();
+    assert_eq!(publication2["paper_type"].as_str().unwrap(), "plenary_short", "paper_type should be plenary_short");
+
+    // Test plenary_long paper type
+    let pub_body3 = json!({
+        "conference_id": conference_id,
+        "canonical_key": format!("plenary-long-test-{}", unique_suffix),
+        "title": "Long Plenary Talk Test",
+        "paper_type": "plenary_long",
+        "creator": "test_user",
+        "modifier": "test_user"
+    });
+    let response = server.post("/publications").json(&pub_body3).await;
+    response.assert_status(axum::http::StatusCode::CREATED);
+    let publication3: serde_json::Value = response.json();
+    let plenary_long_id = publication3["id"].as_str().unwrap();
+    assert_eq!(publication3["paper_type"].as_str().unwrap(), "plenary_long", "paper_type should be plenary_long");
+
+    // Cleanup
+    server.delete(&format!("/publications/{}", plenary_id)).await;
+    server.delete(&format!("/publications/{}", plenary_short_id)).await;
+    server.delete(&format!("/publications/{}", plenary_long_id)).await;
+}
+
+#[tokio::test]
+#[serial]
+async fn test_proceedings_track_flag() {
+    let server = setup().await;
+    let unique_suffix = Uuid::new_v4().simple().to_string();
+
+    // Get a conference ID
+    let response = server.get("/conferences").await;
+    let conferences: Vec<serde_json::Value> = response.json();
+    let conference_id = conferences[0]["id"].as_str().unwrap();
+
+    // Create publication without is_proceedings_track (should default to false)
+    let pub_body1 = json!({
+        "conference_id": conference_id,
+        "canonical_key": format!("workshop-track-{}", unique_suffix),
+        "title": "Workshop Track Publication",
+        "creator": "test_user",
+        "modifier": "test_user"
+    });
+    let response = server.post("/publications").json(&pub_body1).await;
+    response.assert_status(axum::http::StatusCode::CREATED);
+    let publication1: serde_json::Value = response.json();
+    let workshop_id = publication1["id"].as_str().unwrap();
+    assert_eq!(publication1["is_proceedings_track"].as_bool().unwrap(), false, "is_proceedings_track should default to false");
+
+    // Create publication with is_proceedings_track set to true
+    let pub_body2 = json!({
+        "conference_id": conference_id,
+        "canonical_key": format!("proceedings-track-{}", unique_suffix),
+        "title": "Proceedings Track Publication",
+        "is_proceedings_track": true,
+        "creator": "test_user",
+        "modifier": "test_user"
+    });
+    let response = server.post("/publications").json(&pub_body2).await;
+    response.assert_status(axum::http::StatusCode::CREATED);
+    let publication2: serde_json::Value = response.json();
+    let proceedings_id = publication2["id"].as_str().unwrap();
+    assert_eq!(publication2["is_proceedings_track"].as_bool().unwrap(), true, "is_proceedings_track should be true");
+
+    // Update workshop track publication to proceedings track
+    let update_body = json!({
+        "is_proceedings_track": true,
+        "modifier": "test_user"
+    });
+    let response = server.put(&format!("/publications/{}", workshop_id)).json(&update_body).await;
+    response.assert_status_ok();
+    let updated: serde_json::Value = response.json();
+    assert_eq!(updated["is_proceedings_track"].as_bool().unwrap(), true, "is_proceedings_track should be updated to true");
+
+    // Cleanup
+    server.delete(&format!("/publications/{}", workshop_id)).await;
+    server.delete(&format!("/publications/{}", proceedings_id)).await;
+}
+
+#[tokio::test]
+#[serial]
+async fn test_presenter_validation_trigger() {
+    let server = setup().await;
+    let unique_suffix = Uuid::new_v4().simple().to_string();
+
+    // Create two authors
+    let author1_body = json!({
+        "full_name": format!("Author One {}", unique_suffix),
+        "creator": "test_user",
+        "modifier": "test_user"
+    });
+    let response = server.post("/authors").json(&author1_body).await;
+    response.assert_status(axum::http::StatusCode::CREATED);
+    let author1: serde_json::Value = response.json();
+    let author1_id = author1["id"].as_str().unwrap();
+
+    let author2_body = json!({
+        "full_name": format!("Non-Author {}", unique_suffix),
+        "creator": "test_user",
+        "modifier": "test_user"
+    });
+    let response = server.post("/authors").json(&author2_body).await;
+    response.assert_status(axum::http::StatusCode::CREATED);
+    let author2: serde_json::Value = response.json();
+    let author2_id = author2["id"].as_str().unwrap();
+
+    // Get a conference ID
+    let response = server.get("/conferences").await;
+    let conferences: Vec<serde_json::Value> = response.json();
+    let conference_id = conferences[0]["id"].as_str().unwrap();
+
+    // Create publication
+    let pub_body = json!({
+        "conference_id": conference_id,
+        "canonical_key": format!("trigger-test-{}", unique_suffix),
+        "title": "Presenter Validation Test",
+        "creator": "test_user",
+        "modifier": "test_user"
+    });
+    let response = server.post("/publications").json(&pub_body).await;
+    response.assert_status(axum::http::StatusCode::CREATED);
+    let publication: serde_json::Value = response.json();
+    let publication_id = publication["id"].as_str().unwrap();
+
+    // Add author1 as an author
+    let authorship_body = json!({
+        "publication_id": publication_id,
+        "author_id": author1_id,
+        "author_position": 1,
+        "published_as_name": format!("Author One {}", unique_suffix),
+        "creator": "test_user",
+        "modifier": "test_user"
+    });
+    let response = server.post("/authorships").json(&authorship_body).await;
+    response.assert_status(axum::http::StatusCode::CREATED);
+    let authorship: serde_json::Value = response.json();
+    let authorship_id = authorship["id"].as_str().unwrap();
+
+    // Try to set presenter to author2 (not an author) - should fail
+    let update_body = json!({
+        "presenter_author_id": author2_id,
+        "modifier": "test_user"
+    });
+    let response = server.put(&format!("/publications/{}", publication_id)).json(&update_body).await;
+    // This should fail because of the trigger
+    response.assert_status(axum::http::StatusCode::INTERNAL_SERVER_ERROR);
+
+    // Try to set presenter to author1 (an author) - should succeed
+    let update_body = json!({
+        "presenter_author_id": author1_id,
+        "modifier": "test_user"
+    });
+    let response = server.put(&format!("/publications/{}", publication_id)).json(&update_body).await;
+    response.assert_status_ok();
+    let updated: serde_json::Value = response.json();
+    assert_eq!(updated["presenter_author_id"].as_str().unwrap(), author1_id, "presenter_author_id should be set to author1");
+
+    // Cleanup
+    server.delete(&format!("/authorships/{}", authorship_id)).await;
+    server.delete(&format!("/publications/{}", publication_id)).await;
+    server.delete(&format!("/authors/{}", author1_id)).await;
+    server.delete(&format!("/authors/{}", author2_id)).await;
+}
+
+#[tokio::test]
+#[serial]
+async fn test_talk_scheduling() {
+    let server = setup().await;
+    let unique_suffix = Uuid::new_v4().simple().to_string();
+
+    // Get a conference ID
+    let response = server.get("/conferences").await;
+    let conferences: Vec<serde_json::Value> = response.json();
+    let conference_id = conferences[0]["id"].as_str().unwrap();
+
+    // Create publication with scheduling fields
+    let pub_body = json!({
+        "conference_id": conference_id,
+        "canonical_key": format!("scheduling-test-{}", unique_suffix),
+        "title": "Talk with Scheduling Info",
+        "talk_date": "2024-03-15",
+        "talk_time": "14:30:00",
+        "duration_minutes": 25,
+        "creator": "test_user",
+        "modifier": "test_user"
+    });
+    let response = server.post("/publications").json(&pub_body).await;
+    response.assert_status(axum::http::StatusCode::CREATED);
+    let publication: serde_json::Value = response.json();
+    let publication_id = publication["id"].as_str().unwrap();
+
+    // Verify scheduling fields are set correctly
+    assert_eq!(publication["talk_date"].as_str().unwrap(), "2024-03-15", "talk_date should be set");
+    assert_eq!(publication["talk_time"].as_str().unwrap(), "14:30:00", "talk_time should be set");
+    assert_eq!(publication["duration_minutes"].as_i64().unwrap(), 25, "duration_minutes should be 25");
+
+    // Create publication without scheduling fields (all should be null)
+    let pub_body2 = json!({
+        "conference_id": conference_id,
+        "canonical_key": format!("no-scheduling-{}", unique_suffix),
+        "title": "Talk without Scheduling Info",
+        "creator": "test_user",
+        "modifier": "test_user"
+    });
+    let response = server.post("/publications").json(&pub_body2).await;
+    response.assert_status(axum::http::StatusCode::CREATED);
+    let publication2: serde_json::Value = response.json();
+    let publication2_id = publication2["id"].as_str().unwrap();
+    assert!(publication2["talk_date"].is_null(), "talk_date should be null");
+    assert!(publication2["talk_time"].is_null(), "talk_time should be null");
+    assert!(publication2["duration_minutes"].is_null(), "duration_minutes should be null");
+
+    // Update publication to add scheduling info
+    let update_body = json!({
+        "talk_date": "2024-03-16",
+        "talk_time": "10:00:00",
+        "duration_minutes": 45,
+        "modifier": "test_user"
+    });
+    let response = server.put(&format!("/publications/{}", publication2_id)).json(&update_body).await;
+    response.assert_status_ok();
+    let updated: serde_json::Value = response.json();
+    assert_eq!(updated["talk_date"].as_str().unwrap(), "2024-03-16", "talk_date should be updated");
+    assert_eq!(updated["talk_time"].as_str().unwrap(), "10:00:00", "talk_time should be updated");
+    assert_eq!(updated["duration_minutes"].as_i64().unwrap(), 45, "duration_minutes should be updated");
+
+    // Cleanup
+    server.delete(&format!("/publications/{}", publication_id)).await;
+    server.delete(&format!("/publications/{}", publication2_id)).await;
+}
+
+#[tokio::test]
+#[serial]
+async fn test_short_paper_type_rejected() {
+    let server = setup().await;
+    let unique_suffix = Uuid::new_v4().simple().to_string();
+
+    // Get a conference ID
+    let response = server.get("/conferences").await;
+    let conferences: Vec<serde_json::Value> = response.json();
+    let conference_id = conferences[0]["id"].as_str().unwrap();
+
+    // Try to create publication with 'short' paper type - should fail
+    let pub_body = json!({
+        "conference_id": conference_id,
+        "canonical_key": format!("short-test-{}", unique_suffix),
+        "title": "Short Paper Type Test",
+        "paper_type": "short",
+        "creator": "test_user",
+        "modifier": "test_user"
+    });
+    let response = server.post("/publications").json(&pub_body).await;
+    // Should fail because 'short' is not a valid enum value anymore
+    response.assert_status(axum::http::StatusCode::UNPROCESSABLE_ENTITY);
 }

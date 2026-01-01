@@ -96,6 +96,8 @@ pub async fn list_publications(
                 paper_type as "paper_type: PaperType",
                 pages, session_name, presentation_url, video_url, youtube_id,
                 award, award_date, published_date,
+                presenter_author_id, is_proceedings_track,
+                talk_date, talk_time, duration_minutes,
                 created_at, updated_at
             FROM publications
             WHERE search_vector @@ plainto_tsquery('english', $1)
@@ -119,6 +121,8 @@ pub async fn list_publications(
                 paper_type as "paper_type: PaperType",
                 pages, session_name, presentation_url, video_url, youtube_id,
                 award, award_date, published_date,
+                presenter_author_id, is_proceedings_track,
+                talk_date, talk_time, duration_minutes,
                 created_at, updated_at
             FROM publications
             WHERE conference_id = $1
@@ -142,6 +146,8 @@ pub async fn list_publications(
                 paper_type as "paper_type: PaperType",
                 pages, session_name, presentation_url, video_url, youtube_id,
                 award, award_date, published_date,
+                presenter_author_id, is_proceedings_track,
+                talk_date, talk_time, duration_minutes,
                 created_at, updated_at
             FROM publications
             ORDER BY created_at DESC
@@ -185,6 +191,8 @@ pub async fn get_publication(
             paper_type as "paper_type: PaperType",
             pages, session_name, presentation_url, video_url, youtube_id,
             award, award_date, published_date,
+            presenter_author_id, is_proceedings_track,
+            talk_date, talk_time, duration_minutes,
             created_at, updated_at
         FROM publications
         WHERE id = $1
@@ -214,6 +222,7 @@ pub async fn create_publication(
 ) -> Result<(StatusCode, Json<Publication>), StatusCode> {
     let arxiv_ids = new_pub.arxiv_ids.unwrap_or_default();
     let paper_type = new_pub.paper_type.unwrap_or(PaperType::Regular);
+    let is_proceedings_track = new_pub.is_proceedings_track.unwrap_or(false);
 
     let publication = sqlx::query_as!(
         Publication,
@@ -223,9 +232,11 @@ pub async fn create_publication(
             title, abstract, paper_type,
             pages, session_name, presentation_url, video_url, youtube_id,
             award, award_date, published_date,
+            presenter_author_id, is_proceedings_track,
+            talk_date, talk_time, duration_minutes,
             creator, modifier
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22)
         RETURNING
             id, conference_id, canonical_key, doi,
             COALESCE(arxiv_ids, ARRAY[]::text[]) as "arxiv_ids!",
@@ -233,6 +244,8 @@ pub async fn create_publication(
             paper_type as "paper_type: PaperType",
             pages, session_name, presentation_url, video_url, youtube_id,
             award, award_date, published_date,
+            presenter_author_id, is_proceedings_track,
+            talk_date, talk_time, duration_minutes,
             created_at, updated_at
         "#,
         new_pub.conference_id,
@@ -250,6 +263,11 @@ pub async fn create_publication(
         new_pub.award,
         new_pub.award_date,
         new_pub.published_date,
+        new_pub.presenter_author_id,
+        is_proceedings_track,
+        new_pub.talk_date,
+        new_pub.talk_time,
+        new_pub.duration_minutes,
         new_pub.creator,
         new_pub.modifier
     )
@@ -291,6 +309,8 @@ pub async fn update_publication(
             paper_type as "paper_type: PaperType",
             pages, session_name, presentation_url, video_url, youtube_id,
             award, award_date, published_date,
+            presenter_author_id, is_proceedings_track,
+            talk_date, talk_time, duration_minutes,
             created_at, updated_at
         FROM publications
         WHERE id = $1
@@ -323,9 +343,14 @@ pub async fn update_publication(
             award = $11,
             award_date = $12,
             published_date = $13,
-            modifier = $14,
+            presenter_author_id = $14,
+            is_proceedings_track = $15,
+            talk_date = $16,
+            talk_time = $17,
+            duration_minutes = $18,
+            modifier = $19,
             updated_at = NOW()
-        WHERE id = $15
+        WHERE id = $20
         RETURNING
             id, conference_id, canonical_key, doi,
             COALESCE(arxiv_ids, ARRAY[]::text[]) as "arxiv_ids!",
@@ -333,6 +358,8 @@ pub async fn update_publication(
             paper_type as "paper_type: PaperType",
             pages, session_name, presentation_url, video_url, youtube_id,
             award, award_date, published_date,
+            presenter_author_id, is_proceedings_track,
+            talk_date, talk_time, duration_minutes,
             created_at, updated_at
         "#,
         update.doi.or(existing.doi),
@@ -348,6 +375,11 @@ pub async fn update_publication(
         update.award.or(existing.award),
         update.award_date.or(existing.award_date),
         update.published_date.or(existing.published_date),
+        update.presenter_author_id.or(existing.presenter_author_id),
+        update.is_proceedings_track.unwrap_or(existing.is_proceedings_track),
+        update.talk_date.or(existing.talk_date),
+        update.talk_time.or(existing.talk_time),
+        update.duration_minutes.or(existing.duration_minutes),
         update.modifier,
         id
     )

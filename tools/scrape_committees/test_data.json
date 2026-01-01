@@ -1,0 +1,29 @@
+{
+  "venue": "QCRYPT",
+  "year": 2023,
+  "scraped_at": "2025-12-30T19:05:00",
+  "member_count": 3,
+  "members": [
+    {
+      "committee_type": "program",
+      "position": "chair",
+      "full_name": "Test Author One",
+      "affiliation": "Test University",
+      "notes": null
+    },
+    {
+      "committee_type": "program",
+      "position": "member",
+      "full_name": "Test Author Two",
+      "affiliation": "Another University",
+      "notes": null
+    },
+    {
+      "committee_type": "local_organizing",
+      "position": "chair",
+      "full_name": "Test Author Three",
+      "affiliation": "Local Univ",
+      "notes": null
+    }
+  ]
+}

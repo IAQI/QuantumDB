@@ -226,6 +226,52 @@ The `venue` field has a CHECK constraint enforcing only three values:
 
 API requests with other values will fail at the database level.
 
+### Paper Types
+
+The `paper_type` enum has 8 values representing different publication/talk types as they appear in conference programs (not the selection mechanism):
+
+- `regular` - Standard contributed talk (use for both historical single-track conferences and modern parallel-session contributed talks)
+- `poster` - Poster presentation
+- `invited` - Invited speaker
+- `tutorial` - Tutorial session
+- `keynote` - Keynote address
+- `plenary` - Contributed plenary talk (use only for modern parallel-track era prestigious talks)
+- `plenary_short` - Short plenary at QIP (~15 min)
+- `plenary_long` - Long plenary at QIP (~25+ min)
+
+**Note:** The `short` type was removed (as of migration 20260101000000) in favor of using `duration_minutes` to track talk length.
+
+**Usage Conventions:**
+- For historical single-track conferences (where all talks were effectively plenary format), use `regular` for contributed talks
+- Use `plenary` types only for prestigious talks in the modern parallel-track era (roughly 2010s onward)
+- These types represent what appears in conference programs. Selection mechanisms (e.g., SC-invited vs PC-reviewed) may evolve over time and are not explicitly tracked.
+
+### Presenter Tracking
+
+Publications can specify who presented the talk via `presenter_author_id`:
+- Must be one of the authors in the `authorships` table
+- Validated by database trigger `ensure_presenter_is_author`
+- Optional field (nullable) - often unknown for contributed talks
+- May be inferred later from videos, slides, or other sources
+- For rare cases where presenter is not an author, leave `presenter_author_id` as NULL and store presenter information in the `metadata` JSONB field (e.g., `{"presenter_name": "...", "presenter_note": "..."}`)
+
+### Proceedings vs Workshop Tracks
+
+The `is_proceedings_track` boolean distinguishes formal proceedings publications:
+- **TQC**: Has both proceedings track (LIPIcs) and workshop track
+- **QIP/QCrypt**: All workshop-style (`is_proceedings_track = FALSE`)
+- Affects citation format and archival status
+- Defaults to `FALSE` for backward compatibility
+
+### Talk Scheduling
+
+Publications can track when and how long talks occurred:
+- `talk_date` (DATE) - Date when the talk was given (if known). Useful for multi-day conferences
+- `talk_time` (TIME) - Start time of the talk (if known). Useful for detailed schedule tracking  
+- `duration_minutes` (INTEGER) - Talk duration in minutes (if known). Replaces the need for a 'short' paper type
+- All three fields are optional (nullable) - populate when data is available from conference programs or videos
+- Duration constraint: `duration_minutes >= 0` if provided
+
 ### Database Connection
 
 Environment variable `DATABASE_URL` must be set:
@@ -267,6 +313,7 @@ All handlers use SQLx query macros (`query!`, `query_as!`) for compile-time veri
   - `20251230000000_add_archive_urls.sql`
   - `20251230100000_add_affiliation_and_metadata.sql`
   - `20251230100001_add_source_tracking_comments.sql`
+  - `20260101000000_add_talk_presenter_and_types.sql` - **NEW**: Removes 'short' paper type, adds plenary types, presenter tracking, proceedings track flag, and talk scheduling fields
 - **seeds/** - Initial data (run manually after migrations)
   - `insert_qip_conferences.sql` - Historical QIP data (1998-2024)
   - `insert_qcrypt_conferences.sql` - Historical QCrypt data
