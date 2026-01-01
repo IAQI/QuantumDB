@@ -1,0 +1,13 @@
+venue,year,paper_type,title,speakers,authors,affiliations,abstract,arxiv_ids,presentation_url,video_url,youtube_id,session_name,award,notes
+QCRYPT,2024,tutorial,Semi-device-independent quantum correlations for cryptography,Armin Tavakoli,,,,,,,,Tutorial Talk,,Session URL: ../sessions/tutorial_tavakoli.html
+QCRYPT,2024,invited,Passive Quantum Key Distribution: Removing Modulator Side-Channel,Hoi-Kwong Lo,,,,,,,,Invited Talk,,Session URL: ../sessions/invited_lo.html
+QCRYPT,2024,invited,A bound on the quantum value of all compiled nonlocal games,Giulio Malavolta,,,,,,,,Invited Talk,,Session URL: ../sessions/invited_malavolta.html
+QCRYPT,2024,tutorial,The long and winding road to the quantum internet,Joseph Lukens,,,,,,,,Tutorial Talk,,Session URL: ../sessions/tutorial_lukens.html
+QCRYPT,2024,invited,Long-distance free-space MDI- & TF-QKD,Yuan Cao,,,,,,,,Invited Talk,,Session URL: ../sessions/invited_cao.html
+QCRYPT,2024,invited,CV-QKD Design for Network Integration,Hans Brunner,,,,,,,,Invited Talk,,Session URL: ../sessions/invited_brunner.html
+QCRYPT,2024,tutorial,Computing key-rates,Peter Brown,,,,,,,,Tutorial Talk,,Session URL: ../sessions/tutorial_brown.html
+QCRYPT,2024,invited,Revocable Cryptography,Prabhanjan Ananth,,,,,,,,Invited Talk,,Session URL: ../sessions/invited_ananth.html
+QCRYPT,2024,invited,Relating non-local quantum computation and information theoretic cryptography,Alex May,,,,,,,,Invited Talk,,Session URL: ../sessions/invited_may.html
+QCRYPT,2024,tutorial,Monolithic and Hybrid Integration Technologies for Quantum Cryptography,Taofiq Paraiso,,,,,,,,Tutorial Talk,,Session URL: ../sessions/tutorial_paraiso.html
+QCRYPT,2024,invited,Practical secure communication with quantum continuous variables,Eleni Diamanti,,,,,,,,Invited Talk,,Session URL: ../sessions/invited_diamanti.html
+QCRYPT,2024,invited,Photonic Integrated Circuits for qubits and qudits,Davide Bacco,,,,,,,,Invited Talk,,Session URL: ../sessions/invited_bacco.html

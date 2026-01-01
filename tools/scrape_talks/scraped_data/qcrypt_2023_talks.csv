@@ -1,0 +1,11 @@
+venue,year,paper_type,title,speakers,authors,affiliations,abstract,arxiv_ids,presentation_url,video_url,youtube_id,session_name,award,notes
+QCRYPT,2023,tutorial,Pseudorandom Quantum States,Henry Yuen,,,,,,,,Tutorial Talk,,Session URL: sessions/tutorial_yuen.html
+QCRYPT,2023,invited,From the Hardness of Detecting Superpositions to Cryptography: Quantum Public Key Encryption and Commitments,Minki Hhan,,,,,,,,Invited Talk,,Session URL: sessions/invited_hhan.html
+QCRYPT,2023,invited,Quantum Cryptography in Algorithmica,William Kretschmer,,,,,,,,Invited Talk,,Session URL: sessions/invited_kretschmer.html
+QCRYPT,2023,tutorial,Recent Advancement in Measurement-Device-Independent Quantum Key Distribution,Xiongfeng Ma,,,,,,,,Tutorial Talk,,Session URL: sessions/tutorial_ma.html
+QCRYPT,2023,invited,Free-space Photonic Quantum Memory for Networking,Nathan Arnold,,,,,,,,Invited Talk,,Session URL: sessions/invited_arnold.html
+QCRYPT,2023,invited,High-speed QKD: Removing the Roadblocks for an Integration and Utilization in Real-World Networks,Rebecka Sax,,,,,,,,Invited Talk,,Session URL: sessions/invited_sax.html
+QCRYPT,2023,tutorial,Cryptography with Certified Deletion,James Bartusek,,,,,,,,Tutorial Talk,,Session URL: sessions/tutorial_bartusek.html
+QCRYPT,2023,invited,Constructive Post-Quantum Reductions,Yael Kalai,,,,,,,,Invited Talk,,Session URL: sessions/invited_kalai.html
+QCRYPT,2023,invited,Invited Speaker: ''Long Distance Quantum Key Distribution Gets Simpler'',Lai Zhou,,,,,,,,Invited Talk,,Session URL: sessions/invited_zhou.html
+QCRYPT,2023,invited,Satellite-Based Quantum Key Distribution Network,Sheng-Kai Liao,,,,,,,,Invited Talk,,Session URL: sessions/invited_liao.html
