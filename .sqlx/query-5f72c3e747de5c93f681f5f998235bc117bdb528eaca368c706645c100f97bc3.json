@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n            SELECT\n                id, conference_id, canonical_key, doi,\n                COALESCE(arxiv_ids, ARRAY[]::text[]) as \"arxiv_ids!\",\n                title, abstract as \"abstract_text\",\n                paper_type as \"paper_type: PaperType\",\n                pages, session_name, presentation_url, video_url, youtube_id,\n                award, award_date, published_date,\n                created_at, updated_at\n            FROM publications\n            WHERE search_vector @@ plainto_tsquery('english', $1)\n            ORDER BY ts_rank(search_vector, plainto_tsquery('english', $1)) DESC\n            LIMIT $2 OFFSET $3\n            ",
+  "query": "\n            SELECT\n                id, conference_id, canonical_key, doi,\n                COALESCE(arxiv_ids, ARRAY[]::text[]) as \"arxiv_ids!\",\n                title, abstract as \"abstract_text\",\n                paper_type as \"paper_type: PaperType\",\n                pages, session_name, presentation_url, video_url, youtube_id,\n                award, award_date, published_date,\n                presenter_author_id, is_proceedings_track,\n                talk_date, talk_time, duration_minutes,\n                created_at, updated_at\n            FROM publications\n            WHERE search_vector @@ plainto_tsquery('english', $1)\n            ORDER BY ts_rank(search_vector, plainto_tsquery('english', $1)) DESC\n            LIMIT $2 OFFSET $3\n            ",
   "describe": {
     "columns": [
       {
@@ -47,11 +47,13 @@
             "kind": {
               "Enum": [
                 "regular",
-                "short",
                 "poster",
                 "invited",
                 "tutorial",
-                "keynote"
+                "keynote",
+                "plenary",
+                "plenary_short",
+                "plenary_long"
               ]
             }
           }
@@ -99,11 +101,36 @@
       },
       {
         "ordinal": 16,
+        "name": "presenter_author_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 17,
+        "name": "is_proceedings_track",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 18,
+        "name": "talk_date",
+        "type_info": "Date"
+      },
+      {
+        "ordinal": 19,
+        "name": "talk_time",
+        "type_info": "Time"
+      },
+      {
+        "ordinal": 20,
+        "name": "duration_minutes",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 21,
         "name": "created_at",
         "type_info": "Timestamptz"
       },
       {
-        "ordinal": 17,
+        "ordinal": 22,
         "name": "updated_at",
         "type_info": "Timestamptz"
       }
@@ -132,9 +159,14 @@
       true,
       true,
       true,
+      true,
+      false,
+      true,
+      true,
+      true,
       false,
       false
     ]
   },
-  "hash": "4ce47c73e7e2ed2c1941d0abb49f43a031df66b97a1228360976d08b1956ab8d"
+  "hash": "5f72c3e747de5c93f681f5f998235bc117bdb528eaca368c706645c100f97bc3"
 }

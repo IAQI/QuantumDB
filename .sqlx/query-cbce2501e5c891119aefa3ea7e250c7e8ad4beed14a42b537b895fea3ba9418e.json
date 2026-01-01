@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT\n                a.id,\n                a.full_name\n            FROM authorships au\n            JOIN authors a ON au.author_id = a.id\n            WHERE au.publication_id = $1\n            ORDER BY au.author_position\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "full_name",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "cbce2501e5c891119aefa3ea7e250c7e8ad4beed14a42b537b895fea3ba9418e"
+}

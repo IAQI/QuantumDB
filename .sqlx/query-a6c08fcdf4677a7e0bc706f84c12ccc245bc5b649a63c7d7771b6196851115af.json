@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        INSERT INTO publications (\n            conference_id, canonical_key, doi, arxiv_ids,\n            title, abstract, paper_type,\n            pages, session_name, presentation_url, video_url, youtube_id,\n            award, award_date, published_date,\n            creator, modifier\n        )\n        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)\n        RETURNING\n            id, conference_id, canonical_key, doi,\n            COALESCE(arxiv_ids, ARRAY[]::text[]) as \"arxiv_ids!\",\n            title, abstract as \"abstract_text\",\n            paper_type as \"paper_type: PaperType\",\n            pages, session_name, presentation_url, video_url, youtube_id,\n            award, award_date, published_date,\n            created_at, updated_at\n        ",
+  "query": "\n        UPDATE publications\n        SET\n            doi = $1,\n            arxiv_ids = $2,\n            title = $3,\n            abstract = $4,\n            paper_type = $5,\n            pages = $6,\n            session_name = $7,\n            presentation_url = $8,\n            video_url = $9,\n            youtube_id = $10,\n            award = $11,\n            award_date = $12,\n            published_date = $13,\n            presenter_author_id = $14,\n            is_proceedings_track = $15,\n            talk_date = $16,\n            talk_time = $17,\n            duration_minutes = $18,\n            modifier = $19,\n            updated_at = NOW()\n        WHERE id = $20\n        RETURNING\n            id, conference_id, canonical_key, doi,\n            COALESCE(arxiv_ids, ARRAY[]::text[]) as \"arxiv_ids!\",\n            title, abstract as \"abstract_text\",\n            paper_type as \"paper_type: PaperType\",\n            pages, session_name, presentation_url, video_url, youtube_id,\n            award, award_date, published_date,\n            presenter_author_id, is_proceedings_track,\n            talk_date, talk_time, duration_minutes,\n            created_at, updated_at\n        ",
   "describe": {
     "columns": [
       {
@@ -47,11 +47,13 @@
             "kind": {
               "Enum": [
                 "regular",
-                "short",
                 "poster",
                 "invited",
                 "tutorial",
-                "keynote"
+                "keynote",
+                "plenary",
+                "plenary_short",
+                "plenary_long"
               ]
             }
           }
@@ -99,19 +101,42 @@
       },
       {
         "ordinal": 16,
+        "name": "presenter_author_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 17,
+        "name": "is_proceedings_track",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 18,
+        "name": "talk_date",
+        "type_info": "Date"
+      },
+      {
+        "ordinal": 19,
+        "name": "talk_time",
+        "type_info": "Time"
+      },
+      {
+        "ordinal": 20,
+        "name": "duration_minutes",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 21,
         "name": "created_at",
         "type_info": "Timestamptz"
       },
       {
-        "ordinal": 17,
+        "ordinal": 22,
         "name": "updated_at",
         "type_info": "Timestamptz"
       }
     ],
     "parameters": {
       "Left": [
-        "Uuid",
-        "Text",
         "Text",
         "TextArray",
         "Text",
@@ -122,11 +147,13 @@
             "kind": {
               "Enum": [
                 "regular",
-                "short",
                 "poster",
                 "invited",
                 "tutorial",
-                "keynote"
+                "keynote",
+                "plenary",
+                "plenary_short",
+                "plenary_long"
               ]
             }
           }
@@ -139,8 +166,13 @@
         "Text",
         "Date",
         "Date",
+        "Uuid",
+        "Bool",
+        "Date",
+        "Time",
+        "Int4",
         "Text",
-        "Text"
+        "Uuid"
       ]
     },
     "nullable": [
@@ -160,9 +192,14 @@
       true,
       true,
       true,
+      true,
+      false,
+      true,
+      true,
+      true,
       false,
       false
     ]
   },
-  "hash": "dfb5124053cbf757c80877d1f1502a4b57b8e1bc751b4ac40455ec5373a51349"
+  "hash": "a6c08fcdf4677a7e0bc706f84c12ccc245bc5b649a63c7d7771b6196851115af"
 }

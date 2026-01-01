@@ -69,8 +69,16 @@ struct ConferenceDetail {
 struct PublicationItem {
     title: String,
     paper_type: String,
-    authors: String,
+    authors: Vec<AuthorInfo>,
     award: String,
+    talk_date: String,
+    talk_time: String,
+    duration_minutes: String,
+}
+
+struct AuthorInfo {
+    id: String,
+    name: String,
 }
 
 #[derive(Clone)]
@@ -271,23 +279,24 @@ pub async fn conference_detail(
         (None, None) => String::from("-"),
     };
 
-    // Get publications with authors
-    let publications = sqlx::query!(
+    // Get publications with their IDs first
+    let pub_records = sqlx::query!(
         r#"
-        SELECT 
+        SELECT
+            p.id,
             p.title,
             p.paper_type::text as "paper_type!",
             p.award,
-            array_to_string(
-                array_agg(a.full_name ORDER BY au.author_position),
-                ', '
-            ) as authors
+            p.talk_date,
+            p.talk_time,
+            p.duration_minutes
         FROM publications p
-        LEFT JOIN authorships au ON p.id = au.publication_id
-        LEFT JOIN authors a ON au.author_id = a.id
         WHERE p.conference_id = $1
-        GROUP BY p.id, p.title, p.paper_type, p.award
-        ORDER BY p.paper_type, p.title
+        ORDER BY
+            COALESCE(p.talk_date, '9999-12-31'::date),
+            COALESCE(p.talk_time, '23:59:59'::time),
+            p.paper_type,
+            p.title
         "#,
         conference_id
     )
@@ -296,15 +305,46 @@ pub async fn conference_detail(
     .map_err(|e| {
         eprintln!("Database error fetching publications: {}", e);
         StatusCode::INTERNAL_SERVER_ERROR
-    })?
-    .into_iter()
-    .map(|row| PublicationItem {
-        title: row.title,
-        paper_type: row.paper_type,
-        authors: row.authors.unwrap_or_default(),
-        award: row.award.unwrap_or_default(),
-    })
-    .collect();
+    })?;
+
+    // For each publication, get its authors
+    let mut publications = Vec::new();
+    for pub_record in pub_records {
+        let authors = sqlx::query!(
+            r#"
+            SELECT
+                a.id,
+                a.full_name
+            FROM authorships au
+            JOIN authors a ON au.author_id = a.id
+            WHERE au.publication_id = $1
+            ORDER BY au.author_position
+            "#,
+            pub_record.id
+        )
+        .fetch_all(&pool)
+        .await
+        .map_err(|e| {
+            eprintln!("Database error fetching authors: {}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        })?
+        .into_iter()
+        .map(|row| AuthorInfo {
+            id: row.id.to_string(),
+            name: row.full_name,
+        })
+        .collect();
+
+        publications.push(PublicationItem {
+            title: pub_record.title,
+            paper_type: pub_record.paper_type,
+            authors,
+            award: pub_record.award.unwrap_or_default(),
+            talk_date: pub_record.talk_date.map(|d| d.to_string()).unwrap_or_default(),
+            talk_time: pub_record.talk_time.map(|t| t.format("%H:%M").to_string()).unwrap_or_default(),
+            duration_minutes: pub_record.duration_minutes.map(|d| d.to_string()).unwrap_or_default(),
+        });
+    }
 
     // Get committee members grouped by type
     let committee_members = sqlx::query!(

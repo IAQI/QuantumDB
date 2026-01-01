@@ -2,30 +2,103 @@
 
 {% block title %}{{ conference.venue }} {{ conference.year }} - QuantumDB{% endblock %}
 
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+<style>
+    .conference-info {
+        background: var(--pico-card-background-color);
+        padding: 1.5rem;
+        border-radius: var(--pico-border-radius);
+        margin-bottom: 2rem;
+    }
+    .conference-info h2 {
+        margin-top: 0;
+        font-size: 1.25rem;
+    }
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    .info-item {
+        display: flex;
+        flex-direction: column;
+    }
+    .info-label {
+        font-size: 0.75rem;
+        color: var(--pico-muted-color);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.25rem;
+    }
+    .info-value {
+        font-size: 1rem;
+        font-weight: 500;
+    }
+    .sortable-table thead th {
+        cursor: pointer;
+        user-select: none;
+        position: relative;
+        padding-right: 1.5rem;
+    }
+    .sortable-table thead th::after {
+        content: '⇅';
+        position: absolute;
+        right: 0.5rem;
+        opacity: 0.3;
+    }
+    .sortable-table thead th.asc::after {
+        content: '↑';
+        opacity: 1;
+    }
+    .sortable-table thead th.desc::after {
+        content: '↓';
+        opacity: 1;
+    }
+    .author-link {
+        text-decoration: none;
+        color: var(--pico-primary);
+    }
+    .author-link:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <article>
     <header>
         <h1>{{ conference.venue }} {{ conference.year }}</h1>
-        <p><strong>{{ conference.location }}</strong></p>
-        {% if !conference.start_date.is_empty() && conference.start_date != "-" %}
-        <p>{{ conference.start_date }}{% if !conference.end_date.is_empty() && conference.end_date != "-" %} – {{ conference.end_date }}{% endif %}</p>
-        {% endif %}
-        {% if conference.is_virtual %}
-        <p><em>Virtual Conference</em></p>
-        {% else if conference.is_hybrid %}
-        <p><em>Hybrid Conference</em></p>
-        {% endif %}
-        <nav>
-            <ul>
-                {% if !conference.website_url.is_empty() %}
-                <li><a href="{{ conference.website_url }}" target="_blank">Website</a></li>
-                {% endif %}
-                {% if !conference.proceedings_url.is_empty() %}
-                <li><a href="{{ conference.proceedings_url }}" target="_blank">Proceedings</a></li>
-                {% endif %}
-            </ul>
-        </nav>
     </header>
+
+    <section class="conference-info">
+        <h2>Conference Details</h2>
+        <div class="info-grid">
+            <div class="info-item">
+                <span class="info-label">Location</span>
+                <span class="info-value">{{ conference.location }}{% if conference.is_virtual %} (Virtual){% else if conference.is_hybrid %} (Hybrid){% endif %}</span>
+            </div>
+            {% if !conference.start_date.is_empty() && conference.start_date != "-" %}
+            <div class="info-item">
+                <span class="info-label">Dates</span>
+                <span class="info-value">{{ conference.start_date }}{% if !conference.end_date.is_empty() && conference.end_date != "-" %} – {{ conference.end_date }}{% endif %}</span>
+            </div>
+            {% endif %}
+            {% if !conference.website_url.is_empty() %}
+            <div class="info-item">
+                <span class="info-label">Website</span>
+                <span class="info-value"><a href="{{ conference.website_url }}" target="_blank">Conference Website ↗</a></span>
+            </div>
+            {% endif %}
+            {% if !conference.proceedings_url.is_empty() %}
+            <div class="info-item">
+                <span class="info-label">Proceedings</span>
+                <span class="info-value"><a href="{{ conference.proceedings_url }}" target="_blank">View Proceedings ↗</a></span>
+            </div>
+            {% endif %}
+        </div>
+    </section>
 
     <section class="stats-grid">
         <div class="stat-card">
@@ -64,28 +137,98 @@
 
     {% if !publications.is_empty() %}
     <section>
-        <h2>Publications</h2>
-        <table>
+        <h2>Talks</h2>
+        <table id="talks-table" class="sortable-table">
             <thead>
                 <tr>
-                    <th>Title</th>
-                    <th>Type</th>
-                    <th>Authors</th>
-                    <th>Award</th>
+                    <th data-sort="title">Title</th>
+                    <th data-sort="type">Type</th>
+                    <th data-sort="date">Date</th>
+                    <th data-sort="time">Time</th>
+                    <th data-sort="duration">Duration (min)</th>
+                    <th data-sort="authors">Authors</th>
+                    <th data-sort="award">Award</th>
                 </tr>
             </thead>
             <tbody>
                 {% for pub in publications %}
                 <tr>
-                    <td>{{ pub.title }}</td>
-                    <td>{{ pub.paper_type }}</td>
-                    <td>{{ pub.authors }}</td>
-                    <td>{% if !pub.award.is_empty() %}{{ pub.award }}{% else %}-{% endif %}</td>
+                    <td data-value="{{ pub.title }}">{{ pub.title }}</td>
+                    <td data-value="{{ pub.paper_type }}">{{ pub.paper_type }}</td>
+                    <td data-value="{{ pub.talk_date }}">{% if !pub.talk_date.is_empty() %}{{ pub.talk_date }}{% else %}-{% endif %}</td>
+                    <td data-value="{{ pub.talk_time }}">{% if !pub.talk_time.is_empty() %}{{ pub.talk_time }}{% else %}-{% endif %}</td>
+                    <td data-value="{{ pub.duration_minutes }}">{% if !pub.duration_minutes.is_empty() %}{{ pub.duration_minutes }}{% else %}-{% endif %}</td>
+                    <td data-value="{% for author in pub.authors %}{{ author.name }}{% if !loop.last %}, {% endif %}{% endfor %}">
+                        {% for author in pub.authors %}
+                        <a href="/authors/{{ author.id }}" class="author-link">{{ author.name }}</a>{% if !loop.last %}, {% endif %}
+                        {% endfor %}
+                    </td>
+                    <td data-value="{{ pub.award }}">{% if !pub.award.is_empty() %}{{ pub.award }}{% else %}-{% endif %}</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </section>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const table = document.getElementById('talks-table');
+        const headers = table.querySelectorAll('thead th[data-sort]');
+        let currentSort = { column: null, direction: 'asc' };
+
+        headers.forEach(header => {
+            header.addEventListener('click', function() {
+                const sortBy = this.getAttribute('data-sort');
+                const tbody = table.querySelector('tbody');
+                const rows = Array.from(tbody.querySelectorAll('tr'));
+
+                // Toggle direction if same column, otherwise default to asc
+                if (currentSort.column === sortBy) {
+                    currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+                } else {
+                    currentSort.direction = 'asc';
+                }
+                currentSort.column = sortBy;
+
+                // Remove all sort classes
+                headers.forEach(h => h.classList.remove('asc', 'desc'));
+                this.classList.add(currentSort.direction);
+
+                // Get column index
+                const columnIndex = Array.from(this.parentElement.children).indexOf(this);
+
+                // Sort rows
+                rows.sort((a, b) => {
+                    const aCell = a.children[columnIndex];
+                    const bCell = b.children[columnIndex];
+                    const aValue = aCell.getAttribute('data-value') || '';
+                    const bValue = bCell.getAttribute('data-value') || '';
+
+                    // Handle empty values - push to end
+                    const aEmpty = aValue === '';
+                    const bEmpty = bValue === '';
+                    if (aEmpty && bEmpty) return 0;
+                    if (aEmpty) return 1;
+                    if (bEmpty) return -1;
+
+                    // Handle numeric values for duration
+                    if (sortBy === 'duration') {
+                        const aNum = parseInt(aValue);
+                        const bNum = parseInt(bValue);
+                        return currentSort.direction === 'asc' ? aNum - bNum : bNum - aNum;
+                    }
+
+                    // String comparison for everything else (date, time, title, etc.)
+                    const comparison = aValue.localeCompare(bValue);
+                    return currentSort.direction === 'asc' ? comparison : -comparison;
+                });
+
+                // Reorder rows
+                rows.forEach(row => tbody.appendChild(row));
+            });
+        });
+    });
+    </script>
     {% endif %}
 
     {% if !committee_by_type.is_empty() %}
