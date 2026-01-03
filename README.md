@@ -56,6 +56,36 @@ QuantumDB provides a comprehensive system for tracking:
 
 ## Getting Started
 
+### Using Docker (Recommended)
+
+1. **Clone and Configure**
+   ```bash
+   git clone https://github.com/yourusername/QuantumDB.git
+   cd QuantumDB
+   
+   # Generate API token
+   ./tools/generate_token.sh
+   
+   # Add token to .env file (or set as environment variable)
+   echo "API_TOKENS=your-generated-token" >> .env
+   ```
+
+2. **Start Services**
+   ```bash
+   # Build and start (PostgreSQL + QuantumDB + PgAdmin)
+   docker compose up -d --build
+   
+   # Check logs
+   docker compose logs -f app
+   ```
+
+3. **Access the Application**
+   - Web Interface: http://localhost:3000
+   - Swagger UI: http://localhost:3000/swagger-ui/
+   - PgAdmin: http://localhost:5050 (admin@example.com / quantumdb)
+
+### Local Development
+
 1. **Prerequisites**
    ```bash
    # Install Rust
@@ -68,7 +98,16 @@ QuantumDB provides a comprehensive system for tracking:
    cargo install sqlx-cli cargo-watch cargo-audit
    ```
 
-2. **Database Setup**
+2. **Environment Configuration**
+   ```bash
+   # Create .env file
+   cat > .env << EOF
+   DATABASE_URL=postgres://quantumdb:quantumdb@localhost:5432/quantumdb
+   API_TOKENS=$(./tools/generate_token.sh)
+   EOF
+   ```
+
+3. **Database Setup**
    ```bash
    # Start PostgreSQL
    brew services start postgresql@15
@@ -80,21 +119,36 @@ QuantumDB provides a comprehensive system for tracking:
    sqlx migrate run
    ```
 
-3. **Run the Application**
+4. **Run the Application**
    ```bash
    # Development mode with auto-reload
    cargo watch -x run
    
    # Production mode
    cargo run --release
-   
-   # Access Swagger UI
-   # http://localhost:3000/swagger-ui/
    ```
 
-## API Documentation
+5. **Access Services**
+   - Web Interface: http://localhost:3000
+   - Swagger UI: http://localhost:3000/swagger-ui/
+
+## Features
+
+### Web Interface
+
+QuantumDB provides a user-friendly web interface for browsing and exploring quantum computing conference data:
+
+- **Homepage** - Overview and quick access to key resources
+- **About Page** - Project information and IAQI branding
+- **Author Directory** - Browse and search researchers in quantum computing
+- **Conference Browser** - Explore conferences by venue (QIP, QCrypt, TQC)
+- **Dynamic Loading** - HTMX-powered for smooth, fast navigation
+
+### REST API
 
 **Interactive API Explorer**: Visit `/swagger-ui/` when running the server for complete interactive API documentation with live testing capabilities.
+
+All API endpoints are fully documented with request/response schemas, examples, and try-it-now functionality.
 
 ### Authentication
 
@@ -121,20 +175,31 @@ curl -H "Authorization: Bearer YOUR_TOKEN_HERE" \
 
 **Setting Up Tokens:**
 
-For Docker deployment, add to your environment:
-```bash
-# Single token
-export API_TOKENS=your-secure-token-here
+1. **Generate a Token:**
+   ```bash
+   ./tools/generate_token.sh
+   ```
 
-# Multiple tokens (comma-separated for multiple users)
-export API_TOKENS=token1,token2,token3
-```
+2. **Configure for Docker:**
+   Add to your `.env` file (gitignored):
+   ```bash
+   API_TOKENS=your-secure-token-here
+   ```
+   
+   Docker Compose will automatically load environment variables from `.env`.
 
-Or update `docker-compose.yml`:
-```yaml
-environment:
-  - API_TOKENS=your-secure-token-here
-```
+3. **Configure for Local Development:**
+   Set as environment variable:
+   ```bash
+   export API_TOKENS=your-secure-token-here
+   cargo run
+   ```
+
+4. **Multiple Users:**
+   Support multiple tokens (comma-separated):
+   ```bash
+   API_TOKENS=token1,token2,token3
+   ```
 
 **Protected Endpoints:**
 - All POST, PUT, DELETE operations on `/api/conferences`, `/api/authors`, `/api/publications`, `/api/committees`, `/api/authorships`

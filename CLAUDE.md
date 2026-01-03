@@ -87,6 +87,21 @@ docker-compose down
 # - Password: quantumdb
 ```
 
+### Authentication
+```bash
+# Generate API token
+./tools/generate_token.sh
+
+# Add token to .env file (gitignored)
+echo "API_TOKENS=your-token-here" >> .env
+
+# Use token with API
+curl -H "Authorization: Bearer YOUR_TOKEN" \
+  -X POST http://localhost:3000/api/conferences \
+  -H "Content-Type: application/json" \
+  -d '{"name": "QIP", "year": 2026}'
+```
+
 ### Code Quality
 ```bash
 # Format code
@@ -121,7 +136,17 @@ src/
 │   ├── authors.rs       # Full CRUD for authors
 │   ├── publications.rs  # Full CRUD for publications
 │   ├── authorships.rs   # Full CRUD for authorships
-│   └── committees.rs    # Full CRUD for committee roles
+│   ├── committees.rs    # Full CRUD for committee roles
+│   └── web/             # Web interface handlers (implemented)
+│       ├── mod.rs
+│       ├── home.rs      # Homepage
+│       ├── about.rs     # About page with IAQI branding
+│       ├── authors.rs   # Author list and detail pages
+│       ├── conferences.rs # Conference list and detail pages
+│       └── admin.rs     # Admin utilities (stats refresh)
+├── middleware/          # Request middleware (implemented)
+│   ├── mod.rs
+│   └── auth.rs          # JWT-based Bearer token authentication
 └── utils/               # Shared utilities (implemented)
     ├── mod.rs
     ├── normalize.rs     # Unicode normalization, name similarity, loose matching
@@ -203,9 +228,22 @@ src/
 - `PUT /committees/:id` - Update committee role
 - `DELETE /committees/:id` - Delete committee role
 
+**Web Interface**:
+- `GET /` - Homepage
+- `GET /about` - About page (IAQI branding)
+- `GET /authors` - Author list (paginated, searchable)
+- `GET /authors/:id` - Author detail page
+- `GET /conferences` - Conference list (filterable by venue)
+- `GET /conferences/:slug` - Conference detail (e.g., /conferences/qip-2024)
+- `GET /static/*` - Static assets (images, CSS, JS)
+
+**Admin Routes** (requires authentication):
+- `GET /admin/refresh-stats` - Refresh materialized views
+
 **API Documentation**:
 - `GET /swagger-ui/` - Interactive Swagger UI
 - `GET /api-docs/openapi.json` - OpenAPI 3.0 specification
+- `GET /health` - API health check
 
 ## Critical Implementation Details
 
@@ -322,6 +360,10 @@ All handlers use SQLx query macros (`query!`, `query_as!`) for compile-time veri
 - **Cargo.toml** - Dependencies and project configuration
 - **Dockerfile** - Multi-stage build for production deployment
 - **docker-compose.yml** - Development environment (app + DB + PgAdmin)
+- **.env** - Environment variables (DATABASE_URL, API_TOKENS) - gitignored
+- **templates/** - HTML templates for web interface (Askama)
+- **static/** - Static assets (images, CSS, JS)
+- **tools/generate_token.sh** - Secure token generation utility
 
 ## Documentation Files
 

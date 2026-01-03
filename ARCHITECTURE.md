@@ -39,13 +39,37 @@ quantumdb/
 │   │   ├── publications.rs  # Full CRUD operations
 │   │   ├── authors.rs       # Full CRUD operations
 │   │   ├── authorships.rs   # Full CRUD operations
-│   │   └── committees.rs    # Full CRUD operations
+│   │   ├── committees.rs    # Full CRUD operations
+│   │   └── web/             # Web interface handlers (IMPLEMENTED)
+│   │       ├── mod.rs
+│   │       ├── home.rs      # Homepage
+│   │       ├── about.rs     # About page with IAQI branding
+│   │       ├── authors.rs   # Author list and detail pages
+│   │       ├── conferences.rs # Conference list and detail pages
+│   │       └── admin.rs     # Admin utilities (stats refresh)
+│   ├── middleware/          # Request middleware (IMPLEMENTED)
+│   │   ├── mod.rs
+│   │   └── auth.rs          # JWT-based Bearer token authentication
 │   └── utils/              # Shared utilities (IMPLEMENTED)
 │       ├── mod.rs
 │       ├── normalize.rs     # Unicode normalization, name similarity, variants
 │       └── conference.rs    # Conference slug parsing (e.g., "QIP2024")
 ├── migrations/              # Database migrations (SQLx)
 ├── seeds/                   # Initial/sample data
+├── templates/               # HTML templates (Askama)
+│   ├── base.html           # Base template with navigation
+│   ├── home.html           # Homepage
+│   ├── about.html          # About page
+│   ├── authors_list.html   # Author listing
+│   ├── author_detail.html  # Individual author page
+│   ├── conferences_list.html # Conference listing
+│   ├── conference_detail.html # Individual conference page
+│   ├── authors_table_partial.html # HTMX partial for dynamic loading
+│   └── conferences_table_partial.html # HTMX partial for dynamic loading
+├── static/                  # Static assets
+│   └── images/
+│       ├── favicon.png     # Site favicon
+│       └── iaqi-logo.png   # IAQI branding logo
 └── tests/
     └── api_tests.rs         # Comprehensive test suite (1155 lines)
 ```
@@ -63,9 +87,29 @@ All endpoints are fully documented with request/response schemas in Swagger UI.
 
 ### Implemented RESTful Endpoints
 
-**Health Check**:
+**Web Interface**:
 ```
-GET    /                      # API health check
+GET    /                      # Homepage
+GET    /about                 # About page (IAQI branding)
+GET    /authors               # Author list (paginated, searchable)
+GET    /authors/:id           # Author detail page
+GET    /conferences           # Conference list (filterable by venue)
+GET    /conferences/:slug     # Conference detail page (e.g., /conferences/qip-2024)
+```
+
+**Static Assets**:
+```
+GET    /static/*              # Serve static files (images, CSS, JS)
+```
+
+**Admin Endpoints** (requires authentication):
+```
+GET    /admin/refresh-stats   # Refresh materialized views
+```
+
+**API Health Check**:
+```
+GET    /health                # API health status
 ```
 
 **Conferences** (full CRUD):
@@ -143,11 +187,25 @@ DELETE /committees/:id        # Delete committee role
    - JSONB metadata on authorships and committee_roles
    - Tracks source_type, source_url, scraped_date, notes
 
-6. **Future Features**
-   - Pagination (limit/offset)
+6. **Authentication** (implemented)
+   - JWT-based Bearer token authentication
+   - Environment variable token configuration (API_TOKENS)
+   - Multiple tokens supported (comma-separated)
+   - Protects write operations (POST, PUT, DELETE)
+   - Protects admin endpoints
+   - Public read access maintained
+
+7. **Web Interface** (implemented)
+   - Server-side rendered HTML templates (Askama)
+   - HTMX for dynamic content loading
+   - Responsive design with modern CSS
+   - Author and conference browsing
+   - About page with IAQI branding
+
+8. **Future Features**
+   - Pagination for API endpoints (limit/offset)
    - Full-text search for publications
    - Advanced filtering
-   - Authentication (JWT-based)
    - Export to BibTeX, CSV
 
 ## Development Workflow
