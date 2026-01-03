@@ -64,7 +64,7 @@ def save_to_csv(
         member['year'] = year
     
     # Write CSV
-    fieldnames = ['venue', 'year', 'committee_type', 'position', 'full_name', 'affiliation', 'notes']
+    fieldnames = ['venue', 'year', 'committee_type', 'position', 'full_name', 'affiliation', 'role_title']
     
     with open(output_file, 'w', encoding='utf-8', newline='') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)

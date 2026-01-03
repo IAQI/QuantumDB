@@ -167,12 +167,15 @@ class QCryptScraper(BaseCommitteeScraper):
         # Detect position from role text and heading
         position = self._detect_position(name, role_text, heading_text)
         
+        # Detect specialized role title
+        role_title = self.detect_role_title(role_text, heading_text)
+        
         return {
             'committee_type': committee_type,
             'position': position,
             'full_name': name,
             'affiliation': affiliation,
-            'notes': None
+            'role_title': role_title
         }
     
     def _parse_plain_list(self, ul, committee_type: str, heading_text: str) -> List[Dict[str, str]]:
@@ -243,12 +246,15 @@ class QCryptScraper(BaseCommitteeScraper):
                 if position == 'member':
                     position = self._detect_position(name, heading_text, heading_text)
                 
+                # Detect specialized role title
+                role_title = self.detect_role_title(remaining_text, heading_text)
+                
                 members.append({
                     'committee_type': committee_type,
                     'position': position,
                     'full_name': name,
                     'affiliation': affiliation,
-                    'notes': None
+                    'role_title': role_title
                 })
             else:
                 # Fallback to plain text parsing
@@ -374,12 +380,15 @@ class QCryptScraper(BaseCommitteeScraper):
         if position == 'member':
             position = self._detect_position(name, text, heading_text)
         
+        # Detect specialized role title
+        role_title = self.detect_role_title(text, heading_text)
+        
         return {
             'committee_type': committee_type,
             'position': position,
             'full_name': name,
             'affiliation': affiliation,
-            'notes': None
+            'role_title': role_title
         }
     
     def _detect_position(self, name: str, role_text: str, heading_text: str) -> str:

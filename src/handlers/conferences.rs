@@ -154,7 +154,11 @@ pub async fn get_conference(
     request_body = CreateConference,
     responses(
         (status = 201, description = "Conference created", body = Conference),
+        (status = 401, description = "Unauthorized - missing or invalid token"),
         (status = 500, description = "Internal server error")
+    ),
+    security(
+        ("bearer_auth" = [])
     )
 )]
 pub async fn create_conference(
@@ -233,9 +237,13 @@ pub async fn create_conference(
     request_body = UpdateConference,
     responses(
         (status = 200, description = "Conference updated", body = Conference),
+        (status = 401, description = "Unauthorized - missing or invalid token"),
         (status = 404, description = "Conference not found"),
         (status = 400, description = "Invalid ID format"),
         (status = 500, description = "Internal server error")
+    ),
+    security(
+        ("bearer_auth" = [])
     )
 )]
 pub async fn update_conference(
@@ -354,9 +362,13 @@ pub async fn update_conference(
     params(("id" = String, Path, description = "Conference ID (UUID) or slug (e.g., QIP2024, QCRYPT2018, TQC2022)")),
     responses(
         (status = 204, description = "Conference deleted"),
+        (status = 401, description = "Unauthorized - missing or invalid token"),
         (status = 404, description = "Conference not found"),
         (status = 400, description = "Invalid ID format"),
         (status = 500, description = "Internal server error")
+    ),
+    security(
+        ("bearer_auth" = [])
     )
 )]
 pub async fn delete_conference(

@@ -22,15 +22,15 @@
     </header>
 
     <section class="stats-grid">
-        <div class="stat-card">
+        <div class="stat-card clickable" onclick="scrollToHighlight('#talks-section', 'all')">
             <div class="stat-value">{{ author.publication_count }}</div>
-            <div class="stat-label">Publications</div>
+            <div class="stat-label">Talks</div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card clickable" onclick="scrollToHighlight('#committee-section', 'all')">
             <div class="stat-value">{{ author.committee_role_count }}</div>
             <div class="stat-label">Committee Roles</div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card clickable" onclick="scrollToHighlight('#committee-section', 'leadership')">
             <div class="stat-value">{{ author.leadership_count }}</div>
             <div class="stat-label">Leadership Roles</div>
         </div>
@@ -47,24 +47,30 @@
     {% endif %}
 
     {% if !publications.is_empty() %}
-    <section>
-        <h2>Publications</h2>
-        <table>
+    <section id="talks-section">
+        <h2>Talks</h2>
+        <table id="publications-table" class="sortable-table">
             <thead>
                 <tr>
-                    <th>Title</th>
-                    <th>Conference</th>
-                    <th>Type</th>
-                    <th>Co-authors</th>
+                    <th data-sort="title">Title</th>
+                    <th data-sort="conference">Conference</th>
+                    <th data-sort="type">Type</th>
+                    <th data-sort="coauthors">Co-authors</th>
                 </tr>
             </thead>
             <tbody>
                 {% for pub in publications %}
                 <tr>
-                    <td>{{ pub.title }}</td>
-                    <td><a href="/conferences/{{ pub.conference_slug }}" class="conference-link">{{ pub.conference_venue }} {{ pub.conference_year }}</a></td>
-                    <td>{{ pub.paper_type }}</td>
-                    <td>{% if !pub.coauthors.is_empty() %}{{ pub.coauthors }}{% else %}-{% endif %}</td>
+                    <td data-value="title">
+                        {% if !pub.arxiv_ids.is_empty() %}
+                            <a href="https://arxiv.org/abs/{{ pub.arxiv_ids[0] }}" target="_blank" rel="noopener noreferrer">{{ pub.title }} ↗</a>
+                        {% else %}
+                            {{ pub.title }}
+                        {% endif %}
+                    </td>
+                    <td data-value="conference"><a href="/conferences/{{ pub.conference_slug }}" class="conference-link">{{ pub.conference_venue }} {{ pub.conference_year }}</a></td>
+                    <td data-value="type">{{ pub.paper_type }}</td>
+                    <td data-value="coauthors">{% if !pub.coauthors.is_empty() %}{{ pub.coauthors }}{% else %}-{% endif %}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -73,24 +79,24 @@
     {% endif %}
 
     {% if !committee_roles.is_empty() %}
-    <section>
+    <section id="committee-section">
         <h2>Committee Service</h2>
-        <table>
+        <table id="committee-table" class="sortable-table">
             <thead>
                 <tr>
-                    <th>Conference</th>
-                    <th>Committee</th>
-                    <th>Position</th>
-                    <th>Title</th>
+                    <th data-sort="conference">Conference</th>
+                    <th data-sort="committee">Committee</th>
+                    <th data-sort="position">Position</th>
+                    <th data-sort="title">Title</th>
                 </tr>
             </thead>
             <tbody>
                 {% for role in committee_roles %}
                 <tr>
-                    <td><a href="/conferences/{{ role.conference_slug }}" class="conference-link">{{ role.conference_venue }} {{ role.conference_year }}</a></td>
-                    <td>{{ role.committee_type }}</td>
-                    <td>{{ role.position }}</td>
-                    <td>{% if !role.role_title.is_empty() %}{{ role.role_title }}{% else %}-{% endif %}</td>
+                    <td data-value="conference"><a href="/conferences/{{ role.conference_slug }}" class="conference-link">{{ role.conference_venue }} {{ role.conference_year }}</a></td>
+                    <td data-value="committee">{{ role.committee_type }}</td>
+                    <td data-value="position" data-filter="position">{{ role.position }}</td>
+                    <td data-value="title">{% if !role.role_title.is_empty() %}{{ role.role_title }}{% else %}-{% endif %}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -101,18 +107,18 @@
     {% if !coauthors.is_empty() %}
     <section>
         <h2>Collaborators</h2>
-        <table>
+        <table id="collaborators-table" class="sortable-table">
             <thead>
                 <tr>
-                    <th>Co-author</th>
-                    <th>Joint Publications</th>
+                    <th data-sort="name">Co-author</th>
+                    <th data-sort="count">Joint Talks</th>
                 </tr>
             </thead>
             <tbody>
                 {% for coauthor in coauthors %}
                 <tr>
-                    <td><a href="/authors/{{ coauthor.coauthor_id }}" class="author-link">{{ coauthor.coauthor_name }}</a></td>
-                    <td>{{ coauthor.collaboration_count }}</td>
+                    <td data-value="name"><a href="/authors/{{ coauthor.coauthor_id }}" class="author-link">{{ coauthor.coauthor_name }}</a></td>
+                    <td data-value="count">{{ coauthor.collaboration_count }}</td>
                 </tr>
                 {% endfor %}
             </tbody>

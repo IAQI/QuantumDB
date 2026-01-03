@@ -213,7 +213,11 @@ pub async fn get_publication(
     request_body = CreatePublication,
     responses(
         (status = 201, description = "Publication created", body = Publication),
+        (status = 401, description = "Unauthorized - missing or invalid token"),
         (status = 500, description = "Internal server error")
+    ),
+    security(
+        ("bearer_auth" = [])
     )
 )]
 pub async fn create_publication(
@@ -289,8 +293,12 @@ pub async fn create_publication(
     request_body = UpdatePublication,
     responses(
         (status = 200, description = "Publication updated", body = Publication),
+        (status = 401, description = "Unauthorized - missing or invalid token"),
         (status = 404, description = "Publication not found"),
         (status = 500, description = "Internal server error")
+    ),
+    security(
+        ("bearer_auth" = [])
     )
 )]
 pub async fn update_publication(
@@ -400,8 +408,12 @@ pub async fn update_publication(
     params(("id" = Uuid, Path, description = "Publication ID")),
     responses(
         (status = 204, description = "Publication deleted"),
+        (status = 401, description = "Unauthorized - missing or invalid token"),
         (status = 404, description = "Publication not found"),
         (status = 500, description = "Internal server error")
+    ),
+    security(
+        ("bearer_auth" = [])
     )
 )]
 pub async fn delete_publication(

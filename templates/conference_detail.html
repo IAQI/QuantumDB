@@ -3,7 +3,6 @@
 {% block title %}{{ conference.venue }} {{ conference.year }} - QuantumDB{% endblock %}
 
 {% block extra_head %}
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 <style>
     .conference-info {
         background: var(--pico-card-background-color);
@@ -35,33 +34,6 @@
     .info-value {
         font-size: 1rem;
         font-weight: 500;
-    }
-    .sortable-table thead th {
-        cursor: pointer;
-        user-select: none;
-        position: relative;
-        padding-right: 1.5rem;
-    }
-    .sortable-table thead th::after {
-        content: '⇅';
-        position: absolute;
-        right: 0.5rem;
-        opacity: 0.3;
-    }
-    .sortable-table thead th.asc::after {
-        content: '↑';
-        opacity: 1;
-    }
-    .sortable-table thead th.desc::after {
-        content: '↓';
-        opacity: 1;
-    }
-    .author-link {
-        text-decoration: none;
-        color: var(--pico-primary);
-    }
-    .author-link:hover {
-        text-decoration: underline;
     }
 </style>
 {% endblock %}
@@ -101,15 +73,15 @@
     </section>
 
     <section class="stats-grid">
-        <div class="stat-card">
+        <div class="stat-card clickable" onclick="scrollToHighlight('#talks-section', 'all')">
             <div class="stat-value">{{ conference.publication_count }}</div>
-            <div class="stat-label">Publications</div>
+            <div class="stat-label">Talks</div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card clickable" onclick="scrollToHighlight('#talks-section', 'regular')">
             <div class="stat-value">{{ conference.regular_paper_count }}</div>
             <div class="stat-label">Regular Papers</div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card clickable" onclick="scrollToHighlight('#talks-section', 'invited')">
             <div class="stat-value">{{ conference.invited_talk_count }}</div>
             <div class="stat-label">Invited Talks</div>
         </div>
@@ -121,7 +93,7 @@
             <div class="stat-value">{{ conference.unique_author_count }}</div>
             <div class="stat-label">Unique Authors</div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card clickable" onclick="scrollToHighlight('#committees-section', 'all')">
             <div class="stat-value">{{ conference.committee_member_count }}</div>
             <div class="stat-label">Committee Members</div>
         </div>
@@ -136,15 +108,14 @@
     {% endif %}
 
     {% if !publications.is_empty() %}
-    <section>
+    <section id="talks-section">
         <h2>Talks</h2>
         <table id="talks-table" class="sortable-table">
             <thead>
                 <tr>
                     <th data-sort="title">Title</th>
                     <th data-sort="type">Type</th>
-                    <th data-sort="date">Date</th>
-                    <th data-sort="time">Time</th>
+                    <th data-sort="datetime">Date & Time</th>
                     <th data-sort="duration">Duration (min)</th>
                     <th data-sort="authors">Authors</th>
                     <th data-sort="award">Award</th>
@@ -153,105 +124,56 @@
             <tbody>
                 {% for pub in publications %}
                 <tr>
-                    <td data-value="{{ pub.title }}">{{ pub.title }}</td>
-                    <td data-value="{{ pub.paper_type }}">{{ pub.paper_type }}</td>
-                    <td data-value="{{ pub.talk_date }}">{% if !pub.talk_date.is_empty() %}{{ pub.talk_date }}{% else %}-{% endif %}</td>
-                    <td data-value="{{ pub.talk_time }}">{% if !pub.talk_time.is_empty() %}{{ pub.talk_time }}{% else %}-{% endif %}</td>
-                    <td data-value="{{ pub.duration_minutes }}">{% if !pub.duration_minutes.is_empty() %}{{ pub.duration_minutes }}{% else %}-{% endif %}</td>
-                    <td data-value="{% for author in pub.authors %}{{ author.name }}{% if !loop.last %}, {% endif %}{% endfor %}">
+                    <td data-value="title">
+                        {% if !pub.arxiv_ids.is_empty() %}
+                            <a href="https://arxiv.org/abs/{{ pub.arxiv_ids[0] }}" target="_blank" rel="noopener noreferrer">{{ pub.title }} ↗</a>
+                        {% else %}
+                            {{ pub.title }}
+                        {% endif %}
+                    </td>
+                    <td data-value="type" data-filter="type">{{ pub.paper_type }}</td>
+                    <td data-value="datetime">
+                        {% if !pub.talk_date.is_empty() %}
+                            {{ pub.talk_date }}{% if !pub.talk_time.is_empty() %} {{ pub.talk_time }}{% endif %}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td data-value="duration">{% if !pub.duration_minutes.is_empty() %}{{ pub.duration_minutes }}{% else %}-{% endif %}</td>
+                    <td data-value="authors">
                         {% for author in pub.authors %}
                         <a href="/authors/{{ author.id }}" class="author-link">{{ author.name }}</a>{% if !loop.last %}, {% endif %}
                         {% endfor %}
                     </td>
-                    <td data-value="{{ pub.award }}">{% if !pub.award.is_empty() %}{{ pub.award }}{% else %}-{% endif %}</td>
+                    <td data-value="award">{% if !pub.award.is_empty() %}{{ pub.award }}{% else %}-{% endif %}</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </section>
-
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const table = document.getElementById('talks-table');
-        const headers = table.querySelectorAll('thead th[data-sort]');
-        let currentSort = { column: null, direction: 'asc' };
-
-        headers.forEach(header => {
-            header.addEventListener('click', function() {
-                const sortBy = this.getAttribute('data-sort');
-                const tbody = table.querySelector('tbody');
-                const rows = Array.from(tbody.querySelectorAll('tr'));
-
-                // Toggle direction if same column, otherwise default to asc
-                if (currentSort.column === sortBy) {
-                    currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
-                } else {
-                    currentSort.direction = 'asc';
-                }
-                currentSort.column = sortBy;
-
-                // Remove all sort classes
-                headers.forEach(h => h.classList.remove('asc', 'desc'));
-                this.classList.add(currentSort.direction);
-
-                // Get column index
-                const columnIndex = Array.from(this.parentElement.children).indexOf(this);
-
-                // Sort rows
-                rows.sort((a, b) => {
-                    const aCell = a.children[columnIndex];
-                    const bCell = b.children[columnIndex];
-                    const aValue = aCell.getAttribute('data-value') || '';
-                    const bValue = bCell.getAttribute('data-value') || '';
-
-                    // Handle empty values - push to end
-                    const aEmpty = aValue === '';
-                    const bEmpty = bValue === '';
-                    if (aEmpty && bEmpty) return 0;
-                    if (aEmpty) return 1;
-                    if (bEmpty) return -1;
-
-                    // Handle numeric values for duration
-                    if (sortBy === 'duration') {
-                        const aNum = parseInt(aValue);
-                        const bNum = parseInt(bValue);
-                        return currentSort.direction === 'asc' ? aNum - bNum : bNum - aNum;
-                    }
-
-                    // String comparison for everything else (date, time, title, etc.)
-                    const comparison = aValue.localeCompare(bValue);
-                    return currentSort.direction === 'asc' ? comparison : -comparison;
-                });
-
-                // Reorder rows
-                rows.forEach(row => tbody.appendChild(row));
-            });
-        });
-    });
-    </script>
     {% endif %}
 
     {% if !committee_by_type.is_empty() %}
-    <section>
+    <section id="committees-section">
         <h2>Committees</h2>
         {% for section in committee_by_type %}
         <h3>{{ section.committee_type }}</h3>
-        <table>
+        <table id="committee-{{ loop.index }}-table" class="sortable-table">
             <thead>
                 <tr>
-                    <th>Name</th>
-                    <th>Position</th>
-                    <th>Role</th>
-                    <th>Affiliation</th>
+                    <th data-sort="name">Name</th>
+                    <th data-sort="position">Position</th>
+                    <th data-sort="role">Role</th>
+                    <th data-sort="affiliation">Affiliation</th>
                 </tr>
             </thead>
             <tbody>
                 {% for member in section.members %}
                 <tr>
-                    <td><a href="/authors/{{ member.author_id }}" class="author-link">{{ member.author_name }}</a></td>
-                    <td>{{ member.position }}</td>
-                    <td>{% if !member.role_title.is_empty() %}{{ member.role_title }}{% else %}-{% endif %}</td>
-                    <td>{% if !member.affiliation.is_empty() %}{{ member.affiliation }}{% else %}-{% endif %}</td>
+                    <td data-value="name"><a href="/authors/{{ member.author_id }}" class="author-link">{{ member.author_name }}</a></td>
+                    <td data-value="position">{{ member.position }}</td>
+                    <td data-value="role">{% if !member.role_title.is_empty() %}{{ member.role_title }}{% else %}-{% endif %}</td>
+                    <td data-value="affiliation">{% if !member.affiliation.is_empty() %}{{ member.affiliation }}{% else %}-{% endif %}</td>
                 </tr>
                 {% endfor %}
             </tbody>

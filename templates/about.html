@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}About QuantumDB{% endblock %}
+
+{% block content %}
+<article>
+    <header>
+        <h1>About QuantumDB</h1>
+    </header>
+
+    <section>
+        <h2>Project Overview</h2>
+        <p>
+            The IAQI QuantumDB is a comprehensive database and web interface for tracking quantum computing conferences and their research contributions.
+            Our goal is to provide a centralized, searchable repository of publications, authors, and committee members from the major quantum computing conferences.
+            <a href="https://iaqi.org" target="_blank">IAQI</a> is the International Association for Quantum Information.
+        </p>
+        <p>
+            We currently track three premier conferences in quantum information science:
+        </p>
+        <ul>
+            <li><strong>QIP</strong> - Quantum Information Processing (annual, since 1998)</li>
+            <li><strong>QCrypt</strong> - Annual Conference on Quantum Cryptography</li>
+            <li><strong>TQC</strong> - Theory of Quantum Computation, Communication and Cryptography</li>
+        </ul>
+    </section>
+
+    <section style="background: var(--pico-card-background-color); padding: 1.5rem; border-left: 4px solid var(--pico-primary); margin: 2rem 0;">
+        <h2>Report Errors or Issues</h2>
+        <p>
+            If you spot an error, missing information, or have suggestions for improving QuantumDB, please contact us at:
+        </p>
+        <p style="text-align: center; font-size: 1.25rem; margin: 1rem 0;">
+            <strong><a href="mailto:quantumdb@iaqi.org">quantumdb@iaqi.org</a></strong>
+        </p>
+        <p>
+            Common issues to report: incorrect author names, missing papers, wrong affiliations, or outdated committee information.
+        </p>
+    </section>
+
+    <section>
+        <h2>Technology</h2>
+        <p>
+            QuantumDB is built with modern web technologies to ensure performance, reliability, and type safety:
+        </p>
+        <ul>
+            <li><strong>Backend</strong>: Rust with Axum web framework and Tokio async runtime</li>
+            <li><strong>Database</strong>: PostgreSQL with SQLx (compile-time verified queries)</li>
+            <li><strong>Frontend</strong>: Askama templates with Pico CSS and HTMX for interactivity</li>
+            <li><strong>API</strong>: RESTful API with OpenAPI/Swagger documentation</li>
+        </ul>
+        <p>
+            The project is open source and available on GitHub at <a href="https://github.com/IAQI/QuantumDB" target="_blank">https://github.com/IAQI/QuantumDB</a>. Contributions, bug reports, and feature requests are welcome!
+        </p>
+    </section>
+
+    <section>
+        <h2>Data Sources</h2>
+        <p>
+            The data is collected mostly from conference websites and the IAQI archived versions for <a href="https://qip.iaqi.org" target="_blank">QIP</a>, <a href="https://tqc.iaqi.org" target="_blank">TQC</a> and <a href="https://qcrypt.iaqi.org" target="_blank">QCrypt</a>. 
+            Community contributions and corrections are welcome.
+        </ul>
+    </section>
+
+    <section>
+        <h2>Contributing</h2>
+        <p>
+            QuantumDB has been initiated by Christian Schaffner in December 2025 and is a community-driven project. You can contribute by:
+        </p>
+        <ul>
+            <li>Reporting errors or missing data via email to <a href="mailto:quantumdb@iaqi.org">quantumdb@iaqi.org</a></li>
+            <li>Contributing code on <a href="https://github.com/IAQI/QuantumDB" target="_blank">GitHub</a></li>
+            <li>Suggesting new features or improvements</li>
+        </ul>
+    </section>
+</article>
+{% endblock %}
+

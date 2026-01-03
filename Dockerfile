@@ -29,6 +29,7 @@ RUN rm -rf ./target/release/deps/quantumdb* ./target/release/deps/libquantumdb* 
 COPY src ./src
 COPY migrations ./migrations
 COPY templates ./templates
+COPY static ./static
 COPY .sqlx ./.sqlx
 
 # Build for release with SQLX_OFFLINE mode
@@ -43,7 +44,10 @@ RUN apt-get update && apt-get install -y \
     libssl3 \
     && rm -rf /var/lib/apt/lists/*
 
+WORKDIR /app
 COPY --from=builder /usr/src/app/quantumdb/target/release/quantumdb /usr/local/bin/
+COPY --from=builder /usr/src/app/quantumdb/templates ./templates
+COPY --from=builder /usr/src/app/quantumdb/static ./static
 
 ENV RUST_LOG=info
 EXPOSE 3000

@@ -1,0 +1,30 @@
+{% if authors.is_empty() %}
+<p>{% if search_term.is_empty() %}No authors found.{% else %}No authors matching "{{ search_term }}".{% endif %}</p>
+{% else %}
+<table id="authors-list-table" class="sortable-table">
+    <thead>
+        <tr>
+            <th data-sort="name">Name</th>
+            <th data-sort="affiliation">Affiliation</th>
+            <th data-sort="talks">Talks</th>
+            <th data-sort="committees">Committee Roles</th>
+            <th data-sort="years">Years Active</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for author in authors %}
+        <tr>
+            <td data-value="name"><a href="/authors/{{ author.id }}" class="author-link">{{ author.full_name }}</a></td>
+            <td data-value="affiliation">{{ author.affiliation }}</td>
+            <td data-value="talks">{{ author.publication_count }}</td>
+            <td data-value="committees">{{ author.committee_role_count }}</td>
+            <td data-value="years">{% if !author.first_year.is_empty() %}{{ author.first_year }}–{{ author.last_year }}{% else %}-{% endif %}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if authors.len() >= 100 %}
+<p><em>Showing first 100 results. Use search to narrow down.</em></p>
+{% endif %}
+{% endif %}

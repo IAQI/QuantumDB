@@ -1,6 +1,7 @@
 pub mod models;
 pub mod handlers;
 pub mod utils;
+pub mod middleware;
 
 // Re-export commonly used items (avoiding ambiguous re-exports)
 pub use models::{

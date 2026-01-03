@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}QuantumDB{% endblock %}</title>
     <meta name="description" content="Quantum Computing Conference Database - Track publications, authors, and committees for QIP, QCrypt, and TQC">
+    <link rel="icon" type="image/png" href="/static/images/favicon.png">
     
     <!-- Pico CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
@@ -69,6 +70,36 @@
             margin: 2rem 0;
         }
         
+        .venue-filters {
+            margin: 2rem 0;
+        }
+        
+        .filter-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .venue-toggle {
+            padding: 0.5rem 1.5rem;
+            border: 2px solid var(--pico-primary);
+            background: transparent;
+            color: var(--pico-primary);
+            border-radius: var(--pico-border-radius);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 600;
+        }
+        
+        .venue-toggle.active {
+            background: var(--pico-primary);
+            color: var(--pico-primary-inverse);
+        }
+        
+        .venue-toggle:hover {
+            opacity: 0.8;
+        }
+        
         .htmx-indicator {
             display: none;
             color: var(--pico-primary);
@@ -92,6 +123,103 @@
             color: var(--pico-muted-color);
             font-size: 0.875rem;
         }
+
+        /* Tooltip styles */
+        .tooltip-trigger {
+            position: relative;
+            cursor: help;
+        }
+
+        .tooltip-trigger::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 0.5rem;
+            background: var(--pico-card-background-color);
+            border: 1px solid var(--pico-muted-border-color);
+            border-radius: var(--pico-border-radius);
+            max-width: 400px;
+            max-height: 200px;
+            width: max-content;
+            font-size: 0.875rem;
+            line-height: 1.4;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+            z-index: 1000;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            overflow-y: auto;
+            white-space: normal;
+        }
+
+        .tooltip-trigger:hover::after {
+            opacity: 1;
+        }
+
+        .tooltip-trigger::before {
+            content: '';
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: var(--pico-muted-border-color);
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 1001;
+        }
+
+        .tooltip-trigger:hover::before {
+            opacity: 1;
+        }
+
+        /* Highlight animation for stats click */
+        @keyframes highlight-row {
+            0% { background-color: var(--pico-primary-background); }
+            100% { background-color: transparent; }
+        }
+
+        .highlight-row {
+            animation: highlight-row 2s ease-out;
+        }
+
+        /* Clickable stat cards */
+        .stat-card.clickable {
+            cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.1s;
+        }
+
+        .stat-card.clickable:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        /* Sortable table styles */
+        .sortable-table th[data-sort] {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .sortable-table th[data-sort]:hover {
+            background-color: var(--pico-primary-background);
+        }
+
+        .sortable-table th[data-sort]::after {
+            content: ' ↕';
+            opacity: 0.3;
+        }
+
+        .sortable-table th[data-sort].sorted-asc::after {
+            content: ' ↑';
+            opacity: 1;
+        }
+
+        .sortable-table th[data-sort].sorted-desc::after {
+            content: ' ↓';
+            opacity: 1;
+        }
     </style>
     
     {% block extra_head %}{% endblock %}
@@ -99,13 +227,19 @@
 <body>
     <nav class="container-fluid">
         <ul>
-            <li><strong><a href="/" style="text-decoration: none; color: inherit;">QuantumDB</a></strong></li>
+            <li>
+                <a href="/" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 0.75rem;">
+                    <img src="/static/images/iaqi-logo.png" alt="IAQI Logo" style="height: 40px; width: auto;">
+                    <strong>QuantumDB</strong>
+                </a>
+            </li>
         </ul>
         <ul>
             <li><a href="/">Home</a></li>
             <li><a href="/authors">Authors</a></li>
             <li><a href="/conferences">Conferences</a></li>
-            <li>
+            <li><a href="/about">About</a></li>
+            <!-- <li>
                 <details class="dropdown">
                     <summary>Quick Links</summary>
                     <ul>
@@ -115,9 +249,12 @@
                         <li><a href="/conferences/QCRYPT2023">QCrypt 2023</a></li>
                         <li><a href="/conferences/TQC2024">TQC 2024</a></li>
                         <li><a href="/conferences/TQC2023">TQC 2023</a></li>
+                        <li><hr></li>
+                        <li><a href="/about">About</a></li>
+                        <li><a href="https://github.com/IAQI/QuantumDB" target="_blank">GitHub Repository</a></li>
                     </ul>
                 </details>
-            </li>
+            </li> -->
             <li><a href="/api/swagger-ui/">API Docs</a></li>
         </ul>
     </nav>
@@ -127,8 +264,154 @@
     </main>
 
     <footer class="container">
-        <p>QuantumDB - Quantum Computing Conference Database</p>
-        <p>Tracking QIP, QCrypt, and TQC conferences | <a href="/api/swagger-ui/">API Documentation</a> | <a href="/admin/refresh-stats" hx-boost="false">Refresh Statistics</a></p>
+        <p><a href="https://github.com/IAQI/QuantumDB" target="_blank">QuantumDB - Quantum Computing Conference Database</a></p>
+        <p><a href="/about">Tracking QIP, QCrypt, and TQC conferences</a>  | <a href="/api/swagger-ui/">API Documentation</a> | <a href="/admin/refresh-stats" hx-boost="false">Refresh Statistics</a></p>
     </footer>
+
+    <script>
+        /**
+         * Initialize all sortable tables on the page
+         */
+        function initAllSortableTables() {
+            document.querySelectorAll('.sortable-table').forEach(table => {
+                if (table.id) {
+                    makeTableSortable(table.id);
+                }
+            });
+        }
+
+        /**
+         * Make a table sortable by clicking on column headers
+         * @param {string} tableId - The ID of the table element
+         */
+        function makeTableSortable(tableId) {
+            const table = document.getElementById(tableId);
+            if (!table) return;
+
+            const tbody = table.querySelector('tbody');
+            const headers = table.querySelectorAll('th[data-sort]');
+
+            let currentColumn = null;
+            let currentDirection = 'asc';
+
+            headers.forEach(header => {
+                header.addEventListener('click', () => {
+                    const column = header.getAttribute('data-sort');
+
+                    // Toggle direction if clicking same column
+                    if (currentColumn === column) {
+                        currentDirection = currentDirection === 'asc' ? 'desc' : 'asc';
+                    } else {
+                        currentDirection = 'asc';
+                    }
+
+                    currentColumn = column;
+
+                    // Remove sorted classes from all headers
+                    headers.forEach(h => {
+                        h.classList.remove('sorted-asc', 'sorted-desc');
+                    });
+
+                    // Add class to current header
+                    header.classList.add(currentDirection === 'asc' ? 'sorted-asc' : 'sorted-desc');
+
+                    // Sort the table
+                    sortTable(tbody, column, currentDirection);
+                });
+            });
+        }
+
+        /**
+         * Sort table rows by column
+         */
+        function sortTable(tbody, column, direction) {
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+
+            rows.sort((a, b) => {
+                const cellA = a.querySelector(`[data-value="${column}"]`);
+                const cellB = b.querySelector(`[data-value="${column}"]`);
+
+                if (!cellA || !cellB) return 0;
+
+                // Use textContent for the actual value to sort
+                let valueA = cellA.textContent.trim();
+                let valueB = cellB.textContent.trim();
+
+                // Handle empty values - push to end
+                if (!valueA || valueA === '-') return 1;
+                if (!valueB || valueB === '-') return -1;
+
+                // Try to parse as dates (YYYY-MM-DD format or other parseable date formats)
+                const dateA = new Date(valueA);
+                const dateB = new Date(valueB);
+                if (!isNaN(dateA.getTime()) && !isNaN(dateB.getTime())) {
+                    return direction === 'asc' ? dateA - dateB : dateB - dateA;
+                }
+
+                // Try to parse as numbers
+                const numA = parseFloat(valueA);
+                const numB = parseFloat(valueB);
+
+                if (!isNaN(numA) && !isNaN(numB)) {
+                    return direction === 'asc' ? numA - numB : numB - numA;
+                }
+
+                // String comparison
+                const comparison = valueA.localeCompare(valueB);
+                return direction === 'asc' ? comparison : -comparison;
+            });
+
+            // Reorder rows in DOM
+            rows.forEach(row => tbody.appendChild(row));
+        }
+
+        /**
+         * Scroll to a section and highlight matching rows
+         * @param {string} sectionId - The ID of the section to scroll to
+         * @param {string} filter - Filter type: 'all', 'leadership', 'regular', 'invited', etc.
+         */
+        function scrollToHighlight(sectionId, filter) {
+            const section = document.querySelector(sectionId);
+            if (!section) return;
+
+            // Scroll to section
+            section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+            // Find table in section
+            const table = section.querySelector('table');
+            if (!table) return;
+
+            // Highlight matching rows
+            const rows = table.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+                let shouldHighlight = false;
+
+                if (filter === 'all') {
+                    shouldHighlight = true;
+                } else if (filter === 'leadership') {
+                    // Check position column for chair/co_chair
+                    const posCell = row.querySelector('[data-filter="position"]');
+                    shouldHighlight = posCell && (
+                        posCell.textContent.toLowerCase().includes('chair')
+                    );
+                } else {
+                    // Check paper_type column
+                    const typeCell = row.querySelector('[data-filter="type"]');
+                    shouldHighlight = typeCell && typeCell.textContent.toLowerCase() === filter.toLowerCase();
+                }
+
+                if (shouldHighlight) {
+                    row.classList.add('highlight-row');
+                    setTimeout(() => row.classList.remove('highlight-row'), 2000);
+                }
+            });
+        }
+
+        // Initialize all tables when page loads
+        document.addEventListener('DOMContentLoaded', initAllSortableTables);
+
+        // Re-initialize when HTMX swaps content
+        document.body.addEventListener('htmx:afterSwap', initAllSortableTables);
+    </script>
 </body>
 </html>

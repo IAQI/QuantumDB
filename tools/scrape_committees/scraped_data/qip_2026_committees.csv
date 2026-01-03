@@ -1,4 +1,4 @@
-venue,year,committee_type,position,full_name,affiliation,notes
+venue,year,committee_type,position,full_name,affiliation,role_title
 QIP,2026,program,chair,Stephen Jordan,Google Quantum AI,
 QIP,2026,program,area_chair,"Frédéric Magniez, Université Paris Cité",IRIF,
 QIP,2026,program,area_chair,Robert Huang,Caltech and Google,
@@ -33,7 +33,6 @@ QIP,2026,program,member,Cambyse Rouzé,INRIA,
 QIP,2026,program,member,Carl Miller,NIST and U. Maryland,
 QIP,2026,program,member,Caslav Brukner,University of Vienna,
 QIP,2026,program,member,Chinmay Nirkhe,University of Washington,
-QIP,2026,program,member,Christian Schaffner,University of Amsterdam and QuSoft,
 QIP,2026,program,member,Christoph Hirche,Leibniz University Hannove,
 QIP,2026,program,member,Christophe Vuillot,Alice & Bob,
 QIP,2026,program,member,Christopher Pattison,UC Berkeley,

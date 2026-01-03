@@ -9,54 +9,53 @@
         <p>Browse quantum computing conferences: QIP, QCrypt, and TQC</p>
     </header>
 
-    <section>
-        <details>
-            <summary>Filter Options</summary>
-            <form>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-                    <label>
-                        Venue
-                        <select name="venue" hx-get="/conferences" hx-trigger="change" hx-target="#conference-table">
-                            <option value="">All Venues</option>
-                            <option value="QIP">QIP</option>
-                            <option value="QCRYPT">QCrypt</option>
-                            <option value="TQC">TQC</option>
-                        </select>
-                    </label>
-                    <label>
-                        Year
-                        <input type="number" name="year" placeholder="Filter by year" 
-                               hx-get="/conferences" hx-trigger="input changed delay:300ms" hx-target="#conference-table">
-                    </label>
-                </div>
-            </form>
-        </details>
+    <section class="venue-filters">
+        <div class="filter-buttons">
+            <button type="button" 
+                    class="venue-toggle active" 
+                    data-venue="QIP"
+                    onclick="toggleVenue(this)">
+                QIP
+            </button>
+            <button type="button" 
+                    class="venue-toggle active" 
+                    data-venue="QCRYPT"
+                    onclick="toggleVenue(this)">
+                QCrypt
+            </button>
+            <button type="button" 
+                    class="venue-toggle active" 
+                    data-venue="TQC"
+                    onclick="toggleVenue(this)">
+                TQC
+            </button>
+        </div>
     </section>
 
     <section id="conference-table">
         {% if conferences.is_empty() %}
         <p>No conferences found.</p>
         {% else %}
-        <table>
+        <table id="conferences-list-table" class="sortable-table">
             <thead>
                 <tr>
-                    <th>Conference</th>
-                    <th>Location</th>
-                    <th>Date</th>
-                    <th>Papers</th>
-                    <th>Committee</th>
-                    <th>Acceptance Rate</th>
+                    <th data-sort="conference">Conference</th>
+                    <th data-sort="location">Location</th>
+                    <th data-sort="date">Date</th>
+                    <th data-sort="papers">Papers</th>
+                    <th data-sort="committee">Committee</th>
+                    <th data-sort="rate">Acceptance Rate</th>
                 </tr>
             </thead>
             <tbody>
                 {% for conf in conferences %}
                 <tr>
-                    <td><a href="/conferences/{{ conf.slug }}" class="conference-link"><strong>{{ conf.venue }} {{ conf.year }}</strong></a></td>
-                    <td>{{ conf.location }}</td>
-                    <td>{{ conf.start_date }}</td>
-                    <td>{{ conf.publication_count }}</td>
-                    <td>{{ conf.committee_member_count }}</td>
-                    <td>{% if !conf.acceptance_rate.is_empty() %}{{ conf.acceptance_rate }}{% else %}-{% endif %}</td>
+                    <td data-value="conference"><a href="/conferences/{{ conf.slug }}" class="conference-link"><strong>{{ conf.venue }} {{ conf.year }}</strong></a></td>
+                    <td data-value="location">{{ conf.location }}</td>
+                    <td data-value="date">{{ conf.start_date }}</td>
+                    <td data-value="papers">{{ conf.publication_count }}</td>
+                    <td data-value="committee">{{ conf.committee_member_count }}</td>
+                    <td data-value="rate">{% if !conf.acceptance_rate.is_empty() %}{{ conf.acceptance_rate }}{% else %}-{% endif %}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -64,4 +63,30 @@
         {% endif %}
     </section>
 </article>
+
+<script>
+function toggleVenue(button) {
+    button.classList.toggle('active');
+    updateConferences();
+}
+
+function updateConferences() {
+    const activeVenues = Array.from(document.querySelectorAll('.venue-toggle.active'))
+        .map(btn => btn.dataset.venue);
+    
+    const venueParam = activeVenues.length > 0 ? activeVenues.join(',') : '';
+    const url = `/conferences?venues=${encodeURIComponent(venueParam)}`;
+    
+    htmx.ajax('GET', url, {
+        target: '#conference-table',
+        swap: 'innerHTML'
+    });
+}
+
+// Load initial data on page load
+document.addEventListener('DOMContentLoaded', function() {
+    updateConferences();
+});
+</script>
+
 {% endblock %}

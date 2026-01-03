@@ -23,7 +23,7 @@ class BaseCommitteeScraper(ABC):
         """Parse the committee data from the HTML.
         
         Returns:
-            List of dicts with keys: committee_type, position, full_name, affiliation, notes
+            List of dicts with keys: committee_type, position, full_name, affiliation, role_title
         """
         pass
     
@@ -78,4 +78,41 @@ class BaseCommitteeScraper(ABC):
         if not affiliation:
             return None
         normalized = ' '.join(affiliation.strip().split())
-        return normalized if normalized else None
+        return normalized if normalized else None    
+    @staticmethod
+    def detect_role_title(text: str, heading_text: str = '') -> Optional[str]:
+        \"\"\"Detect specialized role titles from text.
+        
+        Returns role_title if a specific chair role is detected, otherwise None.
+        Examples: 'General Chair', 'Program Chair', 'Publicity Chair', etc.
+        \"\"\"
+        combined = f\"{heading_text} {text}\".lower()
+        
+        # Specific chair roles (in priority order)
+        role_patterns = [
+            ('general chair', 'General Chair'),
+            ('conference chair', 'General Chair'),
+            ('program chair', 'Program Chair'),
+            ('programme chair', 'Program Chair'),
+            ('steering chair', 'Steering Chair'),
+            ('local chair', 'Local Chair'),
+            ('publicity chair', 'Publicity Chair'),
+            ('web chair', 'Web Chair'),
+            ('webmaster', 'Web Chair'),
+            ('technical operations chair', 'Technical Operations Chair'),
+            ('local arrangements', 'Local Arrangements Chair'),
+            ('registration chair', 'Registration Chair'),
+            ('proceedings chair', 'Proceedings Chair'),
+            ('poster chair', 'Poster Chair'),
+            ('tutorial chair', 'Tutorial Chair'),
+            ('workshop chair', 'Workshop Chair'),
+            ('sponsorship chair', 'Sponsorship Chair'),
+            ('finance chair', 'Finance Chair'),
+            ('social events chair', 'Social Events Chair'),
+        ]
+        
+        for pattern, title in role_patterns:
+            if pattern in combined:
+                return title
+        
+        return None

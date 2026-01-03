@@ -96,6 +96,64 @@ QuantumDB provides a comprehensive system for tracking:
 
 **Interactive API Explorer**: Visit `/swagger-ui/` when running the server for complete interactive API documentation with live testing capabilities.
 
+### Authentication
+
+Write operations (POST, PUT, DELETE) and admin endpoints require Bearer token authentication. All read operations (GET) remain publicly accessible.
+
+**Generating API Tokens:**
+```bash
+# Generate a secure token using the included script
+./tools/generate_token.sh
+
+# Or manually with openssl
+openssl rand -base64 32 | tr -d '=/' | tr '+' '-'
+```
+
+**Using Authentication:**
+```bash
+# Include the token in the Authorization header
+curl -H "Authorization: Bearer YOUR_TOKEN_HERE" \
+  -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"name": "QIP", "year": 2026}' \
+  http://localhost:3000/api/conferences
+```
+
+**Setting Up Tokens:**
+
+For Docker deployment, add to your environment:
+```bash
+# Single token
+export API_TOKENS=your-secure-token-here
+
+# Multiple tokens (comma-separated for multiple users)
+export API_TOKENS=token1,token2,token3
+```
+
+Or update `docker-compose.yml`:
+```yaml
+environment:
+  - API_TOKENS=your-secure-token-here
+```
+
+**Protected Endpoints:**
+- All POST, PUT, DELETE operations on `/api/conferences`, `/api/authors`, `/api/publications`, `/api/committees`, `/api/authorships`
+- `GET /admin/refresh-stats` (admin materialized view refresh)
+
+**Public Endpoints:**
+- All GET operations (read-only access)
+- Web interface routes
+- `/health` endpoint
+- Swagger UI documentation
+
+**Token Requirements:**
+- Minimum 32 characters
+- Alphanumeric characters plus hyphens (-) and underscores (_)
+- Use cryptographically secure random generation
+- Store securely and never commit to version control
+
+### API Endpoints
+
 The API provides full CRUD operations for:
 
 ```

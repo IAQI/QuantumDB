@@ -1,6 +1,6 @@
 use askama::Template;
 use axum::extract::{Path, Query, State};
-use axum::http::StatusCode;
+use axum::http::{StatusCode, HeaderMap};
 use axum::response::{Html, IntoResponse, Response};
 use serde::Deserialize;
 use sqlx::PgPool;
@@ -11,6 +11,13 @@ use crate::models::{PaperType, CommitteeType, CommitteePosition};
 #[derive(Template)]
 #[template(path = "authors_list.html")]
 struct AuthorsListTemplate {
+    authors: Vec<AuthorListItem>,
+    search_term: String,
+}
+
+#[derive(Template)]
+#[template(path = "authors_table_partial.html")]
+struct AuthorsTablePartialTemplate {
     authors: Vec<AuthorListItem>,
     search_term: String,
 }
@@ -57,6 +64,9 @@ struct PublicationItem {
     conference_slug: String,
     paper_type: String,
     coauthors: String,
+    arxiv_ids: Vec<String>,
+    abstract_text: Option<String>,
+    doi: Option<String>,
 }
 
 struct CommitteeRoleItem {
@@ -83,6 +93,7 @@ pub struct AuthorSearchParams {
 pub async fn authors_list(
     Query(params): Query<AuthorSearchParams>,
     State(pool): State<PgPool>,
+    headers: HeaderMap,
 ) -> Result<Response, StatusCode> {
     let search_pattern = format!("%{}%", params.search);
 
@@ -122,12 +133,26 @@ pub async fn authors_list(
     })
     .collect();
 
-    let template = AuthorsListTemplate {
-        authors,
-        search_term: params.search,
+    // Check if this is an HTMX request
+    let is_htmx = headers.get("hx-request").is_some();
+
+    let html = if is_htmx {
+        // Return partial template for HTMX requests
+        let template = AuthorsTablePartialTemplate {
+            authors,
+            search_term: params.search,
+        };
+        template.render()
+    } else {
+        // Return full page for regular requests
+        let template = AuthorsListTemplate {
+            authors,
+            search_term: params.search,
+        };
+        template.render()
     };
 
-    match template.render() {
+    match html {
         Ok(html) => Ok(Html(html).into_response()),
         Err(e) => {
             eprintln!("Template error: {}", e);
@@ -176,24 +201,27 @@ pub async fn author_detail(
     // Get publications
     let publications = sqlx::query!(
         r#"
-        SELECT 
+        SELECT
             p.title,
             c.venue as "conference_venue!",
             c.year as "conference_year!",
             CONCAT(c.venue, c.year::text) as "conference_slug!",
             p.paper_type::text as "paper_type!",
             array_to_string(
-                array_agg(a2.full_name ORDER BY au2.author_position) 
+                array_agg(a2.full_name ORDER BY au2.author_position)
                 FILTER (WHERE a2.id != $1),
                 ', '
-            ) as coauthors
+            ) as coauthors,
+            COALESCE(p.arxiv_ids, ARRAY[]::text[]) as "arxiv_ids!",
+            p.abstract as abstract_text,
+            p.doi
         FROM authorships au
         JOIN publications p ON au.publication_id = p.id
         JOIN conferences c ON p.conference_id = c.id
         LEFT JOIN authorships au2 ON p.id = au2.publication_id AND au2.author_id != $1
         LEFT JOIN authors a2 ON au2.author_id = a2.id
         WHERE au.author_id = $1
-        GROUP BY p.id, p.title, c.venue, c.year, p.paper_type
+        GROUP BY p.id, p.title, c.venue, c.year, p.paper_type, p.arxiv_ids, p.abstract, p.doi
         ORDER BY c.year DESC, c.venue
         "#,
         author_id
@@ -212,6 +240,9 @@ pub async fn author_detail(
         conference_slug: row.conference_slug,
         paper_type: row.paper_type,
         coauthors: row.coauthors.unwrap_or_default(),
+        arxiv_ids: row.arxiv_ids,
+        abstract_text: row.abstract_text,
+        doi: row.doi,
     })
     .collect();
 

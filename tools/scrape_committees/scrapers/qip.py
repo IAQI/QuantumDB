@@ -44,7 +44,7 @@ class QIPScraper(BaseCommitteeScraper):
                     text = p.get_text()
                     if ':' in text:
                         chair_info = text.split(':', 1)[1].strip()
-                        member = self._parse_member_text(chair_info, current_committee_type, current_position)
+                        member = self._parse_member_text(chair_info, current_committee_type, current_position, role_title='Program Chair')
                         if member:
                             members.append(member)
                     continue
@@ -61,7 +61,7 @@ class QIPScraper(BaseCommitteeScraper):
                     text = p.get_text()
                     if ':' in text:
                         chair_info = text.split(':', 1)[1].strip()
-                        member = self._parse_member_text(chair_info, current_committee_type, current_position)
+                        member = self._parse_member_text(chair_info, current_committee_type, current_position, role_title='Technical Operations Chair')
                         if member:
                             members.append(member)
                     continue
@@ -106,7 +106,7 @@ class QIPScraper(BaseCommitteeScraper):
         
         return members
     
-    def _parse_member_text(self, text: str, committee_type: str, position: str) -> Dict[str, str]:
+    def _parse_member_text(self, text: str, committee_type: str, position: str, role_title: str = None) -> Dict[str, str]:
         """Parse a member from text like 'Name, Affiliation' or 'Role: Name, Affiliation'."""
         text = text.strip()
         if not text or len(text) < 3:
@@ -136,10 +136,14 @@ class QIPScraper(BaseCommitteeScraper):
         if not name:
             return None
         
+        # If role_title not explicitly provided, try to detect it
+        if not role_title:
+            role_title = self.detect_role_title(text, '')
+        
         return {
             'committee_type': committee_type,
             'position': position,
             'full_name': name,
             'affiliation': affiliation,
-            'notes': None
+            'role_title': role_title
         }

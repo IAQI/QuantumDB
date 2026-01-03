@@ -10,15 +10,15 @@
     </header>
 
     <section class="stats-grid">
-        <div class="stat-card">
+        <div class="stat-card clickable" onclick="window.location.href='/authors'">
             <div class="stat-value">{{ total_authors }}</div>
             <div class="stat-label">Authors</div>
         </div>
         <div class="stat-card">
             <div class="stat-value">{{ total_publications }}</div>
-            <div class="stat-label">Publications</div>
+            <div class="stat-label">Talks</div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card clickable" onclick="window.location.href='/conferences'">
             <div class="stat-value">{{ total_conferences }}</div>
             <div class="stat-label">Conferences</div>
         </div>
@@ -30,22 +30,22 @@
 
     <section>
         <h2>Recent Conferences</h2>
-        <table>
+        <table id="recent-conferences-table" class="sortable-table">
             <thead>
                 <tr>
-                    <th>Conference</th>
-                    <th>Year</th>
-                    <th>Location</th>
-                    <th>Date</th>
+                    <th data-sort="conference">Conference</th>
+                    <th data-sort="year">Year</th>
+                    <th data-sort="location">Location</th>
+                    <th data-sort="date">Date</th>
                 </tr>
             </thead>
             <tbody>
                 {% for conf in recent_conferences %}
                 <tr>
-                    <td><a href="/conferences/{{ conf.slug }}" class="conference-link">{{ conf.venue }} {{ conf.year }}</a></td>
-                    <td>{{ conf.year }}</td>
-                    <td>{{ conf.location }}</td>
-                    <td>{{ conf.start_date }}</td>
+                    <td data-value="conference"><a href="/conferences/{{ conf.slug }}" class="conference-link">{{ conf.venue }} {{ conf.year }}</a></td>
+                    <td data-value="year">{{ conf.year }}</td>
+                    <td data-value="location">{{ conf.location }}</td>
+                    <td data-value="date">{{ conf.start_date }}</td>
                 </tr>
                 {% endfor %}
             </tbody>

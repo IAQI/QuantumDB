@@ -126,7 +126,11 @@ pub async fn get_author(
     request_body = CreateAuthor,
     responses(
         (status = 201, description = "Author created", body = Author),
+        (status = 401, description = "Unauthorized - missing or invalid token"),
         (status = 500, description = "Internal server error")
+    ),
+    security(
+        ("bearer_auth" = [])
     )
 )]
 pub async fn create_author(
@@ -177,8 +181,12 @@ pub async fn create_author(
     request_body = UpdateAuthor,
     responses(
         (status = 200, description = "Author updated", body = Author),
+        (status = 401, description = "Unauthorized - missing or invalid token"),
         (status = 404, description = "Author not found"),
         (status = 500, description = "Internal server error")
+    ),
+    security(
+        ("bearer_auth" = [])
     )
 )]
 pub async fn update_author(
@@ -255,8 +263,12 @@ pub async fn update_author(
     params(("id" = Uuid, Path, description = "Author ID")),
     responses(
         (status = 204, description = "Author deleted"),
+        (status = 401, description = "Unauthorized - missing or invalid token"),
         (status = 404, description = "Author not found"),
         (status = 500, description = "Internal server error")
+    ),
+    security(
+        ("bearer_auth" = [])
     )
 )]
 pub async fn delete_author(

@@ -207,7 +207,11 @@ pub async fn get_committee_role(
     request_body = CreateCommitteeRole,
     responses(
         (status = 201, description = "Committee role created", body = CommitteeRole),
+        (status = 401, description = "Unauthorized - missing or invalid token"),
         (status = 500, description = "Internal server error")
+    ),
+    security(
+        ("bearer_auth" = [])
     )
 )]
 pub async fn create_committee_role(
@@ -266,8 +270,12 @@ pub async fn create_committee_role(
     request_body = UpdateCommitteeRole,
     responses(
         (status = 200, description = "Committee role updated", body = CommitteeRole),
+        (status = 401, description = "Unauthorized - missing or invalid token"),
         (status = 404, description = "Committee role not found"),
         (status = 500, description = "Internal server error")
+    ),
+    security(
+        ("bearer_auth" = [])
     )
 )]
 pub async fn update_committee_role(
@@ -349,8 +357,12 @@ pub async fn update_committee_role(
     params(("id" = Uuid, Path, description = "Committee role ID")),
     responses(
         (status = 204, description = "Committee role deleted"),
+        (status = 401, description = "Unauthorized - missing or invalid token"),
         (status = 404, description = "Committee role not found"),
         (status = 500, description = "Internal server error")
+    ),
+    security(
+        ("bearer_auth" = [])
     )
 )]
 pub async fn delete_committee_role(

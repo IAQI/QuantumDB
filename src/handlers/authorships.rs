@@ -114,7 +114,11 @@ pub async fn get_authorship(
     request_body = CreateAuthorship,
     responses(
         (status = 201, description = "Authorship created", body = Authorship),
+        (status = 401, description = "Unauthorized - missing or invalid token"),
         (status = 500, description = "Internal server error")
+    ),
+    security(
+        ("bearer_auth" = [])
     )
 )]
 pub async fn create_authorship(
@@ -155,8 +159,12 @@ pub async fn create_authorship(
     request_body = UpdateAuthorship,
     responses(
         (status = 200, description = "Authorship updated", body = Authorship),
+        (status = 401, description = "Unauthorized - missing or invalid token"),
         (status = 404, description = "Authorship not found"),
         (status = 500, description = "Internal server error")
+    ),
+    security(
+        ("bearer_auth" = [])
     )
 )]
 pub async fn update_authorship(
@@ -210,8 +218,12 @@ pub async fn update_authorship(
     params(("id" = Uuid, Path, description = "Authorship ID")),
     responses(
         (status = 204, description = "Authorship deleted"),
+        (status = 401, description = "Unauthorized - missing or invalid token"),
         (status = 404, description = "Authorship not found"),
         (status = 500, description = "Internal server error")
+    ),
+    security(
+        ("bearer_auth" = [])
     )
 )]
 pub async fn delete_authorship(

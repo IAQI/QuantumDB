@@ -175,14 +175,16 @@ async def import_member(
     )
     
     if existing:
-        # Update position if different
+        # Update position, affiliation, and role_title if different
         await conn.execute(
             """
             UPDATE committee_roles
-            SET position = $1, updated_at = NOW(), modifier = 'import_from_csv'
-            WHERE id = $2
+            SET position = $1, affiliation = $2, role_title = $3, updated_at = NOW(), modifier = 'import_from_csv'
+            WHERE id = $4
             """,
             db_position,
+            member.get('affiliation'),
+            member.get('role_title'),
             existing
         )
         logger.debug(f"Updated existing role: {member['full_name']} - {member['committee_type']}")
@@ -190,13 +192,15 @@ async def import_member(
         # Insert new role
         await conn.execute(
             """
-            INSERT INTO committee_roles (conference_id, author_id, committee, position, creator, modifier)
-            VALUES ($1, $2, $3, $4, 'import_from_csv', 'import_from_csv')
+            INSERT INTO committee_roles (conference_id, author_id, committee, position, affiliation, role_title, creator, modifier)
+            VALUES ($1, $2, $3, $4, $5, $6, 'import_from_csv', 'import_from_csv')
             """,
             conference_id,
             author_id,
             db_committee,
-            db_position
+            db_position,
+            member.get('affiliation'),
+            member.get('role_title')
         )
         logger.info(f"Imported: {member['full_name']} - {member['committee_type']} ({member.get('position') or 'member'})")
     

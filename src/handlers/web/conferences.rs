@@ -1,6 +1,6 @@
 use askama::Template;
 use axum::extract::{Path, Query, State};
-use axum::http::StatusCode;
+use axum::http::{StatusCode, HeaderMap};
 use axum::response::{Html, IntoResponse, Response};
 use serde::Deserialize;
 use sqlx::{PgPool, FromRow};
@@ -9,6 +9,12 @@ use uuid::Uuid;
 #[derive(Template)]
 #[template(path = "conferences_list.html")]
 struct ConferencesListTemplate {
+    conferences: Vec<ConferenceListItemDisplay>,
+}
+
+#[derive(Template)]
+#[template(path = "conferences_table_partial.html")]
+struct ConferencesTablePartialTemplate {
     conferences: Vec<ConferenceListItemDisplay>,
 }
 
@@ -74,6 +80,9 @@ struct PublicationItem {
     talk_date: String,
     talk_time: String,
     duration_minutes: String,
+    arxiv_ids: Vec<String>,
+    abstract_text: Option<String>,
+    doi: Option<String>,
 }
 
 struct AuthorInfo {
@@ -99,32 +108,29 @@ struct CommitteeMember {
 #[derive(Deserialize)]
 pub struct ConferenceFilterParams {
     #[serde(default)]
-    venue: String,
-    year: Option<i32>,
+    venues: String,
 }
 
 pub async fn conferences_list(
     Query(params): Query<ConferenceFilterParams>,
     State(pool): State<PgPool>,
+    headers: HeaderMap,
 ) -> Result<Response, StatusCode> {
+    // Parse venues parameter (comma-separated list)
+    let venue_list: Vec<&str> = if params.venues.is_empty() {
+        vec![]
+    } else {
+        params.venues.split(',').collect()
+    };
+    
     // Build dynamic query based on filter params
-    let mut where_clauses = Vec::new();
-    let mut param_count = 0;
-    
-    if !params.venue.is_empty() {
-        param_count += 1;
-        where_clauses.push(format!("c.venue = ${}", param_count));
-    }
-    
-    if params.year.is_some() {
-        param_count += 1;
-        where_clauses.push(format!("c.year = ${}", param_count));
-    }
-    
-    let where_clause = if where_clauses.is_empty() {
+    let where_clause = if venue_list.is_empty() {
         String::new()
     } else {
-        format!("WHERE {}", where_clauses.join(" AND "))
+        let placeholders: Vec<String> = (1..=venue_list.len())
+            .map(|i| format!("${}", i))
+            .collect();
+        format!("WHERE c.venue IN ({})", placeholders.join(", "))
     };
     
     let query_str = format!(
@@ -153,12 +159,9 @@ pub async fn conferences_list(
 
     let mut query = sqlx::query_as::<_, ConferenceListItem>(&query_str);
     
-    // Bind parameters in order
-    if !params.venue.is_empty() {
-        query = query.bind(&params.venue);
-    }
-    if let Some(year) = params.year {
-        query = query.bind(year);
+    // Bind venue parameters
+    for venue in &venue_list {
+        query = query.bind(venue);
     }
     
     let conference_records = query
@@ -191,9 +194,20 @@ pub async fn conferences_list(
         })
         .collect();
 
-    let template = ConferencesListTemplate { conferences };
+    // Check if this is an HTMX request
+    let is_htmx = headers.get("hx-request").is_some();
 
-    match template.render() {
+    let html = if is_htmx {
+        // Return partial template for HTMX requests
+        let template = ConferencesTablePartialTemplate { conferences };
+        template.render()
+    } else {
+        // Return full page for regular requests
+        let template = ConferencesListTemplate { conferences };
+        template.render()
+    };
+
+    match html {
         Ok(html) => Ok(Html(html).into_response()),
         Err(e) => {
             eprintln!("Template error: {}", e);
@@ -289,7 +303,10 @@ pub async fn conference_detail(
             p.award,
             p.talk_date,
             p.talk_time,
-            p.duration_minutes
+            p.duration_minutes,
+            COALESCE(p.arxiv_ids, ARRAY[]::text[]) as "arxiv_ids!",
+            p.abstract as abstract_text,
+            p.doi
         FROM publications p
         WHERE p.conference_id = $1
         ORDER BY
@@ -343,6 +360,9 @@ pub async fn conference_detail(
             talk_date: pub_record.talk_date.map(|d| d.to_string()).unwrap_or_default(),
             talk_time: pub_record.talk_time.map(|t| t.format("%H:%M").to_string()).unwrap_or_default(),
             duration_minutes: pub_record.duration_minutes.map(|d| d.to_string()).unwrap_or_default(),
+            arxiv_ids: pub_record.arxiv_ids,
+            abstract_text: pub_record.abstract_text,
+            doi: pub_record.doi,
         });
     }
 
