@@ -179,10 +179,15 @@ async def import_talk(
     talk_date = None
     if talk.get('scheduled_date'):
         try:
-            # Parse date like "28 January" and assume year from conference
             from dateutil import parser
-            date_str = f"{talk['scheduled_date']} {year}"
-            talk_date = parser.parse(date_str).date()
+            date_str = talk['scheduled_date'].strip()
+            # If date already includes year (YYYY-MM-DD format), use as-is
+            # Otherwise assume it's "DD Month" format and append year
+            if re.match(r'^\d{4}-\d{2}-\d{2}', date_str):
+                talk_date = parser.parse(date_str).date()
+            else:
+                date_str = f"{date_str} {year}"
+                talk_date = parser.parse(date_str).date()
         except Exception as e:
             logger.warning(f"Could not parse date '{talk.get('scheduled_date')}': {e}")
 
