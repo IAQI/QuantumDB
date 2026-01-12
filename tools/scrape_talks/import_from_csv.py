@@ -203,9 +203,11 @@ async def import_talk(
             logger.warning(f"Could not parse time '{talk.get('scheduled_time')}': {e}")
 
     duration_minutes = None
-    if talk.get('duration_minutes'):
+    # Check both 'duration_minutes' and 'duration' fields
+    duration_value = talk.get('duration_minutes') or talk.get('duration')
+    if duration_value:
         try:
-            duration_minutes = int(talk['duration_minutes'])
+            duration_minutes = int(duration_value)
         except (ValueError, TypeError):
             pass
 
