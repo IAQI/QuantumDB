@@ -1,0 +1,28 @@
+venue,year,paper_type,title,speakers,affiliations,scheduled_date,scheduled_time,duration
+QIP,1998,regular,Quantum Algorithms Revisited,Michele Mosca,University of Oxford,1998-01-12,09:10:00,45
+QIP,1998,regular,Quantum Counting,Alain Tapp,Université de Montréal,1998-01-12,9:55,45
+QIP,1998,regular,Quantum Computation of Fourier Transforms over the Symmetric Group,Robert Beals,University of Arizona,1998-01-12,11:00,45
+QIP,1998,regular,Conjugated Operators in Quantum Algorithms,Peter Høyer,Odense University,1998-01-12,11:45,45
+QIP,1998,regular,How much information can one touch in k qbits,Amnon Ta-Shma,ICSI,1998-01-12,14:00,45
+QIP,1998,regular,On Noncommutative Hidden Subgroups,J. Mark Ettinger,Los Alamos National Laboratory,1998-01-12,14:45,45
+QIP,1998,regular,"Alice, Bob and Eve in Quantumland",Tal Mor,Université de Montréal,1998-01-13,9:00,45
+QIP,1998,regular,Quantum key distribution is unconditionally secure,Dominic Mayers,Princeton,1998-01-13,9:45,45
+QIP,1998,regular,Quantum attacks on classical bit commitment schemes,Claude Crépeau,Université de Montréal,1998-01-13,11:00,45
+QIP,1998,regular,Quantum Bit Commitment from physical Assumptions,Louis Salvail,BRICS,1998-01-13,11:45,45
+QIP,1998,regular,Realizing Oblivious Transfer from (Classical) Information Difference,Christian Cachin,MIT,1998-01-13,14:00,45
+QIP,1998,regular,Quantum Channel Capacities,John Smolin,T.J. Watson Laboratory,1998-01-13,14:45,45
+QIP,1998,regular,Simulating quantum operations with mixed environments,Barbara Terhal,CWI,1998-01-13,15:30,30
+QIP,1998,regular,Multiparty Quantum Communication Complexity,Wim van Dam,CWI,1998-01-14,9:00,45
+QIP,1998,regular,Quantum communication complexity,Harry Buhrman,CWI,1998-01-14,9:45,45
+QIP,1998,regular,Quantum Communication Complexity,Richard Cleve,University of Calgary,1998-01-14,11:00,45
+QIP,1998,regular,Quantum Entanglement Purification,Gilles Brassard,Université de Montréal,1998-01-14,11:45,45
+QIP,1998,regular,Quantum Effects in Algorithms,Richard Jozsa,University of Plymouth,1998-01-15,9:00,45
+QIP,1998,regular,Almost any quantum mechanical system can perform rapid search,Lov Grover,Lucent,1998-01-15,9:45,45
+QIP,1998,regular,Quantum Computing and Counting Complexity,Lance Fortnow,University of Chicago,1998-01-15,11:00,45
+QIP,1998,regular,Complexity limitations on quantum computation,John Rogers,Depaul University,1998-01-15,11:45,45
+QIP,1998,regular,Quantum Algorithms and Complexity,Umesh Vazirani,Berkeley,1998-01-15,14:00,45
+QIP,1998,regular,Relations between quantum and classical space-bounded complexity classes,John Watrous,University of Wisconsin,1998-01-15,14:45,45
+QIP,1998,regular,Quantum and Classical Information: Interactions and Reductions,Charles Bennett,T.J. Watson Laboratories,1998-01-16,9:00,45
+QIP,1998,regular,"Noisy Quantum Computation - Solved Problems, Open Problems",Dorit Aharonov,Hebrew University,1998-01-16,9:45,45
+QIP,1998,regular,Computation of polynomial invariants of quantum states and quantum codes,Markus Grassl,University of Karlsruhe,1998-01-16,11:00,45
+QIP,1998,regular,Quantum Lower Bounds by Polynomials,Ronald de Wolf,CWI,1998-01-16,11:45,45
