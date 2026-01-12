@@ -1,0 +1,76 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT\n            p.id,\n            p.title,\n            p.paper_type::text as \"paper_type!\",\n            p.award,\n            p.talk_date,\n            p.talk_time,\n            p.duration_minutes,\n            COALESCE(p.arxiv_ids, ARRAY[]::text[]) as \"arxiv_ids!\",\n            p.abstract as abstract_text,\n            p.doi\n        FROM publications p\n        WHERE p.conference_id = $1\n        ORDER BY\n            COALESCE(p.talk_date, '9999-12-31'::date),\n            COALESCE(p.talk_time, '23:59:59'::time),\n            p.paper_type,\n            p.title\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "title",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "paper_type!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "award",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "talk_date",
+        "type_info": "Date"
+      },
+      {
+        "ordinal": 5,
+        "name": "talk_time",
+        "type_info": "Time"
+      },
+      {
+        "ordinal": 6,
+        "name": "duration_minutes",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 7,
+        "name": "arxiv_ids!",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 8,
+        "name": "abstract_text",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "doi",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      null,
+      true,
+      true,
+      true,
+      true,
+      null,
+      true,
+      true
+    ]
+  },
+  "hash": "a98f7454a07fcb3516258fe59db646ae8fbd412ee5e3dc9af94c9e05cde468ff"
+}

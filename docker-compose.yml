@@ -8,8 +8,9 @@ services:
       - RUST_LOG=info
       # API authentication tokens (comma-separated for multiple users)
       # Generate tokens using: ./tools/generate_token.sh
+      # Set via environment variable: export API_TOKENS=your_token_here
       # Example: API_TOKENS=token1,token2,token3
-      - API_TOKENS=IDAQ4YKQhnzuTtu24a2fQtGYLR49WXzww1EWv0ERqS4
+      - API_TOKENS=${API_TOKENS}
     depends_on:
       - db
     restart: unless-stopped

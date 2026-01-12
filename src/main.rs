@@ -172,11 +172,11 @@ async fn main() -> Result<(), sqlx::Error> {
         .route("/conferences", get(handlers::web::conferences_list))
         .route("/conferences/{slug}", get(handlers::web::conference_detail))
         .route("/about", get(handlers::web::about))
-        .route("/health", get(health));
+        .route("/health", get(health))
+        .route("/admin/refresh-stats", get(handlers::web::refresh_stats));
 
-    // Protected web routes (admin operations)
+    // Protected web routes (admin operations) - currently none
     let protected_web_routes = Router::new()
-        .route("/admin/refresh-stats", get(handlers::web::refresh_stats))
         .layer(middleware::from_fn(auth_middleware));
 
     let app = Router::new()

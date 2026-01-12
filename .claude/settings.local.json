@@ -25,7 +25,27 @@
       "Bash(fi)",
       "Bash(cargo add:*)",
       "Bash(sqlx migrate run:*)",
-      "Bash(timeout 60 head:*)"
+      "Bash(timeout 60 head:*)",
+      "Bash(psql:*)",
+      "Bash(python3:*)",
+      "Bash(pip3 install:*)",
+      "Bash(git -C /Users/chris/Github/QuantumDB log --oneline -10)",
+      "Bash(cargo sqlx migrate:*)",
+      "Bash(source \"$HOME/.cargo/env\")",
+      "Bash(export PATH=\"$HOME/.cargo/bin:$PATH\")",
+      "Bash(cargo --version:*)",
+      "Bash(/Users/chris/.cargo/bin/cargo build)",
+      "Bash(command -v rustup:*)",
+      "Bash(bash:*)",
+      "Bash(git add:*)",
+      "Bash(cargo run:*)",
+      "Bash(pkill:*)",
+      "Bash(kill:*)",
+      "Bash(cargo build:*)",
+      "Bash(cargo clean:*)",
+      "Bash(DATABASE_URL=\"postgresql://quantumdb:quantumdb@localhost:5432/quantumdb\" python3:*)",
+      "Bash(docker-compose down:*)",
+      "Bash(docker-compose up:*)"
     ]
   }
 }

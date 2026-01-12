@@ -10,7 +10,7 @@ INSERT INTO conferences (venue, year, city, country, country_code, is_virtual, i
     'https://tqc.iaqi.org/2025/',
     NULL, NULL, NULL, NULL,
     'system', 'system'),
-('TQC', 2024, 'Okinawa', 'Japan', 'JP', false, false, 'OIST', 'https://tqc2024.jp', NULL,
+('TQC', 2024, 'Okinawa', 'Japan', 'JP', false, false, 'OIST', 'https://fs3x4avdgq.preview.infomaniak.website/tqc-2024', NULL,
     'https://tqc.iaqi.org/2025/tqc-2024/',
     NULL, NULL, NULL, NULL,
     'system', 'system'),
