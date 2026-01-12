@@ -189,8 +189,11 @@ async def import_talk(
     talk_time = None
     if talk.get('scheduled_time'):
         try:
-            # Parse time like "13:00"
-            talk_time = datetime.strptime(talk['scheduled_time'], '%H:%M').time()
+            # Try parsing with seconds first (HH:MM:SS), then without (HH:MM)
+            try:
+                talk_time = datetime.strptime(talk['scheduled_time'], '%H:%M:%S').time()
+            except ValueError:
+                talk_time = datetime.strptime(talk['scheduled_time'], '%H:%M').time()
         except Exception as e:
             logger.warning(f"Could not parse time '{talk.get('scheduled_time')}': {e}")
 

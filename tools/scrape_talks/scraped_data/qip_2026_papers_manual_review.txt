@@ -1,0 +1,229 @@
+QIP 2026 Papers - Manual Review Required
+================================================================================
+
+Generated: 2026-01-02 11:33:27
+Total papers: 158
+Matched with schedule: 152 (96%)
+Requiring manual review: 6
+
+--------------------------------------------------------------------------------
+PAPERS WITHOUT SCHEDULE INFORMATION
+--------------------------------------------------------------------------------
+
+These papers were not matched with the schedule. Possible reasons:
+  • Title differs between JSON and schedule HTML
+  • Paper was accepted but not scheduled for presentation
+  • Late addition or withdrawn paper
+
+1. Tile codes
+   Authors: Vincent Steffan;Shin Ho Choe;Nikolas P. Breuckmann;Francisco Revson Fernandes Pereira;Jens Niklas Eberhardt;Zijian Liang;Yu-An Chen
+   Decision: Accepted
+   arXiv: 2504.09171,2504.08887
+   Normalized title: tile codes
+
+   ACTION NEEDED:
+   [ ] Search schedule HTML for this paper
+   [ ] If found, note the exact title in schedule: _________________
+   [ ] Add speaker: _________________
+   [ ] Add date/time: _________________
+   [ ] If not in schedule, confirm paper status
+
+--------------------------------------------------------------------------------
+
+2. MIPco=coRE
+   Authors: Junqiao Lin
+   Decision: Accepted
+   arXiv: N/A
+   Normalized title: mipco core
+
+   ACTION NEEDED:
+   [ ] Search schedule HTML for this paper
+   [ ] If found, note the exact title in schedule: _________________
+   [ ] Add speaker: _________________
+   [ ] Add date/time: _________________
+   [ ] If not in schedule, confirm paper status
+
+--------------------------------------------------------------------------------
+
+3. Constructive counterexamples to the additivity of minimum output Rényi entropy of quantum channels for all p>1
+   Authors: Harm Derksen;Benjamin Lovitz
+   Decision: AcceptedAsPlenary
+   arXiv: N/A
+   Normalized title: constructive counterexamples to the additivity of minimum output renyi entropy of quantum channels for all p 1
+
+   ACTION NEEDED:
+   [ ] Search schedule HTML for this paper
+   [ ] If found, note the exact title in schedule: _________________
+   [ ] Add speaker: _________________
+   [ ] Add date/time: _________________
+   [ ] If not in schedule, confirm paper status
+
+--------------------------------------------------------------------------------
+
+4. Efficient implementation of sequential quantum processes with group symmetry
+   Authors: Dmitry Grinko;Satoshi Yoshida;Mio Murao;Maris Ozols
+   Decision: Accepted
+   arXiv: N/A
+   Normalized title: efficient implementation of sequential quantum processes with group symmetry
+
+   ACTION NEEDED:
+   [ ] Search schedule HTML for this paper
+   [ ] If found, note the exact title in schedule: _________________
+   [ ] Add speaker: _________________
+   [ ] Add date/time: _________________
+   [ ] If not in schedule, confirm paper status
+
+--------------------------------------------------------------------------------
+
+5. Parallel Spooky Pebble Games and Regev's Factoring Algorithm
+   Authors: Gregory D. Kahanamoku-Meyer;Seyoon Ragavan;Katherine Van Kirk
+   Decision: Accepted
+   arXiv: N/A
+   Normalized title: parallel spooky pebble games and regev s factoring algorithm
+
+   ACTION NEEDED:
+   [ ] Search schedule HTML for this paper
+   [ ] If found, note the exact title in schedule: _________________
+   [ ] Add speaker: _________________
+   [ ] Add date/time: _________________
+   [ ] If not in schedule, confirm paper status
+
+--------------------------------------------------------------------------------
+
+6. Universal tradeoff relations between resource cost and irreversibility of channels: General-resource Wigner-Araki-Yanase theorems and beyond
+   Authors: Hiroyasu Tajima;Koji Yamaguchi;Ryuji Takagi;Yui Kuramochi
+   Decision: Accepted
+   arXiv: 2507.23760
+   Normalized title: universal tradeoff relations between resource cost and irreversibility of channels general resource wigner araki yanase theorems and beyond
+
+   ACTION NEEDED:
+   [ ] Search schedule HTML for this paper
+   [ ] If found, note the exact title in schedule: _________________
+   [ ] Add speaker: _________________
+   [ ] Add date/time: _________________
+   [ ] If not in schedule, confirm paper status
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+MERGED TIME SLOTS (VERIFY CORRECTNESS)
+--------------------------------------------------------------------------------
+
+These papers share the same time slot. Please verify:
+  • All papers in each slot should actually be presented together
+  • Speaker information is correct for each paper
+
+Time Slot: 26 January 14:30 (2 papers)
+----------------------------------------
+  1. Complexity of mixed Schatten norms of quantum maps
+     Speaker: Jan Kochanowski
+     Authors: Jan Kochanowski;Omar Fawzi;Cambyse Rouzé
+  2. Computational aspects of the trace norm contraction coefficient
+     Speaker: Idris Delsol
+     Authors: Idris Delsol;Omar Fawzi;Jan Kochanowski;Akshay Ramachandran
+
+   ACTION NEEDED:
+   [ ] Verify all 2 papers share this time slot
+   [ ] Confirm speaker assignments
+
+--------------------------------------------------------------------------------
+
+Time Slot: 27 January 13:30 (2 papers)
+----------------------------------------
+  1. Quantitative Quantum Soundness for Bipartite Compiled Bell Games via the Sequential NPA Hierarchy
+     Speaker: Xiangling Xu
+     Authors: Xiangling Xu;Igor Klep;Connor Paddock;Marc-Olivier Renou;Simon Schmidt;Lucas Ten
+  2. A convergent sum-of-squares hierarchy for compiled nonlocal games
+     Speaker: David Cui
+     Authors: David Cui;Chirag Falor;Anand Natarajan;Tina Zhang
+
+   ACTION NEEDED:
+   [ ] Verify all 2 papers share this time slot
+   [ ] Confirm speaker assignments
+
+--------------------------------------------------------------------------------
+
+Time Slot: 27 January 14:00 (5 papers)
+----------------------------------------
+  1. Quantitative quantum soundness for all multipartite compiled nonlocal games
+     Speaker: Xiangling Xu
+     Authors: Xiangling Xu;Matilde Baroni;Igor Klep;Dominik Leichtle;Marc-Olivier Renou;Ivan Š
+  2. Entanglement theory with limited computational resources
+     Speaker: Lorenzo Leone
+     Authors: Lorenzo Leone;Jacopo Rizzo;Jens Eisert;Sofiene Jerbi
+  3. Quantum Computational Entropies
+     Speaker: Thomas A. Hahn
+     Authors: Noam Avidan;Thomas A. Hahn;Rotem Arnon;Joseph M. Renes
+  4. Bounding the asymptotic quantum value of all multipartite compiled non-local games
+     Speaker: Dominik Leichtle
+     Authors: Matilde Baroni;Dominik Leichtle;Siniša Janković;Ivan Šupić
+  5. Computational relative entropy
+     Speaker: Lorenzo Leone
+     Authors: Johannes Jakob Meyer;Asad Raza;Jacopo Rizzo;Lorenzo Leone;Sofiene Jerbi;Jens Eis
+
+   ACTION NEEDED:
+   [ ] Verify all 5 papers share this time slot
+   [ ] Confirm speaker assignments
+
+--------------------------------------------------------------------------------
+
+Time Slot: 29 January 13:30 (2 papers)
+----------------------------------------
+  1. Optimal lower bounds for quantum state tomography
+     Speaker: Thilo Scharnhorst
+     Authors: Thilo Scharnhorst;Jack Spilecki;John Wright
+  2. The debiased Keyl's algorithm: a new unbiased estimator for full state tomography
+     Speaker: Jack Spilecki
+     Authors: Angelos Pelecanos;Jack Spilecki;John Wright
+
+   ACTION NEEDED:
+   [ ] Verify all 2 papers share this time slot
+   [ ] Confirm speaker assignments
+
+--------------------------------------------------------------------------------
+
+Time Slot: 29 January 14:00 (2 papers)
+----------------------------------------
+  1. An infinite hierarchy of multi-copy quantum learning tasks
+     Speaker: Jan N¨oller
+     Authors: Jan Nöller;Viet Tran;Mariami Gachechildaze;Richard Kueng
+  2. Exponential Advantage from One More Replica in Estimating Nonlinear Properties of Quantum States
+     Speaker: Qi Ye
+     Authors: Qi Ye;Dong-Ling Deng;Zhenhuan Liu
+
+   ACTION NEEDED:
+   [ ] Verify all 2 papers share this time slot
+   [ ] Confirm speaker assignments
+
+--------------------------------------------------------------------------------
+
+Time Slot: 29 January 16:00 (2 papers)
+----------------------------------------
+  1. Quantum Lifting for Invertible Permutations and Ideal Ciphers
+     Speaker: Alexandru Cojocaru
+     Authors: Alexandru Cojocaru;Minki Hhan;Qipeng Liu;Takashi Yamakawa;Aaram Yun
+  2. The Sponge is Quantum Indifferentiable
+     Speaker: Saliha Tokat
+     Authors: Gorjan Alagic;Joseph Carolan;Christian Majenz;Saliha Tokat
+
+   ACTION NEEDED:
+   [ ] Verify all 2 papers share this time slot
+   [ ] Confirm speaker assignments
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+SUMMARY STATISTICS
+--------------------------------------------------------------------------------
+
+Total papers: 158
+Papers with complete schedule info: 152
+Papers in merged slots: 15
+Papers needing manual review: 6
+
+Paper type breakdown:
+  plenary_long: 4
+  plenary_short: 8
+  regular: 146
+
+Completion rate: 96%
