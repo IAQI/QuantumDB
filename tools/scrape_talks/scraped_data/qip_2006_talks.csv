@@ -1,0 +1,41 @@
+venue,year,speaker,authors,title,scheduled_date,scheduled_time,duration,paper_type
+QIP,2006,John Watrous,John Watrous,Zero-knowledge against quantum attacks,2006-01-16,9:30,50,invited
+QIP,2006,Yaoyun Shi,Yaoyun Shi; Igor Markov,Simulating quantum computation by contracting tensor networks,2006-01-16,10:50,35,long
+QIP,2006,Frank Verstraete,Frank Verstraete,On the complexity of simulating quantum systems,2006-01-16,11:25,35,long
+QIP,2006,Andrew Doherty,Andrew Doherty; Michael Nielsen; Mark Dowling; Mile Gu,Quantum computation as geometry,2006-01-16,12:00,15,short
+QIP,2006,Cris Moore,Cris Moore; Alex Russell; Leonard Schulman,"Fourier sampling, representations, and the hunt for a quantum algorithm for Graph Isomorphism",2006-01-16,14:15,50,invited
+QIP,2006,Wim van Dam,Wim van Dam; Andrew M. Childs; Dave Bacon,From optimal measurement to efficient quantum algorithms for the hidden subgroup problem over semidirect product groups,2006-01-16,15:35,35,long
+QIP,2006,Michael Wolf,Michael Wolf; Geza Giedke; Ignacio Cirac,Extremality of Gaussian quantum states,2006-01-16,16:10,35,long
+QIP,2006,Masahiro Kitagawa,Masahiro Kitagawa,Schumacher compression with minimum time-space product,2006-01-16,16:45,15,short
+QIP,2006,Pranab Sen,Pranab Sen; Sean Hallgren; Martin Rotteler,"Graph Isomorphism, the hidden subgroup problem and distinguishing quantum states",2006-01-17,9:30,50,invited
+QIP,2006,Dmitry Gavinsky,Dmitry Gavinsky; Julia Kempe; Oded Regev; Ronald de Wolf,Bounded-Error Quantum State Identification with Applications to Communication Complexity,2006-01-17,10:50,35,long
+QIP,2006,Robert Koenig,Robert Koenig; Renato Renner,A de Finetti theorem for finite quantum states - Locked correlations and secret keys,2006-01-17,11:25,35,long
+QIP,2006,Ronald de Wolf,Ronald de Wolf,Lower Bounds on Matrix Rigidity via a Quantum Argument,2006-01-17,12:00,15,short
+QIP,2006,Christian Schaffner,Christian Schaffner; Ivan B. Damgaard; Serge Fehr; Louis Salvail,Cryptography in the Bounded Quantum-Storage Model,2006-01-17,14:15,50,invited
+QIP,2006,Michael Ben-Or,Michael Ben-Or; Claude Crépeau; Daniel Gottesman; Avinatan Hassidim; Adam Smith,Verifiable Quantum Secret Sharing and Secure Multi-Party Quantum Computation,2006-01-17,15:35,35,long
+QIP,2006,Claude Crépeau,Claude Crépeau; Jean-Raymond Simard; Alain Tapp,Classical and quantum strategies for two-prover bit commitments,2006-01-17,16:10,35,long
+QIP,2006,Karol Horodecki,Karol Horodecki; M. Horodecki; P. Horodecki; D. Leung; H-K. Lo; J. Oppenheim,Unconditionally secure privacy using channels that cannot convey quantum information,2006-01-17,16:45,15,short
+QIP,2006,Renato Renner,Renato Renner,An exponential de Finetti theorem and its applications to quantum cryptography,2006-01-18,9:30,50,invited
+QIP,2006,Patrick Hayden,Patrick Hayden; Stephen Bartlett; Robert Spekkens,The classical and quantum private capacities of a secret shared Cartesian frame,2006-01-18,10:50,35,long
+QIP,2006,Graeme Smith,Graeme Smith; Aram Harrow; Debbie Leung,Communicating over adversarial quantum channels,2006-01-18,11:25,35,long
+QIP,2006,Debbie Leung,Debbie Leung; Peter Shor,Quantum communication by erasure channel assisted by back classical communication,2006-01-18,12:00,15,short
+QIP,2006,Serge Haroche,Serge Haroche,Quantum information with Rydberg atoms and photons in cavities: results and perspectives,2006-01-19,9:30,50,invited
+QIP,2006,Jonathan Oppenheim,Jonathan Oppenheim; Rob Spekkens; Andreas Winter,A classical analogue of negative information,2006-01-19,10:50,35,long
+QIP,2006,Barbara Synak-Radtke,Barbara Synak-Radtke; Dong Yang; Michal Horodecki; Ryszard Horodecki,Irreversibility for all bound entangled states,2006-01-19,11:25,35,long
+QIP,2006,Tobias Osborne,Tobias Osborne,The Dynamics of 1D Quantum Spin Systems Can Be Approximated Efficiently,2006-01-19,12:00,15,short
+QIP,2006,Stephanie Wehner,Stephanie Wehner,Entanglement in Interactive Proof Systems with Binary Answers,2006-01-19,14:15,15,short
+QIP,2006,Nicolas Cerf,Nicolas Cerf; Nicolas Gisin; Serge Massar; Sandu Popescu,Quantum entanglement can be simulated without communication,2006-01-19,14:30,15,short
+QIP,2006,Julien Degorre,Julien Degorre; Sophie Laplante; Jérémie Roland,Simulating quantum correlations as a distributed sampling problem,2006-01-19,14:45,15,short
+QIP,2006,Nicolas Gisin,Nicolas Gisin; Antonio Acin; LLuis Masanes,From Bell's Theorem to Secure Quantum Key Distribution,2006-01-19,15:00,15,short
+QIP,2006,Harold Ollivier,Harold Ollivier; Frédéric Magniez; Dominic Mayers; Michele Mosca,Self-Testing of Quantum Circuits,2006-01-19,15:45,15,short
+QIP,2006,Igor Devetak,Igor Devetak,Dualities in quantum information theory,2006-01-19,16:00,15,short
+QIP,2006,Aram Harrow,Aram Harrow; Peter Shor,Asymmetric unitary gate capacities,2006-01-19,16:15,15,short
+QIP,2006,Benjamin Toner,Benjamin Toner,Monogamy of nonlocal quantum correlations,2006-01-19,16:30,15,short
+QIP,2006,Andris Ambainis,Andris Ambainis; Robert Spalek; Ronald de Wolf,"A new quantum lower bound method, with applications to strong direct product theorems",2006-01-20,9:30,50,invited
+QIP,2006,Kazuo Iwama,Kazuo Iwama; Masahito Hayashi; Harumichi Nishimura; Rudy Raymond; Shigeru Yamashita,Quantum Network Coding,2006-01-20,10:50,35,long
+QIP,2006,Lov Grover,Lov Grover,A different kind of quantum search,2006-01-20,11:25,35,long
+QIP,2006,Avinatan Hassidim,Avinatan Hassidim; Michael Ben-Or,Quantum Search in an Ordered List via Adaptive Learning,2006-01-20,12:00,15,short
+QIP,2006,Ben Reichardt,Ben Reichardt,Rigorous fault-tolerance thresholds,2006-01-20,14:15,50,invited
+QIP,2006,Robert Raussendorf,Robert Raussendorf; Jim Harrington; Kovid Goyal,A fault-tolerant one-way quantum computer,2006-01-20,15:35,35,long
+QIP,2006,Falk Unger,Falk Unger; Harry Buhrman; Richard Cleve; Monique Laurant; Noah Linden; Alexander Schrijver,New Limits on Fault-Tolerant Quantum Computation,2006-01-20,16:10,35,long
+QIP,2006,André Méthot,André Méthot; Gilles Brassard; Harry Buhrman; Noah Linden; Alain Tapp; Falk Unger,A limit on nonlocality in any world in which communication complexity is not trivial,2006-01-20,16:45,15,short
