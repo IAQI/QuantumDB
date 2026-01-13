@@ -1,0 +1,39 @@
+venue,year,speaker,authors,title,scheduled_date,scheduled_time,duration,paper_type
+QIP,2007,Andrew Childs,Andrew Childs,Quantum algorithms for hidden nonlinear structures,2007-01-30,9:00,50,invited
+QIP,2007,Aram Harrow,Aram Harrow,Superpolynomial speedup using the quantum Fourier transform on the symmetric group,2007-01-30,9:50,35,long
+QIP,2007,Luc Sanselme,Luc Sanselme,An efficient quantum algorithm for the hidden subgroup problem in extraspecials groups,2007-01-30,10:25,15,short
+QIP,2007,Andris Ambainis,Andris Ambainis,Quantum search with variable times,2007-01-30,11:15,15,short
+QIP,2007,Shengyu Zhang,Shengyu Zhang,Dishonesty and quantumness do not help a verifier in a classical honest-verifier zero-knowledge protocol,2007-01-30,11:50,15,short
+QIP,2007,Andreas Winter,Andreas Winter,The mother of all protocols - quantum coding for dummies,2007-01-30,14:25,50,invited
+QIP,2007,Jon Yard,Jon Yard,Redistributing quantum information,2007-01-30,15:15,35,long
+QIP,2007,Falk Unger,Falk Unger,Perfect Parallel Repetition Theorem for Quantum XOR Games,2007-01-30,16:25,15,short
+QIP,2007,Ben Toner,Ben Toner,Monogamy of Bell correlations and Tsirelson's bound,2007-01-30,17:00,15,short
+QIP,2007,Ignacio Cirac,Ignacio Cirac,Efficient simulation of quantum systems,2007-01-31,9:00,50,invited
+QIP,2007,Sergey Bravyi,Sergey Bravyi,Merlin-Arthur games and stoquastic complexity,2007-01-31,9:50,35,long
+QIP,2007,Norbert Schuch,Norbert Schuch,The computational complexity of PEPS,2007-01-31,10:25,15,short
+QIP,2007,Robert Koenig,Robert Koenig,The bounded storage model in the presence of a quantum adversary,2007-01-31,11:15,50,invited
+QIP,2007,Avraham Ben-Aroya,Avraham Ben-Aroya,Quantum extractors and the quantum entropy difference problem,2007-01-31,12:05,15,short
+QIP,2007,Andrew Yao,Andrew Yao,"Magic square, 3-SAT and quantum 3-prover systems",2007-02-01,9:00,50,invited
+QIP,2007,Troy Lee,Troy Lee,Negative weights makes adversaries stronger,2007-02-01,9:50,35,long
+QIP,2007,Andris Ambainis,Andris Ambainis,"Approximate quantum (t, t)-designs and derandomizing the measurement in a random basis",2007-02-01,10:25,35,long
+QIP,2007,Isaac Chuang,Isaac Chuang,Experimental QC Today: Babbage or Qintel?,2007-02-01,11:15,50,invited
+QIP,2007,Guifre Vidal,Guifre Vidal,Entanglement renormalization,2007-02-01,12:05,15,short
+QIP,2007,Panos Aliferis,Panos Aliferis,"New directions in quantum fault tolerance - subsystem codes, slow measurements and postselection",2007-02-02,9:00,50,invited
+QIP,2007,Stephen Jordan,Stephen Jordan,Error correcting codes for adiabatic quantum computation,2007-02-02,9:50,35,long
+QIP,2007,Igor Devetak,Igor Devetak,Entanglement-assisted quantum error correction,2007-02-02,10:25,15,short
+QIP,2007,Charles Bennett,Charles Bennett,Quantum Reverse Shannon Theorem: Complete and Unabridged,2007-02-02,11:15,35,long
+QIP,2007,Anthony Short,Anthony Short,No quantum advantage for nonlocal computation,2007-02-02,11:50,15,short
+QIP,2007,Debbie Leung,Debbie Leung,Quantum network communication -- the butterfly and beyond,2007-02-02,12:10,15,short
+QIP,2007,Ashwin Nayak,Ashwin Nayak,Search via quantum walk,2007-02-02,14:30,50,invited
+QIP,2007,Itai Arad,Itai Arad,Quantum additive approximations of the Potts model and other points on the Tutte Plane,2007-02-02,15:20,15,short
+QIP,2007,Stephanie Wehner,Stephanie Wehner,State discrimination with post-measurement information,2007-02-02,16:10,35,long
+QIP,2007,Manuel Ballester,Manuel Ballester,"Uncertainty, locking and mutually unbiased bases",2007-02-02,16:45,15,short
+QIP,2007,Scott Aaronson,Scott Aaronson,The learnability of quantum states,2007-02-03,9:00,50,invited
+QIP,2007,Gus Gutoski,Gus Gutoski,Semidefinite Representations of Quantum Strategies,2007-02-03,9:50,35,long
+QIP,2007,Frank Verstraete,Frank Verstraete,The quantum Chernoff bound and asymptotic error exponents in quantum hypothesis testing,2007-02-03,10:25,15,short
+QIP,2007,Francois Le Gall,Francois Le Gall,Exponential Separation of Quantum and Classical Online Space Complexity,2007-02-03,11:15,35,long
+QIP,2007,Iordanis Kerenidis,Iordanis Kerenidis,"Exponential separations for 1-way quantum communication complexity, with applications to cryptography",2007-02-03,11:50,35,long
+QIP,2007,Yi-Kai Liu,Yi-Kai Liu,"New QMA-complete problems, with applications to quantum chemistry",2007-02-03,14:25,50,invited
+QIP,2007,Daniel Gottesman,Daniel Gottesman,QMA Completeness and Adiabatic Quantum Computation in a One-Dimensional Chain,2007-02-03,15:15,35,long
+QIP,2007,Ben Reichardt,Ben Reichardt,Quantum universality by distilling certain one- and two-qubit states with stabilizer operations,2007-02-03,16:20,35,long
+QIP,2007,Graeme Smith,Graeme Smith,Good Quantum Codes with Fast Encoding and Decoding Circuits,2007-02-03,16:55,15,short
