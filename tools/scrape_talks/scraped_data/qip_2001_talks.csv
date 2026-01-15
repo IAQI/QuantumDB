@@ -1,0 +1,29 @@
+venue,year,speaker,authors,title,scheduled_date,scheduled_time,duration,paper_type
+QIP,2001,Richard Jozsa,Richard Jozsa; Howard Barnum; Patrick Hayden; Andreas Winter,On the Reversible Extraction of Classical Information from a Quantum Source,2001-01-09,10:00,45,invited
+QIP,2001,Martin Plenio,Martin Plenio,A New Inequality for the Quantum Relative Entropy and some Applications,2001-01-09,10:45,45,invited
+QIP,2001,Vlatko Vedral,Vlatko Vedral,Classical and Quantum Correlations in Quantum Computation,2001-01-09,12:00,45,invited
+QIP,2001,Peter Høyer,Peter Høyer; Jan Neerbek,Quantum Ordered Searching,2001-01-09,14:30,45,invited
+QIP,2001,Edward Farhi,Edward Farhi,Quantum Computation by Adiabatic Evolution,2001-01-09,15:15,45,invited
+QIP,2001,John Watrous,John Watrous,Quantum Algorithms for Solvable Groups,2001-01-09,16:15,45,invited
+QIP,2001,Alain Tapp,Alain Tapp; Andris Ambainis; Claude Crepeau; Daniel Gottesman; Michele Mosca; Ronald de Wolf,Private Quantum Channels and Quantum Authentication,2001-01-10,10:00,45,invited
+QIP,2001,Andris Ambainis,Andris Ambainis,A New Protocol and Lower Bounds for Quantum Coin Flipping,2001-01-10,10:45,45,invited
+QIP,2001,Barbara Terhal,Barbara Terhal; David DiVincenzo; Debbie Leung,Data Hiding with Mixtures of Bell States,2001-01-10,12:00,45,invited
+QIP,2001,Dorit Aharonov,Dorit Aharonov; Andris Ambainis; Julia Kempe; Umesh Vazirani,Do Quantum Drunks Walk Faster?,2001-01-10,14:30,45,invited
+QIP,2001,Umesh Vazirani,Umesh Vazirani,The Non-Abelian Hidden Subgroup Problem,2001-01-10,15:15,45,invited
+QIP,2001,Michael Nielsen,Michael Nielsen,Entanglement and Distributed Quantum Computation,2001-01-11,10:00,45,invited
+QIP,2001,Gilles Brassard,Gilles Brassard; Richard Cleve; Alain Tapp,Trading Entanglement for Communication,2001-01-11,10:45,45,invited
+QIP,2001,Ronald de Wolf,Ronald de Wolf; Harry Buhrman; Richard Cleve; John Watrous,"Quantum Fingerprinting, Simultaneous Message Passing, and Data Structures",2001-01-11,12:00,45,invited
+QIP,2001,David DiVincenzo,David DiVincenzo; C. H. Bennett; J. A. Smolin; B. M. Terhal; W. K. Wootters,Remote State Preparation,2001-01-11,14:30,45,invited
+QIP,2001,Peter Gács,Peter Gács,Quantum Algorithmic Entropy,2001-01-11,15:15,45,invited
+QIP,2001,Charles Bennett,Charles Bennett,Degrees of Knowledge of Quantum States and Operations,2001-01-11,16:15,45,invited
+QIP,2001,Gerard 't Hooft,Gerard 't Hooft,Quantum Mechanics and Determinism at the Planck Scale,2001-01-12,10:00,45,invited
+QIP,2001,Richard Cleve,Richard Cleve; John Watrous,Fast Parallel Algorithms for the Quantum Fourier Transform,2001-01-12,11:15,45,invited
+QIP,2001,Wim van Dam,Wim van Dam; Sean Hallgren,Efficient Quantum Algorithms for Shifted Quadratic Character Problems,2001-01-12,12:00,45,invited
+QIP,2001,Howard Barnum,Howard Barnum,Quantum Data Authentication,2001-01-12,14:30,10,regular
+QIP,2001,Guifré Vidal,Guifré Vidal,Probabilistic programmable quantum gates,2001-01-12,14:40,10,regular
+QIP,2001,Julia Kempe,Julia Kempe,A New Separability Criterion,2001-01-12,14:50,10,regular
+QIP,2001,Robert Raussendorf,Robert Raussendorf,A One-Way Quantum Computer,2001-01-12,15:00,10,regular
+QIP,2001,Erich Novak,Erich Novak,Quantum Complexity of Integration,2001-01-12,15:10,10,regular
+QIP,2001,Frank Verstraete,Frank Verstraete,Mixing Versus Entanglement in Two Qubits,2001-01-12,15:20,10,regular
+QIP,2001,Hartmut Klauck,Hartmut Klauck,Rounds in Quantum Communication,2001-01-12,15:30,10,regular
+QIP,2001,Ernesto Galvão,Ernesto Galvão,Experimental Requirements for Quantum Communication Complexity,2001-01-12,15:40,10,regular

@@ -1,0 +1,29 @@
+venue,year,speaker,authors,title,scheduled_date,scheduled_time,duration,paper_type
+QIP,2000,Gilles Brassard,Gilles Brassard,Introduction to quantum information processing,1999-12-06,9:30,75,tutorial
+QIP,2000,Richard Cleve,Richard Cleve,Fundamental quantum algorithms,1999-12-06,11:15,75,tutorial
+QIP,2000,Isaac Chuang,Isaac Chuang,Quantum computers: Physical implementation,1999-12-06,14:00,60,tutorial
+QIP,2000,Daniel Gottesman,Daniel Gottesman,Introduction to quantum error correction and fault-tolerance,1999-12-06,15:00,75,tutorial
+QIP,2000,Charles H. Bennett,Charles H. Bennett,Quantum information theory tutorial,1999-12-06,16:45,75,tutorial
+QIP,2000,Lov K. Grover,Lov K. Grover,Amplitude amplification with multiple targets,1999-12-07,10:00,45,invited
+QIP,2000,John P. Preskill,John P. Preskill,Topological storage of quantum information,1999-12-07,11:15,45,invited
+QIP,2000,Michele Mosca,Michele Mosca,Self-testing of universal sets of quantum gates,1999-12-07,15:00,45,invited
+QIP,2000,Dominic Mayers,Dominic Mayers,Violation of locality and self-testing quantum apparatus,1999-12-07,15:45,45,invited
+QIP,2000,Artur Ekert,Artur Ekert,TBA,1999-12-07,17:00,45,invited
+QIP,2000,Peter W. Shor,Peter W. Shor,EPR assisted capacity of a quantum channel,1999-12-08,10:00,45,invited
+QIP,2000,David DiVincenzo,David DiVincenzo,Algebraic and graph theoretic aspects of unextendible product bases and bound entanglement,1999-12-08,11:15,45,invited
+QIP,2000,Umesh Vazirani,Umesh Vazirani,Quantum computation with highly mixed states,1999-12-08,15:00,45,invited
+QIP,2000,Tal Mor,Tal Mor,Algorithmic cooling for ensemble computers,1999-12-08,15:45,45,invited
+QIP,2000,Thomas Beth,Thomas Beth,Quantum algorithms: A theoretical engineering point of view,1999-12-08,17:00,45,invited
+QIP,2000,Claude Crépeau,Claude Crépeau,Bit commitment and zero-knowledge: Classical vs quantum,1999-12-09,10:00,45,invited
+QIP,2000,Louis Salvail,Louis Salvail,Perfectly concealing quantum bit commitment from any quantum one-way permutation,1999-12-09,10:45,45,invited
+QIP,2000,Vwani Roychowdhury,Vwani Roychowdhury,A proof of security of quantum key distribution,1999-12-09,12:00,45,invited
+QIP,2000,Dorit Aharonov,Dorit Aharonov,A quantum to classical phase transition in noisy quantum computers,1999-12-10,10:00,45,invited
+QIP,2000,Eli Biham,Eli Biham,Exact solution of Grover's search algorithm using any unitary transformations,1999-12-10,11:15,45,invited
+QIP,2000,Ronald de Wolf,Ronald de Wolf,Log-rank lower bound for entanglement-assisted quantum communication complexity,1999-12-10,15:00,45,invited
+QIP,2000,Harry Buhrman,Harry Buhrman,Quantum communication complexity bounds by polynomials,1999-12-10,15:45,45,invited
+QIP,2000,Hoi-Kwong Lo,Hoi-Kwong Lo,Classical communication cost in quantum information processing --- A generalization of quantum communication complexity,1999-12-10,17:00,45,invited
+QIP,2000,John Watrous,John Watrous,Space-efficient simulation of quantum processes,1999-12-11,10:00,45,invited
+QIP,2000,Raymond Laflamme,Raymond Laflamme,"Quantum computation, the power of one bit of quantum information and quadratically signed weight enumerators",1999-12-11,11:15,45,invited
+QIP,2000,Michael Nielsen,Michael Nielsen,The structure of the entangled states,1999-12-11,14:00,45,invited
+QIP,2000,Christopher A. Fuchs,Christopher A. Fuchs,On unknown quantum states,1999-12-11,14:45,45,invited
+QIP,2000,Richard Jozsa,Richard Jozsa,Distinguishability of states and von Neumann entropy,1999-12-11,16:00,45,invited

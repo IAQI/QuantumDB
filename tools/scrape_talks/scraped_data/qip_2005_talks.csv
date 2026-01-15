@@ -1,0 +1,34 @@
+venue,year,speaker,authors,title,scheduled_date,scheduled_time,duration,paper_type
+QIP,2005,Andrew Childs,Andrew Childs; Dave Bacon; Wim van Dam,Optimal measurements for the dihedral hidden subgroup problem,2005-01-13,9:20,50,invited
+QIP,2005,Sean Hallgren,Sean Hallgren,A Quantum Algorithm for Computing Some Hidden Subgroups of the Symmetric Group,2005-01-13,10:30,50,invited
+QIP,2005,David Bacon,Dave Bacon,Value Added Multipartite Quantum Correlations,2005-01-13,11:20,50,invited
+QIP,2005,Mario Szegedy,Mario Szegedy,Quantum Speed-up of Markov Chain Based Algorithms,2005-01-13,14:00,50,invited
+QIP,2005,Dorit Aharonov,Dorit Aharonov; Vaughan Jones; Zeph Landau,On the quantum algorithm for approximating the Jones polynomial,2005-01-13,14:50,50,invited
+QIP,2005,Michael Nielsen,Michael Aaron Nielsen,Fault-tolerant quantum computation with cluster states,2005-01-13,16:10,50,invited
+QIP,2005,John Preskill,John Preskill; Charlene Ahn,The cost of quantum fault tolerance,2005-01-14,9:00,50,invited
+QIP,2005,Barbara Terhal,Barbara Maria Terhal,Fault-Tolerant Quantum Computation for Local Noise Models,2005-01-14,10:20,50,invited
+QIP,2005,Krysta Svore,Krysta Marie Svore,Local Fault-tolerant Quantum Computation,2005-01-14,11:10,20,regular
+QIP,2005,Andrew Doherty,Andrew C. Doherty,"Entanglement gap, monogamy of entanglement and quantum de Finetti theorems",2005-01-14,11:30,20,regular
+QIP,2005,Alexei Kitaev,Alexei Kitaev; Julia Kempe; Oded Regev,2-local Hamiltonian is QMA-complete,2005-01-14,14:00,50,invited
+QIP,2005,Michal Horodecki,Michal Horodecki,"Entanglement: drawing private key, locking by single qubit and erasing",2005-01-14,14:50,50,invited
+QIP,2005,Guifre Vidal,Guifre Vidal,Entanglement and the simulation of quantum systems,2005-01-14,16:10,50,invited
+QIP,2005,Jordan Kerenidis,Iordanis Kerenidis,On the power of quantum multiparty communication complexity,2005-01-15,9:00,50,invited
+QIP,2005,Yaoyun Shi,Yaoyun Shi,Tensor norms and the classical communication complexity of nonlocal quantum measurement,2005-01-15,10:20,50,invited
+QIP,2005,Oded Regev,Oded Regev,"On Lattices, Learning with Errors, Random Linear Codes, and Cryptography",2005-01-15,11:10,50,invited
+QIP,2005,Joseph Traub,Joseph F. Traub,Algorithms and Complexity for Continuous Problems,2005-01-15,14:00,20,regular
+QIP,2005,Dimitry Gavinsky,Dmitry Gavinsky,Quantum Communication Cannot Simulate a Public Coin,2005-01-15,14:20,20,regular
+QIP,2005,Seiichiro Tani,Seiichiro Tani,Exact Quantum Algorithms for the Leader Election Problem,2005-01-15,14:40,20,regular
+QIP,2005,Jean-Christian Boileau,Jean-Christian Boileau; K. Tamaki; J. Batuwantudawe; R. Laflamme; Joseph M. Renes,Performance of the Three State Quantum Key Distribution Protocol,2005-01-15,15:00,20,regular
+QIP,2005,John Yard,Jon Yard; Igor Devetak; Patrick Hayden,Capacity theorems for quantum multiple access channels,2005-01-15,15:20,20,regular
+QIP,2005,Andreas Winter,Andreas Winter; Frank Verstraete; John A Smolin; Jonathan Oppenheim; Michal Horodecki,Entanglement of assistance and applications to multi-user quantum information theory,2005-01-16,9:00,50,invited
+QIP,2005,Patrick Hayden,Patrick Hayden; Anura Abeyesinghe; Debbie Leung; Graeme Smith; Andreas Winter,The Remarkable Ubiquity of Entanglement,2005-01-16,10:20,50,invited
+QIP,2005,Igor Devetak,Igor Devetak,Quantum Shannon Theory: Overview and Recent Results,2005-01-16,11:10,50,invited
+QIP,2005,Matthias Christandl,Matthias Christandl; Harry Buhrman; Patrick Hayden; Hoi-Kwong Lo; Stephanie Wehner,On the (Im)Possibility of Quantum String Commitment,2005-01-16,14:00,50,invited
+QIP,2005,Andrew Scott,Andrew Scott,Classical and quantum fingerprinting strategies,2005-01-16,14:50,20,regular
+QIP,2005,Jose Latorre,José Ignacio Latorre,Scaling of entanglement and quantum computation,2005-01-16,15:10,20,regular
+QIP,2005,Samuel Kutin,Samuel Alan Kutin,A new quantum ripple-carry adder,2005-01-16,15:50,20,regular
+QIP,2005,Scott Glancy,Scott Charles Glancy,Quantum Computation with Optical Coherent States,2005-01-16,16:10,20,regular
+QIP,2005,Martin Plesch,Martin Plesch,Reconstruction of quantum channels from incomplete data,2005-01-16,16:30,20,regular
+QIP,2005,Ronald de Wolf,Ronald de Wolf; Hartmut Klauck; Robert Spalek,Direct Product Theorems and Optimal Time-Space Tradeoffs,2005-01-17,9:00,50,invited
+QIP,2005,Aram Harrow,Aram Harrow,Efficient Quantum Circuits for Schur and Clebsch-Gordan transforms,2005-01-17,10:20,50,invited
+QIP,2005,Scott Aaronson,Scott Aaronson,The Amazing Power of Postselection,2005-01-17,11:10,50,invited
