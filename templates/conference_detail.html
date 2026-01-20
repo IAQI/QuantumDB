@@ -126,7 +126,18 @@
                 <tr>
                     <td data-value="title">
                         {% if !pub.arxiv_ids.is_empty() %}
-                            <a href="https://arxiv.org/abs/{{ pub.arxiv_ids[0] }}" target="_blank" rel="noopener noreferrer">{{ pub.title }} ↗</a>
+                            {% for arxiv_id in pub.arxiv_ids %}
+                                {% if loop.first %}
+                                    <a href="https://arxiv.org/abs/{{ arxiv_id }}" target="_blank" rel="noopener noreferrer">{{ pub.title }} ↗</a>
+                                {% endif %}
+                            {% endfor %}
+                            <br><small>
+                            {% for arxiv_id in pub.arxiv_ids %}
+                                {% if loop.index0 > 0 %}
+                                    <a href="https://arxiv.org/abs/{{ arxiv_id }}" target="_blank" rel="noopener noreferrer">arXiv:{{ arxiv_id }} ↗</a>{% if !loop.last %}, {% endif %}
+                                {% endif %}
+                            {% endfor %}
+                            </small>
                         {% else %}
                             {{ pub.title }}
                         {% endif %}
