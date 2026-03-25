@@ -85,13 +85,13 @@ def parse_arxiv_id(arxiv_string: str) -> Optional[str]:
             arxiv_ids.append(arxiv_match.group(1))
             continue
     
-    # Return comma-separated list of unique arXiv IDs
+    # Return semicolon-separated list of unique arXiv IDs
     if arxiv_ids:
         unique_ids = []
         for aid in arxiv_ids:
             if aid not in unique_ids:
                 unique_ids.append(aid)
-        return ','.join(unique_ids)
+        return ';'.join(unique_ids)
     
     return None
 

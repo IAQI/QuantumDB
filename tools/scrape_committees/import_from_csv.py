@@ -259,10 +259,10 @@ async def import_from_csv(
 async def main():
     """Main import function."""
     parser = argparse.ArgumentParser(
-        description='Import committee data from CSV file into database'
+        description='Import committee data from one or more CSV files into database'
     )
-    parser.add_argument('csv_file', type=str,
-                       help='Path to CSV file with committee data')
+    parser.add_argument('csv_files', type=str, nargs='+',
+                       help='Path(s) to CSV file(s) with committee data')
     parser.add_argument('--dry-run', action='store_true',
                        help='Show what would be imported without actually importing')
     parser.add_argument('--db-url', type=str,
@@ -270,10 +270,12 @@ async def main():
     
     args = parser.parse_args()
     
-    # Check file exists
-    csv_path = Path(args.csv_file)
-    if not csv_path.exists():
-        logger.error(f"CSV file not found: {csv_path}")
+    # Check all files exist
+    csv_paths = [Path(f) for f in args.csv_files]
+    missing = [p for p in csv_paths if not p.exists()]
+    if missing:
+        for p in missing:
+            logger.error(f"CSV file not found: {p}")
         return 1
     
     # Load environment
@@ -287,18 +289,28 @@ async def main():
     try:
         pool = await asyncpg.create_pool(db_url, min_size=1, max_size=5)
         
-        # Import data
-        imported, failed = await import_from_csv(pool, csv_path, args.dry_run)
+        total_imported = 0
+        total_failed = 0
+
+        for csv_path in csv_paths:
+            if len(csv_paths) > 1:
+                logger.info(f"--- Processing {csv_path} ---")
+            imported, failed = await import_from_csv(pool, csv_path, args.dry_run)
+            total_imported += imported
+            total_failed += failed
         
+        if len(csv_paths) > 1:
+            logger.info(f"--- Total across {len(csv_paths)} files ---")
+
         if args.dry_run:
-            logger.info(f"DRY RUN: {imported} records would be imported")
+            logger.info(f"DRY RUN: {total_imported} records would be imported")
         else:
-            logger.info(f"✓ Successfully imported {imported} records")
-            if failed > 0:
-                logger.warning(f"✗ Failed to import {failed} records")
+            logger.info(f"✓ Successfully imported {total_imported} records")
+            if total_failed > 0:
+                logger.warning(f"✗ Failed to import {total_failed} records")
         
         await pool.close()
-        return 0 if failed == 0 else 1
+        return 0 if total_failed == 0 else 1
         
     except Exception as e:
         logger.error(f"Error: {e}")
