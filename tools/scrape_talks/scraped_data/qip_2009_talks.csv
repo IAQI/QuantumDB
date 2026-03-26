@@ -1,0 +1,66 @@
+venue,year,paper_type,title,speaker,authors,affiliations,abstract,arxiv_ids,presentation_url,video_url,session_name,award,notes,scheduled_date,scheduled_time,duration_minutes
+QIP,2009,invited,Universal computation by quantum walk,Andrew Childs,Andrew Childs,Waterloo,"In some of the earliest work on quantum mechanical computers, Feynman showed how to implement universal quantum computation by the dynamics of a time-independent Hamiltonian. I show that this remains possible even if the Hamiltonian is restricted to be a sparse matrix with all entries equal to 0 or 1, i.e., the adjacency matrix of a low-degree graph. Thus quantum walk can be regarded as a universal computational primitive, with any desired quantum computation encoded entirely in some underlying graph. The main idea of the construction is to implement quantum gates by scattering processes",,,,,,,,,50
+QIP,2009,invited,Multi Prover Interactive Proofs with Communicating Provers,Avinatan Hassidim,Avinatan Hassidim,Jerusalem,"We introduce a variant of Quantum Multi Prover Interactive Proofs (QMIP), where the provers do not share entanglement, the communication between the verifier and the provers is quantum, but the provers are unlimited in the classical communication between them. At first, this model may seem very weak, as provers who exchange information seem to be equivalent in power to a single prover. This in fact is not the case - we show that any language in NEXP can be recognized in this model efficiently, with just two provers and two rounds of communication, with a constant completeness-soundness gap. The main idea is not to bound the information the provers exchange with each other, as in the classical case, but rather to prove that any ""cheating"" strategy employed by the provers has constant probability to diminish the entanglement between the verifier and the provers by a constant amount. Detecting such reduction gives us the soundness proof. Similar ideas and techniques may help help with other models of Quantum MIP, including the dual question, of non communicating provers with unlimited entanglement. Joint work with Michael Ben-Or and Haran Pilpel",,,,,,,,,50
+QIP,2009,invited,A Counter-example to Additivity,Matt Hastings,Matt Hastings,LANL,"One of the basic problems in physics is approximating the ground state energy of a quantum many-body system.  For arbitrary choice of local interactions, this problem is extremely difficult, even in one dimension where Aharonov, Gottesman, and Kempe and Irani showed that this problem is QMA-complete.  However, many of the quantum ground states encountered in practice have a limited amount of entanglement.  As I will explain, this makes it possible to efficiently represent the ground state of these systems on a classical computer.  In the important case that the Hamiltonian has a spectral gap, I will explain a recent proof of an ""area law"" which bounds the entanglement entropy.  This result implies that a certain promise problem for approximating the ground state energy of gapped one-dimensional Hamiltonians is in NP, while a similar problem for approximating the adiabatic evolution of such systems is in P. There are four different additivity conjectures in quantum information theory, all of which were shown to be equivalent by Shor in 2004.  These include the additivity of the Holevo capacity for sending classical information over a quantum channel, and the additivity of the minimum output entropy of a quantum channel.  These conjectures relate to whether or not entanglement between different inputs to a quantum channel is useful to increase classical capacity or reduce output entropy.  I will present a counter-example to the minimum output entropy conjecture, which implies that all of these additivity conjectures are false.  The counter-example is based on a random construction of a channel with a large environment dimension and an even larger system dimension.  I will relate this channel to recent work on quantum expanders, and I will propose a slightly weaker additivity conjecture which would give us a two-letter formula for capacity of channels invariant under complex conjugation.",,,,,,,,,50
+QIP,2009,invited,Holding Quantum Information in Electron Spins,Charles Marcus,Charles Marcus,Harvard,,,,,,,,,,50
+QIP,2009,invited,Device-independent security in QKD,Lluis Masanes,Lluis Masanes,Barcelona,"This talk is about secret key distribution from correlations that violate Bell inequalities. A security proof can be obtained from the assumption that arbitrarily-fast signaling between different subsystems is impossible. This assumption is imposed at the level of the outcome probabilities given the choice of observables, therefore, the scheme remains secure in situations where the honest parties distrust their quantum apparatuses.",,,,,,,,,50
+QIP,2009,invited,Quantum Communication With Zero-Capacity Channels,Graeme Smith,Graeme Smith,"IBM, TJ Watson","Communication over a noisy quantum channel introduces errors in the transmission that must be corrected. A fundamental bound on quantum error correction is the quantum capacity, which quantifies the amount of quantum data that can be sent. I will show how two quantum channels, each with a transmission capacity of zero, can have a nonzero capacity when used together. This unveils a rich structure in the theory of quantum communications, and points towards several new questions about communication and information in the physical world. This is work done jointly with Jon Yard.",,,,,,,,,50
+QIP,2009,regular,Short seed extractors against quantum storage,Amnon Ta-Shma,Amnon Ta-Shma,,,,,,,,,,,30
+QIP,2009,regular,"Quantum Stein's Lemma for
+Correlated States and Asymptotic Entanglement Transformations",Fernando Brandao,Fernando Brandao;Martin Plenio,,,,,,,,,,,30
+QIP,2009,regular,"Ground States Entanglement in One Dimensional
+Translationally-Invariant Quantum Systems",Sandy Irani,Sandy Irani,,,,,,,,,,,30
+QIP,2009,regular,"Quantum algorithms are at most polynomially
+faster than classical for any symmetric function",Andris Ambainis,Andris Ambainis,,,,,,,,,,,30
+QIP,2009,regular,"A no-go theorem for a
+two-dimensional self-correcting quantum memory based on stabilizer
+codes",Sergey Bravyi,Sergey Bravyi;Barbara Terhal,,,,,,,,,,,30
+QIP,2009,regular,"A generalized
+Grothendieck inequality and entanglement in XOR games",Jop Briet,Jop Briet;Harry Buhrman;Ben Toner,,,,,,,,,,,30
+QIP,2009,regular,"Classical Interaction Cannot Replace Quantum
+Nonlocality",Dmitry Gavinsky,Dmitry Gavinsky,,,,,,,,,,,30
+QIP,2009,regular,"Efficient discrete-time simulations of
+continuous-time quantum query algorithms",Richard Cleve,Richard Cleve;Daniel Gottesman;Michele Mosca;Rolando Somma;David Yonge-Mallo,,,,,,,,,,,30
+QIP,2009,regular,"The Fidelity Alternative and
+Quantum Measurement Simulation",Patrick Hayden,Patrick Hayden;Andreas Winter,,,,,,,,,,,30
+QIP,2009,regular,Quantum Tornado codes,Jean-Pierre Tillich,Jean-Pierre Tillich,,,,,,,,,,,30
+QIP,2009,regular,"The
+Operational Meaning of Min- and Max-Entropy",Robert Koenig,Robert Koenig;Renato Renner;Christian Schaffner,,,,,,,,,,,30
+QIP,2009,regular,"Fault-tolerant quantum
+computing against highly biased noise",Panos Aliferis,Panos Aliferis;John Preskill,,,,,,,,,,,30
+QIP,2009,regular,"Oracularization and Two-Prover One-Round Interactive Proofs
+against Nonlocal Strategies",Tsuyoshi Ito,Tsuyoshi Ito;Hirotada Kobayashi;Keiji Matsumoto,,,,,,,,,,,30
+QIP,2009,regular,"Exact entanglement
+renormalization for string-net models",Robert Koenig,Robert Koenig;Ben Reichardt;Guifre Vidal,,,,,,,,,,,30
+QIP,2009,regular,Quantum boolean functions,Ashley Montanaro,Ashley Montanaro;Tobias Osborne,,,,,,,,,,,30
+QIP,2009,regular,Distinguishability of Random Unitary Channels,Bill Rosgen,Bill Rosgen,,,,,,,,,,,30
+QIP,2009,regular,"Efficient Quantum Tensor Product
+Expanders and k-designs",Aram Harrow,Aram Harrow;Richard Low,,,,,,,,,,,30
+QIP,2009,regular,"Approximate quantum error
+correction for correlated noise",Avraham Ben-Aroya,Avraham Ben-Aroya;Amnon Ta-Shma,,,,,,,,,,,30
+QIP,2009,regular,"Most quantum states are useless for
+measurement-based quantum computation",Steve Flammia,"Steve Flammia;David Gross;Jens Eisert;Michael Bremner;Andreas
+Winter;Caterina Mora",,,,,,,,,,,30
+QIP,2009,regular,Predictive Quantum Learning,Dmitry Gavinsky,Dmitry Gavinsky,,,,,,,,,,,30
+QIP,2009,regular,"Interacting electrons,
+Density Functional Theory, and Quantum Merlin Arthur",Norbert Schuch,Norbert Schuch;Frank Verstraete,,,,,,,,,,,30
+QIP,2009,regular,"The
+computational difficulty of finding MPS ground states",Norbert Schuch,Norbert Schuch;J. Ignacio Cirac;Frank Verstraete,,,,,,,,,,,30
+QIP,2009,regular,"Lieb Robinson bounds and ""supersonic
+quantum communication""",Jens Eisert,Jens Eisert;David Gross,,,,,,,,,,,30
+QIP,2009,regular,"Instantaneous Quantum
+Computation",Dan Shepherd,Dan Shepherd;Michael Bremner,,,,,,,,,,,30
+QIP,2009,regular,"Closed Timelike Curves Make
+Quantum and Classical Computing Equivalent",Scott Aaronson,Scott Aaronson;John Watrous,,,,,,,,,,,30
+QIP,2009,regular,"Can non-private channels transmit
+quantum information?",John Smolin,John Smolin;Graeme Smith,,,,,,,,,,,30
+QIP,2009,regular,On Non-Locality Distillation,Dejan Dukaric,Dejan Dukaric;Manuel Forster;Severin Winkler;Stefan Wolf,,,,,,,,,,,30
+QIP,2009,regular,"Analyzing  Quantum
+Circuits Using the Least Action Principle",Dave Bacon,Dave Bacon;Wim van Dam;Alexander Russell,,,,,,,,,,,30
+QIP,2009,regular,"Postselection-technique with applications to quantum cryptography and
+the parallel repetition problem",Matthias Christandl,Matthias Christandl;Dejan Dukaric;Robert Koenig;Renato Renner,,,,,,,,,,,30
+QIP,2009,regular,"Key Distribution
+and Oblivious Transfer à la Merkle",Gilles Brassard,Gilles Brassard;Louis Salvail;Alain Tapp,,,,,,,,,,,30
+QIP,2009,regular,"Restrictions on Transversal
+Encoded Quantum Gate Sets",Bryan Eastin,Bryan Eastin;Emanuel Knill,,,,,,,,,,,30
+QIP,2009,regular,Quantum Algorithms using the Curvelet Transform,Yi-Kai Liu,Yi-Kai Liu,,,,,,,,,,,30

@@ -301,8 +301,8 @@ async def import_from_csv(
     pool: asyncpg.Pool,
     csv_file: Path,
     dry_run: bool = False
-) -> tuple[int, int]:
-    """Import talks from CSV."""
+) -> tuple[int, list[dict]]:
+    """Import talks from CSV. Returns (imported_count, list of failure dicts)."""
 
     # Read CSV
     talks = []
@@ -312,7 +312,7 @@ async def import_from_csv(
 
     if not talks:
         logger.error("No talks in CSV")
-        return 0, 0
+        return 0, []
 
     venue = talks[0]['venue']
     year = int(talks[0]['year'])
@@ -324,11 +324,11 @@ async def import_from_csv(
         logger.info("DRY RUN - would import:")
         for talk in talks:
             logger.info(f"  {talk.get('paper_type', 'unknown')}: {talk.get('title', 'N/A')[:80]}")
-        return len(talks), 0
+        return len(talks), []
 
     # Import talks in transaction
     imported = 0
-    failed = 0
+    failures = []
 
     # Group by paper_type for canonical_key generation
     talks_by_type = {}
@@ -359,12 +359,22 @@ async def import_from_csv(
                         if success:
                             imported += 1
                         else:
-                            failed += 1
+                            failures.append({
+                                'file': csv_file.name,
+                                'title': talk.get('title', '(no title)'),
+                                'paper_type': paper_type,
+                                'reason': 'import_talk returned False (conference not found or no authors)',
+                            })
                     except Exception as e:
-                        logger.error(f"Error importing {talk.get('title', 'unknown')}: {e}")
-                        failed += 1
+                        failures.append({
+                            'file': csv_file.name,
+                            'title': talk.get('title', '(no title)'),
+                            'paper_type': paper_type,
+                            'reason': str(e),
+                        })
+                        logger.error(f"Error importing '{talk.get('title', 'unknown')}': {e}")
 
-    return imported, failed
+    return imported, failures
 
 
 async def async_main():
@@ -372,7 +382,7 @@ async def async_main():
     parser = argparse.ArgumentParser(
         description='Import talks from CSV into database'
     )
-    parser.add_argument('csv_file', type=str, help='Path to CSV file')
+    parser.add_argument('csv_files', type=str, nargs='+', help='Path(s) to CSV file(s)')
     parser.add_argument('--dry-run', action='store_true', help='Show what would be imported without making changes')
     parser.add_argument('--db-url', type=str, help='Database URL (overrides DATABASE_URL env var)')
 
@@ -386,10 +396,13 @@ async def async_main():
         logger.error("DATABASE_URL not set. Set it in .env file or use --db-url")
         sys.exit(1)
 
-    csv_file = Path(args.csv_file)
-    if not csv_file.exists():
-        logger.error(f"CSV file not found: {csv_file}")
-        sys.exit(1)
+    csv_files = []
+    for path in args.csv_files:
+        p = Path(path)
+        if not p.exists():
+            logger.error(f"CSV file not found: {p}")
+            sys.exit(1)
+        csv_files.append(p)
 
     # Create connection pool
     try:
@@ -398,35 +411,39 @@ async def async_main():
         logger.error(f"Failed to connect to database: {e}")
         sys.exit(1)
 
-    try:
-        # Import talks
-        imported, failed = await import_from_csv(pool, csv_file, dry_run=args.dry_run)
+    total_imported = 0
+    all_failures: list[dict] = []
 
-        # Report results
+    try:
+        for csv_file in csv_files:
+            if len(csv_files) > 1:
+                logger.info(f"\n--- Processing {csv_file.name} ---")
+
+            imported, failures = await import_from_csv(pool, csv_file, dry_run=args.dry_run)
+            total_imported += imported
+            all_failures.extend(failures)
+
+        # Final summary
         if args.dry_run:
-            logger.info(f"\nDRY RUN complete. Would import {imported} talks.")
+            logger.info(f"\nDRY RUN complete. Would import {total_imported} talks across {len(csv_files)} file(s).")
         else:
             logger.info(f"\n✓ Import complete!")
-            logger.info(f"  Imported: {imported}")
-            if failed > 0:
-                logger.warning(f"  Failed: {failed}")
+            logger.info(f"  Files processed: {len(csv_files)}")
+            logger.info(f"  Total imported:  {total_imported}")
+            logger.info(f"  Total failed:    {len(all_failures)}")
 
-            # Suggest verification
-            venue = None
-            year = None
-            with open(csv_file, 'r', encoding='utf-8') as f:
-                reader = csv.DictReader(f)
-                first_row = next(reader, None)
-                if first_row:
-                    venue = first_row['venue']
-                    year = first_row['year']
-
-            if venue and year:
-                logger.info(f"\nVerify with SQL:")
-                logger.info(f"  SELECT title, paper_type FROM publications p")
-                logger.info(f"  JOIN conferences c ON p.conference_id = c.id")
-                logger.info(f"  WHERE c.venue = '{venue}' AND c.year = {year}")
-                logger.info(f"  AND p.paper_type IN ('invited', 'tutorial', 'keynote');")
+            if all_failures:
+                logger.warning(f"\nFailed to import {len(all_failures)} talk(s):")
+                # Group by file for readability
+                by_file: dict[str, list[dict]] = {}
+                for f in all_failures:
+                    by_file.setdefault(f['file'], []).append(f)
+                for fname, file_failures in by_file.items():
+                    logger.warning(f"  {fname} ({len(file_failures)} failure(s)):")
+                    for fail in file_failures:
+                        title = fail['title'][:70] + '…' if len(fail['title']) > 70 else fail['title']
+                        logger.warning(f"    [{fail['paper_type']}] {title}")
+                        logger.warning(f"      Reason: {fail['reason']}")
 
     finally:
         await pool.close()

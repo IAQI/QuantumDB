@@ -1,0 +1,59 @@
+venue,year,paper_type,title,speaker,authors,affiliations,abstract,arxiv_ids,presentation_url,video_url,session_name,award,notes,scheduled_date,scheduled_time,duration_minutes
+QIP,2011,regular,,Ashley Montanaro,Ashley Montanaro,,,1001.0017,abstract/1001.0017p.pdf,movie.php@id=1001.0017.html,,,,2011-01-10,09:30,50
+QIP,2011,regular,,Thomas Vidick,Julia Kempe;Thomas Vidick,,,1012.4728,abstract/1012.4728p.pdf,movie.php@id=1012.4728.html,,,,2011-01-10,10:50,30
+QIP,2011,regular,,Tsuyoshi Ito,Tsuyoshi Ito;Hirotada Kobayashi;John Watrous,,,1012.4427,abstract/1012.4427p.pdf,movie.php@id=1012.4427.html,,,,2011-01-10,11:25,20
+QIP,2011,regular,,Shengyu Zhang,Shengyu Zhang,,,1012.5141,abstract/1012.5141p.pdf,movie.php@id=1012.5141.html,,,,2011-01-10,11:50,20
+QIP,2011,regular,,Lunch,Lunch,,,,,,,,,2011-01-10,12:10,110
+QIP,2011,regular,,John Martinis,John Martinis,,,1011.2862;1011.0105;0906.4547,abstract/1011.0105p.pdf,movie.php@id=1011.0105.html,,,,2011-01-10,14:00,50
+QIP,2011,regular,,Tzu-Chieh Wei,Tzu-Chieh Wei;Ian Affleck;Robert Raussendorf (UBC); Akimasa Miyake (PI),,,1009.2840;1009.3491,abstract/1009.2840p.pdf,movie.php@id=1009.2840.html,,,,2011-01-10,14:55,20
+QIP,2011,regular,,Break,Break,,,,,,,,,2011-01-10,15:15,30
+QIP,2011,regular,,David Poulin,David Poulin;Angie Qarry;Rolando Somma;Frank Verstraete,,,,abstract/158p.pdf,movie.php@id=158.html,,,,2011-01-10,15:45,20
+QIP,2011,regular,,Ramis Movassagh,Ramis Movassagh;Alan Edelman,,,1012.5039,abstract/1012.5039p.pdf,movie.php@id=1012.5039.html,,,,2011-01-10,16:10,20
+QIP,2011,regular,,Norbert Schuch,Sarah Harrison;Norbert Schuch;Tobias Osborne;Jens Eisert,,,1010.4576,abstract/1010.4576p.pdf,movie.php@id=1010.4576.html,,,,2011-01-10,16:35,20
+QIP,2011,regular,,Poster session 1,Poster session 1,,,,,,,,,2011-01-10,17:15,
+QIP,2011,regular,,Oded Regev,Oded Regev,,,1009.3640,abstract/1009.3640p.pdf,movie.php@id=1009.3640.html,,,,2011-01-11,09:00,50
+QIP,2011,regular,,Loïck Magnin,Loïck Magnin;Martin Roetteler;Jérémie Roland,,,1012.2112,abstract/1012.2112p.pdf,movie.php@id=1012.2112.html,,,,2011-01-11,09:55,20
+QIP,2011,regular,,Break,Break,,,,,,,,,2011-01-11,10:15,30
+QIP,2011,regular,,Giannicola Scarpa,Harry Buhrman;Oded Regev;Giannicola Scarpa;Ronald de Wolf,,,1012.5043,abstract/1012.5043p.pdf,movie.php@id=1012.5043.html,,,,2011-01-11,10:45,30
+QIP,2011,regular,,Carlos Palazuelos,Marius Junge;Carlos Palazuelos,,,1007.3043,abstract/1007.3043p.pdf,movie.php@id=1007.3043.html,,,,2011-01-11,11:20,20
+QIP,2011,regular,,Tobias Fritz,Tobias Fritz,,,1008.1168,abstract/1008.1168p.pdf,movie.php@id=1008.1168.html,,,,2011-01-11,11:45,20
+QIP,2011,regular,,Lunch,Lunch,,,,,,,,,2011-01-11,12:05,115
+QIP,2011,regular,,Simone Severini,Adán Cabello;Simone Severini;Andreas Winter,,,1010.2163,abstract/1010.2163p.pdf,movie.php@id=1010.2163.html,,,,2011-01-11,14:00,20
+QIP,2011,regular,,Stephanie Wehner,Jonathan Oppenheim;Stephanie Wehner,,,1004.2507,abstract/1004.2507p.pdf,movie.php@id=1004.2507.html,,,,2011-01-11,14:25,30
+QIP,2011,regular,,Break,Break,,,,,,,,,2011-01-11,14:55,35
+QIP,2011,regular,,Jérémie Roland,Hari Krovi;Frédéric Magniez;Maris Ozols;Jérémie Roland,,,1002.2419,abstract/1002.2419p.pdf,movie.php@id=1002.2419.html,,,,2011-01-11,15:30,30
+QIP,2011,regular,,Xie Chen,Jianxin Chen;Xie Chen;Runyao Duan;Zhengfeng Ji;Zhaohui Wei;Bei Zeng,,,1004.3787;1010.2480,abstract/1004.3787p.pdf,movie.php@id=1004.3787.html,,,,2011-01-11,16:05,20
+QIP,2011,regular,,Robin Kothari,Andrew Childs;Robin Kothari,,,1011.1443,abstract/1011.1443p.pdf,movie.php@id=1011.1443.html,,,,2011-01-11,16:30,20
+QIP,2011,regular,,Fernando Brandão,Fernando Brandão;Michał Horodecki,,,1010.3654,abstract/1010.3654p.pdf,movie.php@id=1010.3654.html,,,,2011-01-11,16:55,20
+QIP,2011,regular,,Poster session 2,Poster session 2,,,,,,,,,2011-01-11,17:15,
+QIP,2011,regular,,Sergey Bravyi,Sergey Bravyi,,,1001.0344;1001.4363,abstract/1001.0344p.pdf,movie.php@id=1001.0344.html,,,,2011-01-12,09:00,50
+QIP,2011,regular,,David Reeb,Teiko Heinosaari;Michael Wolf. Talk presented by David Reeb,,,,abstract/136p.pdf,movie.php@id=136.html,,,,2011-01-12,09:55,20
+QIP,2011,regular,,Break,Break,,,,,,,,,2011-01-12,10:15,30
+QIP,2011,regular,,Earl Campbell,Earl Campbell,,,1010.0104,abstract/1010.0104p.pdf,movie.php@id=1010.0104.html,,,,2011-01-12,10:45,30
+QIP,2011,regular,,James Wootton,James Wootton;Robert Heath;Jiannis Pachos,,,,abstract/113p.pdf,movie.php@id=113.html,,,,2011-01-12,11:20,20
+QIP,2011,regular,,Hector Bombin,Hector Bombin,,,1006.5260,abstract/1006.5260p.pdf,movie.php@id=1006.5260.html,,,,2011-01-12,11:45,30
+QIP,2011,regular,,Lunch & free time,Lunch & free time,,,,,,,,,2011-01-12,12:15,285
+QIP,2011,regular,,Public Lecture,Public Lecture : Information is Quantum Charles Bennett,,,,../publiclecture/index.html,movie.php@id=bennett.html,,,,2011-01-12,17:00,60
+QIP,2011,regular,,Social dinner,Social dinner,,,,,,,,,2011-01-12,19:00,
+QIP,2011,regular,,Andrew Lutomirski,Andrew Lutomirski,,,1004.5127,http://qip2011.quantumlah.org/scientificprogramme/abstract/1004.5127p.pdf,movie.php@id=1004.5127.html,,,,2011-01-13,09:00,50
+QIP,2011,regular,,Andrew Childs,Andrew Childs;David Jao;Vladimir Soukharev,,,1012.4019,abstract/1012.4019p.pdf,movie.php@id=1012.4019.html,,,,2011-01-13,09:55,20
+QIP,2011,regular,,Break,Break,,,,,,,,,2011-01-13,10:15,30
+QIP,2011,regular,,Fang Song,Sean Hallgren;Adam Smith;Fang Song,,,,abstract/183p.pdf,movie.php@id=183.html,,,,2011-01-13,10:45,30
+QIP,2011,regular,,Hang Dinh,Hang Dinh;Cristopher Moore;Alexander Russell,,,1008.2390,abstract/1008.2390p.pdf,movie.php@id=1008.2390.html,,,,2011-01-13,11:20,20
+QIP,2011,regular,,François Le Gall,Hirotada Kobayashi;François Le Gall;Harumichi Nishimura;Martin Roetteler,,,1012.4583,abstract/1012.4583p.pdf,movie.php@id=1012.4583.html,,,,2011-01-13,11:45,20
+QIP,2011,regular,,Lunch,Lunch,,,,,,,,,2011-01-13,12:05,115
+QIP,2011,regular,,Omar Fawzi,Omar Fawzi,,,1010.3007,abstract/1010.3007p.pdf,movie.php@id=1010.3007.html,,,,2011-01-13,14:00,50
+QIP,2011,regular,,Jonathan Oppenheim,Fernando Brandão;Jonathan Oppenheim,,,1004.3328;1005.1975,abstract/1004.3328p.pdf,movie.php@id=1004.3328.html,,,,2011-01-13,14:55,30
+QIP,2011,regular,,Break,Break,,,,,,,,,2011-01-13,15:25,35
+QIP,2011,regular,,Business meeting,Business meeting,,,,,,,,,2011-01-13,16:00,60
+QIP,2011,regular,,Serge Fehr,Serge Fehr,,,1009.2490,abstract/1009.2490p.pdf,movie.php@id=1009.2490.html,,,,2011-01-14,09:00,50
+QIP,2011,regular,,William Matthews,Debbie Leung;Laura Mancinska;William Matthews;Maris Ozols;Aidan Roy,,,1009.1195,abstract/1009.1195p.pdf,movie.php@id=1009.1195.html,,,,2011-01-14,09:55,30
+QIP,2011,regular,,Break,Break,,,,,,,,,2011-01-14,10:25,35
+QIP,2011,regular,,Christian Gogolin,Christian Gogolin;Markus Müller;Jens Eisert,,,1009.2493,abstract/1009.2493p.pdf,movie.php@id=1009.2493.html,,,,2011-01-14,11:00,20
+QIP,2011,regular,,Man Hong Yung,Man Hong Yung;Alán Aspuru-Guzik,,,1011.1468,abstract/1011.1468p.pdf,movie.php@id=1011.1468.html,,,,2011-01-14,11:25,20
+QIP,2011,regular,,Ersen Bilgin,Ersen Bilgin;Sergio Boixo,,,1008.4162,abstract/1008.4162p.pdf,movie.php@id=1008.4162.html,,,,2011-01-14,11:50,20
+QIP,2011,regular,,Lunch,Lunch,,,,,,,,,2011-01-14,12:10,110
+QIP,2011,regular,,Bill Fefferman,Bill Fefferman;Christopher Umans,,,1007.0305,abstract/1007.0305p.pdf,movie.php@id=1007.0305.html,,,,2011-01-14,14:00,30
+QIP,2011,regular,,Michael Bremner,Michael Bremner;Richard Jozsa;Dan Shepherd,,,1005.1407,abstract/1005.1407p.pdf,movie.php@id=1005.1407.html,,,,2011-01-14,14:35,20
+QIP,2011,regular,,Break,Break,,,,,,,,,2011-01-14,14:55,35
+QIP,2011,regular,,Fernando Brandão,Fernando Brandão,,,1010.1750;1011.2751,abstract/1010.1750p.pdf,movie.php@id=1010.1750.html,,,,2011-01-14,15:30,50

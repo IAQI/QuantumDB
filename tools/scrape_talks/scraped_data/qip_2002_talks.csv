@@ -1,0 +1,36 @@
+venue,year,paper_type,title,speaker,authors,affiliations,abstract,arxiv_ids,presentation_url,video_url,session_name,award,notes,scheduled_date,scheduled_time,duration_minutes
+QIP,2002,invited,"The
+Quantum Reverse Shannon Theorem",Peter Shor,Peter Shor,AT&T,,,,,,,,2002-01-14,09:00,
+QIP,2002,invited,"Quantum
+and Classical Resources in Quantum Data Compression",Andreas Winter,Andreas Winter,Bristol,,,,,,,,2002-01-14,09:45,
+QIP,2002,invited,"Additivity
+for Unital Qubit Channels",Chris King,Chris King,Northeastern,,,,,,,,2002-01-14,11:00,
+QIP,2002,invited,"Oblivious
+Remote State Preparation",Debbie Leung,Debbie Leung,IBM,,,,,,,,2002-01-14,11:45,
+QIP,2002,invited,TBA,Sandu Popescu,Sandu Popescu,Bristol,,,,,,,,2002-01-14,14:15,
+QIP,2002,invited,"Quantum
+Digital Signatures",Daniel Gottesman,Daniel Gottesman,Berkeley,,,,,,,,2002-01-14,15:30,
+QIP,2002,invited,"Quantum
+Statistical Zero Knowledge",John Watrous,John Watrous,U. Calgary,,,,,,,,2002-01-15,09:00,
+QIP,2002,invited,"Quantum
+Random Walks",Andris Ambainis,Andris Ambainis,Berkeley,,,,,,,,2002-01-15,09:45,
+QIP,2002,invited,"Anyons
+and protected qubits in a spin model on the honeycomb lattice",Alexei Kitaev,Alexei Kitaev,Landau Inst.,,,,,,,,2002-01-15,11:00,
+QIP,2002,invited,"Quantum
+Computing Using Cluster States",Hans Briegel,Hans Briegel,LMU,,,,,,,,2002-01-15,11:45,
+QIP,2002,invited,"Extended
+Linear Optics Quantum Computation",Manny Knill,Manny Knill,LANL,,,,,,,,2002-01-15,14:15,
+QIP,2002,invited,"Universality
+in Quantum Computation",Michael Nielsen,Michael Nielsen,UQ,,,,,,,,2002-01-16,09:00,
+QIP,2002,invited,"Quantum
+Message Authentication Codes",Howard Barnum,Howard Barnum,LANL,,,,,,,,2002-01-16,09:45,
+QIP,2002,invited,TBA,Harry Buhrman,Harry Buhrman,CWI,,,,,,,,2002-01-16,11:00,
+QIP,2002,invited,Quantum Algorithms as Cryptographic Reductions,Richard Cleve,Richard Cleve,U. Calgary,,,,,,,,2002-01-16,11:45,
+QIP,2002,invited,TBA,Umesh Vazirani,Umesh Vazirani,Berkeley,,,,,,,,2002-01-16,14:15,
+QIP,2002,invited,TBA,Dorit Aharonov,Dorit Aharonov,Hebrew U.,,,,,,,,2002-01-16,15:30,
+QIP,2002,invited,"Covariant
+quantum measurements may not be optimal",Petra Scudo,Petra Scudo,Technion,,,,,,,,2002-01-17,09:00,
+QIP,2002,invited,"A semidefinite
+program for distillable entanglement",,,,,,,,,,,2002-01-17,09:45,
+QIP,2002,invited,"Quantum
+Data Hiding in Multipartite States",,,,,,,,,,,2002-01-17,11:00,

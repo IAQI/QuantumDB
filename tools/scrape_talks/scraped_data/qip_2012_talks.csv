@@ -1,0 +1,51 @@
+venue,year,paper_type,title,speaker,authors,affiliations,abstract,arxiv_ids,presentation_url,video_url,session_name,award,notes,scheduled_date,scheduled_time,duration_minutes
+QIP,2012,plenary,Topological qubits: stability against thermal noise,Sergey Bravyi,Sergey Bravyi,,,,,,,,,2011-12-12,09:15,55
+QIP,2012,invited,Advances in classical communication for network quantum information theory,Mark Wilde,Omar Fawzi;Patrick Hayden;Ivan Savov;Pranab Sen;Mark Wilde,,,,,http://www.iro.umontreal.ca/~qip2012/videos/Talks/Monday/QIP2012-Monday-wilde.m4v,,,,2011-12-12,10:10,30
+QIP,2012,regular,"Quantum rate distortion, reverse Shannon theorems, and source-channel separation",Nilanjana Datta,Nilanjana Datta;Min-Hsiu Hsieh;Mark Wilde,,,1108.4940,,http://www.iro.umontreal.ca/~qip2012/videos/Talks/Monday/QIP2012-Monday-datta.m4v,,,,2011-12-12,11:05,25
+QIP,2012,regular,Quantum communication with gaussian channels of zero quantum capacity,Jon Yard,Graeme Smith;John A. Smolin;Jon Yard,,,,,http://www.iro.umontreal.ca/~qip2012/videos/Talks/Monday/QIP2012-Monday-yard.m4v,,,,2011-12-12,11:30,25
+QIP,2012,regular,"Bounds on the distance between a unital quantum channel and the convex hull of unitary channels,
+		with applications to the asymptotic quantum Birkhoff conjecture",Runyao Duan,Nengkun Yu;Runyao Duan;Quanhua Xu,,,1201.1172,,,,,,2011-12-12,11:55,25
+QIP,2012,plenary,Quantum Magnetism with Ultracold Atoms - A Microscopic View of Artificial Quantum Matter,Markus Greiner,Markus Greiner,,,,,http://www.iro.umontreal.ca/~qip2012/videos/Talks/Monday/QIP2012-Monday-greiner.m4v,,,,2011-12-12,14:00,55
+QIP,2012,invited,Optimal Bounds for Quantum Bit Commitment,André Chailloux,André Chailloux;Iordanis Kerenidis,,,1102.1678,,,,,,2011-12-12,14:55,30
+QIP,2012,invited,Merkle Puzzles in a Quantum World,Gilles Brassard,Gilles Brassard;Peter Høyer;Kassem Kalach;Marc Kaplan;Sophie Laplante;Louis Salvail,,,,,,,,,2011-12-12,15:50,30
+QIP,2012,regular,"Simplified instantaneous non-local quantum computation with applications to
+		position-based cryptography",Salman Beigi,Salman Beigi;Robert Koenig,,,1101.1065,,http://www.iro.umontreal.ca/~qip2012/videos/Talks/Monday/QIP2012-Monday-beigi.m4v,,,,2011-12-12,16:25,25
+QIP,2012,regular,The Garden-Hose Game and Application to Position-Based Quantum Cryptography,Florian Speelman,Harry Buhrman;Serge Fehr;Christian Schaffner;Florian Speelman,,,,,,,,,2011-12-12,16:50,25
+QIP,2012,plenary,An improved area law for 1D frustration-free systems,Itai Arad,Itai Arad;Zeph Landau;Umesh Vazirani,,,,,http://www.iro.umontreal.ca/~qip2012/videos/Talks/Tuesday/QIP2012-Tuesday-arad.m4v,,,,2011-12-13,09:00,55
+QIP,2012,regular,Stability of Frustration-Free Hamiltonians,Spyridon Michalakis,Spyridon Michalakis;Justyna Pytel,,,,,http://www.iro.umontreal.ca/~qip2012/videos/Talks/Tuesday/QIP2012-Tuesday-michalakis.m4v,,,,2011-12-13,09:55,25
+QIP,2012,regular,Three Proofs of a Constructive Commuting Quantum Lovasz Local Lemma,Toby Cubitt,Toby Cubitt;Martin Schwarz;Frank Verstraete;Or Sattath;Itai Arad,,,,,,,,,2011-12-13,10:40,25
+QIP,2012,regular,Complexity of commuting Hamiltonians on a square lattice of qubits,Norbert Schuch,Norbert Schuch,,,1105.2843,,,,,,2011-12-13,11:05,25
+QIP,2012,regular,Infinitely many constrained inequalities for the von Neumann entropy,Josh Cadney,Josh Cadney;Noah Linden;Andreas Winter,,,1107.0624,,,,,,2011-12-13,11:30,25
+QIP,2012,plenary,Local stabilizer codes in three dimensions without string logical operators,Jeongwan Haah,Jeongwan Haah,,,1101.1962,,http://www.iro.umontreal.ca/~qip2012/videos/Talks/Tuesday/QIP2012-Tuesday-haah.mov,,,,2011-12-13,14:00,55
+QIP,2012,regular,Fault-tolerant quantum computing with color codes,Andrew Landahl,Andrew Landahl;Jonas Anderson;Patrick Rice,,,1108.5738,,,,,,2011-12-13,14:55,25
+QIP,2012,invited,Equivalence of Topological Codes and Fast Decoding Algorithms,Guillaume Duclos-Cianci,Guillaume Duclos-Cianci;Héctor Bombin;David Poulin,,,1103.4606,,http://www.iro.umontreal.ca/~qip2012/videos/Talks/Tuesday/QIP2012-Tuesday-duclos.mov,,,,2011-12-13,15:40,30
+QIP,2012,regular,Quantum Polar Coding,Joseph M. Renes,Joseph M. Renes;Frederic Dupuis;Renato Renner,,,,,http://www.iro.umontreal.ca/~qip2012/videos/Talks/Tuesday/QIP2012-Tuesday-renes.mov,,,,2011-12-13,16:15,25
+QIP,2012,invited,Disorder-assisted error correction in Majorana chains,Robert Koenig,Sergey Bravyi;Robert Koenig,,,1108.3845,,http://www.iro.umontreal.ca/~qip2012/videos/Talks/Tuesday/QIP2012-Tuesday-koenig.mov,,,,2011-12-13,16:40,30
+QIP,2012,invited,A strong direct product theorem for quantum query complexity,Troy Lee,Troy Lee;Jérémie Roland,,,1104.4468,,http://www.iro.umontreal.ca/~qip2012/videos/Talks/Wednesday/QIP2012-Wednesday-lee.m4v,,,,2011-12-14,09:00,30
+QIP,2012,regular,The Complexity of the Separable Hamiltonian Problem,Or Sattath,André Chailloux;Or Sattath,,,,,http://www.iro.umontreal.ca/~qip2012/videos/Talks/Wednesday/QIP2012-Wednesday-sattath.m4v,,,,2011-12-14,09:35,25
+QIP,2012,regular,Epsilon-net method for optimizations over separable states,Xiaodi Wu,Yaoyun Shi;Xiaodi Wu,,,,,http://www.iro.umontreal.ca/~qip2012/videos/Talks/Wednesday/QIP2012-Wednesday-wu.m4v,,,,2011-12-14,10:00,25
+QIP,2012,regular,Hedging bets with correlated quantum strategies,Abel Molina,Abel Molina;John Watrous,,,1104.1140,,http://www.iro.umontreal.ca/~qip2012/videos/Talks/Wednesday/QIP2012-Wednesday-molina.m4v,,,,2011-12-14,10:45,25
+QIP,2012,regular,Explicit lower and upper bounds on the entangled value of multiplayer XOR games,Jop Briet,Jop Briet;Thomas Vidick,,,,,http://www.iro.umontreal.ca/~qip2012/videos/Talks/Wednesday/QIP2012-Wednesday-briet.mov,,,,2011-12-14,11:10,25
+QIP,2012,invited,Parallel approximation of min-max problems with applications to classical and quantum zero-sum games,Xiaodi Wu,Gus Gutoski;Xiaodi Wu,,,1011.2787,,http://www.iro.umontreal.ca/~qip2012/videos/Talks/Wednesday/QIP2012-Wednesday-wu2.mov,,,,2011-12-14,11:35,30
+QIP,2012,regular,,Conference Dinner,Conference Dinner,,,,,,,,,2011-12-14,19:00,
+QIP,2012,plenary,Span Programs for Functions with Constant-Sized 1-certificates,Aleksandrs Belovs,Aleksandrs Belovs,,,1105.4024,,http://www.iro.umontreal.ca/~qip2012/videos/Talks/Thursday/QIP2012-Thursday-belovs.mov,,,,2011-12-15,09:00,55
+QIP,2012,regular,Improved Output-Sensitive Quantum Algorithms for Boolean Matrix Multiplication,Francois Le Gall,Francois Le Gall,,,,,,,,,2011-12-15,09:55,25
+QIP,2012,regular,"Discrete simulations of continuous-time query algorithms
+		that are efficient with respect to queries, gates and space",Richard Cleve,Dominic Berry;Richard Cleve;Sevag Gharibian,,,,,,,,,2011-12-15,10:20,25
+QIP,2012,regular,Hidden Symmetry Subgroup Problems,Miklos Santha,Thomas Decker;Gábor Ivanyos;Miklos Santha;Pawel Wocjan,,,,,http://www.iro.umontreal.ca/~qip2012/videos/Talks/Thursday/QIP2012-Thursday-santha.mov,,,,2011-12-15,11:05,25
+QIP,2012,regular,A quantum information cost trade-off for the Augmented Index,Ashwin Nayak,Rahul Jain;Ashwin Nayak,,,,,,,,,2011-12-15,11:30,25
+QIP,2012,regular,Hardness of approximation for quantum problems,Sevag Gharibian,Sevag Gharibian;Julia Kempe,,,,,,,,,2011-12-15,11:55,25
+QIP,2012,regular,Quantum rejection sampling,Jérémie Roland,"Jérémie Roland (Plenary lecture;based on 
+			joint work with Maris Ozols;Martin Roetteler)",,,1103.2774,,http://www.iro.umontreal.ca/~qip2012/videos/Talks/Thursday/QIP2012-Thursday-roland.mov,,,,2011-12-15,14:00,
+QIP,2012,regular,Spectral Gap Amplification,Rolando Somma,Rolando Somma;Sergio Boixo,,,,,,,,,2011-12-15,14:55,25
+QIP,2012,invited,Quantum query complexity for state conversion,Rajat Mittal,Troy Lee;Rajat Mittal;Ben Reichardt;Robert Spalek;Mario Szegedy,,,,,http://www.iro.umontreal.ca/~qip2012/videos/Talks/Thursday/QIP2012-Thursday-mittal.mov,,,,2011-12-15,15:40,30
+QIP,2012,invited,Local random quantum circuits are approximate polynomial-designs,Fernando Brandao,Fernando Brandao;Aram Harrow;Michal Horodecki,,,,,http://www.iro.umontreal.ca/~qip2012/videos/Talks/Thursday/QIP2012-Thursday-brandao.mov,,,,2011-12-15,16:15,30
+QIP,2012,regular,,Business Meeting...,Business Meeting...,,,,,,,,,2011-12-15,16:45,
+QIP,2012,plenary,Increasing Entanglement by Separable Operations and New Monotones for W-type Entanglement,Eric Chitambar,Eric Chitambar;Wei Cui;Hoi-Kwong Lo,,,1106.1208,,http://www.iro.umontreal.ca/~qip2012/videos/Talks/Friday/QIP2012-Friday-chitambar.mov,,,,2011-12-16,09:00,55
+QIP,2012,regular,Quantum correlations require multipartite information principles,Rodrigo Gallego,Rodrigo Gallego;Lars Erik Würflinger;Antonio Acín;Miguel Navascués,,,1107.3738,,http://www.iro.umontreal.ca/~qip2012/videos/Talks/Friday/QIP2012-Friday-gallego.mov,,,,2011-12-16,09:55,25
+QIP,2012,regular,Preparing projected entangled pair states on a quantum computer,Martin Schwarz,Martin Schwarz;Kristan Temme;Frank Verstraete;Toby Cubitt;David Perez-Garcia,,,,,http://www.iro.umontreal.ca/~qip2012/videos/Talks/Friday/QIP2012-Friday-schwarz.mov,,,,2011-12-16,10:40,25
+QIP,2012,regular,The Link between Uncertainty Relations and Non-Locality,Esther Haenggi,Esther Haenggi;Marco Tomamichel,,,1108.5349,,http://www.iro.umontreal.ca/~qip2012/videos/Talks/Friday/QIP2012-Friday-haenggi.mov,,,,2011-12-16,11:05,25
+QIP,2012,regular,Information Causality is a Special Point in the Dual of the Gray-Wyner Region,Salman Beigi,Salman Beigi;Amin Gohari,,,1111.3151,,http://www.iro.umontreal.ca/~qip2012/videos/Talks/Friday/QIP2012-Friday-beigi.mov,,,,2011-12-16,11:30,25
+QIP,2012,regular,Practical characterization of quantum devices without tomography,Olivier Landon-Cardinal,Marcus P. Da Silva;Steven T. Flammia;Olivier Landon-Cardinal;Yi-Kai Liu;David Poulin,,,,,http://www.iro.umontreal.ca/~qip2012/videos/Talks/Friday/QIP2012-Friday-cardinal.mov,,,,2011-12-16,13:35,25
+QIP,2012,regular,Paranoid tomography: Confidence regions for quantum hardware,Matthias Christandl,Robin Blume-Kohout,,,1108.5329,,http://www.iro.umontreal.ca/~qip2012/videos/Talks/Friday/QIP2012-Friday-christandl.mov,,,,2011-12-16,14:00,25
+QIP,2012,plenary,The smallest possible thermal machines and the foundations of thermodynamics,Sandu Popescu,Sandu Popescu,,,,,,,,,2011-12-16,14:25,55
