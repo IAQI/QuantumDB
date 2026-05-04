@@ -90,6 +90,8 @@ def classify_type(text: str, duration: int = 0) -> str:
     lower = text.lower()
     if 'tutorial' in lower:
         return 'tutorial'
+    if 'public lecture' in lower or 'public talk' in lower:
+        return 'public_lecture'
     if 'plenary' in lower or 'plenary lecture' in lower:
         return 'plenary'
     if 'invited' in lower or 'featured' in lower:
@@ -1473,90 +1475,212 @@ def parse_2014() -> List[Dict]:
 
 def parse_2015() -> List[Dict]:
     """QIP 2015 — Program.php.html.
-    CSS grid table. class="time" for time col, class="tutorial"/"plenary"/"normal" for cells.
-    Cell text: "5 Montanaro" (number + last name) or "Plenary: Raz" or "Tutorial: Arad".
-    No full titles available.
+
+    The page has a visual grid table at the top (overview only), followed by
+    detailed per-day timetable sections (class="timetable") with full speaker
+    names, titles in <i> tags, and links to abstracts, slides, and YouTube.
+
+    Tutorial days: Jan 10-11.  Conference days: Jan 12-16.
     """
     soup = read_html(ARCHIVE_BASE / '2015' / 'Program.php.html')
     talks = []
 
-    # Collect time slots from time cells
-    # The table has rows; first cell may be class="time"
-    # Then cells for each day (5 days Mon-Fri + Sat/Sun tutorials)
-    day_headers = []
-    for td in soup.find_all('td', class_='Width2'):
-        day_headers.append(td.get_text(strip=True))
-
-    # Build day date map from headers like "Sat 10th", "Sun 11th", "Mon 12th"
-    month_year = '2015-01'  # QIP 2015 was Jan 10-16, 2015
-    day_name_map = {
-        'sat': '2015-01-10', 'sun': '2015-01-11',
-        'mon': '2015-01-12', 'tue': '2015-01-13',
-        'wed': '2015-01-14', 'thu': '2015-01-15', 'fri': '2015-01-16',
+    day_name_to_date = {
+        'saturday': '2015-01-10',
+        'sunday':   '2015-01-11',
+        'monday':   '2015-01-12',
+        'tuesday':  '2015-01-13',
+        'wednesday':'2015-01-14',
+        'thursday': '2015-01-15',
+        'friday':   '2015-01-16',
     }
-    col_dates = []
-    for hdr in day_headers:
-        hdr_lower = hdr.lower()[:3]
-        col_dates.append(day_name_map.get(hdr_lower, ''))
 
-    # Parse rows
-    for tr in soup.find_all('tr'):
-        time_td = tr.find('td', class_='time')
-        if not time_td:
+    skip_content = re.compile(
+        r'^(break|lunch|registration|free discussion|poster session|'
+        r'business meeting|rump session|conference banquet|group photo|'
+        r'free afternoon|closing remark|opening remark|public lecture|'
+        r'from \d)',
+        re.IGNORECASE,
+    )
+
+    current_date = ''
+
+    # Walk the document in order, tracking day headers and processing timetables
+    for element in soup.find_all(['p', 'table']):
+        if element.name == 'p':
+            b = element.find('b')
+            if b:
+                text = b.get_text(strip=True).lower()
+                for day_name, date in day_name_to_date.items():
+                    if text.startswith(day_name):
+                        current_date = date
+                        break
             continue
-        time_text = time_td.get_text(strip=True)
-        sched_time, _ = parse_time_range(time_text)
 
-        # Get all non-time cells in order
-        col_idx = 0
-        for td in tr.find_all('td'):
-            if 'time' in (td.get('class') or []):
+        # Only process detailed timetable tables (not the overview grid)
+        if 'timetable' not in (element.get('class') or []):
+            continue
+
+        for tr in element.find_all('tr'):
+            cells = tr.find_all('td', recursive=False)
+            if len(cells) < 2:
                 continue
 
-            td_class = ' '.join(td.get('class', []))
-            cell_text = td.get_text(strip=True)
+            time_td, content_td = cells[0], cells[1]
+            time_text = time_td.get_text(strip=True)
 
-            if not cell_text or td_class in ('break', '') or 'break' in td_class:
-                col_idx += 1
+            # Skip rows without a real time (Session Chair, headers, etc.)
+            if not re.search(r'\d', time_text):
                 continue
 
-            paper_type = 'regular'
-            if 'tutorial' in td_class:
-                paper_type = 'tutorial'
-            elif 'plenary' in td_class:
-                paper_type = 'plenary'
-            elif 'normal' in td_class:
-                paper_type = 'regular'
-            else:
-                col_idx += 1
+            # strip am/pm suffixes so parse_time_range can compute duration
+            time_clean = re.sub(r'(?<=\d)(am|pm)', '', time_text, flags=re.IGNORECASE)
+            sched_time, duration = parse_time_range(time_clean)
+            # convert start time to 24-hour if the start (not end) time was PM
+            if sched_time and re.match(r'\s*\d{1,2}[:.]\d{2}\s*pm', time_text, re.IGNORECASE):
+                h, m_ = map(int, sched_time.split(':'))
+                if h < 12:
+                    sched_time = f'{h + 12:02d}:{m_:02d}'
+
+            content_text = content_td.get_text(' ', strip=True)
+            if skip_content.match(content_text):
                 continue
 
-            # Skip generic plenary/tutorial headers
-            if re.match(r'^(Tutorial|Plenary|Opening|Closing|Lunch|Break|Registration)', cell_text, re.IGNORECASE):
-                # But extract if it has a name after colon
-                m = re.match(r'^(?:Tutorial|Plenary)[:\s]+(.+)', cell_text, re.IGNORECASE)
-                if m:
-                    cell_text = m.group(1).strip()
-                else:
-                    col_idx += 1
-                    continue
-
-            # Cell text like "5 Montanaro" or "49 Mari et al." or "Raz" or "Tutorial: Arad"
-            date = col_dates[col_idx] if col_idx < len(col_dates) else ''
-
-            talks.append(make_talk(
-                year='2015',
-                paper_type=paper_type,
-                title=f'[{cell_text}]',  # Placeholder - full title not in this page
-                speaker=cell_text,
-                authors=cell_text,
-                scheduled_date=date,
-                scheduled_time=sched_time,
-                notes='Title not available in program grid; cell text used as placeholder',
-            ))
-            col_idx += 1
+            # Parse one or more talks from this content cell
+            _parse_qip2015_content_cell(
+                content_td, current_date, sched_time, duration, talks
+            )
 
     return talks
+
+
+def _parse_qip2015_content_cell(
+    content_td, date: str, sched_time: str, duration: int, talks: List[Dict]
+) -> None:
+    """Extract talks from a QIP 2015 timetable content cell.
+
+    Each talk has a <b>Speaker(s)</b> tag followed by an <i>Title</i> tag.
+    Underline <u> inside the speaker tag marks the actual presenter.
+    A following <b>(Speaker: X)</b> overrides the presenter (e.g. Gosset sub).
+    Slides links contain 'slides' in link text; YouTube links contain 'Watch'.
+    """
+    all_tags = list(content_td.find_all(['b', 'i', 'a']))
+    i_positions = [i for i, el in enumerate(all_tags) if el.name == 'i']
+
+    if not i_positions:
+        return
+
+    for seq_idx, i_pos in enumerate(i_positions):
+        title = all_tags[i_pos].get_text(strip=True)
+        if not title:
+            continue
+
+        # Find the speaker <b> immediately preceding this <i>
+        speaker_b = None
+        for j in range(i_pos - 1, -1, -1):
+            el = all_tags[j]
+            if el.name == 'b':
+                if not re.match(r'^\(Speaker:', el.get_text(strip=True), re.IGNORECASE):
+                    speaker_b = el
+                break
+
+        if not speaker_b:
+            continue
+
+        # Elements between this <i> and the next <i> (or end of cell)
+        end_pos = i_positions[seq_idx + 1] if seq_idx + 1 < len(i_positions) else len(all_tags)
+        following = all_tags[i_pos + 1: end_pos]
+
+        # Check for alternate presenter: <b>(Speaker: <u>Name</u>)</b>
+        alt_presenter = ''
+        for el in following:
+            if el.name == 'b':
+                m = re.match(r'^\(Speaker:\s*(.+)\)', el.get_text(strip=True), re.IGNORECASE)
+                if m:
+                    u = el.find('u')
+                    alt_presenter = u.get_text(strip=True) if u else m.group(1).strip()
+                break  # Only check the first <b> after the title
+
+        # Collect arxiv IDs, video URL, slides URL from links
+        arxiv_ids_list: List[str] = []
+        video_url = ''
+        slides_url = ''
+        for el in following:
+            if el.name != 'a':
+                continue
+            href = el.get('href', '')
+            link_text = el.get_text(strip=True).lower()
+            if 'arxiv.org/abs/' in href:
+                aid = extract_arxiv_id(href)
+                if aid and aid not in arxiv_ids_list:
+                    arxiv_ids_list.append(aid)
+            elif 'youtube.com' in href or 'youtu.be' in href:
+                if not video_url:
+                    video_url = href
+            elif 'slides' in link_text and not slides_url:
+                slides_url = href
+
+        # Parse speaker text (use ' ' separator to preserve spaces around <u> tags)
+        speaker_text = re.sub(r'\s+', ' ', speaker_b.get_text(' ', strip=True)).rstrip(':').strip()
+
+        paper_type = 'regular'
+        m = re.match(r'^\((Tutorial|Plenary|Public Lecture)\)\s*', speaker_text, re.IGNORECASE)
+        if m:
+            label = m.group(1).lower()
+            if 'public' in label:
+                continue  # skip public lectures
+            paper_type = label  # 'tutorial' or 'plenary'
+            speaker_text = speaker_text[m.end():]
+
+        # Extract award — may be in sibling text after the <b> tag, not inside it
+        award = ''
+        award_m = re.search(r'\(Recipient of[^)]*\)', speaker_text, re.IGNORECASE)
+        if award_m:
+            award = 'Best Student Paper'
+            speaker_text = speaker_text[:award_m.start()].strip().rstrip(',').strip()
+        else:
+            # Check text nodes between speaker_b and the <i> title tag
+            for sib in speaker_b.next_siblings:
+                if hasattr(sib, 'name') and sib.name == 'i':
+                    break
+                sib_text = sib if isinstance(sib, str) else sib.get_text(' ', strip=True)
+                if re.search(r'Best Student Paper', str(sib_text), re.IGNORECASE):
+                    award = 'Best Student Paper'
+                    break
+
+        # Extract affiliation in parens at end of speaker name
+        affiliation = ''
+        aff_m = re.search(r',?\s*\(([^)]+)\)\s*$', speaker_text)
+        if aff_m and not any(
+            x in aff_m.group(1) for x in ('Prize', 'Recipient', 'Nobel', 'Speaker')
+        ):
+            affiliation = aff_m.group(1).strip()
+            speaker_text = speaker_text[:aff_m.start()].strip()
+
+        # Presenter: underlined name in speaker tag, or alternate
+        u_tag = speaker_b.find('u')
+        presenter = u_tag.get_text(strip=True) if u_tag else ''
+        if alt_presenter:
+            presenter = alt_presenter
+
+        authors = speaker_text
+        speaker = presenter or speaker_text.split(',')[0].split(' and ')[0].strip()
+
+        talks.append(make_talk(
+            year='2015',
+            paper_type=paper_type,
+            title=title,
+            speaker=speaker,
+            authors=authors,
+            affiliations=affiliation,
+            arxiv_ids=';'.join(arxiv_ids_list),
+            presentation_url=slides_url,
+            video_url=video_url,
+            award=award,
+            scheduled_date=date,
+            scheduled_time=sched_time,
+            duration_minutes=str(duration) if duration else '',
+        ))
 
 
 def parse_2016() -> List[Dict]:
@@ -1785,6 +1909,643 @@ def parse_2019() -> List[Dict]:
 
 
 # ============================================================
+# QIP 2021 — MCQST static day pages (monday.html ... friday.html + tutorials)
+# ============================================================
+
+_QIP2021_DAY_DATES = {
+    'monday':    '2021-02-01',
+    'tuesday':   '2021-02-02',
+    'wednesday': '2021-02-03',
+    'thursday':  '2021-02-04',
+    'friday':    '2021-02-05',
+}
+
+_QIP2021_TUTORIAL_DATES = {
+    'tutorials_saturday': '2021-01-30',
+    'tutorials_sunday':   '2021-01-31',
+}
+
+# Phrases in the title that mark a non-talk slot we want to skip
+_QIP2021_SKIP_KEYWORDS = (
+    'welcome', 'round table', 'round tables', 'breakfast club', 'lunch',
+    'break', 'mentoring', 'mentor', 'lab tour', 'panel discussion',
+    'industry session', 'industry exhibition', 'poster session',
+    'town hall', 'business meeting', 'social', 'networking',
+    'opening', 'closing', 'qip tv', 'coffee', 'reception',
+)
+
+
+def _qip2021_split_authors(authors_text: str) -> Tuple[List[str], int]:
+    """Split a 2021 'Authors:' string into a list of names.
+
+    Returns (authors, presenter_index). presenter_index is the index of the
+    underlined name (presenter) or -1 if none.
+    Strips parallel-session '//' separators (caller handles those upstream).
+    """
+    text = authors_text.strip().rstrip('.')
+    # Replace ' and ' with comma so we can split uniformly
+    text = re.sub(r'\s+and\s+', ', ', text)
+    parts = [p.strip() for p in text.split(',') if p.strip()]
+    return parts, -1  # presenter detected separately by caller via <u> tag
+
+
+def _qip2021_extract_authors(authors_p) -> Tuple[str, str]:
+    """Given the <p>Authors: ...</p> tag, return (joined_authors, presenter).
+
+    Presenter is the name found inside a <u> tag, if any.
+    Authors with '//' (parallel sessions) are kept joined with a ' // ' marker
+    so downstream consumers can split them later.
+    """
+    presenter = ''
+    u_tag = authors_p.find('u')
+    if u_tag:
+        presenter = u_tag.get_text(' ', strip=True)
+
+    text = authors_p.get_text(' ', strip=True)
+    # Strip leading "Authors:" label
+    text = re.sub(r'^Authors\s*:\s*', '', text, flags=re.IGNORECASE)
+
+    # If parallel sessions present, keep '//' as a separator in the output.
+    if '//' in text:
+        chunks = [c.strip() for c in text.split('//')]
+        all_names = []
+        for chunk in chunks:
+            names, _ = _qip2021_split_authors(chunk)
+            all_names.append(';'.join(names))
+        return ' // '.join(all_names), presenter
+
+    names, _ = _qip2021_split_authors(text)
+    return ';'.join(names), presenter
+
+
+_QIP2021_TIME_HEADER_RE = re.compile(
+    r'^\s*(\d{1,2}[:.]\d{2})\s*[-–]\s*(\d{1,2}[:.]\d{2})'
+)
+
+
+def _qip2021_is_talk_header(p) -> Tuple[bool, str, str]:
+    """Test whether <p> is a talk header. Returns (is_header, time_text, title).
+
+    Two header formats:
+      A) <p>...<h5>TIME-TIME | <b>TITLE</b></h5></p>      (morning plenaries)
+      B) <p>TIME-TIME<br><b>TITLE</b></p>                  (afternoon parallels)
+    """
+    h5 = p.find('h5')
+    if h5 is not None:
+        h5_text = h5.get_text(' ', strip=True)
+        b = h5.find('b')
+        if b:
+            title = b.get_text(' ', strip=True)
+            idx = h5_text.find(title)
+            time_text = h5_text[:idx] if idx >= 0 else h5_text
+            return True, time_text, title
+        # h5 with no <b>: title may follow ' | '
+        if '|' in h5_text:
+            time_text, title = [s.strip() for s in h5_text.split('|', 1)]
+            return True, time_text, title
+        return False, '', ''
+
+    text = p.get_text(' ', strip=True)
+    if not _QIP2021_TIME_HEADER_RE.match(text):
+        return False, '', ''
+    b = p.find('b')
+    if b is None:
+        return False, '', ''
+    btext = b.get_text(' ', strip=True)
+    if not btext or _QIP2021_TIME_HEADER_RE.match(btext):
+        return False, '', ''
+    # Time is the part of the <p> text before the title
+    idx = text.find(btext)
+    time_text = text[:idx] if idx >= 0 else text
+    return True, time_text, btext
+
+
+def _qip2021_parse_day(file_path: Path, date: str, paper_type_default: str) -> List[Dict]:
+    """Parse a single QIP 2021 day file and return list of talk dicts."""
+    if not file_path.exists():
+        return []
+    soup = read_html(file_path)
+    talks: List[Dict] = []
+
+    # Walk all <p> tags in document order; classify each as header or metadata.
+    all_ps = soup.find_all('p')
+    headers: List[Tuple[int, str, str]] = []  # (index, time_text, title)
+    for i, p in enumerate(all_ps):
+        is_h, time_text, title = _qip2021_is_talk_header(p)
+        if is_h:
+            headers.append((i, time_text, title))
+
+    for n, (idx, time_text, title) in enumerate(headers):
+        end_idx = headers[n + 1][0] if n + 1 < len(headers) else len(all_ps)
+        block_ps = all_ps[idx + 1:end_idx]
+
+        title_lower = title.lower()
+        if any(kw in title_lower for kw in _QIP2021_SKIP_KEYWORDS):
+            continue
+
+        scheduled_time, duration = parse_time_range(time_text)
+
+        speaker = ''
+        authors = ''
+        presenter = ''
+        affiliations = ''
+        abstract_parts: List[str] = []
+        in_abstract = False
+
+        for p in block_ps:
+            ptext = p.get_text(' ', strip=True)
+            if not ptext:
+                continue
+            low = ptext.lower()
+
+            if low.startswith('speaker'):
+                speaker = re.sub(r'^speakers?\s*:\s*', '', ptext, flags=re.IGNORECASE).strip()
+                in_abstract = False
+                continue
+            if low.startswith('authors'):
+                authors, presenter = _qip2021_extract_authors(p)
+                in_abstract = False
+                continue
+            if low.startswith('affiliations') or low.startswith('affiliation'):
+                affiliations = re.sub(
+                    r'^affiliations?\s*:\s*', '', ptext, flags=re.IGNORECASE
+                ).strip()
+                in_abstract = False
+                continue
+
+            b_first = p.find('b')
+            if b_first and b_first.get_text(strip=True).lower() == 'abstract':
+                in_abstract = True
+                rest_parts = []
+                seen_label = False
+                for child in p.descendants:
+                    if (hasattr(child, 'name') and child.name == 'b'
+                            and child.get_text(strip=True).lower() == 'abstract'):
+                        seen_label = True
+                        continue
+                    if seen_label and getattr(child, 'name', None) is None:
+                        rest_parts.append(str(child))
+                tail = re.sub(r'\s+', ' ', ' '.join(rest_parts)).strip()
+                if tail:
+                    abstract_parts.append(tail)
+                continue
+
+            if in_abstract:
+                abstract_parts.append(ptext)
+
+        if not speaker and authors:
+            speaker = presenter or authors.split(';')[0].split(' // ')[0].strip()
+
+        # Skip headers with neither speaker nor authors (likely a session-break
+        # row that snuck past the keyword filter).
+        if not speaker and not authors:
+            continue
+
+        ptype = paper_type_default
+        if not authors and speaker:
+            ptype = 'invited'
+        # 60-minute or longer slots in the morning are typically invited plenaries
+        if duration >= 45 and ptype == 'regular':
+            ptype = 'invited'
+
+        notes = ''
+        if authors and ' // ' in authors:
+            notes = 'parallel session: multiple papers presented in same slot'
+
+        abstract = re.sub(r'\s+', ' ', ' '.join(abstract_parts)).strip()
+
+        talks.append(make_talk(
+            year='2021',
+            paper_type=ptype,
+            title=title,
+            speaker=speaker,
+            authors=authors or speaker,
+            affiliations=affiliations,
+            abstract=abstract,
+            scheduled_date=date,
+            scheduled_time=scheduled_time,
+            duration_minutes=str(duration) if duration > 0 else '',
+            notes=notes,
+        ))
+
+    return talks
+
+
+def _qip2021_parse_tutorials() -> List[Dict]:
+    """Parse QIP 2021 tutorials/index.html."""
+    path = ARCHIVE_BASE / '2021' / 'qip2021' / 'program' / 'tutorials' / 'index.html'
+    if not path.exists():
+        return []
+    soup = read_html(path)
+    talks: List[Dict] = []
+
+    # Tutorial blocks: anchored by <a id="tutorials_saturday"> / <a id="tutorials_sunday">
+    # Each tutorial has <h4 class="section-title">Speaker Name</h4>, then
+    # <h3><a href="...">Title</a></h3>, then accordion body with affiliation/abstract.
+    current_date = ''
+    for el in soup.find_all(['a', 'h4', 'h3', 'div']):
+        if el.name == 'a' and el.get('id', '') in _QIP2021_TUTORIAL_DATES:
+            current_date = _QIP2021_TUTORIAL_DATES[el['id']]
+            continue
+        if el.name == 'h4' and 'section-title' in (el.get('class') or []):
+            speaker = el.get_text(' ', strip=True)
+            # Day-section h4 headings look like "Saturday, January 30th - Main stage (A)";
+            # skip those so we only pick up speaker-name h4s.
+            if re.search(r'(monday|tuesday|wednesday|thursday|friday|saturday|sunday)',
+                         speaker, re.IGNORECASE):
+                continue
+            # Walk forward to find the matching h3 (title) and accordion body
+            title = ''
+            abstract = ''
+            affiliation = ''
+            walker = el
+            for _ in range(40):
+                walker = walker.find_next(['h3', 'div'])
+                if walker is None:
+                    break
+                if walker.name == 'h3':
+                    a = walker.find('a')
+                    title = (a.get_text(' ', strip=True) if a else
+                             walker.get_text(' ', strip=True))
+                    continue
+                if walker.name == 'div' and 'accordion-body' in (walker.get('class') or []):
+                    paragraphs = walker.find_all('p')
+                    parts = []
+                    for p in paragraphs:
+                        ptext = p.get_text(' ', strip=True)
+                        if ptext.lower().startswith('affiliation'):
+                            affiliation = re.sub(
+                                r'^affiliations?\s*:\s*', '', ptext, flags=re.IGNORECASE
+                            ).strip()
+                        else:
+                            parts.append(ptext)
+                    abstract = re.sub(r'\s+', ' ', ' '.join(parts)).strip()
+                    break
+
+            if not speaker or not title:
+                continue
+            talks.append(make_talk(
+                year='2021',
+                paper_type='tutorial',
+                title=title,
+                speaker=speaker,
+                authors=speaker,
+                affiliations=affiliation,
+                abstract=abstract,
+                scheduled_date=current_date,
+            ))
+
+    return talks
+
+
+def parse_2021() -> List[Dict]:
+    """QIP 2021 — static day pages (Mon–Fri) plus tutorials.
+
+    Each day file has talks in the format:
+        <h5>TIME-TIME | <b>TITLE</b></h5>
+        <p>Speaker: Name</p>            (sometimes)
+        <p>Authors: A, <u>Presenter</u>, B [// parallel-session authors]</p>
+        <p><i>Affiliations: Aff1 | Aff2 | ...</i></p>
+        <p><b>Abstract</b><br>Body...</p>
+    Non-talk slots (Welcome, Round tables, Mentoring, Breakfast Club, etc.)
+    are filtered out by keyword.
+    """
+    base = ARCHIVE_BASE / '2021' / 'qip2021' / 'program'
+    talks: List[Dict] = []
+
+    # Tutorials (paper_type = tutorial)
+    talks.extend(_qip2021_parse_tutorials())
+
+    # Each day file
+    for day, date in _QIP2021_DAY_DATES.items():
+        talks.extend(_qip2021_parse_day(base / f'{day}.html', date, 'regular'))
+
+    return talks
+
+
+# ============================================================
+# QIP 2023 — Indico static accepted-talks page
+# ============================================================
+
+
+def parse_2023() -> List[Dict]:
+    """QIP 2023 — static accepted-talks editor-output div.
+
+    The page (3889-accepted-talks.html) contains <div class="editor-output">
+    with three <h3> sections: PLENARY TALKS, SHORT PLENARY TALKS, REGULAR TALKS.
+    Each <li> has the form:
+        Author1, Author2 and Author3. <a href="VIDEO_URL">Title</a>
+    Some entries are merged (two papers in one slot) and use:
+        Authors. <a>Title</a><br><i>merged with</i><br>Authors2. <a>Title2</a>
+    """
+    path = ARCHIVE_BASE / '2023' / 'event' / '13076' / 'page' / '3889-accepted-talks.html'
+    soup = read_html(path)
+    talks: List[Dict] = []
+
+    container = soup.find('div', class_='editor-output')
+    if container is None:
+        return talks
+
+    # Map h3 section names to paper types
+    section_to_type = {
+        'plenary talks':       'plenary_long',
+        'short plenary talks': 'plenary_short',
+        'regular talks':       'regular',
+    }
+
+    current_type = 'regular'
+    for el in container.children:
+        name = getattr(el, 'name', None)
+        if name == 'h3':
+            heading = el.get_text(' ', strip=True).lower()
+            current_type = section_to_type.get(heading, 'regular')
+            continue
+        if name != 'ul':
+            continue
+
+        for li in el.find_all('li', recursive=False):
+            # Detect "merged with" entries by splitting on the <i>merged with</i>.
+            html = li.decode_contents()
+            chunks = re.split(r'<br\s*/?>\s*<i>\s*merged with\s*</i>\s*<br\s*/?>',
+                              html, flags=re.IGNORECASE)
+            merged = len(chunks) > 1
+
+            for chunk in chunks:
+                sub = BeautifulSoup(chunk, 'html.parser')
+                text = sub.get_text(' ', strip=True)
+                if not text:
+                    continue
+
+                # Extract video URL (first <a href> that points to youtube/youtu.be)
+                video_url = ''
+                for a in sub.find_all('a', href=True):
+                    href = a['href']
+                    if 'youtu' in href.lower() or 'youtube' in href.lower():
+                        video_url = href
+                        break
+
+                # Title is the first <a> link text (or remainder after author block).
+                title = ''
+                a = sub.find('a')
+                if a:
+                    title = a.get_text(' ', strip=True)
+
+                # Authors: text before the title in the chunk.
+                if title and title in text:
+                    authors_text = text.split(title, 1)[0].strip()
+                    remainder = text.split(title, 1)[1].strip()
+                else:
+                    # No <a>: split at last sentence-ending period before title-like text
+                    m = re.match(r'^(.*?\.)\s+(.+)$', text)
+                    if m:
+                        authors_text, title = m.group(1), m.group(2)
+                        remainder = ''
+                    else:
+                        continue
+
+                authors_text = authors_text.rstrip('.').strip()
+                authors = _split_author_list(authors_text)
+                if not authors or not title:
+                    continue
+
+                speaker = authors[0]
+                notes = 'merged talks slot' if merged else ''
+                # If the title lacked an <a>, fall back to remainder for arxiv detection
+                arxiv_ids = extract_arxiv_ids_from_tag(sub)
+
+                talks.append(make_talk(
+                    year='2023',
+                    paper_type=current_type,
+                    title=title,
+                    speaker=speaker,
+                    authors=join_authors(authors),
+                    video_url=video_url,
+                    arxiv_ids=arxiv_ids,
+                    notes=notes,
+                ))
+
+    return talks
+
+
+# ============================================================
+# QIP 2024 — ASP.NET static pages (pid=259 talks, pid=264 plenary, pid=262 tutorial)
+# ============================================================
+
+
+def _qip2024_inner_body(path: Path) -> Optional[BeautifulSoup]:
+    """Extract the inner <body>...</body> content from a QIP 2024 ASP.NET page.
+
+    Each page wraps a nested <!DOCTYPE html><body>...</body></html> inside the
+    main content div. Returns a BeautifulSoup of that inner body, or None.
+    """
+    if not path.exists():
+        return None
+    soup = read_html(path)
+    container = soup.find('div', id='ctl00_ContentPlaceHolder1_mypage_left')
+    if container is None:
+        return None
+    inner_html = str(container)
+    m = re.search(r'<body>(.*?)</body>', inner_html, re.DOTALL | re.IGNORECASE)
+    if not m:
+        return None
+    return BeautifulSoup(m.group(1), 'html.parser')
+
+
+_QIP2024_DATE_MAP = {
+    'jan. 13': '2024-01-13', 'jan. 14': '2024-01-14',
+    'jan. 15': '2024-01-15', 'jan. 16': '2024-01-16',
+    'jan. 17': '2024-01-17', 'jan. 18': '2024-01-18',
+    'jan. 19': '2024-01-19',
+}
+
+
+def _qip2024_normalize_date(text: str) -> str:
+    low = text.lower().replace('\xa0', ' ')
+    for prefix, iso in _QIP2024_DATE_MAP.items():
+        if prefix in low:
+            return iso
+    return ''
+
+
+def _qip2024_parse_accepted(base: Path) -> List[Dict]:
+    """pid=259 — list of accepted regular talks (authors + title only)."""
+    inner = _qip2024_inner_body(base / 'mypage.aspx?pid=259&lang=en&sid=1522.html')
+    if inner is None:
+        return []
+    talks: List[Dict] = []
+    for li in inner.find_all('li'):
+        text = li.get_text(' ', strip=True)
+        if not text or len(text) < 10:
+            continue
+        # Title is the colored span (#2e628c)
+        title_span = li.find('span', style=re.compile(r'color\s*:\s*#2e628c', re.IGNORECASE))
+        if title_span is None:
+            continue
+        title = title_span.get_text(' ', strip=True)
+        if title in text:
+            authors_text = text.split(title, 1)[0].strip().rstrip('.').strip()
+        else:
+            continue
+        authors = _split_author_list(authors_text)
+        if not authors or not title:
+            continue
+        talks.append(make_talk(
+            year='2024',
+            paper_type='regular',
+            title=title,
+            speaker=authors[0],
+            authors=join_authors(authors),
+        ))
+    return talks
+
+
+def _qip2024_parse_plenary(base: Path) -> List[Dict]:
+    """pid=264 — three tables: Invited Plenary, Long Plenary, Short Plenary.
+
+    Columns: Date, Time, No., Title, Speaker/Authors.
+    """
+    inner = _qip2024_inner_body(base / 'mypage.aspx?pid=264&lang=en&sid=1522.html')
+    if inner is None:
+        return []
+    talks: List[Dict] = []
+
+    # Walk all top-level elements; track section heading text to assign type.
+    current_type = 'plenary'
+    for el in inner.descendants:
+        if not hasattr(el, 'name') or el.name is None:
+            continue
+        if el.name == 'p':
+            heading_text = el.get_text(' ', strip=True).lower()
+            if 'invited plenary' in heading_text:
+                current_type = 'invited'
+            elif 'long plenary' in heading_text:
+                current_type = 'plenary_long'
+            elif 'short plenary' in heading_text:
+                current_type = 'plenary_short'
+        elif el.name == 'table':
+            # Decide type from the table's header row if available
+            rows = el.find_all('tr')
+            if not rows:
+                continue
+            # First row = header; subsequent rows = talks
+            for tr in rows[1:]:
+                cells = [td.get_text(' ', strip=True).replace('\xa0', ' ').strip()
+                         for td in tr.find_all('td')]
+                if len(cells) < 5:
+                    continue
+                date_text, time_text, _no, title, authors_text = cells[:5]
+                if not title:
+                    continue
+                date_iso = _qip2024_normalize_date(date_text)
+                start_time, duration = parse_time_range(time_text)
+                authors = _split_author_list(authors_text)
+                speaker = authors[0] if authors else authors_text.strip()
+                notes = ''
+                if 'cancel' in title.lower():
+                    notes = 'talk canceled'
+                    title = re.sub(r'\s*\(talk canceled\)\s*', '', title,
+                                   flags=re.IGNORECASE).strip()
+                talks.append(make_talk(
+                    year='2024',
+                    paper_type=current_type,
+                    title=title,
+                    speaker=speaker,
+                    authors=join_authors(authors) if authors else speaker,
+                    scheduled_date=date_iso,
+                    scheduled_time=start_time,
+                    duration_minutes=str(duration) if duration > 0 else '',
+                    notes=notes,
+                ))
+    return talks
+
+
+def _qip2024_parse_tutorials(base: Path) -> List[Dict]:
+    """pid=262 — tutorial grid (5 time slots × 2 days).
+
+    The same tutorial appears twice (morning + afternoon halves of the same day);
+    we deduplicate on (date, title, speaker).
+    """
+    inner = _qip2024_inner_body(base / 'mypage.aspx?pid=262&lang=en&sid=1522.html')
+    if inner is None:
+        return []
+    talks: List[Dict] = []
+    seen = set()
+
+    for table in inner.find_all('table'):
+        rows = table.find_all('tr')
+        if not rows:
+            continue
+        # Header row gives the column → date mapping
+        header_cells = [td.get_text(' ', strip=True).replace('\xa0', ' ').strip()
+                        for td in rows[0].find_all(['td', 'th'])]
+        col_dates: Dict[int, str] = {}
+        for i, cell in enumerate(header_cells):
+            iso = _qip2024_normalize_date(cell)
+            if iso:
+                col_dates[i] = iso
+        if not col_dates:
+            continue
+
+        for tr in rows[1:]:
+            cells = tr.find_all('td')
+            # Skip rows that don't have enough columns
+            if len(cells) < 2:
+                continue
+            # Account for rowspan continuations from a previous row: if this
+            # row has fewer cells than the header, the leading time cells were
+            # carried over and the first td actually corresponds to a later
+            # column. Shift cell indices accordingly.
+            offset = max(0, len(header_cells) - len(cells))
+            for i, td in enumerate(cells):
+                col = i + offset
+                if col not in col_dates:
+                    continue
+                # Extract structured text: tutorial cells contain
+                # <p>Title</p><p>Speaker</p>. Look for two distinct <p> blocks.
+                paragraphs = [p.get_text(' ', strip=True) for p in td.find_all('p')]
+                paragraphs = [p for p in paragraphs if p]
+                # Skip empty / break / registration cells
+                if not paragraphs:
+                    continue
+                joined = ' '.join(paragraphs).lower()
+                if any(skip in joined for skip in
+                       ('break', 'registration', 'lunch', 'reception',
+                        'poster display', '(1f', '(4f')):
+                    continue
+                if len(paragraphs) < 2:
+                    continue
+                title, speaker = paragraphs[0], paragraphs[1]
+                key = (col_dates[col], title, speaker)
+                if key in seen:
+                    continue
+                seen.add(key)
+                talks.append(make_talk(
+                    year='2024',
+                    paper_type='tutorial',
+                    title=title,
+                    speaker=speaker,
+                    authors=speaker,
+                    scheduled_date=col_dates[col],
+                ))
+    return talks
+
+
+def parse_2024() -> List[Dict]:
+    """QIP 2024 — Taipei ASP.NET archive.
+
+    - pid=259: full list of accepted regular talks (authors + title)
+    - pid=264: invited / long plenary / short plenary tables (date, time, title)
+    - pid=262: tutorials grid (date, title, speaker)
+    """
+    base = ARCHIVE_BASE / '2024' / 'site'
+    talks: List[Dict] = []
+    talks.extend(_qip2024_parse_tutorials(base))
+    talks.extend(_qip2024_parse_plenary(base))
+    talks.extend(_qip2024_parse_accepted(base))
+    return talks
+
+
+# ============================================================
 # Dispatch table
 # ============================================================
 
@@ -1803,6 +2564,9 @@ PARSERS = {
     2015: parse_2015,
     2016: parse_2016,
     2019: parse_2019,
+    2021: parse_2021,
+    2023: parse_2023,
+    2024: parse_2024,
 }
 
 
