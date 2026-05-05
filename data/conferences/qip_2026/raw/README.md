@@ -10,4 +10,4 @@ Source files used to produce `../talks.csv` (canonical) for QIP 2026.
 - `papers_manual_review.txt` — items flagged during scraping for human review.
 - `tutorials.csv` — tutorial sessions extracted separately.
 
-Conversion scripts live at `tools/scrape_talks/qip2026/`.
+Conversion scripts live at `tools/one_off/qip2026/`.

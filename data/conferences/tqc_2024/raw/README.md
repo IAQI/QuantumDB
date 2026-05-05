@@ -10,4 +10,4 @@ TQC 2024 (and TQC 2023, see `../../tqc_2023/raw/`).
 - `talks_with_schedule.csv` — intermediate scraping output before splitting
   into proceedings / workshop tracks.
 
-Conversion script lives at `tools/scrape_talks/tqc2023-24/convert_tqc_to_csv.py`.
+Conversion script lives at `tools/one_off/tqc2023-24/convert_tqc_to_csv.py`.

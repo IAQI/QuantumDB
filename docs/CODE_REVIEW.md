@@ -115,7 +115,7 @@ Counts: **2 critical, 4 high, 8 medium, 5 low/info-level recommendations.** The 
 - ~1,750 lines across the five CRUD modules with near-identical structure. This isn't a bug — but if you find yourself maintaining the same change in five places repeatedly, a generic `Crud<T>` trait or a `crud_handlers!` macro would pay back quickly. Don't extract speculatively; extract on the third repetition.
 
 ### L5 — Scraper imports lack idempotency
-- [tools/scrape_talks/import_from_csv.py](../tools/scrape_talks/import_from_csv.py) inserts authors without `SELECT id FROM authors WHERE orcid = $1 OR normalized_name = $1` first, so re-running an import duplicates rows. M6 (ORCID UNIQUE) makes the ORCID case fail loudly, which is the right default — but the importer should `ON CONFLICT DO NOTHING` / lookup-then-insert.
+- [tools/scrapers/talks/importer.py](../tools/scrapers/talks/importer.py) inserts authors without `SELECT id FROM authors WHERE orcid = $1 OR normalized_name = $1` first, so re-running an import duplicates rows. M6 (ORCID UNIQUE) makes the ORCID case fail loudly, which is the right default — but the importer should `ON CONFLICT DO NOTHING` / lookup-then-insert.
 
 ---
 

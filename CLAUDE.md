@@ -393,8 +393,8 @@ All handlers use SQLx query macros (`query!`, `query_as!`) for compile-time veri
 - **static/** - Static assets (images, CSS, JS)
 - **data/conferences/** - Source-of-truth CSVs per conference (`<venue>_<year>/{committees,talks,proceedings,workshop}.csv`). Edit these to fix data; importer scripts read from here. See `data/README.md` for schemas.
 - **data/SOURCES.md** - Per-conference provenance (which page each CSV was scraped from).
-- **tools/scrape_committees/** - Committee scrapers + `import_from_csv.py`
-- **tools/scrape_talks/** - Talk scrapers + `import_from_csv.py`
+- **tools/scrapers/** - Unified scrape + import package; subcommand CLIs `scrape_to_csv.py {committees|talks}` and `import_from_csv.py {committees|talks}`. Venue scrapers under `committees/` and `talks/` subpackages.
+- **tools/one_off/** - Archived historical/monolithic scrapers and one-off conversion projects (QIP 2026, TQC 2023-24, TQC LIPIcs).
 - **tools/generate_token.sh** - Secure token generation utility
 
 ## Documentation Files
@@ -420,7 +420,7 @@ Hybrid: stack runs in Docker, Rust toolchain runs on the host.
 
 ## Current Development Priorities
 
-1. **Data Population**: Populate database with historical conference data, publications, authors, and committee roles. Source-of-truth CSVs live under `data/conferences/<venue>_<year>/`; scrape with `tools/scrape_*/scrape_to_csv.py` and import with `tools/scrape_*/import_from_csv.py`.
+1. **Data Population**: Populate database with historical conference data, publications, authors, and committee roles. Source-of-truth CSVs live under `data/conferences/<venue>_<year>/`; scrape and import via `tools/scrapers/{scrape_to_csv,import_from_csv}.py` with a `committees | talks` subcommand.
 2. **Search & Analytics**: Add search endpoints (author search, publication search), implement analytics based on materialized views
 3. **Data Import Tools**: Build tools to scrape/import data from conference websites, DBLP, arXiv
 4. **Export Features**: Add BibTeX, CSV export functionality

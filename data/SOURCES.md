@@ -5,7 +5,7 @@ file under `data/conferences/`. Local archive paths for QIP are relative to
 `~/Web/qip.iaqi.org/`; for TQC they are relative to `~/Web/tqc.iaqi.org/`.
 
 QCrypt committee provenance is not yet captured here; see
-`tools/scrape_committees/scrapers/qcrypt.py` for the current source URLs.
+`tools/scrapers/committees/qcrypt.py` for the current source URLs.
 
 ---
 
@@ -13,7 +13,7 @@ QCrypt committee provenance is not yet captured here; see
 
 Scraper: `tools/one_off/historical/scrape_qip_historical.py` (archived;
 data already populated). The modular replacement is
-`tools/scrape_committees/scrapers/qip.py`.
+`tools/scrapers/committees/qip.py`.
 
 ## 2026 — Riga (University of Latvia)
 
@@ -312,7 +312,7 @@ Scraper: `scrape_qip_historical.py` (no `parse_1998` function; data collected se
 
 Scraper: `tools/one_off/historical/scrape_tqc_historical.py` (archived;
 data already populated). The modular replacement is
-`tools/scrape_committees/scrapers/tqc.py`.
+`tools/scrapers/committees/tqc.py`.
 All local archive paths are relative to `~/Web/tqc.iaqi.org/`.
 
 ## 2025 — Bengaluru (IISc)

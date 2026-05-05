@@ -87,17 +87,14 @@ may be empty.
 
 ## Where the importer lives
 
-The scripts that read these CSVs live in `tools/scrape_committees/import_from_csv.py`
-and `tools/scrape_talks/import_from_csv.py`. To dry-run an import locally
-(against the dockerised dev DB):
+The scrape + import tooling lives at `tools/scrapers/`. To dry-run an
+import locally (against the dockerised dev DB):
 
 ```bash
-cd tools/scrape_committees
-./import_from_csv.py ../../data/conferences/qip_2024/committees.csv --dry-run
-cd ../scrape_talks
-./import_from_csv.py ../../data/conferences/qip_2024/talks.csv --dry-run
+cd tools/scrapers
+./import_from_csv.py committees ../../data/conferences/qip_2024/committees.csv --dry-run
+./import_from_csv.py talks      ../../data/conferences/qip_2024/talks.csv      --dry-run
 ```
 
-The `tools/scrape_committees/` and `tools/scrape_talks/` directories also hold
-the scrapers themselves — see their READMEs for how to (re-)populate or refine
-the CSVs.
+The same directory holds the scrapers themselves — see
+`tools/scrapers/README.md` for how to (re-)populate or refine the CSVs.
