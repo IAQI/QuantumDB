@@ -1,4 +1,4 @@
-venue,year,committee_type,position,full_name,affiliation,notes
+venue,year,committee_type,position,full_name,affiliation,role_title
 QCRYPT,2016,program,chair,Matthias Christandl,University of Copenhagen,
 QCRYPT,2016,program,chair,Hugo Zbinden,University of Geneva,
 QCRYPT,2016,program,member,Antonio Acin,ICFO Barcelona,

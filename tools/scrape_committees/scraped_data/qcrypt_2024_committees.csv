@@ -1,5 +1,5 @@
-venue,year,committee_type,position,full_name,affiliation,notes
-QCRYPT,2024,local_organizing,chair,Marcos Curty,University of Vigo,
+venue,year,committee_type,position,full_name,affiliation,role_title
+QCRYPT,2024,local_organizing,chair,Marcos Curty,University of Vigo,General Chair
 QCRYPT,2024,local_organizing,member,Natalia Costas,CESGA Galicia Supercomputing Center,
 QCRYPT,2024,local_organizing,member,Antía Lamas-Linares,University of Vigo/Amazon Web Services,
 QCRYPT,2024,local_organizing,member,Vadim Makarov,University of Vigo,

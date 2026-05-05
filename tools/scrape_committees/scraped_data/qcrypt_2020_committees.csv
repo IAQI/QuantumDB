@@ -1,6 +1,6 @@
-venue,year,committee_type,position,full_name,affiliation,notes
-QCRYPT,2020,local_organizing,co-chair,Serge Fehr,"CWI Cryptology group, Leiden University",
-QCRYPT,2020,local_organizing,chair,Christian Schaffner,"University of Amsterdam ILLC, QuSoft",
+venue,year,committee_type,position,full_name,affiliation,role_title
+QCRYPT,2020,local_organizing,co-chair,Serge Fehr,"CWI Cryptology group, Leiden University",General Chair
+QCRYPT,2020,local_organizing,chair,Christian Schaffner,"University of Amsterdam ILLC, QuSoft",General Chair
 QCRYPT,2020,local_organizing,member,Jan Czajkowski,University of Amsterdam,
 QCRYPT,2020,local_organizing,member,Susanne van Dam,CWI,
 QCRYPT,2020,local_organizing,member,Jelle Don,CWI Cryptology Group,

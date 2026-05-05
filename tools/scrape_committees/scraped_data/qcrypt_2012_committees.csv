@@ -1,7 +1,7 @@
-venue,year,committee_type,position,full_name,affiliation,notes
+venue,year,committee_type,position,full_name,affiliation,role_title
 QCRYPT,2012,program,member,Michael Ben-Or,Hebrew University,
 QCRYPT,2012,program,member,Serge Fehr,CWI Amsterdam,
-QCRYPT,2012,program,chair,Patrick Hayden,chair,
+QCRYPT,2012,program,chair,Patrick Hayden,,
 QCRYPT,2012,program,member,Thomas Jennewein,IQC Waterloo,
 QCRYPT,2012,program,member,Robert Koenig,IBM Research,
 QCRYPT,2012,program,member,Christian Kurtsiefer,CQT Singapore,
@@ -15,7 +15,7 @@ QCRYPT,2012,steering,member,Michele Mosca,IQC Waterloo,
 QCRYPT,2012,steering,member,Renato Renner,ETH Zurich,
 QCRYPT,2012,steering,member,Louis Salvail,University of Montreal,
 QCRYPT,2012,steering,member,Wolfgang Tittel,University of Calgary,
-QCRYPT,2012,steering,chair,Stephanie Wehner,chair,
+QCRYPT,2012,steering,chair,Stephanie Wehner,,
 QCRYPT,2012,steering,member,Charles H. Bennett,IBM Research,
 QCRYPT,2012,steering,member,Gilles Brassard,University of Montreal,
 QCRYPT,2012,steering,member,Ivan Damgård,University of Aarhus,
