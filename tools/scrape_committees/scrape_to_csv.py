@@ -40,6 +40,10 @@ def get_scraper_class(venue: str):
         raise ValueError(f"Unknown venue: {venue}")
 
 
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+DEFAULT_OUTPUT_DIR = REPO_ROOT / "data" / "conferences"
+
+
 def save_to_csv(
     venue: str,
     year: int,
@@ -47,11 +51,11 @@ def save_to_csv(
     output_dir: Path,
     force: bool = False
 ) -> Path:
-    """Save scraped data to CSV file."""
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    filename = f"{venue.lower()}_{year}_committees.csv"
-    output_file = output_dir / filename
+    """Save scraped data to CSV file at output_dir/<venue>_<year>/committees.csv."""
+    conference_dir = output_dir / f"{venue.lower()}_{year}"
+    conference_dir.mkdir(parents=True, exist_ok=True)
+
+    output_file = conference_dir / "committees.csv"
     
     if output_file.exists() and not force:
         logger.warning(f"Output file already exists: {output_file}")
@@ -167,8 +171,8 @@ async def async_main():
                        help='Path to local HTML file (overrides default local path)')
     parser.add_argument('--local-dir', type=str,
                        help='Base directory for local files (default: ~/Web)')
-    parser.add_argument('--output-dir', type=str, default='./scraped_data',
-                       help='Output directory for JSON files (default: ./scraped_data)')
+    parser.add_argument('--output-dir', type=str, default=str(DEFAULT_OUTPUT_DIR),
+                       help=f'Output directory; CSV is written to <output-dir>/<venue>_<year>/committees.csv (default: {DEFAULT_OUTPUT_DIR})')
     parser.add_argument('--force', action='store_true',
                        help='Overwrite existing output file')
     

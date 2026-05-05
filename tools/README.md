@@ -1,69 +1,64 @@
-# QuantumDB Data Import Tools
+# QuantumDB tools
 
-This directory contains tools for importing conference data into QuantumDB.
+Where things live:
 
-## Directory Structure
-
-- **`scrape_committees/`** - Committee member scrapers for all conferences
-- **`scrape_talks/`** - Talk/paper scrapers for historical conferences
-  - **`qip2026/`** - QIP 2026 data and processing tools (JSON, schedule, converters)
+- **`/data/conferences/`** (top level of the repo) — the canonical CSVs.
+  Edit these to fix author names, affiliations, talks, committees, etc.
+  See `/data/README.md` for schemas and the contributor guide.
+- **`tools/scrape_committees/`** — scrapers + import script for committee data.
+- **`tools/scrape_talks/`** — scrapers + import script for talks/papers data.
+- **`tools/generate_token.sh`** — generate a Bearer token for the API.
+- **`tools/reset-db.sh`** — reset the local dev database.
 
 ## Workflows
 
-### Recent Conferences (with JSON from Program Committee)
+### Recent conferences (with JSON from the program committee)
 
-For recent conferences like QIP 2026, where you have JSON data from the submission system:
-
-1. **Convert JSON to CSV**:
-   ```bash
-   cd scrape_talks/qip2026
-   python3 convert_json_to_csv.py qip2026-data.json ../scraped_data/qip_2026_papers.csv
-   ```
-
-2. **Download and parse schedule** (if available):
-   ```bash
-   # Download schedule HTML from conference website to qip2026/
-   # Then enrich CSV with speaker and timing information:
-   python3 parse_schedule.py \
-     qip_2026_schedule.html \
-     ../scraped_data/qip_2026_papers.csv \
-     ../scraped_data/qip_2026_papers_final.csv
-   ```
-
-3. **Import to database**:
-   ```bash
-   cd ..
-   ./import_from_csv.py scraped_data/qip_2026_papers_final.csv
-   ```
-
-### Historical Conferences (web scraping)
-
-For older conferences, use the scrapers in `scrape_talks/scrapers/`:
-
-1. **Scrape talks from web**:
-   ```bash
-   cd scrape_talks
-   ./scrape_to_csv.py --venue QIP --year 2025
-   ```
-
-2. **Import to database**:
-   ```bash
-   ./import_from_csv.py scraped_data/qip_2025_talks.csv
-   ```
-
-### Committee Data (all conferences)
-
-Committee scrapers work for both recent and historical conferences:
+For QIP 2026 and similar, where you have a JSON dump from the submission system:
 
 ```bash
-cd scrape_committees
-./scrape_to_csv.py --venue QIP --year 2026
-./import_from_csv.py scraped_data/qip_2026_committee.csv
+cd tools/scrape_talks/qip2026
+python3 convert_json_to_csv.py qip2026-data.json \
+  ../../../data/conferences/qip_2026/raw/papers_compact.csv
+
+# Enrich with the published schedule:
+python3 parse_schedule.py \
+  ../../../data/conferences/qip_2026/raw/qip_2026_schedule.html \
+  ../../../data/conferences/qip_2026/raw/papers_compact.csv \
+  ../../../data/conferences/qip_2026/talks.csv
+```
+
+Then import:
+
+```bash
+cd tools/scrape_talks
+./import_from_csv.py ../../data/conferences/qip_2026/talks.csv
+```
+
+### Historical conferences (web scraping)
+
+```bash
+cd tools/scrape_talks
+./scrape_to_csv.py --venue QIP --year 2025 --local
+# Writes to /data/conferences/qip_2025/talks.csv
+
+./import_from_csv.py ../../data/conferences/qip_2025/talks.csv
+```
+
+The same pattern works for committees:
+
+```bash
+cd tools/scrape_committees
+./scrape_to_csv.py --venue QIP --year 2025 --local
+./import_from_csv.py ../../data/conferences/qip_2025/committees.csv
 ```
 
 ## Notes
 
-- **JSON workflow** is for conferences where you have access to program committee data exports
-  - Store data and tools in subdirectories like `scrape_talks/qip2026/`
-- **Scraping workflow** is for archived conferences with public web pages
-- Both workflows produce CSV files that use the same import script
+- All scrapers default `--output-dir` to `<repo>/data/conferences/`. Pass an
+  explicit `--output-dir` if you want to save somewhere else (e.g. for a
+  staged review).
+- Import scripts take any path as a positional argument; the new layout is
+  not enforced, just preferred.
+- See `/data/SOURCES.md` for the per-conference list of source URLs and
+  parser notes.

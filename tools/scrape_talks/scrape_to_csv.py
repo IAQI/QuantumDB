@@ -47,6 +47,10 @@ def serialize_list(items: Optional[List[str]]) -> str:
     return ';'.join(str(item) for item in items if item)
 
 
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+DEFAULT_OUTPUT_DIR = REPO_ROOT / "data" / "conferences"
+
+
 def save_to_csv(
     venue: str,
     year: int,
@@ -54,11 +58,11 @@ def save_to_csv(
     output_dir: Path,
     force: bool = False
 ) -> Optional[Path]:
-    """Save scraped talks to CSV file."""
-    output_dir.mkdir(parents=True, exist_ok=True)
+    """Save scraped talks to CSV file at output_dir/<venue>_<year>/talks.csv."""
+    conference_dir = output_dir / f"{venue.lower()}_{year}"
+    conference_dir.mkdir(parents=True, exist_ok=True)
 
-    filename = f"{venue.lower()}_{year}_talks.csv"
-    output_file = output_dir / filename
+    output_file = conference_dir / "talks.csv"
 
     if output_file.exists() and not force:
         logger.warning(f"Output file already exists: {output_file}")
@@ -187,8 +191,8 @@ async def async_main():
                        help='Explicit path to local HTML file')
     parser.add_argument('--local-dir', type=str, default='~/Web',
                        help='Base directory for local files (default: ~/Web)')
-    parser.add_argument('--output-dir', type=str, default='./scraped_data',
-                       help='Output directory for CSV files')
+    parser.add_argument('--output-dir', type=str, default=str(DEFAULT_OUTPUT_DIR),
+                       help=f'Output directory; CSV is written to <output-dir>/<venue>_<year>/talks.csv (default: {DEFAULT_OUTPUT_DIR})')
     parser.add_argument('--force', action='store_true',
                        help='Overwrite existing CSV file')
 
