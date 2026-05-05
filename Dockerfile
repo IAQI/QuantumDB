@@ -41,6 +41,7 @@ FROM debian:bookworm-slim
 
 RUN apt-get update && apt-get install -y \
     ca-certificates \
+    curl \
     libssl3 \
     && rm -rf /var/lib/apt/lists/*
 
@@ -51,5 +52,8 @@ COPY --from=builder /usr/src/app/quantumdb/static ./static
 
 ENV RUST_LOG=info
 EXPOSE 3000
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+    CMD curl -fsS http://localhost:3000/health || exit 1
 
 CMD ["quantumdb"]

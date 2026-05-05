@@ -1,8 +1,22 @@
 use dotenvy::dotenv;
 use sqlx::postgres::PgPoolOptions;
+use std::net::SocketAddr;
+use std::sync::Arc;
+use std::time::Duration;
 
-use axum::{middleware, response::Json, routing::get, Router};
-use tower_http::services::ServeDir;
+use axum::{
+    http::{header, HeaderValue, Method},
+    middleware,
+    response::Json,
+    routing::get,
+    Router,
+};
+use tower_governor::{governor::GovernorConfigBuilder, GovernorLayer};
+use tower_http::{
+    cors::CorsLayer,
+    services::ServeDir,
+    set_header::SetResponseHeaderLayer,
+};
 use tracing::{info, Level};
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
@@ -17,7 +31,7 @@ use quantumdb::{handlers, middleware::auth_middleware, models::*};
         description = "REST API for tracking quantum computing conferences (QIP, QCrypt, TQC), publications, authors, and committee memberships. Write operations (POST, PUT, DELETE) and admin endpoints require Bearer token authentication."
     ),
     servers(
-        (url = "/api", description = "API endpoints")
+        (url = "/api/v1", description = "API v1 endpoints")
     ),
     paths(
         handlers::list_conferences,
@@ -77,7 +91,7 @@ impl utoipa::Modify for SecurityAddon {
                     HttpBuilder::new()
                         .scheme(HttpAuthScheme::Bearer)
                         .bearer_format("token")
-                        .description(Some("Bearer token authentication. Include your API token in the Authorization header as 'Bearer <token>'. Tokens must be at least 32 characters and contain only alphanumeric characters, hyphens, and underscores. Required for all POST, PUT, DELETE operations and admin endpoints."))
+                        .description(Some("Bearer token authentication. Include your API token in the Authorization header as 'Bearer <token>'. Tokens must be at least 32 characters; the body is treated as opaque (any character set accepted). Required for all POST, PUT, DELETE operations and admin endpoints."))
                         .build()
                 ),
             );
@@ -112,8 +126,8 @@ async fn main() -> Result<(), sqlx::Error> {
         .route("/authorships/{id}", get(handlers::get_authorship))
         // OpenAPI spec endpoint
         .route("/openapi.json", get(|| async { Json(ApiDoc::openapi()) }))
-        // Swagger UI (will be served at /api/swagger-ui/)
-        .merge(SwaggerUi::new("/swagger-ui").url("/api/openapi.json", ApiDoc::openapi()));
+        // Swagger UI (will be served at /api/v1/swagger-ui/)
+        .merge(SwaggerUi::new("/swagger-ui").url("/api/v1/openapi.json", ApiDoc::openapi()));
 
     // Protected API routes (require authentication)
     let protected_api_routes = Router::new()
@@ -172,18 +186,71 @@ async fn main() -> Result<(), sqlx::Error> {
         .route("/conferences", get(handlers::web::conferences_list))
         .route("/conferences/{slug}", get(handlers::web::conference_detail))
         .route("/about", get(handlers::web::about))
-        .route("/health", get(health))
-        .route("/admin/refresh-stats", get(handlers::web::refresh_stats));
+        .route("/health", get(health));
 
-    // Protected web routes (admin operations) - currently none
+    // Protected web routes (admin operations)
     let protected_web_routes = Router::new()
+        .route("/admin/refresh-stats", get(handlers::web::refresh_stats))
         .layer(middleware::from_fn(auth_middleware));
+
+    // CORS: allow GET on read-only endpoints from any origin (read API is public);
+    // write endpoints additionally require a Bearer token, which CORS does not protect
+    // against — the token check is the real boundary. Tighten origins via env if needed.
+    let cors = CorsLayer::new()
+        .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE])
+        .allow_headers([header::AUTHORIZATION, header::CONTENT_TYPE])
+        .allow_origin(tower_http::cors::Any);
+
+    // Per-IP rate limit: 10 req/sec sustained (period = 100ms) with bursts up to 100.
+    // A normal browser page-load fans out a few parallel requests; this absorbs that
+    // and caps an abusive client at ~600/min sustained.
+    let governor_conf = Arc::new(
+        GovernorConfigBuilder::default()
+            .per_millisecond(100)
+            .burst_size(100)
+            .use_headers()
+            .finish()
+            .expect("rate limit config is valid"),
+    );
+
+    // Background task: periodically prune the limiter's per-IP state so memory doesn't
+    // grow unbounded. The crate's docs explicitly recommend this.
+    let governor_limiter = governor_conf.limiter().clone();
+    tokio::spawn(async move {
+        let mut ticker = tokio::time::interval(Duration::from_secs(60));
+        loop {
+            ticker.tick().await;
+            governor_limiter.retain_recent();
+        }
+    });
+
+    // Hardening response headers applied to every response.
+    let security_headers = tower::ServiceBuilder::new()
+        .layer(SetResponseHeaderLayer::if_not_present(
+            header::X_FRAME_OPTIONS,
+            HeaderValue::from_static("DENY"),
+        ))
+        .layer(SetResponseHeaderLayer::if_not_present(
+            header::X_CONTENT_TYPE_OPTIONS,
+            HeaderValue::from_static("nosniff"),
+        ))
+        .layer(SetResponseHeaderLayer::if_not_present(
+            header::REFERRER_POLICY,
+            HeaderValue::from_static("strict-origin-when-cross-origin"),
+        ))
+        .layer(SetResponseHeaderLayer::if_not_present(
+            header::HeaderName::from_static("permissions-policy"),
+            HeaderValue::from_static("geolocation=(), microphone=(), camera=()"),
+        ));
 
     let app = Router::new()
         .merge(web_routes)
         .merge(protected_web_routes)
-        .nest("/api", api_routes.merge(protected_api_routes))
+        .nest("/api/v1", api_routes.merge(protected_api_routes))
         .nest_service("/static", ServeDir::new("static"))
+        .layer(GovernorLayer { config: governor_conf })
+        .layer(cors)
+        .layer(security_headers)
         // Database pool state
         .with_state(pool);
 
@@ -191,8 +258,12 @@ async fn main() -> Result<(), sqlx::Error> {
 
     info!("Server is running on http://0.0.0.0:3000");
     info!("Web interface available at http://0.0.0.0:3000/");
-    info!("API documentation at http://0.0.0.0:3000/api/swagger-ui/");
-    axum::serve(listener, app).await.unwrap();
+    info!("API documentation at http://0.0.0.0:3000/api/v1/swagger-ui/");
+    // `with_connect_info` exposes the peer SocketAddr to the rate-limiter middleware
+    // so it can key on client IP. Required by tower_governor's default extractor.
+    axum::serve(listener, app.into_make_service_with_connect_info::<SocketAddr>())
+        .await
+        .unwrap();
 
     Ok(())
 }
