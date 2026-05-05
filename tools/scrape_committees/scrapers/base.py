@@ -78,15 +78,16 @@ class BaseCommitteeScraper(ABC):
         if not affiliation:
             return None
         normalized = ' '.join(affiliation.strip().split())
-        return normalized if normalized else None    
+        return normalized if normalized else None
+
     @staticmethod
     def detect_role_title(text: str, heading_text: str = '') -> Optional[str]:
-        \"\"\"Detect specialized role titles from text.
-        
+        """Detect specialized role titles from text.
+
         Returns role_title if a specific chair role is detected, otherwise None.
         Examples: 'General Chair', 'Program Chair', 'Publicity Chair', etc.
-        \"\"\"
-        combined = f\"{heading_text} {text}\".lower()
+        """
+        combined = f"{heading_text} {text}".lower()
         
         # Specific chair roles (in priority order)
         role_patterns = [

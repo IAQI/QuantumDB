@@ -1,4 +1,4 @@
-venue,year,committee_type,position,full_name,affiliation,notes
+venue,year,committee_type,position,full_name,affiliation,role_title
 QCRYPT,2014,program,member,Romain Alléaume,Telecom ParisTech,
 QCRYPT,2014,program,member,Michael Ben-Or,Hebrew University,
 QCRYPT,2014,program,member,Anne Broadbent,University of Ottawa,

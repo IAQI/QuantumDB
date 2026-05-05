@@ -1,4 +1,4 @@
-venue,year,committee_type,position,full_name,affiliation,notes
+venue,year,committee_type,position,full_name,affiliation,role_title
 QCRYPT,2019,program,member,Andersen Ulrik,Technical University of Denmark,
 QCRYPT,2019,program,member,Arnon-Friedman Rotem,UC Berkeley,
 QCRYPT,2019,program,chair,Diamanti Eleni,"CNRS, Sorbonne Université",

@@ -1,6 +1,6 @@
-venue,year,committee_type,position,full_name,affiliation,notes
-QCRYPT,2023,local_organizing,chair,Gorjan Alagic,University of Maryland & NIST,
-QCRYPT,2023,local_organizing,chair,Oliver Slattery,NIST,
+venue,year,committee_type,position,full_name,affiliation,role_title
+QCRYPT,2023,local_organizing,chair,Gorjan Alagic,University of Maryland & NIST,General Chair
+QCRYPT,2023,local_organizing,chair,Oliver Slattery,NIST,General Chair
 QCRYPT,2023,local_organizing,member,Maria Herd,University of Maryland,
 QCRYPT,2023,local_organizing,member,Nijil Lal,NIST,
 QCRYPT,2023,local_organizing,member,Lijun Ma,NIST,

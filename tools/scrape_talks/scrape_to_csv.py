@@ -79,7 +79,8 @@ def save_to_csv(
     fieldnames = [
         'venue', 'year', 'paper_type', 'title', 'speakers', 'authors',
         'affiliations', 'abstract', 'arxiv_ids', 'presentation_url',
-        'video_url', 'youtube_id', 'session_name', 'award', 'notes'
+        'video_url', 'youtube_id', 'session_name', 'award', 'notes',
+        'scheduled_date', 'scheduled_time', 'duration_minutes',
     ]
 
     with open(output_file, 'w', encoding='utf-8', newline='') as f:

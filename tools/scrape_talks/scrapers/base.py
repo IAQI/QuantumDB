@@ -21,11 +21,11 @@ class BaseTalkScraper(ABC):
 
     @abstractmethod
     def parse_talk_data(self) -> List[Dict[str, Any]]:
-        """Parse invited/tutorial talk data from HTML.
+        """Parse talk data from HTML.
 
         Returns:
             List of dicts with keys:
-            - paper_type: 'invited' | 'tutorial' | 'keynote'
+            - paper_type: 'invited' | 'tutorial' | 'keynote' | 'regular' | 'poster'
             - title: str
             - speakers: List[str]  # Names of presenters
             - authors: Optional[List[str]]  # If different from speakers
@@ -38,19 +38,27 @@ class BaseTalkScraper(ABC):
             - session_name: Optional[str]
             - award: Optional[str]
             - notes: Optional[str]
+            - scheduled_date: Optional[str]  # ISO date 'YYYY-MM-DD'
+            - scheduled_time: Optional[str]  # 'HH:MM' 24h
+            - duration_minutes: Optional[int]
         """
         pass
 
     def fetch_page(self) -> BeautifulSoup:
-        """Fetch and parse the HTML page."""
+        """Fetch and parse the HTML page.
+
+        Local files are read as bytes so BeautifulSoup can sniff the encoding
+        from the document — some QCrypt mirror pages declare UTF-8 in <meta>
+        but actually contain CP1252-encoded bytes.
+        """
         if self.local_file:
-            with open(self.local_file, 'r', encoding='utf-8') as f:
+            with open(self.local_file, 'rb') as f:
                 html_content = f.read()
         else:
             url = self.get_url()
             response = requests.get(url, timeout=30)
             response.raise_for_status()
-            html_content = response.text
+            html_content = response.content
 
         self.soup = BeautifulSoup(html_content, 'html.parser')
         return self.soup
@@ -63,12 +71,25 @@ class BaseTalkScraper(ABC):
 
     @staticmethod
     def _deduplicate_talks(talks: List[Dict]) -> List[Dict]:
-        """Remove duplicate talks based on title."""
+        """Remove duplicate talks based on (title, paper_type, scheduled_date, scheduled_time).
+
+        Keying on title alone collapses legitimately distinct entries that
+        share a generic title (e.g., multiple poster session rows or papers
+        with identical short titles in different sessions).
+        """
         seen = set()
         unique = []
         for talk in talks:
-            key = talk.get('title', '').lower().strip()
-            if key and key not in seen:
+            title = (talk.get('title') or '').lower().strip()
+            if not title:
+                continue
+            key = (
+                title,
+                talk.get('paper_type') or '',
+                talk.get('scheduled_date') or '',
+                talk.get('scheduled_time') or '',
+            )
+            if key not in seen:
                 seen.add(key)
                 unique.append(talk)
         return unique
@@ -119,15 +140,22 @@ class BaseTalkScraper(ABC):
     def detect_paper_type(session_name: str, title: str = '') -> str:
         """Detect paper_type from session name or title.
 
-        Returns: 'invited', 'tutorial', or 'keynote'
+        Returns one of: 'keynote', 'tutorial', 'invited', 'poster', 'regular'.
+        Defaults to 'regular' for contributed talks; callers that know they're
+        looking at an invited-only context can override.
         """
         combined = f"{session_name} {title}".lower()
         if 'keynote' in combined:
             return 'keynote'
-        elif 'tutorial' in combined:
+        if 'tutorial' in combined:
             return 'tutorial'
-        else:
+        if 'invited' in combined or 'plenary' in combined:
             return 'invited'
+        if 'poster' in combined:
+            return 'poster'
+        if 'contributed' in combined:
+            return 'regular'
+        return 'regular'
 
     @staticmethod
     def normalize_affiliation(affiliation: str) -> Optional[str]:

@@ -1,7 +1,7 @@
-venue,year,committee_type,position,full_name,affiliation,notes
-QCRYPT,2022,local_organizing,chair,Bo-Yin Yang,"IIS, Academia Sinica",
-QCRYPT,2022,local_organizing,chair,Kai-Min Chung,"IIS, Academia Sinica",
-QCRYPT,2022,local_organizing,chair,Yeong-Cherng Liang,"Department of Physics, National Cheng Kung University",
+venue,year,committee_type,position,full_name,affiliation,role_title
+QCRYPT,2022,local_organizing,chair,Bo-Yin Yang,"IIS, Academia Sinica",General Chair
+QCRYPT,2022,local_organizing,chair,Kai-Min Chung,"IIS, Academia Sinica",General Chair
+QCRYPT,2022,local_organizing,chair,Yeong-Cherng Liang,"Department of Physics, National Cheng Kung University",General Chair
 QCRYPT,2022,local_organizing,member,Chell Chien,"IIS, Academia Sinica",
 QCRYPT,2022,local_organizing,member,Jim Kao,"IIS, Academia Sinica",
 QCRYPT,2022,local_organizing,member,Hsin Man Lin,"IIS, Academia Sinica",

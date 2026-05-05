@@ -7,15 +7,22 @@ from .base import BaseCommitteeScraper
 class QCryptScraper(BaseCommitteeScraper):
     """Scraper for QCrypt conference committee pages."""
     
+    # Per-year subdirectory under qcrypt.iaqi.org/<year>/.
+    # Matches the local mirror at ~/Web/qcrypt.iaqi.org/.
+    _PATH_OVERRIDES = {
+        2012: 'committees.html',  # flat .html, no subdirectory
+        2015: 'cmmittees/index.html',  # site typo (sic)
+        2017: 'cmmittees/index.html',  # site typo (sic)
+    }
+
     def get_url(self) -> str:
-        """Return the URL for QCrypt committee page."""
+        """Return the canonical archive URL for the year's committee page."""
         if self.year >= 2020:
-            return f"https://2023.qcrypt.net/committees/"  # Most recent format
-        elif self.year >= 2016:
-            return f"https://{self.year}.qcrypt.net/committees/"
-        else:
-            # Older format, might need customization
-            return f"https://www.qcrypt.net/{self.year}/committees.html"
+            return f"https://qcrypt.iaqi.org/{self.year}/team/index.html"
+        override = self._PATH_OVERRIDES.get(self.year)
+        if override:
+            return f"https://qcrypt.iaqi.org/{self.year}/{override}"
+        return f"https://qcrypt.iaqi.org/{self.year}/committees/index.html"
     
     def parse_committee_data(self) -> List[Dict[str, str]]:
         """Parse committee data from QCrypt HTML.

@@ -1,4 +1,4 @@
-venue,year,committee_type,position,full_name,affiliation,notes
+venue,year,committee_type,position,full_name,affiliation,role_title
 QCRYPT,2013,program,member,Harry Buhrman,CWI Amsterdam and Amsterdam University,
 QCRYPT,2013,program,member,Matthias Christandl,ETH Zürich,
 QCRYPT,2013,program,chair,Ivan Damgård,Aarhus University,
