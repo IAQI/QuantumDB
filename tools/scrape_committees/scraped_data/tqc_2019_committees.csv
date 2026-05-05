@@ -1,0 +1,43 @@
+venue,year,committee_type,position,full_name,affiliation,role_title
+TQC,2019,program,chair,Laura Mančinska,"QMATH , University of Copenhagen",Chair
+TQC,2019,program,co_chair,Wim van Dam,UC Santa Barbara and QC Ware,Co-Chair
+TQC,2019,program,member,Juan Miguel Arrazola,Xanadu,
+TQC,2019,program,member,Salman Beigi,"IPM, Tehran",
+TQC,2019,program,member,Mario Berta,Imperial College London,
+TQC,2019,program,member,Sergey Bravyi,IBM Research,
+TQC,2019,program,member,André Chailloux,INRIA,
+TQC,2019,program,member,Eric Chitambar,University of Illinois at Urbana-Champaign,
+TQC,2019,program,member,Elizabeth Crosson,University of New Mexico,
+TQC,2019,program,member,Omar Fawzi,ENS de Lyon,
+TQC,2019,program,member,Steven Flammia,University of Sydney,
+TQC,2019,program,member,Keisuke Fujii,Kyoto University,
+TQC,2019,program,member,Ernesto F. Galvão,Universidade Federal Fluminense,
+TQC,2019,program,member,Rahul Jain,"CQT, National University of Singapore",
+TQC,2019,program,member,Zhengfeng Ji,University of Technology Sydney,
+TQC,2019,program,member,Shelby Kimmel,Middlebury College,
+TQC,2019,program,member,Robert König,Technische Universität München,
+TQC,2019,program,member,François Le Gall,Kyoto University,
+TQC,2019,program,member,Serge Massar,Université libre de Bruxelles,
+TQC,2019,program,member,Tobias J. Osborne,Leibniz Universität Hannover,
+TQC,2019,program,member,Maris Ozols,QuSoft and University of Amsterdam,
+TQC,2019,program,member,Christopher Portmann,ETH Zürich,
+TQC,2019,program,member,Ana Belén Sainz,Perimeter Institute,
+TQC,2019,program,member,Pranab Sen,Tata Institute of Fundamental Research,
+TQC,2019,program,member,Barbara Terhal,"QuTech, TU Delft",
+TQC,2019,program,member,John Watrous,"IQC, University of Waterloo",
+TQC,2019,program,member,Ronald de Wolf,CWI and University of Amsterdam,
+TQC,2019,local_organizing,chair,Aarthi Sundaram,,Chair
+TQC,2019,local_organizing,chair,Gorjan Alagic,,Chair
+TQC,2019,local_organizing,chair,Alexey Gorshkov,NISQ,Chair
+TQC,2019,local_organizing,member,Andrew Childs,,
+TQC,2019,local_organizing,member,Yi-Kai Liu,,
+TQC,2019,local_organizing,member,Carl Miller,,
+TQC,2019,local_organizing,member,Jacob Taylor,,
+TQC,2019,steering,chair,Aram Harrow,,Chair
+TQC,2019,steering,member,Yasuhito Kawano,,
+TQC,2019,steering,member,Martin Roetteler,,
+TQC,2019,steering,member,Wim van Dam,,
+TQC,2019,steering,member,Anne Broadbent,,
+TQC,2019,steering,member,Simone Severini,,
+TQC,2019,steering,member,Stacey Jeffery,,
+TQC,2019,steering,member,Marco Tomamichel,,
