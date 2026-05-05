@@ -9,6 +9,10 @@ use utoipa::IntoParams;
 use uuid::Uuid;
 
 use crate::models::{Author, CreateAuthor, UpdateAuthor, normalize_name};
+use crate::utils::{
+    clamp_pagination, validate_optional_text_len, validate_optional_url, validate_text_len,
+    MAX_NAME_LEN,
+};
 
 #[derive(Debug, Deserialize, IntoParams)]
 pub struct AuthorQuery {
@@ -34,8 +38,7 @@ pub async fn list_authors(
     State(pool): State<Pool<Postgres>>,
     Query(query): Query<AuthorQuery>,
 ) -> Result<Json<Vec<Author>>, StatusCode> {
-    let limit = query.limit.unwrap_or(100);
-    let offset = query.offset.unwrap_or(0);
+    let (limit, offset) = clamp_pagination(query.limit, query.offset);
 
     let authors = if let Some(search) = &query.search {
         let search_pattern = format!("%{}%", search);
@@ -137,6 +140,12 @@ pub async fn create_author(
     State(pool): State<Pool<Postgres>>,
     Json(new_author): Json<CreateAuthor>,
 ) -> Result<(StatusCode, Json<Author>), StatusCode> {
+    validate_text_len(&new_author.full_name, MAX_NAME_LEN)?;
+    validate_optional_text_len(new_author.family_name.as_deref(), MAX_NAME_LEN)?;
+    validate_optional_text_len(new_author.given_name.as_deref(), MAX_NAME_LEN)?;
+    validate_optional_text_len(new_author.affiliation.as_deref(), MAX_NAME_LEN)?;
+    validate_optional_url(new_author.homepage_url.as_deref())?;
+
     let normalized = normalize_name(&new_author.full_name);
 
     let author = sqlx::query_as!(
@@ -194,6 +203,12 @@ pub async fn update_author(
     Path(id): Path<Uuid>,
     Json(update): Json<UpdateAuthor>,
 ) -> Result<Json<Author>, StatusCode> {
+    validate_optional_text_len(update.full_name.as_deref(), MAX_NAME_LEN)?;
+    validate_optional_text_len(update.family_name.as_deref(), MAX_NAME_LEN)?;
+    validate_optional_text_len(update.given_name.as_deref(), MAX_NAME_LEN)?;
+    validate_optional_text_len(update.affiliation.as_deref(), MAX_NAME_LEN)?;
+    validate_optional_url(update.homepage_url.as_deref())?;
+
     // First fetch the existing author
     let existing = sqlx::query_as!(
         Author,

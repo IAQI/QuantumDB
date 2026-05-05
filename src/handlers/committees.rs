@@ -11,7 +11,10 @@ use uuid::Uuid;
 use crate::models::{
     CommitteePosition, CommitteeRole, CommitteeType, CreateCommitteeRole, UpdateCommitteeRole,
 };
-use crate::utils::parse_conference_slug;
+use crate::utils::{
+    clamp_pagination, parse_conference_slug, validate_metadata, validate_optional_text_len,
+    MAX_NAME_LEN, MAX_TITLE_LEN,
+};
 
 #[derive(Debug, Deserialize, IntoParams)]
 pub struct CommitteeQuery {
@@ -81,8 +84,7 @@ pub async fn list_committee_roles(
     State(pool): State<Pool<Postgres>>,
     Query(query): Query<CommitteeQuery>,
 ) -> Result<Json<Vec<CommitteeRole>>, StatusCode> {
-    let limit = query.limit.unwrap_or(100);
-    let offset = query.offset.unwrap_or(0);
+    let (limit, offset) = clamp_pagination(query.limit, query.offset);
 
     // Resolve conference filter (supports both UUID and slug like QIP2024)
     let conf_id = resolve_conference_filter(&pool, query.conference_id, query.conference.as_deref()).await?;
@@ -218,6 +220,10 @@ pub async fn create_committee_role(
     State(pool): State<Pool<Postgres>>,
     Json(new_role): Json<CreateCommitteeRole>,
 ) -> Result<(StatusCode, Json<CommitteeRole>), StatusCode> {
+    validate_optional_text_len(new_role.role_title.as_deref(), MAX_TITLE_LEN)?;
+    validate_optional_text_len(new_role.affiliation.as_deref(), MAX_NAME_LEN)?;
+    validate_metadata(new_role.metadata.as_ref())?;
+
     let position = new_role.position.unwrap_or(CommitteePosition::Member);
 
     let role = sqlx::query_as!(
@@ -283,6 +289,10 @@ pub async fn update_committee_role(
     Path(id): Path<Uuid>,
     Json(update): Json<UpdateCommitteeRole>,
 ) -> Result<Json<CommitteeRole>, StatusCode> {
+    validate_optional_text_len(update.role_title.as_deref(), MAX_TITLE_LEN)?;
+    validate_optional_text_len(update.affiliation.as_deref(), MAX_NAME_LEN)?;
+    validate_metadata(update.metadata.as_ref())?;
+
     // First fetch the existing role
     let existing = sqlx::query_as!(
         CommitteeRole,

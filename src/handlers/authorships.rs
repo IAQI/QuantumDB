@@ -9,6 +9,24 @@ use utoipa::IntoParams;
 use uuid::Uuid;
 
 use crate::models::{Authorship, CreateAuthorship, UpdateAuthorship};
+use crate::utils::{
+    validate_metadata, validate_optional_text_len, validate_text_len, MAX_NAME_LEN,
+};
+
+/// PostgreSQL SQLSTATE for `unique_violation`.
+const PG_UNIQUE_VIOLATION: &str = "23505";
+
+/// Map an SQLx error to a status code, treating unique-constraint violations as 409.
+/// Used for authorship inserts where the `(publication_id, author_position)` UNIQUE
+/// constraint can fire if two clients race to claim the same slot.
+fn map_db_error(err: &sqlx::Error) -> StatusCode {
+    if let Some(db_err) = err.as_database_error() {
+        if db_err.code().as_deref() == Some(PG_UNIQUE_VIOLATION) {
+            return StatusCode::CONFLICT;
+        }
+    }
+    StatusCode::INTERNAL_SERVER_ERROR
+}
 
 #[derive(Debug, Deserialize, IntoParams)]
 pub struct AuthorshipQuery {
@@ -115,6 +133,7 @@ pub async fn get_authorship(
     responses(
         (status = 201, description = "Authorship created", body = Authorship),
         (status = 401, description = "Unauthorized - missing or invalid token"),
+        (status = 409, description = "Conflict - duplicate (publication_id, author_position) or other unique constraint"),
         (status = 500, description = "Internal server error")
     ),
     security(
@@ -125,6 +144,10 @@ pub async fn create_authorship(
     State(pool): State<Pool<Postgres>>,
     Json(payload): Json<CreateAuthorship>,
 ) -> Result<(StatusCode, Json<Authorship>), StatusCode> {
+    validate_text_len(&payload.published_as_name, MAX_NAME_LEN)?;
+    validate_optional_text_len(payload.affiliation.as_deref(), MAX_NAME_LEN)?;
+    validate_metadata(payload.metadata.as_ref())?;
+
     let authorship = sqlx::query_as::<_, Authorship>(
         r#"
         INSERT INTO authorships (
@@ -146,7 +169,15 @@ pub async fn create_authorship(
     .bind(&payload.modifier)
     .fetch_one(&pool)
     .await
-    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    .map_err(|e| {
+        let status = map_db_error(&e);
+        if status == StatusCode::CONFLICT {
+            tracing::info!(error = ?e, "authorship insert conflict (likely duplicate position)");
+        } else {
+            tracing::error!(error = ?e, "Failed to create authorship");
+        }
+        status
+    })?;
 
     Ok((StatusCode::CREATED, Json(authorship)))
 }
@@ -161,6 +192,7 @@ pub async fn create_authorship(
         (status = 200, description = "Authorship updated", body = Authorship),
         (status = 401, description = "Unauthorized - missing or invalid token"),
         (status = 404, description = "Authorship not found"),
+        (status = 409, description = "Conflict - new author_position duplicates an existing one for this publication"),
         (status = 500, description = "Internal server error")
     ),
     security(
@@ -172,6 +204,10 @@ pub async fn update_authorship(
     Path(id): Path<Uuid>,
     Json(payload): Json<UpdateAuthorship>,
 ) -> Result<Json<Authorship>, StatusCode> {
+    validate_optional_text_len(payload.published_as_name.as_deref(), MAX_NAME_LEN)?;
+    validate_optional_text_len(payload.affiliation.as_deref(), MAX_NAME_LEN)?;
+    validate_metadata(payload.metadata.as_ref())?;
+
     // First check if authorship exists
     let existing = sqlx::query_as::<_, Authorship>(
         r#"SELECT id, publication_id, author_id, author_position, published_as_name, 
@@ -206,7 +242,15 @@ pub async fn update_authorship(
     .bind(id)
     .fetch_one(&pool)
     .await
-    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    .map_err(|e| {
+        let status = map_db_error(&e);
+        if status == StatusCode::CONFLICT {
+            tracing::info!(error = ?e, "authorship update conflict (likely duplicate position)");
+        } else {
+            tracing::error!(error = ?e, "Failed to update authorship");
+        }
+        status
+    })?;
 
     Ok(Json(authorship))
 }

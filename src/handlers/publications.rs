@@ -9,7 +9,10 @@ use utoipa::IntoParams;
 use uuid::Uuid;
 
 use crate::models::{CreatePublication, PaperType, Publication, UpdatePublication};
-use crate::utils::parse_conference_slug;
+use crate::utils::{
+    clamp_pagination, parse_conference_slug, validate_optional_text_len, validate_optional_url,
+    validate_text_len, MAX_ABSTRACT_LEN, MAX_NAME_LEN, MAX_TITLE_LEN,
+};
 
 #[derive(Debug, Deserialize, IntoParams)]
 pub struct PublicationQuery {
@@ -77,8 +80,7 @@ pub async fn list_publications(
     State(pool): State<Pool<Postgres>>,
     Query(query): Query<PublicationQuery>,
 ) -> Result<Json<Vec<Publication>>, StatusCode> {
-    let limit = query.limit.unwrap_or(100);
-    let offset = query.offset.unwrap_or(0);
+    let (limit, offset) = clamp_pagination(query.limit, query.offset);
 
     // Resolve conference filter (supports both UUID and slug like QIP2024)
     let conf_id = resolve_conference_filter(&pool, query.conference_id, query.conference.as_deref()).await?;
@@ -224,6 +226,17 @@ pub async fn create_publication(
     State(pool): State<Pool<Postgres>>,
     Json(new_pub): Json<CreatePublication>,
 ) -> Result<(StatusCode, Json<Publication>), StatusCode> {
+    validate_text_len(&new_pub.title, MAX_TITLE_LEN)?;
+    validate_text_len(&new_pub.canonical_key, MAX_NAME_LEN)?;
+    validate_optional_text_len(new_pub.abstract_text.as_deref(), MAX_ABSTRACT_LEN)?;
+    validate_optional_text_len(new_pub.doi.as_deref(), MAX_NAME_LEN)?;
+    validate_optional_text_len(new_pub.session_name.as_deref(), MAX_TITLE_LEN)?;
+    validate_optional_text_len(new_pub.award.as_deref(), MAX_TITLE_LEN)?;
+    validate_optional_text_len(new_pub.youtube_id.as_deref(), MAX_NAME_LEN)?;
+    validate_optional_text_len(new_pub.pages.as_deref(), MAX_NAME_LEN)?;
+    validate_optional_url(new_pub.presentation_url.as_deref())?;
+    validate_optional_url(new_pub.video_url.as_deref())?;
+
     let arxiv_ids = new_pub.arxiv_ids.unwrap_or_default();
     let paper_type = new_pub.paper_type.unwrap_or(PaperType::Regular);
     let is_proceedings_track = new_pub.is_proceedings_track.unwrap_or(false);
@@ -306,6 +319,16 @@ pub async fn update_publication(
     Path(id): Path<Uuid>,
     Json(update): Json<UpdatePublication>,
 ) -> Result<Json<Publication>, StatusCode> {
+    validate_optional_text_len(update.title.as_deref(), MAX_TITLE_LEN)?;
+    validate_optional_text_len(update.abstract_text.as_deref(), MAX_ABSTRACT_LEN)?;
+    validate_optional_text_len(update.doi.as_deref(), MAX_NAME_LEN)?;
+    validate_optional_text_len(update.session_name.as_deref(), MAX_TITLE_LEN)?;
+    validate_optional_text_len(update.award.as_deref(), MAX_TITLE_LEN)?;
+    validate_optional_text_len(update.youtube_id.as_deref(), MAX_NAME_LEN)?;
+    validate_optional_text_len(update.pages.as_deref(), MAX_NAME_LEN)?;
+    validate_optional_url(update.presentation_url.as_deref())?;
+    validate_optional_url(update.video_url.as_deref())?;
+
     // First fetch the existing publication
     let existing = sqlx::query_as!(
         Publication,
