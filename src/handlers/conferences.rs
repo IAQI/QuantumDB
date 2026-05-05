@@ -7,7 +7,10 @@ use sqlx::{Pool, Postgres};
 use uuid::Uuid;
 
 use crate::models::{Conference, CreateConference, UpdateConference};
-use crate::utils::parse_conference_slug;
+use crate::utils::{
+    parse_conference_slug, validate_optional_text_len, validate_optional_url, validate_text_len,
+    MAX_NAME_LEN,
+};
 
 /// Resolve a conference ID or slug to a UUID
 async fn resolve_conference_id(pool: &Pool<Postgres>, id_or_slug: &str) -> Result<Uuid, StatusCode> {
@@ -165,6 +168,23 @@ pub async fn create_conference(
     State(pool): State<Pool<Postgres>>,
     Json(new_conference): Json<CreateConference>,
 ) -> Result<(StatusCode, Json<Conference>), StatusCode> {
+    validate_text_len(&new_conference.venue, MAX_NAME_LEN)?;
+    validate_optional_text_len(new_conference.city.as_deref(), MAX_NAME_LEN)?;
+    validate_optional_text_len(new_conference.country.as_deref(), MAX_NAME_LEN)?;
+    validate_optional_text_len(new_conference.country_code.as_deref(), MAX_NAME_LEN)?;
+    validate_optional_text_len(new_conference.timezone.as_deref(), MAX_NAME_LEN)?;
+    validate_optional_text_len(new_conference.venue_name.as_deref(), MAX_NAME_LEN)?;
+    validate_optional_text_len(new_conference.proceedings_publisher.as_deref(), MAX_NAME_LEN)?;
+    validate_optional_text_len(new_conference.proceedings_volume.as_deref(), MAX_NAME_LEN)?;
+    validate_optional_text_len(new_conference.proceedings_doi.as_deref(), MAX_NAME_LEN)?;
+    validate_optional_url(new_conference.website_url.as_deref())?;
+    validate_optional_url(new_conference.proceedings_url.as_deref())?;
+    validate_optional_url(new_conference.archive_url.as_deref())?;
+    validate_optional_url(new_conference.archive_organizers_url.as_deref())?;
+    validate_optional_url(new_conference.archive_pc_url.as_deref())?;
+    validate_optional_url(new_conference.archive_steering_url.as_deref())?;
+    validate_optional_url(new_conference.archive_program_url.as_deref())?;
+
     let conference = sqlx::query_as!(
         Conference,
         r#"
@@ -251,6 +271,23 @@ pub async fn update_conference(
     Path(id_or_slug): Path<String>,
     Json(update): Json<UpdateConference>,
 ) -> Result<Json<Conference>, StatusCode> {
+    validate_optional_text_len(update.venue.as_deref(), MAX_NAME_LEN)?;
+    validate_optional_text_len(update.city.as_deref(), MAX_NAME_LEN)?;
+    validate_optional_text_len(update.country.as_deref(), MAX_NAME_LEN)?;
+    validate_optional_text_len(update.country_code.as_deref(), MAX_NAME_LEN)?;
+    validate_optional_text_len(update.timezone.as_deref(), MAX_NAME_LEN)?;
+    validate_optional_text_len(update.venue_name.as_deref(), MAX_NAME_LEN)?;
+    validate_optional_text_len(update.proceedings_publisher.as_deref(), MAX_NAME_LEN)?;
+    validate_optional_text_len(update.proceedings_volume.as_deref(), MAX_NAME_LEN)?;
+    validate_optional_text_len(update.proceedings_doi.as_deref(), MAX_NAME_LEN)?;
+    validate_optional_url(update.website_url.as_deref())?;
+    validate_optional_url(update.proceedings_url.as_deref())?;
+    validate_optional_url(update.archive_url.as_deref())?;
+    validate_optional_url(update.archive_organizers_url.as_deref())?;
+    validate_optional_url(update.archive_pc_url.as_deref())?;
+    validate_optional_url(update.archive_steering_url.as_deref())?;
+    validate_optional_url(update.archive_program_url.as_deref())?;
+
     // Resolve ID to UUID
     let id = resolve_conference_id(&pool, &id_or_slug).await?;
 

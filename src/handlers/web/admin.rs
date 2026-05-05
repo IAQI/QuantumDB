@@ -3,30 +3,34 @@ use axum::http::StatusCode;
 use axum::response::{Html, IntoResponse, Response};
 use sqlx::PgPool;
 
-/// Admin endpoint to refresh all materialized views
+/// Admin endpoint to refresh all materialized views.
+///
+/// Uses `REFRESH MATERIALIZED VIEW CONCURRENTLY` so readers are not blocked during
+/// the refresh. CONCURRENTLY requires every view to have at least one UNIQUE index;
+/// `author_stats` and `conference_stats` got theirs at creation, and `coauthor_pairs`
+/// got one in migration 20260505000000.
 pub async fn refresh_stats(State(pool): State<PgPool>) -> Result<Response, StatusCode> {
-    // Refresh all materialized views (non-concurrent for views without unique indexes)
-    sqlx::query("REFRESH MATERIALIZED VIEW author_stats")
+    sqlx::query("REFRESH MATERIALIZED VIEW CONCURRENTLY author_stats")
         .execute(&pool)
         .await
         .map_err(|e| {
-            eprintln!("Error refreshing author_stats: {}", e);
+            tracing::error!(error = ?e, "Failed to refresh author_stats");
             StatusCode::INTERNAL_SERVER_ERROR
         })?;
 
-    sqlx::query("REFRESH MATERIALIZED VIEW conference_stats")
+    sqlx::query("REFRESH MATERIALIZED VIEW CONCURRENTLY conference_stats")
         .execute(&pool)
         .await
         .map_err(|e| {
-            eprintln!("Error refreshing conference_stats: {}", e);
+            tracing::error!(error = ?e, "Failed to refresh conference_stats");
             StatusCode::INTERNAL_SERVER_ERROR
         })?;
 
-    sqlx::query("REFRESH MATERIALIZED VIEW coauthor_pairs")
+    sqlx::query("REFRESH MATERIALIZED VIEW CONCURRENTLY coauthor_pairs")
         .execute(&pool)
         .await
         .map_err(|e| {
-            eprintln!("Error refreshing coauthor_pairs: {}", e);
+            tracing::error!(error = ?e, "Failed to refresh coauthor_pairs");
             StatusCode::INTERNAL_SERVER_ERROR
         })?;
 

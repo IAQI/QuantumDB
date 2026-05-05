@@ -11,6 +11,9 @@ services:
       # Set via environment variable: export API_TOKENS=your_token_here
       # Example: API_TOKENS=token1,token2,token3
       - API_TOKENS=${API_TOKENS}
+      # Set AUTH_DISABLED=1 in your shell or .env to bypass the Bearer-token
+      # check entirely. Local-dev only — never set this in production.
+      - AUTH_DISABLED=${AUTH_DISABLED:-}
     depends_on:
       - db
     restart: unless-stopped

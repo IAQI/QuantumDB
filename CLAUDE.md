@@ -6,85 +6,87 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 QuantumDB is a REST API service for tracking quantum computing conferences (QIP, QCrypt, TQC), built with Rust and PostgreSQL. The system tracks conferences, publications, authors, and committee memberships.
 
-**Current Status**: All core CRUD operations implemented. Fully modular architecture with complete REST API, Swagger UI, name normalization utilities, archive URL tracking, and source metadata system. Ready for data population and production deployment.
+**Current Status**: All core CRUD operations implemented. Fully modular architecture with complete REST API (versioned at `/api/v1/`), Swagger UI, name normalization utilities, archive URL tracking, source metadata system, input validation, per-IP rate limiting, CORS, and security headers. Ready for data population and production deployment.
+
+**Development environment**: The runtime stack (`app`, `db`, `pgadmin`) runs in Docker via `docker compose`. The runtime image is intentionally cargo-less — Rust builds happen in the builder stage and only the compiled binary lands in the runtime image. So:
+
+- **Database / SQL operations** → run inside the DB container (`docker exec quantumdb-db-1 psql ...`).
+- **Rust builds, `cargo check`, `cargo test`, `cargo sqlx prepare`** → run on the host (the host has the toolchain; the runtime container does not).
+- **Application reload** → `docker compose up -d --build app` rebuilds inside Docker and replaces the running container.
 
 ## Technology Stack
 
 - **Backend**: Rust with Axum web framework, Tokio async runtime
 - **Database**: PostgreSQL 15+ with SQLx (type-safe, compile-time verified queries)
-- **API Documentation**: OpenAPI/Swagger via utoipa (interactive UI at `/swagger-ui/`)
-- **Containerization**: Docker + Docker Compose
-- **Key Dependencies**: serde, uuid, chrono, tracing, utoipa, unicode-normalization
+- **API Documentation**: OpenAPI/Swagger via utoipa (interactive UI at `/api/v1/swagger-ui/`)
+- **Containerization**: Docker + Docker Compose (the canonical dev/run environment)
+- **Key Dependencies**: serde, uuid, chrono, tracing, utoipa, unicode-normalization, subtle (constant-time comparison), tower_governor (rate limiting), tower-http (cors + security headers)
 
 ## Essential Commands
 
-### Development
+Container names: `quantumdb-app-1`, `quantumdb-db-1`, `quantumdb-pgadmin-1`. The DB's `migrations/` and `seeds/` directories are bind-mounted, so adding a file on the host makes it visible inside the container immediately.
+
+### Stack lifecycle (Docker)
 ```bash
-# Start development server with auto-reload
-cargo watch -x run
-
-# Build and run
-cargo build
-cargo run
-
-# Production build
-cargo build --release
-```
-
-### Database
-```bash
-# Create database (first time only)
-createdb quantumdb
-
-# Run migrations (structural changes)
-sqlx migrate run
-
-# Run seed data (after migrations)
-psql quantumdb < seeds/insert_qip_conferences.sql
-psql quantumdb < seeds/insert_qcrypt_conferences.sql
-psql quantumdb < seeds/insert_tqc_conferences.sql
-
-# Create new migration
-sqlx migrate add <migration_name>
-
-# Prepare SQLx offline mode (required before Docker build)
-cargo sqlx prepare
-
-# Refresh materialized views (after bulk data changes)
-psql quantumdb -c "REFRESH MATERIALIZED VIEW CONCURRENTLY author_stats;"
-psql quantumdb -c "REFRESH MATERIALIZED VIEW CONCURRENTLY conference_stats;"
-psql quantumdb -c "REFRESH MATERIALIZED VIEW CONCURRENTLY coauthor_pairs;"
-```
-
-### Testing
-```bash
-# Run all tests
-cargo test
-
-# Run specific test
-cargo test <test_name>
-
-# Run with logging
-RUST_LOG=debug cargo test
-```
-
-### Docker
-```bash
-# Build and start all services (app + PostgreSQL + PgAdmin)
-docker-compose up --build
+# Build and start all services
+docker compose up --build
 
 # Start in background
-docker-compose up -d
+docker compose up -d
 
-# View logs
-docker-compose logs -f
+# Rebuild + restart only the app (after Rust code changes)
+docker compose up -d --build app
 
-# Stop services
-docker-compose down
+# View logs (follow)
+docker compose logs -f app
 
-# Access PgAdmin: http://localhost:5050
-# - Email: admin@example.com
-# - Password: quantumdb
+# Stop services (preserves the DB volume)
+docker compose down
+
+# Stop and wipe DB volume (re-runs migrations + seeds on next `up`)
+docker compose down -v
+```
+
+### Database / SQL (via the running DB container)
+```bash
+# Open a psql shell against the dev DB
+docker exec -it quantumdb-db-1 psql -U quantumdb -d quantumdb
+
+# Apply a new migration manually (only needed for an already-initialised DB —
+# fresh DBs run all migrations via docker-init.sh)
+docker exec quantumdb-db-1 psql -U quantumdb -d quantumdb -v ON_ERROR_STOP=1 \
+    -f /migrations/<NEW_MIGRATION_FILE>.sql
+
+# Refresh materialized views (CONCURRENTLY, since every view has a unique index)
+docker exec quantumdb-db-1 psql -U quantumdb -d quantumdb -c \
+    "REFRESH MATERIALIZED VIEW CONCURRENTLY author_stats;
+     REFRESH MATERIALIZED VIEW CONCURRENTLY conference_stats;
+     REFRESH MATERIALIZED VIEW CONCURRENTLY coauthor_pairs;"
+
+# Access PgAdmin: http://localhost:5050  (admin@example.com / quantumdb)
+```
+
+### Rust (host toolchain — runtime image has no cargo)
+```bash
+# Fast feedback loop (no rebuild required)
+cargo check
+cargo clippy
+cargo fmt
+
+# Lib tests — no DB needed
+cargo test --lib
+
+# Integration tests — point DATABASE_URL at the dockerised DB
+DATABASE_URL=postgres://quantumdb:quantumdb@localhost:5432/quantumdb cargo test
+
+# After changing any SQLx query string, regenerate the .sqlx/ metadata
+DATABASE_URL=postgres://quantumdb:quantumdb@localhost:5432/quantumdb cargo sqlx prepare
+
+# Scaffold a new migration file
+sqlx migrate add <migration_name>
+
+# Once host code is satisfied, rebuild the image and replace the container:
+docker compose up -d --build app
 ```
 
 ### Authentication
@@ -92,15 +94,18 @@ docker-compose down
 # Generate API token
 ./tools/generate_token.sh
 
-# Add token to .env file (gitignored)
+# Add token to .env file (gitignored). Restart the app container to pick it up:
 echo "API_TOKENS=your-token-here" >> .env
+docker compose up -d --force-recreate app
 
-# Use token with API
+# Use token with API (note the /api/v1 prefix)
 curl -H "Authorization: Bearer YOUR_TOKEN" \
-  -X POST http://localhost:3000/api/conferences \
+  -X POST http://localhost:3000/api/v1/conferences \
   -H "Content-Type: application/json" \
-  -d '{"name": "QIP", "year": 2026}'
+  -d '{"venue": "QIP", "year": 2026, "creator": "you", "modifier": "you"}'
 ```
+
+Tokens are opaque shared secrets: any character set is accepted as long as the token is at least 32 characters. Comparison is constant-time (`subtle` crate) and runs against every configured token regardless of match position.
 
 ### Code Quality
 ```bash
@@ -150,7 +155,9 @@ src/
 └── utils/               # Shared utilities (implemented)
     ├── mod.rs
     ├── normalize.rs     # Unicode normalization, name similarity, loose matching
-    └── conference.rs    # Conference slug parsing (e.g., "QIP2024")
+    ├── conference.rs    # Conference slug parsing (e.g., "QIP2024")
+    ├── pagination.rs    # clamp_pagination() — bounds limit/offset (default 100, max 1000)
+    └── validation.rs    # URL scheme + length + JSONB metadata validators
 ```
 
 ### Key Utilities
@@ -166,6 +173,17 @@ src/
 - `parse_conference_slug()` - Extract venue and year from "QIP2024"
 - `make_conference_slug()` - Generate slug from conference data
 - `slug()` method on Conference struct
+
+**Pagination** (`src/utils/pagination.rs`):
+- `clamp_pagination(limit, offset)` - Clamp client-supplied paging args to safe ranges
+- Defaults: `limit = 100`, max `limit = 1000`; negative values are coerced
+- Used by every list handler (`list_authors`, `list_publications`, `list_committee_roles`)
+
+**Input validation** (`src/utils/validation.rs`):
+- `validate_url(s)` / `validate_optional_url(s)` - Reject anything that isn't `http(s)://...` (case-insensitive); 2 KB length cap. Prevents `javascript:` / `data:` / `file:` URIs from reaching `<a href>` rendering.
+- `validate_text_len(s, max)` / `validate_optional_text_len` - Generic per-field length cap. Constants: `MAX_NAME_LEN = 255`, `MAX_TITLE_LEN = 1000`, `MAX_ABSTRACT_LEN = 50_000`.
+- `validate_metadata(opt_value)` - Requires JSONB metadata to be an object (not array/scalar) and ≤ 4 KB serialised.
+- All validators return `Err(StatusCode::BAD_REQUEST)` so handlers can `?`-propagate.
 
 ### Database Schema
 
@@ -190,62 +208,70 @@ src/
 
 ### API Endpoints
 
-**All CRUD operations fully implemented** for all entities. See interactive API documentation at `/swagger-ui/` for complete request/response schemas and live testing.
+**All CRUD operations fully implemented** for all entities. The REST API is mounted under `/api/v1/` (versioned). Read endpoints (`GET`) are public; write endpoints (`POST`, `PUT`, `DELETE`) require a Bearer token. Interactive API documentation at `/api/v1/swagger-ui/`.
 
-**Conferences**:
-- `GET /` - Health check
-- `GET /conferences` - List all conferences
-- `GET /conferences/:id` - Get conference by ID
-- `POST /conferences` - Create conference
-- `PUT /conferences/:id` - Update conference
-- `DELETE /conferences/:id` - Delete conference
+**Conferences** (`/api/v1/conferences`):
+- `GET /api/v1/conferences` - List all conferences
+- `GET /api/v1/conferences/:id` - Get conference by ID
+- `POST /api/v1/conferences` - Create conference (auth)
+- `PUT /api/v1/conferences/:id` - Update conference (auth)
+- `DELETE /api/v1/conferences/:id` - Delete conference (auth)
 
-**Authors**:
-- `GET /authors` - List all authors
-- `GET /authors/:id` - Get author by ID
-- `POST /authors` - Create author
-- `PUT /authors/:id` - Update author
-- `DELETE /authors/:id` - Delete author
+**Authors** (`/api/v1/authors`):
+- `GET /api/v1/authors` - List all authors (paginated)
+- `GET /api/v1/authors/:id` - Get author by ID
+- `POST /api/v1/authors` - Create author (auth)
+- `PUT /api/v1/authors/:id` - Update author (auth)
+- `DELETE /api/v1/authors/:id` - Delete author (auth)
 
-**Publications**:
-- `GET /publications` - List all publications
-- `GET /publications/:id` - Get publication by ID
-- `POST /publications` - Create publication
-- `PUT /publications/:id` - Update publication
-- `DELETE /publications/:id` - Delete publication
+**Publications** (`/api/v1/publications`):
+- `GET /api/v1/publications` - List all publications (paginated, searchable, filterable)
+- `GET /api/v1/publications/:id` - Get publication by ID
+- `POST /api/v1/publications` - Create publication (auth)
+- `PUT /api/v1/publications/:id` - Update publication (auth)
+- `DELETE /api/v1/publications/:id` - Delete publication (auth)
 
-**Authorships**:
-- `GET /authorships` - List all authorships
-- `GET /authorships/:id` - Get authorship by ID
-- `POST /authorships` - Create authorship
-- `PUT /authorships/:id` - Update authorship
-- `DELETE /authorships/:id` - Delete authorship
+**Authorships** (`/api/v1/authorships`): full CRUD; `POST` and `PUT` may return **409 Conflict** when `(publication_id, author_position)` already exists for the publication.
 
-**Committee Roles**:
-- `GET /committees` - List all committee roles
-- `GET /committees/:id` - Get committee role by ID
-- `POST /committees` - Create committee role
-- `PUT /committees/:id` - Update committee role
-- `DELETE /committees/:id` - Delete committee role
+**Committee Roles** (`/api/v1/committees`): full CRUD with auth on writes.
 
-**Web Interface**:
+**Web Interface** (HTML pages, server-rendered, unversioned):
 - `GET /` - Homepage
 - `GET /about` - About page (IAQI branding)
-- `GET /authors` - Author list (paginated, searchable)
-- `GET /authors/:id` - Author detail page
-- `GET /conferences` - Conference list (filterable by venue)
-- `GET /conferences/:slug` - Conference detail (e.g., /conferences/qip-2024)
-- `GET /static/*` - Static assets (images, CSS, JS)
+- `GET /authors`, `GET /authors/:id` - Author list / detail
+- `GET /conferences`, `GET /conferences/:slug` - Conference list / detail
+- `GET /static/*` - Static assets
+- `GET /health` - Health check (used by Dockerfile HEALTHCHECK)
 
-**Admin Routes** (requires authentication):
-- `GET /admin/refresh-stats` - Refresh materialized views
+**Admin Routes** (Bearer token required):
+- `GET /admin/refresh-stats` - Refresh all materialized views (uses `REFRESH MATERIALIZED VIEW CONCURRENTLY`)
 
 **API Documentation**:
-- `GET /swagger-ui/` - Interactive Swagger UI
-- `GET /api-docs/openapi.json` - OpenAPI 3.0 specification
-- `GET /health` - API health check
+- `GET /api/v1/swagger-ui/` - Interactive Swagger UI
+- `GET /api/v1/openapi.json` - OpenAPI 3.0 specification
 
 ## Critical Implementation Details
+
+### Security & Middleware Stack
+
+The router applies (outermost → innermost):
+
+1. **Security headers** (`tower_http::set_header`) — every response gets `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, and a restrictive `Permissions-Policy`. Applied with `if_not_present` so handlers can override.
+2. **CORS** (`tower_http::cors`) — currently `Any` origin with `GET/POST/PUT/DELETE` and `Authorization`/`Content-Type` headers. Tighten the origin list before any non-trivial public deployment.
+3. **Rate limiting** (`tower_governor`) — keyed on peer IP; 10 req/sec sustained (period = 100 ms) with burst size 100. Adds `x-ratelimit-*` response headers via `use_headers()`. A background tokio task calls `retain_recent()` every 60 s to bound memory. Required `axum::serve(_, app.into_make_service_with_connect_info::<SocketAddr>())` so the layer can extract IPs.
+4. **Auth** (`src/middleware/auth.rs`) — applied only to the protected sub-router. Bearer-token check is constant-time via `subtle::ConstantTimeEq`; the loop iterates every configured token unconditionally. Tokens must be ≥ 32 chars; the body is opaque (any character set).
+
+When adding a new write endpoint, register it on `protected_api_routes` (or `protected_web_routes` for HTML admin) so it inherits `auth_middleware`. **Do not register write handlers on the public router** — the empty `protected_web_routes` was the root cause of the original `/admin/refresh-stats` exposure.
+
+### Input Validation
+
+All `Create*` / `Update*` handlers validate inputs *before* hitting the DB:
+- Strings are length-capped (see `MAX_NAME_LEN` etc. in `src/utils/validation.rs`).
+- URL fields are scheme-checked (`http`/`https` only) — protects against `javascript:` URIs surviving Askama HTML-attribute escaping.
+- JSONB `metadata` must be a JSON object ≤ 4 KB.
+- Pagination `limit`/`offset` are clamped via `clamp_pagination()` in list handlers.
+
+When adding a new field, decide which of these caps applies and call the corresponding validator at the top of the handler.
 
 ### SQLx Offline Mode
 
@@ -351,7 +377,9 @@ All handlers use SQLx query macros (`query!`, `query_as!`) for compile-time veri
   - `20251230000000_add_archive_urls.sql`
   - `20251230100000_add_affiliation_and_metadata.sql`
   - `20251230100001_add_source_tracking_comments.sql`
-  - `20260101000000_add_talk_presenter_and_types.sql` - **NEW**: Removes 'short' paper type, adds plenary types, presenter tracking, proceedings track flag, and talk scheduling fields
+  - `20260101000000_add_talk_presenter_and_types.sql` - Removes 'short' paper type, adds plenary types, presenter tracking, proceedings track flag, and talk scheduling fields
+  - `20260505000000_coauthor_pairs_unique_index.sql` - Adds UNIQUE INDEX on `coauthor_pairs(author1_id, author2_id)` so the view can be refreshed with `REFRESH MATERIALIZED VIEW CONCURRENTLY`
+  - `20260505000001_authors_orcid_unique.sql` - Promotes the partial ORCID index to a UNIQUE constraint (`authors_orcid_unique`) and drops the redundant `idx_authors_orcid`
 - **seeds/** - Initial data (run manually after migrations)
   - `insert_qip_conferences.sql` - Historical QIP data (1998-2024)
   - `insert_qcrypt_conferences.sql` - Historical QCrypt data
@@ -363,6 +391,10 @@ All handlers use SQLx query macros (`query!`, `query_as!`) for compile-time veri
 - **.env** - Environment variables (DATABASE_URL, API_TOKENS) - gitignored
 - **templates/** - HTML templates for web interface (Askama)
 - **static/** - Static assets (images, CSS, JS)
+- **data/conferences/** - Source-of-truth CSVs per conference (`<venue>_<year>/{committees,talks,proceedings,workshop}.csv`). Edit these to fix data; importer scripts read from here. See `data/README.md` for schemas.
+- **data/SOURCES.md** - Per-conference provenance (which page each CSV was scraped from).
+- **tools/scrape_committees/** - Committee scrapers + `import_from_csv.py`
+- **tools/scrape_talks/** - Talk scrapers + `import_from_csv.py`
 - **tools/generate_token.sh** - Secure token generation utility
 
 ## Documentation Files
@@ -371,20 +403,24 @@ All handlers use SQLx query macros (`query!`, `query_as!`) for compile-time veri
 - **ARCHITECTURE.md** - System design, modular structure, API patterns
 - **DATABASE_SCHEMA.md** - Complete database schema with all tables and fields
 - **TESTING.md** - Test suite documentation, how to run tests
+- **docs/CODE_REVIEW.md** - Comprehensive security + code-quality review with findings, severities, and fixes
 - **docs/archive/** - Historical planning documents
 
 ## Development Workflow
 
-1. **Environment Setup**: Ensure PostgreSQL running, `.env` configured with `DATABASE_URL`
-2. **Database Setup**: Create DB, run migrations, optionally run seed data
-3. **Development**: Use `cargo watch -x run` for auto-reload, access Swagger UI at `http://localhost:3000/swagger-ui/`
-4. **Database Changes**: Create migration, run it, update `cargo sqlx prepare` for offline mode
-5. **Testing**: Write tests in `tests/api_tests.rs`, run with `cargo test` (uses isolated test databases)
-6. **Docker Build**: Prepare SQLx metadata first, then `docker-compose up --build`
+Hybrid: stack runs in Docker, Rust toolchain runs on the host.
+
+1. **Bring the stack up**: `docker compose up -d` (rebuilds only on `--build`). The DB volume persists across restarts; on first start, `docker-init.sh` runs every file in `migrations/` and `seeds/` in order.
+2. **Apply a new migration**: drop the `<timestamp>_<name>.sql` file into `migrations/`. For an existing DB, run it manually with `docker exec quantumdb-db-1 psql -U quantumdb -d quantumdb -v ON_ERROR_STOP=1 -f /migrations/<file>.sql`. (For a fresh DB, `docker compose down -v && docker compose up -d` re-runs everything.)
+3. **Iterate on code**: edit on the host. `cargo check` / `cargo clippy` / `cargo test --lib` give fast feedback locally; once you're ready to exercise the running app, `docker compose up -d --build app` rebuilds the image and swaps the container.
+4. **After SQL query changes**: run `cargo sqlx prepare` (host) to regenerate `.sqlx/`. Commit the result; the Dockerfile builds with `SQLX_OFFLINE=true` and reads from this directory.
+5. **Test**: `cargo test --lib` for unit tests; `cargo test` (with `DATABASE_URL` pointing at `localhost:5432`) for the integration suite — it talks to the dockerised DB. Tests share the dev DB but use unique year ranges (`unique_test_year()` starts at 5000) to avoid colliding with seeded data.
+6. **Refresh stats**: hit the auth-protected `GET /admin/refresh-stats`, or run the SQL directly via `docker exec quantumdb-db-1 psql ...`.
+7. **Swagger UI**: <http://localhost:3000/api/v1/swagger-ui/>
 
 ## Current Development Priorities
 
-1. **Data Population**: Populate database with historical conference data, publications, authors, and committee roles
+1. **Data Population**: Populate database with historical conference data, publications, authors, and committee roles. Source-of-truth CSVs live under `data/conferences/<venue>_<year>/`; scrape with `tools/scrape_*/scrape_to_csv.py` and import with `tools/scrape_*/import_from_csv.py`.
 2. **Search & Analytics**: Add search endpoints (author search, publication search), implement analytics based on materialized views
 3. **Data Import Tools**: Build tools to scrape/import data from conference websites, DBLP, arXiv
 4. **Export Features**: Add BibTeX, CSV export functionality
@@ -398,21 +434,26 @@ When extending the codebase:
    - `normalize_name()` for author name processing
    - `parse_conference_slug()` for conference identification
    - `names_similar()` for fuzzy matching
+   - `clamp_pagination()` for any new list endpoint (don't roll your own `unwrap_or(100)`)
+   - `validate_url`, `validate_text_len`, `validate_metadata` at the top of any new `Create*`/`Update*` handler
 
 2. **Follow established patterns**:
-   - SQLx `query!` and `query_as!` macros for type safety
+   - SQLx `query!` and `query_as!` macros for type safety (compile-time-checked against `.sqlx/`)
    - UUID primary keys via `gen_random_uuid()`
-   - `created_at`/`updated_at`/`created_by`/`updated_by` audit fields
+   - `created_at`/`updated_at`/`creator`/`modifier` audit fields
    - JSONB `metadata` for extensible data (use for source tracking)
-   - `Extension(Pool<Postgres>)` for database access in handlers
-   - OpenAPI annotations with `#[utoipa::path(...)]` for new endpoints
+   - `State(Pool<Postgres>)` for database access in handlers (the project uses `with_state`, not `Extension`)
+   - OpenAPI annotations with `#[utoipa::path(...)]` for new endpoints — include all expected status codes (401, 404, 409, 500) in `responses(...)`
+   - New write endpoints go on `protected_api_routes` (or `protected_web_routes`); new read endpoints go on `api_routes` / `web_routes`
 
 3. **Database changes**:
-   - Update `.sqlx/` metadata with `cargo sqlx prepare` after query changes
-   - Refresh materialized views after bulk data changes
+   - Add a migration in `migrations/` with a `YYYYMMDDHHMMSS_description.sql` filename
+   - Apply it to the running dev DB via `docker exec quantumdb-db-1 psql ... -f /migrations/...`
+   - Run `cargo sqlx prepare` on the host (with `DATABASE_URL` pointing at the dockerised DB) so `.sqlx/` reflects new query shapes; commit the result
+   - Refresh materialized views after bulk data changes (CONCURRENTLY is fine — every view has a unique index now)
    - Use CHECK constraints for enum-like fields (e.g., `venue` on conferences)
 
 4. **Testing**:
    - Add tests to `tests/api_tests.rs` for new endpoints
-   - Tests use isolated databases for parallel execution
+   - Lib tests live next to the code (`#[cfg(test)] mod tests`); the `utils` modules have ~30 of these
    - Test full CRUD lifecycle for each entity
