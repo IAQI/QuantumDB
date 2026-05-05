@@ -1,234 +1,161 @@
-# Committee Scraper Tool
+# Committee Scraper - Modular Version
 
-Scrapes committee membership data from archived conference websites and populates the QuantumDB database.
+Scrapes program committee and organizing committee data from conference websites. Uses a **local JSON file workflow** for manual verification before importing into the database.
 
-## Features
+## Quick Start
 
-- Scrapes Program Committee (PC), Organizing Committee (OC), and Steering Committee (SC) data
-- Uses archived URLs stored in the `conferences` table
-- Extracts member names, affiliations, and positions
-- Uses name normalization to find or create authors
-- Records source provenance in JSONB metadata
-- Supports dry-run mode for testing
-- Idempotent - can be re-run safely with `--force`
-
-## Usage
-
-### Using Local Files (Recommended for Development)
-
-If you have local copies of archived websites in `~/Web/`:
+### 1. Scrape to JSON File
 
 ```bash
-# Dry run with local files
-cargo run -p scrape_committees -- --local --dry-run
+# Scrape from local HTML file (recommended)
+./scrape_to_json.py --venue QCRYPT --year 2023 --local
 
-# Scrape all conferences from local files
-cargo run -p scrape_committees -- --local
+# Scrape from web
+./scrape_to_json.py --venue QCRYPT --year 2023
 
-# Scrape specific venue from local files
-cargo run -p scrape_committees -- --local --venue QIP --year 2024
+# Custom output directory
+./scrape_to_json.py --venue QCRYPT --year 2023 --local --output-dir ./my_data
 
-# Use custom local directory
-cargo run -p scrape_committees -- --local --local-dir ~/my-web-archive
+# Overwrite existing file
+./scrape_to_json.py --venue QCRYPT --year 2023 --local --force
 ```
 
-**Expected directory structure:**
-```
-~/Web/
-├── web.archive.org/
-│   └── web/
-│       └── 20230515120000/
-│           └── https:/
-│               └── 2024.qipconference.org/
-│                   └── committee/
-│                       └── index.html
-```
+Output: `scraped_data/qcrypt_2023_committees.json`
 
-The tool automatically converts archive.org URLs to local file paths.
-
-### Using Archive.org (Production)
+### 2. Review and Edit JSON File
 
 ```bash
-# Dry run - preview what would be scraped
-cargo run -p scrape_committees -- --dry-run
+# View the JSON file
+cat scraped_data/qcrypt_2023_committees.json | jq .
 
-# Scrape all conferences with archive URLs
-cargo run -p scrape_committees
-
-# Scrape specific venue
-cargo run -p scrape_committees -- --venue QIP
-
-# Scrape specific year
-cargo run -p scrape_committees -- --year 2024
-
-# Force re-scrape existing data
-cargo run -p scrape_committees -- --force
+# Edit manually if needed
+code scraped_data/qcrypt_2023_committees.json
 ```
 
-### From tools directory
+The JSON format:
+```json
+{
+  "venue": "QCRYPT",
+  "year": 2023,
+  "scraped_at": "2025-12-30T...",
+  "member_count": 45,
+  "members": [
+    {
+      "committee_type": "program",
+      "position": "chair",
+      "full_name": "Alice Smith",
+      "affiliation": "MIT",
+      "notes": null
+    },
+    ...
+  ]
+}
+```
+
+### 3. Import to Database
 
 ```bash
-cd tools/scrape_committees
-cargo run -- --venue QCRYPT --dry-run
+# Dry run first to see what would be imported
+./import_from_json.py scraped_data/qcrypt_2023_committees.json --dry-run
+
+# Actually import
+./import_from_json.py scraped_data/qcrypt_2023_committees.json
 ```
-
-## How It Works
-
-1. **Query Database**: Finds conferences with `archive_pc_url`, `archive_organizers_url`, or `archive_steering_url` set
-2. **Fetch HTML**: Downloads archived web pages using `reqwest`
-3. **Parse Members**: Extracts committee members using HTML selectors
-4. **Parse Details**: Attempts to extract:
-   - Member name (cleaned of titles like Dr., Prof.)
-   - Affiliation (from parentheses or comma-separated)
-   - Position (chair, co_chair, area_chair, member)
-   - Role title (e.g., "General Chair", "Program Chair")
-5. **Name Normalization**: Uses `quantumdb::utils::normalize::normalize_name()` for matching
-6. **Find or Create Authors**: Looks up existing authors by normalized name, creates new ones if needed
-7. **Insert Committee Roles**: Batch inserts with transaction, including metadata:
-   ```json
-   {
-     "source_type": "archive_org",
-     "source_url": "https://web.archive.org/...",
-     "scraped_date": "2025-12-30",
-     "original_text": "Alice Quantum (MIT)"
-   }
-   ```
 
 ## Architecture
 
-### Generic Parser
+### Modular Scrapers
 
-The current implementation uses a **generic HTML parser** that works across different conference website structures:
+Each conference type has its own scraper module in `scrapers/`:
 
-- Tries multiple CSS selectors: `ul li`, `ol li`, `.committee-member`, `table tr`, etc.
-- Looks for common patterns: "Name (Affiliation)" or "Name, Affiliation"
-- Detects positions from keywords: "General Chair", "Co-Chair", "Area Chair"
-- Deduplicates by normalized name
+- **`scrapers/base.py`** - Base scraper class with common functionality
+- **`scrapers/qcrypt.py`** - QCrypt scraper (works well for 2016-2024)
+- **`scrapers/qip.py`** - QIP scraper (needs customization per year)
+- **`scrapers/tqc.py`** - TQC scraper (needs customization per year)
 
-### Future: Conference-Specific Parsers
+### Staging Table Workflow
 
-For better accuracy, implement scrapers in `src/scrapers/`:
+1. **Scrape** → Data goes into local JSON file
+2. **Review** → Manually verify/fix data in JSON editor
+3. **Import** → Script creates/matches authors and creates committee roles
 
-```
-src/
-├── main.rs
-└── scrapers/
-    ├── mod.rs
-    ├── qip.rs       # QIP-specific parsing logic
-    ├── qcrypt.rs    # QCrypt-specific parsing logic
-    └── tqc.rs       # TQC-specific parsing logic
-```
+This allows you to:
+- Fix parsing errors before they hit the database
+- Handle name variants and affiliations manually
+- Skip invalid/duplicate entries
+- Keep a record of the raw scraped data
+- Version control the JSON files if desired
 
-Each scraper would know the specific HTML structure of that conference's archived sites.
+## Customizing Scrapers
 
-## Database Schema
+Different conferences (and different years of the same conference) often have different HTML structures. To customize:
 
-Inserts into `committee_roles` table:
-
-```sql
-CREATE TABLE committee_roles (
-    conference_id   UUID REFERENCES conferences(id),
-    author_id       UUID REFERENCES authors(id),
-    committee       committee_type,  -- OC, PC, SC, Local
-    position        committee_position,  -- chair, co_chair, area_chair, member
-    role_title      TEXT,  -- e.g., "General Chair"
-    affiliation     TEXT,  -- Affiliation at time of service
-    metadata        JSONB, -- Source tracking
-    ...
-);
-```
-
-## Error Handling
-
-- **Connection errors**: Retries with exponential backoff (future)
-- **Parse errors**: Logs warning and continues with next URL
-- **Duplicate keys**: Uses `ON CONFLICT DO NOTHING` for idempotency
-- **Transaction failures**: Rolls back entire conference, logs error
-
-## Logging
-
-Uses `tracing` for structured logging:
+### 1. Download Local HTML
 
 ```bash
-# Enable debug logging
-RUST_LOG=debug cargo run --bin scrape_committees
-
-# Log only scraper messages
-RUST_LOG=scrape_committees=info cargo run --bin scrape_committees
+cd ~/Web
+wget -r -np -k https://2023.qcrypt.net/committees/
 ```
 
-## Testing
+### 2. Inspect Structure
+
+Open the HTML file and identify:
+- How committee sections are marked (headings, class names)
+- How member info is structured (lists, divs, etc.)
+- Where names, affiliations, and roles appear
+
+### 3. Update Scraper
+
+Edit the appropriate scraper in `scrapers/` and implement `parse_committee_data()`:
+
+```python
+def parse_committee_data(self) -> List[Dict[str, str]]:
+    members = []
+    # Your parsing logic here
+    return members
+```
+
+Each dict should have:
+- `committee_type`: 'program', 'steering', or 'local_organizing'
+- `position`: 'chair', 'co-chair', or 'member'
+- `full_name`: Person's full name
+- `affiliation`: University/organization (optional)
+- `notes`: Any additional info (optional)
+
+### 4. Test
 
 ```bash
-# Test with dry-run
-cargo run --bin scrape_committees -- --venue QIP --year 2024 --dry-run
-
-# Verify results in database
-psql quantumdb -c "SELECT * FROM committee_roles WHERE conference_id IN (SELECT id FROM conferences WHERE venue='QIP' AND year=2024);"
+python3 scrape_to_staging.py --venue QCRYPT --year 2023 --local --force
 ```
 
-## Limitations
+## Legacy Tool
 
-### Current Generic Parser
+The original `scrape_committees.py` script is still available for direct database insertion without staging. It's more complex and does everything in one pass. Use the new `scrape_to_staging.py` + `import_from_staging.py` workflow for better control.
 
-- **Pattern matching**: May miss members in unusual HTML structures
-- **Affiliation extraction**: Simple regex, may be inaccurate
-- **Position detection**: Keyword-based, may miss nuanced roles
-- **Deduplication**: By normalized name only, doesn't handle name variants
+## Requirements
 
-### Future Improvements
-
-1. **Conference-specific parsers**: Better accuracy for each conference's HTML structure
-2. **Retry logic**: Handle temporary network failures
-3. **Progress tracking**: Store scrape status per conference
-4. **Parallel scraping**: Scrape multiple conferences concurrently
-5. **Better affiliation parsing**: Machine learning or NLP for entity extraction
-6. **Manual review**: Flag ambiguous entries for human verification
-7. **Incremental updates**: Only scrape new conferences since last run
-
-## Troubleshooting
-
-### No members found
-- Check that archive URLs are valid and accessible
-- Try scraping manually with curl: `curl <url>`
-- Enable debug logging to see HTML structure: `RUST_LOG=debug`
-
-### Wrong affiliations
-- Generic parser uses simple pattern matching
-- Consider implementing conference-specific parser
-- Manually correct in database and add to `author_name_variants`
-
-### Duplicate authors
-- Name normalization may not catch all variants
-- Check `authors` table for similar names
-- Manually merge duplicates and add name variants
-
-## Integration with QuantumDB
-
-The scraper reuses QuantumDB library code:
-
-```rust
-use quantumdb::utils::normalize::normalize_name;
+```bash
+pip install -r requirements.txt
 ```
 
-This ensures consistency between:
-- Committee scraper name matching
-- Author search in API
-- Name variant generation
-- Publication authorship matching
+Required packages:
+- `asyncpg` - PostgreSQL async driver
+- `beautifulsoup4` - HTML parsing
+- `aiohttp` - Async HTTP (for web scraping)
+- `python-dotenv` - Environment variables
 
-## Local File Benefits
+## Database Setup
 
-- **10-100x faster** than fetching from archive.org
-- **No rate limiting** concerns
-- **Reproducible** scraping during development
-- **Offline** development capability
-- **Consistent** results without network variability
+The staging table is created by migration `20251231000000_create_committee_staging_table.sql`. It includes:
 
-## Next Steps
+- `committee_staging` - Main staging table
+- `committee_staging_unverified` - View of unverified data
+- `committee_staging_ready` - View of verified but not imported data
 
-1. Add archive URLs to conferences table
-2. Download archived pages to `~/Web/`
-3. Run scraper with `--local --dry-run` to test parsing
-4. Implement venue-specific parsers for better accuracy
-5. Run scraper with `--local` to populate database
+## Tips
+
+- **Start with local files**: Faster iteration, no rate limiting
+- **One conference at a time**: Easier to verify
+- **Check for duplicates**: Name variants can create multiple authors
+- **Use dry-run**: Always test import before committing
+- **Mark incrementally**: Verify small batches of records at a time

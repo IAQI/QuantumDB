@@ -11,8 +11,9 @@ QCrypt committee provenance is not yet captured here; see
 
 # QIP
 
-Scraper: `tools/scrape_committees/scrape_qip_historical.py`
-(plus `tools/scrape_committees/scrapers/qip.py` for the modular path).
+Scraper: `tools/one_off/historical/scrape_qip_historical.py` (archived;
+data already populated). The modular replacement is
+`tools/scrape_committees/scrapers/qip.py`.
 
 ## 2026 — Riga (University of Latvia)
 
@@ -309,8 +310,9 @@ Scraper: `scrape_qip_historical.py` (no `parse_1998` function; data collected se
 
 # TQC
 
-Scraper: `tools/scrape_committees/scrape_tqc_historical.py`
-(plus `tools/scrape_committees/scrapers/tqc.py` for the modular path).
+Scraper: `tools/one_off/historical/scrape_tqc_historical.py` (archived;
+data already populated). The modular replacement is
+`tools/scrape_committees/scrapers/tqc.py`.
 All local archive paths are relative to `~/Web/tqc.iaqi.org/`.
 
 ## 2025 — Bengaluru (IISc)
