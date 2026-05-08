@@ -695,6 +695,7 @@ def parse_2008() -> List[Dict]:
     Structure: <h3> section headers, <ul>/<ol> with <li> per talk.
     Invited talks: <h3>Invited talks</h3> -> <ul><li>Name, Affil
     Contributed: <h4>There will be ten 30-minute talks</h4> / <h4>twenty 20-minute talks</h4>
+    Posters: <h3>Posters</h3> -> <ol><li>Author. <em>Title</em>
     """
     soup = read_html(ARCHIVE_BASE / '2008' / 'Program.html', encoding='iso-8859-1')
     talks = []
@@ -718,6 +719,10 @@ def parse_2008() -> List[Dict]:
                 current_section = 'contributed'
                 current_type = 'regular'
                 current_duration = 20
+            elif 'poster' in text:
+                current_section = 'posters'
+                current_type = 'poster'
+                current_duration = 0
             elif 'contributed' in text:
                 current_section = 'contributed'
                 current_type = 'regular'
@@ -725,25 +730,46 @@ def parse_2008() -> List[Dict]:
             continue
 
         if tag.name == 'li' and current_section:
+            # The page uses unclosed <li> tags, so BeautifulSoup nests every
+            # subsequent sibling inside the first one. Skip wrapper <li>s that
+            # contain section headers (h3/h4) — they are not talks themselves,
+            # just containers for the <h4> + nested <ol>.
+            if tag.find(['h3', 'h4']):
+                continue
+
             # For invited: <li><a href="...">Name</a>, Affil
-            # For contributed: <li>Author One and Author Two.\n<em>Title</em>
+            # For contributed/posters: <li>Author One and Author Two. <em>Title</em>
             em = tag.find('em')
             title = em.get_text(strip=True) if em else ''
 
             if current_section == 'invited':
-                # Name is either in <a> or plain text
-                a_tag = tag.find('a')
+                # Walk only this <li>'s direct contents — stop at the first
+                # BS4-nested <li>, which is actually the next invited entry
+                # (the page leaves <li> tags unclosed).
+                own_parts = []
+                a_tag = None
+                for child in tag.contents:
+                    if getattr(child, 'name', None) == 'li':
+                        break
+                    if a_tag is None and getattr(child, 'name', None) == 'a':
+                        a_tag = child
+                    if hasattr(child, 'get_text'):
+                        own_parts.append(child.get_text(' ', strip=True))
+                    else:
+                        own_parts.append(str(child).strip())
+                own_text = re.sub(r'\s+', ' ', ' '.join(p for p in own_parts if p)).strip()
+
                 if a_tag:
                     speaker = a_tag.get_text(strip=True)
+                    affil = own_text[len(speaker):].strip().lstrip(',').strip()
+                elif ',' in own_text:
+                    # No link — assume "Name, Affiliation, ..." and split on first comma.
+                    speaker, affil = own_text.split(',', 1)
+                    speaker = speaker.strip()
+                    affil = affil.strip()
                 else:
-                    speaker = tag.get_text(' ', strip=True).split('\n')[0].strip()
-                # Affiliation: text after the link/name
-                full_text = tag.get_text(' ', strip=True)
-                # Remove speaker name from text
-                affil = full_text[len(speaker):].strip().lstrip(',').strip()
-                # Remove title if present
-                if title:
-                    affil = affil.replace(title, '').strip()
+                    speaker = own_text
+                    affil = ''
 
                 talks.append(make_talk(
                     year='2008',
@@ -755,22 +781,23 @@ def parse_2008() -> List[Dict]:
                     duration_minutes=str(current_duration),
                 ))
             else:
-                # Contributed: Author list before <em>
+                # Contributed/posters: author list before first <em>.
+                # `tag.find('em')` returns the first <em> in DFS order — for an
+                # unclosed-li chain that's the current talk's own title, so the
+                # text before it is exactly this talk's authors.
                 full_text = tag.get_text(' ', strip=True)
                 if em:
                     authors_text = full_text[:full_text.find(title)].strip().rstrip('.')
                 else:
                     authors_text = full_text
 
-                # Parse author list: "A, B and C" or "A. B. and C. D."
-                # Split on ' and ' or final comma before last author
+                # Author list format: "A, B, C and D" (no Oxford comma).
+                # Split on " and " then split each chunk on commas to handle
+                # both "A and B" and "A, B, C and D" correctly.
                 authors_text = re.sub(r'\s+', ' ', authors_text)
-                # Split on ' and '
-                author_list = re.split(r'\s+and\s+', authors_text)
-                # Further split on commas (last-name, first-name style -> keep whole)
-                # For "A, B, C and D" style:
-                if len(author_list) == 1:
-                    author_list = [a.strip() for a in authors_text.split(',') if a.strip()]
+                author_list = []
+                for chunk in re.split(r'\s+and\s+', authors_text):
+                    author_list.extend(a.strip() for a in chunk.split(',') if a.strip())
 
                 # Speaker is first author
                 speaker = author_list[0].strip() if author_list else ''
@@ -781,7 +808,7 @@ def parse_2008() -> List[Dict]:
                     title=title,
                     speaker=speaker,
                     authors=join_authors(author_list),
-                    duration_minutes=str(current_duration),
+                    duration_minutes=str(current_duration) if current_duration else '',
                 ))
 
     return talks
