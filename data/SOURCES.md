@@ -344,6 +344,13 @@ organizers").
 
 Scraper: `parse_2024()`.
 
+**Talks** (`workshop.csv`, 92 rows): produced by
+`tools/one_off/tqc2023-24/convert_tqc_to_csv.py` from
+`raw/tqc-publications-23-24.bib` + `raw/tqc-calendar.ics`. 100% calendar
+match; all rows have schedule + speakers. 91/92 have abstracts; 54/92
+have arXiv IDs. The 12 talks also published in LIPIcs are in
+`proceedings.csv` separately (with `is_proceedings_track=TRUE`).
+
 ---
 
 ## 2023 — Aveiro (Universidade de Aveiro)
@@ -357,6 +364,13 @@ Combined retro-archive at the 2025 IAQI site. Headings: "Steering Committee",
 markers), "Programme Committee".
 
 Scraper: `parse_2023()`.
+
+**Talks** (`workshop.csv`, 59 rows): produced by
+`tools/one_off/tqc2023-24/convert_tqc_to_csv.py` from
+`raw/talks_with_schedule.csv` (filtered to `_entry_type=Workshop`). 100%
+calendar match; all rows have schedule + speakers + abstracts. 14
+proceedings-track talks (`_entry_type=Conference`) are in `proceedings.csv`
+separately.
 
 ---
 
