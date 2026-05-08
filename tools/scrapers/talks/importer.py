@@ -1,12 +1,8 @@
-#!/usr/bin/env python3
-"""Import verified talk data from CSV file into database."""
+"""CLI body for `import_from_csv.py talks` — import talk CSVs into the DB."""
 
-import argparse
-import asyncio
 import csv
 import logging
 import os
-import sys
 import re
 import json
 from pathlib import Path
@@ -377,39 +373,37 @@ async def import_from_csv(
     return imported, failures
 
 
-async def async_main():
-    """CLI entry point."""
-    parser = argparse.ArgumentParser(
-        description='Import talks from CSV into database'
-    )
+def add_arguments(parser):
+    """Wire CLI flags onto ``parser``. Used by the unified entry point."""
     parser.add_argument('csv_files', type=str, nargs='+', help='Path(s) to CSV file(s)')
-    parser.add_argument('--dry-run', action='store_true', help='Show what would be imported without making changes')
-    parser.add_argument('--db-url', type=str, help='Database URL (overrides DATABASE_URL env var)')
+    parser.add_argument('--dry-run', action='store_true',
+                        help='Show what would be imported without making changes')
+    parser.add_argument('--db-url', type=str,
+                        help='Database URL (overrides DATABASE_URL env var)')
 
-    args = parser.parse_args()
 
-    # Load environment and get database URL
-    load_dotenv()
-    database_url = args.db_url or os.environ.get('DATABASE_URL')
-
-    if not database_url:
-        logger.error("DATABASE_URL not set. Set it in .env file or use --db-url")
-        sys.exit(1)
-
+async def async_main(args) -> int:
+    """Run the talk import end-to-end. Returns shell exit code."""
     csv_files = []
     for path in args.csv_files:
         p = Path(path)
         if not p.exists():
             logger.error(f"CSV file not found: {p}")
-            sys.exit(1)
+            return 1
         csv_files.append(p)
 
-    # Create connection pool
-    try:
-        pool = await asyncpg.create_pool(database_url)
-    except Exception as e:
-        logger.error(f"Failed to connect to database: {e}")
-        sys.exit(1)
+    pool = None
+    if not args.dry_run:
+        load_dotenv()
+        database_url = args.db_url or os.environ.get('DATABASE_URL')
+        if not database_url:
+            logger.error("DATABASE_URL not set. Set it in .env file or use --db-url")
+            return 1
+        try:
+            pool = await asyncpg.create_pool(database_url)
+        except Exception as e:
+            logger.error(f"Failed to connect to database: {e}")
+            return 1
 
     total_imported = 0
     all_failures: list[dict] = []
@@ -423,7 +417,6 @@ async def async_main():
             total_imported += imported
             all_failures.extend(failures)
 
-        # Final summary
         if args.dry_run:
             logger.info(f"\nDRY RUN complete. Would import {total_imported} talks across {len(csv_files)} file(s).")
         else:
@@ -434,7 +427,6 @@ async def async_main():
 
             if all_failures:
                 logger.warning(f"\nFailed to import {len(all_failures)} talk(s):")
-                # Group by file for readability
                 by_file: dict[str, list[dict]] = {}
                 for f in all_failures:
                     by_file.setdefault(f['file'], []).append(f)
@@ -445,14 +437,7 @@ async def async_main():
                         logger.warning(f"    [{fail['paper_type']}] {title}")
                         logger.warning(f"      Reason: {fail['reason']}")
 
+        return 0 if not all_failures else 1
     finally:
-        await pool.close()
-
-
-def main():
-    """Entry point for CLI."""
-    asyncio.run(async_main())
-
-
-if __name__ == '__main__':
-    main()
+        if pool is not None:
+            await pool.close()

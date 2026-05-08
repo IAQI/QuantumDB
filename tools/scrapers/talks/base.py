@@ -1,23 +1,13 @@
 """Base scraper class for conference invited/tutorial talks."""
-from abc import ABC, abstractmethod
-from typing import List, Dict, Optional, Any
 import re
-import requests
-from bs4 import BeautifulSoup
+from abc import abstractmethod
+from typing import Any, Dict, List, Optional
+
+from ..base import Scraper
 
 
-class BaseTalkScraper(ABC):
+class BaseTalkScraper(Scraper):
     """Abstract base class for conference talk scrapers."""
-
-    def __init__(self, year: int, local_file: Optional[str] = None):
-        self.year = year
-        self.local_file = local_file
-        self.soup = None
-
-    @abstractmethod
-    def get_url(self) -> str:
-        """Return the URL for the conference program/schedule page."""
-        pass
 
     @abstractmethod
     def parse_talk_data(self) -> List[Dict[str, Any]]:
@@ -42,26 +32,6 @@ class BaseTalkScraper(ABC):
             - scheduled_time: Optional[str]  # 'HH:MM' 24h
             - duration_minutes: Optional[int]
         """
-        pass
-
-    def fetch_page(self) -> BeautifulSoup:
-        """Fetch and parse the HTML page.
-
-        Local files are read as bytes so BeautifulSoup can sniff the encoding
-        from the document — some QCrypt mirror pages declare UTF-8 in <meta>
-        but actually contain CP1252-encoded bytes.
-        """
-        if self.local_file:
-            with open(self.local_file, 'rb') as f:
-                html_content = f.read()
-        else:
-            url = self.get_url()
-            response = requests.get(url, timeout=30)
-            response.raise_for_status()
-            html_content = response.content
-
-        self.soup = BeautifulSoup(html_content, 'html.parser')
-        return self.soup
 
     def scrape(self) -> List[Dict[str, Any]]:
         """Fetch page and parse talk data."""
@@ -95,11 +65,6 @@ class BaseTalkScraper(ABC):
         return unique
 
     @staticmethod
-    def normalize_name(name: str) -> str:
-        """Normalize person name (remove extra whitespace, etc.)."""
-        return ' '.join(name.strip().split())
-
-    @staticmethod
     def normalize_title(title: str) -> str:
         """Normalize talk title (remove extra whitespace, newlines)."""
         return ' '.join(title.strip().split())
@@ -113,12 +78,12 @@ class BaseTalkScraper(ABC):
         patterns = [
             r'arXiv:(\d{4}\.\d{4,5})',
             r'arxiv\.org/abs/(\d{4}\.\d{4,5})',
-            r'(?<!\d)(\d{4}\.\d{4,5})(?!\d)',  # Standalone
+            r'(?<!\d)(\d{4}\.\d{4,5})(?!\d)',
         ]
         ids = []
         for pattern in patterns:
             ids.extend(re.findall(pattern, text, re.IGNORECASE))
-        return list(set(ids))  # Deduplicate
+        return list(set(ids))
 
     @staticmethod
     def extract_youtube_id(url: str) -> Optional[str]:
@@ -156,11 +121,3 @@ class BaseTalkScraper(ABC):
         if 'contributed' in combined:
             return 'regular'
         return 'regular'
-
-    @staticmethod
-    def normalize_affiliation(affiliation: str) -> Optional[str]:
-        """Normalize affiliation (remove extra whitespace, handle empty strings)."""
-        if not affiliation:
-            return None
-        normalized = ' '.join(affiliation.strip().split())
-        return normalized if normalized else None

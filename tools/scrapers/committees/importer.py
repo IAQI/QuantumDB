@@ -1,15 +1,11 @@
-#!/usr/bin/env python3
-"""Import verified committee data from CSV file into database."""
+"""CLI body for `import_from_csv.py committees` — import committee CSVs into the DB."""
 
-import argparse
-import asyncio
 import csv
 import logging
 import os
-import sys
 import re
 from pathlib import Path
-from typing import Optional, List, Dict
+from typing import Optional, Dict
 from uuid import UUID
 
 import asyncpg
@@ -256,39 +252,39 @@ async def import_from_csv(
     return imported, failed
 
 
-async def main():
-    """Main import function."""
-    parser = argparse.ArgumentParser(
-        description='Import committee data from one or more CSV files into database'
-    )
+def add_arguments(parser):
+    """Wire CLI flags onto ``parser``. Used by the unified entry point."""
     parser.add_argument('csv_files', type=str, nargs='+',
-                       help='Path(s) to CSV file(s) with committee data')
+                        help='Path(s) to CSV file(s) with committee data')
     parser.add_argument('--dry-run', action='store_true',
-                       help='Show what would be imported without actually importing')
+                        help='Show what would be imported without actually importing')
     parser.add_argument('--db-url', type=str,
-                       help='Database URL (default: from DATABASE_URL env var)')
-    
-    args = parser.parse_args()
-    
-    # Check all files exist
+                        help='Database URL (default: from DATABASE_URL env var)')
+
+
+async def async_main(args) -> int:
+    """Run the committee import end-to-end. Returns shell exit code."""
     csv_paths = [Path(f) for f in args.csv_files]
     missing = [p for p in csv_paths if not p.exists()]
     if missing:
         for p in missing:
             logger.error(f"CSV file not found: {p}")
         return 1
-    
-    # Load environment
-    load_dotenv()
-    db_url = args.db_url or os.getenv('DATABASE_URL')
-    if not db_url:
-        logger.error("No database URL provided. Set DATABASE_URL or use --db-url")
-        return 1
-    
-    # Connect to database
+
+    pool = None
+    if not args.dry_run:
+        load_dotenv()
+        db_url = args.db_url or os.getenv('DATABASE_URL')
+        if not db_url:
+            logger.error("No database URL provided. Set DATABASE_URL or use --db-url")
+            return 1
+        try:
+            pool = await asyncpg.create_pool(db_url, min_size=1, max_size=5)
+        except Exception as e:
+            logger.error(f"Failed to connect to database: {e}")
+            return 1
+
     try:
-        pool = await asyncpg.create_pool(db_url, min_size=1, max_size=5)
-        
         total_imported = 0
         total_failed = 0
 
@@ -298,7 +294,7 @@ async def main():
             imported, failed = await import_from_csv(pool, csv_path, args.dry_run)
             total_imported += imported
             total_failed += failed
-        
+
         if len(csv_paths) > 1:
             logger.info(f"--- Total across {len(csv_paths)} files ---")
 
@@ -308,17 +304,8 @@ async def main():
             logger.info(f"✓ Successfully imported {total_imported} records")
             if total_failed > 0:
                 logger.warning(f"✗ Failed to import {total_failed} records")
-        
-        await pool.close()
+
         return 0 if total_failed == 0 else 1
-        
-    except Exception as e:
-        logger.error(f"Error: {e}")
-        import traceback
-        traceback.print_exc()
-        return 1
-
-
-if __name__ == '__main__':
-    exit_code = asyncio.run(main())
-    sys.exit(exit_code)
+    finally:
+        if pool is not None:
+            await pool.close()

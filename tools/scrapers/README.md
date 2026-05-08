@@ -36,7 +36,9 @@ Install Python deps once:
 pip install -r tools/scrapers/requirements.txt
 ```
 
-Make sure `DATABASE_URL` is set (the dockerised dev DB, by default):
+`DATABASE_URL` is required for actual imports and is consulted by
+`scrape_to_csv.py` to look up `archive_*_url` columns. `--dry-run`
+imports work without a database. Default for the dockerised dev DB:
 
 ```bash
 export DATABASE_URL=postgres://quantumdb:quantumdb@localhost:5432/quantumdb
