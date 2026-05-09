@@ -1,6 +1,6 @@
 # Conference data ingestion plan
 
-_Last updated: 2026-05-08._
+_Last updated: 2026-05-09._
 
 ## Phase 0 status: completed (2026-05-08)
 
@@ -199,7 +199,7 @@ Committees count is row count.
 | 2001 |  3 | 28 (28/28/0/0) | committees thin |
 | 2002 |  2 | 35 (20/20/0/0) | committees thin |
 | 2003 |  – | – | not seeded? archive missing |
-| 2004 | 27 | 471 (0/34/0/0) | row count looks anomalous (471) |
+| 2004 | 27 | 34 (0/34/0/0) | ✓ row count correct (471 was `wc -l` artifact); no abstracts |
 | 2005 |  3 | 33 (33/33/0/0) | committees thin |
 | 2006 | 27 | 40 (40/40/0/0) | ✓ |
 | 2007 | 16 | 38 (34/34/0/0) | ✓ |
@@ -221,7 +221,7 @@ Committees count is row count.
 | 2023 | 79 | 110 (0/0/108/0) | has video URLs but no schedule |
 | 2024 | 85 | 131 (20/16/0/0) | partial schedule |
 | 2025 |  – | – | not seeded |
-| 2026 | 154 | 542 (152/152/0/0) | ✓ accepted; tutorial-only schedule |
+| 2026 | 154 | 158 (152/152/0/0) | ✓ JSON-backed talks; 6 talks missing schedule; posters pending separate JSON |
 
 ### QCrypt (2011–2024 seeded; 2025/2026 not seeded; no proceedings/workshop)
 
@@ -233,7 +233,7 @@ Committees count is row count.
 | 2014 | 38 | 41 (41/41/37/37) | ✓ |
 | 2015 | 41 | 40 (40/40/0/0) | no video |
 | 2016 | 39 | 37 (37/37/0/0) | no video |
-| 2017 | 43 | 203 (203/43/43/43) | row count anomaly (203 vs ~50 expected) |
+| 2017 | 43 | 203 (203/43/43/43) | ✓ 44 talks + 159 posters; posters legitimately lack scheduled_time |
 | 2018 | 46 | 38 (38/38/37/0) | no yt id |
 | 2019 | 43 | 41 (41/41/0/0) | no video |
 | 2020 | 50 | 46 (46/46/0/0) | no video |
@@ -299,25 +299,14 @@ Note: QCrypt parser already supports all years (year-aware URLs +
 
 ## Execution order
 
-1. **Phase 0 — Anomaly cleanup (do first)**: investigate three suspected
-   data-integrity issues before any new ingestion. See "Anomalies to
-   resolve first" subsection below.
+1. **Phase 0 — Anomaly cleanup**: ✅ done (2026-05-08). All three
+   suspected anomalies were misdiagnoses (`wc -l` artifacts, posters
+   without `scheduled_time`, output-path mismatch). See top of file.
 2. **Phase 1 — Gap-fill (CSVs)**: per-gap table, treating each row as a
    discrete deliverable. One conference-year per CSV pass.
 3. **Phase 2 — YouTube enrichment**: deferred indefinitely. Captured in
    the "YouTube enrichment (deferred)" section below for future pickup;
    not part of current work.
-
-### Anomalies to resolve first
-
-| Anomaly | What to check | Likely cause |
-|---|---|---|
-| QIP 2004 = 471 talks | open `data/conferences/qip_2004/talks.csv` and inspect; expected ~30 | likely a CSV merge/import error or wrong source page captured |
-| QCrypt 2017 = 203 rows, only 43 with schedule | inspect for duplicate rows; group by title | possible duplicates from a merged scrape, or rump session entries |
-| TQC 2023/24 workshop missing | look in `tools/one_off/tqc2023-24/` for produced CSV; per memory, converter ran with 100% calendar match — output should exist | the converter wrote to a different path or never landed in `data/conferences/` |
-
-For each: identify root cause, decide whether to dedupe / re-scrape /
-move-into-place, fix in CSV, dry-run import, then proceed to Phase 1.
 
 ## Recommended methods per gap
 
@@ -331,7 +320,7 @@ source and writes CSV with the verification protocol (rows tagged
 | Year | Gap | Method | Notes |
 |------|-----|--------|-------|
 | 2003 | not seeded | defer | no archive |
-| 2004 | talks.csv has 471 rows (suspicious — should be ~30) | **investigate first** — likely a CSV error, not missing data |
+| 2004 | talks.csv ✓ (34 rows); abstracts mostly empty + a few title/abstract concatenations | claude-direct cleanup later | parser bug in `_parse_2004_abstracts_section` left some rows with merged title+abstract (e.g. rows 13, 14, 28); low priority |
 | 2008 | no schedule (108 talks) | finish in-flight WIP parser, then claude-direct for schedule | poster parsing already mostly written |
 | 2009 | no schedule (65 talks) | claude-direct | small batch, one-off |
 | 2014 | no schedule (41 talks) | claude-direct | one-off |
@@ -346,7 +335,7 @@ source and writes CSV with the verification protocol (rows tagged
 | 2023 | 110 talks ✓ + video URLs but no schedule | claude-direct | extract schedule from Indico list pages |
 | 2024 | 131 talks but only 20 have dates | claude-direct | re-extract schedule from HotCRP mirror |
 | 2025 | not seeded | seed conference + scraper or claude-direct | once archive is available |
-| 2026 | 542 ✓; tutorial schedule only | extend existing scraper | accepted-papers/program pages still TBD on website |
+| 2026 | 158 talks ✓ (JSON-backed via `tools/one_off/qip2026/`); 6 missing schedule; posters pending | JSON conversion (existing pipeline) + website schedule refresh | Talks come from `qip2026-data.json` (158 papers) — fully reliable. Posters will arrive as separate JSON later. Schedule extraction from `qip_2026_schedule.html` is the only un-reliable bit; needs a re-scrape if the website has been updated since the snapshot, plus claude-direct fill for the 6 unscheduled talks. |
 
 ### QCrypt
 
@@ -358,7 +347,6 @@ YouTube enrichment pass (deferred — see below), not re-scraping HTML.
 | Year | Gap | Method |
 |------|-----|--------|
 | 2011–2024 | sparse video / yt fields | YouTube enrichment (deferred) |
-| 2017 | 203 rows in talks.csv (anomaly — only 43 with schedule) | **investigate** — possible duplicate/merge artifact |
 | 2025 | not seeded | seed when archive is published |
 | 2026 | not seeded | (call for papers presumably out) |
 
@@ -381,9 +369,6 @@ YouTube enrichment pass (deferred — see below), not re-scraping HTML.
   2022/2023 talks. These are one-offs in stable archive form. Use
   Claude-direct with the verification protocol; it's cheaper than parser
   work and the data won't change.
-- **Resolve the data anomalies first** (QIP 2004 = 471 rows, QCrypt 2017
-  = 203 rows) before doing any new ingestion — these may already be
-  broken imports rather than missing data.
 
 ## YouTube enrichment (deferred — captured for future pickup)
 
