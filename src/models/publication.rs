@@ -27,6 +27,8 @@ pub enum PaperType {
     /// Long plenary talk at QIP (25+ min, peer-reviewed)
     #[serde(rename = "plenary_long")]
     PlenaryLong,
+    /// Sponsored industry-session talk (e.g., QIP 2019 industry session)
+    Industry,
 }
 
 /// Publication response model
