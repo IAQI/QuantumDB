@@ -83,9 +83,9 @@ Source: `qip_2020_committees.csv` — program committee list.
 
 | Committee | Archive URL |
 |-----------|-------------|
-| Local Organizing | `2019/local.html` |
-| Program | `2019/about.html` (section `#pc`) |
-| Steering | `2019/about.html` (section `#steering`) |
+| Local Organizing | `2019/program.html#local` |
+| Program | `2019/program.html#pc` (section `#pc`) |
+| Steering | `2019/program.html#steering` (section `#steering`) |
 
 Source: `qip_2019_committees.csv` — local organizing + program committee.
 
