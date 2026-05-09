@@ -1,0 +1,9 @@
+venue,year,paper_type,title,speakers,authors,affiliations,abstract,arxiv_ids,presentation_url,video_url,youtube_id,session_name,award,notes,scheduled_date,scheduled_time,duration_minutes
+TQC,2013,invited,Complexity of Entangled Games,Thomas Vidick,Thomas Vidick,,,,,,,,,added from schedule (no matching CSV row); source_type=claude_extraction,2013-05-21,09:00,40
+TQC,2013,invited,Entanglement-assisted Zero-error Source-channel Coding,Jop Briët,Jop Briët,,,,,,,,,added from schedule (no matching CSV row); source_type=claude_extraction,2013-05-21,14:00,40
+TQC,2013,regular,microscopic proof Landauer Principle finite-size,David Reeb,David Reeb,,,,,,,,,added from schedule (no matching CSV row); source_type=claude_extraction,2013-05-21,14:45,20
+TQC,2013,regular,Entanglement-assisted guessing complementary measurement outcomes,Patrick Coles,Patrick Coles,,,,,,,,,added from schedule (no matching CSV row); source_type=claude_extraction,2013-05-21,15:10,20
+TQC,2013,invited,Quantum Communication Complexity,Iordanis Kerenidis,Iordanis Kerenidis,,,,,,,,,added from schedule (no matching CSV row); source_type=claude_extraction,2013-05-22,09:00,40
+TQC,2013,regular,Super-activation Gaussian channels squeezing,Daniel Lercher,Daniel Lercher,,,,,,,,,added from schedule (no matching CSV row); source_type=claude_extraction,2013-05-22,11:25,20
+TQC,2013,invited,Separable states unique games conjecture monogamy entanglement,Aram Harrow,Aram Harrow,,,,,,,,,added from schedule (no matching CSV row); source_type=claude_extraction,2013-05-22,14:00,40
+TQC,2013,invited,Two-party Quantum Cryptography Results Challenges,Stephanie Wehner,Stephanie Wehner,,,,,,,,,added from schedule (no matching CSV row); source_type=claude_extraction,2013-05-23,09:00,40

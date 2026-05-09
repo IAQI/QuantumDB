@@ -1,0 +1,5 @@
+venue,year,paper_type,title,speakers,authors,affiliations,abstract,arxiv_ids,presentation_url,video_url,youtube_id,session_name,award,notes,scheduled_date,scheduled_time,duration_minutes
+TQC,2014,invited,Physical Randomness Extractors Generating Random Numbers Minimal Assumptions,Yaoyun Shi,Yaoyun Shi,,,,,,,,,added from schedule (no matching CSV row); source_type=claude_extraction,2014-05-21,14:00,45
+TQC,2014,invited,Gaussian Optimization Conjectures new results proofs,Vittorio Giovannetti,Vittorio Giovannetti,,,,,,,,,added from schedule (no matching CSV row); source_type=claude_extraction,2014-05-23,09:00,45
+TQC,2014,invited,Preparing Thermal States Quantum Computer Dissipation,Fernando Brandao,Fernando Brandao,,,,,,,,,added from schedule (no matching CSV row); source_type=claude_extraction,2014-05-23,14:00,45
+TQC,2014,regular,Complexity simulating systems coupled infinite dimensional bosonic baths,Mischa Woods,Mischa Woods,,,,,,,,,added from schedule (no matching CSV row); source_type=claude_extraction,2014-05-23,14:45,30

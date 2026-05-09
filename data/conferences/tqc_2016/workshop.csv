@@ -1,0 +1,22 @@
+venue,year,paper_type,title,speakers,authors,affiliations,abstract,arxiv_ids,presentation_url,video_url,youtube_id,session_name,award,notes,scheduled_date,scheduled_time,duration_minutes
+TQC,2016,invited,Recoverability quantum information,Andreas Winter,Andreas Winter,,,,,,,,,added from schedule (no matching CSV row); source_type=claude_extraction,2016-09-27,10:10,45
+TQC,2016,regular,Operational meaning quantum measures recovery,Tom Cooney,Tom Cooney,,,,,,,,,added from schedule (no matching CSV row); source_type=claude_extraction,2016-09-27,10:55,25
+TQC,2016,regular,variational expressions quantum relative entropies,Mario Berta,Mario Berta,,,,,,,,,added from schedule (no matching CSV row); source_type=claude_extraction,2016-09-27,11:20,25
+TQC,2016,regular,Strong converse rates private communication quantum channels,Mario Berta,Mario Berta,,,,,,,,,added from schedule (no matching CSV row); source_type=claude_extraction,2016-09-27,12:15,25
+TQC,2016,regular,Catalytic decoupling quantum information,Christian Majenz,Christian Majenz,,,,,,,,,added from schedule (no matching CSV row); source_type=claude_extraction,2016-09-27,12:40,25
+TQC,2016,regular,Random bosonic states robust quantum metrology,Christian Gogolin,Christian Gogolin,,,,,,,,,added from schedule (no matching CSV row); source_type=claude_extraction,2016-09-27,15:10,25
+TQC,2016,regular,Witnessing metrologically useful entanglement,Géza Tóth,Géza Tóth,,,,,,,,,added from schedule (no matching CSV row); source_type=claude_extraction,2016-09-27,15:35,25
+TQC,2016,regular,Robustness asymmetry coherence quantum states,Marco Piani,Marco Piani,,,,,,,,,added from schedule (no matching CSV row); source_type=claude_extraction,2016-09-27,16:00,25
+TQC,2016,regular,Gaussian states minimize output entropy one-mode quantum attenuator,Giacomo De Palma,Giacomo De Palma,,,,,,,,,added from schedule (no matching CSV row); source_type=claude_extraction,2016-09-27,16:50,25
+TQC,2016,regular,entanglement measures monogamous faithful,Cécilia Lancien,Cécilia Lancien,,,,,,,,,added from schedule (no matching CSV row); source_type=claude_extraction,2016-09-27,17:15,25
+TQC,2016,invited,first loophole-free Bell test quantum internet,Ronald Hanson,Ronald Hanson,,,,,,,,,added from schedule (no matching CSV row); source_type=claude_extraction,2016-09-28,09:30,45
+TQC,2016,regular,Parallel repetition fortification analytic quantum case,Mohammad Bavarian,Mohammad Bavarian,,,,,,,,,added from schedule (no matching CSV row); source_type=claude_extraction,2016-09-28,12:25,25
+TQC,2016,invited,biggest possible advantage quantum algorithms,Andris Ambainis,Andris Ambainis,,,,,,,,,added from schedule (no matching CSV row); source_type=claude_extraction,2016-09-28,15:00,45
+TQC,2016,regular,NAND-trees graph connectivity quantum algorithms,Stacey Jeffery,Stacey Jeffery,,,,,,,,,added from schedule (no matching CSV row); source_type=claude_extraction,2016-09-28,17:30,25
+TQC,2016,invited,Quantum thermodynamics primer curious quantum information researcher,Lídia del Rio,Lídia del Rio,,,,,,,,,added from schedule (no matching CSV row); source_type=claude_extraction,2016-09-29,09:30,45
+TQC,2016,regular,Defining work resource-theoretic perspective,Rodrigo Gallego,Rodrigo Gallego,,,,,,,,,added from schedule (no matching CSV row); source_type=claude_extraction,2016-09-29,10:15,25
+TQC,2016,regular,Holographic duality random tensor networks,Michael Walter,Michael Walter,,,,,,,,,added from schedule (no matching CSV row); source_type=claude_extraction,2016-09-29,10:40,25
+TQC,2016,regular,Hamiltonian simulation optimal sample complexity,Cedric Yen-Yu Lin,Cedric Yen-Yu Lin,,,,,,,,,added from schedule (no matching CSV row); source_type=claude_extraction,2016-09-29,11:35,25
+TQC,2016,regular,Quantum communication complexity distributed set joins,Stacey Jeffery,Stacey Jeffery,,,,,,,,,added from schedule (no matching CSV row); source_type=claude_extraction,2016-09-29,12:25,25
+TQC,2016,regular,Computing qutrits comparative analysis ternary architectures,Alex Bocharov,Alex Bocharov,,,,,,,,,added from schedule (no matching CSV row); source_type=claude_extraction,2016-09-29,15:25,25
+TQC,2016,regular,Contextuality resource qubit quantum computation,Juan Bermejo-Vega,Juan Bermejo-Vega,,,,,,,,,added from schedule (no matching CSV row); source_type=claude_extraction,2016-09-29,15:50,25

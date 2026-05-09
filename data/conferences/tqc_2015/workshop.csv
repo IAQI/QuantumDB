@@ -1,0 +1,13 @@
+venue,year,paper_type,title,speakers,authors,affiliations,abstract,arxiv_ids,presentation_url,video_url,youtube_id,session_name,award,notes,scheduled_date,scheduled_time,duration_minutes
+TQC,2015,invited,Majorana particles noise braiding anyons,David DiVincenzo,David DiVincenzo,,,,,,,,,added from schedule (no matching CSV row); source_type=claude_extraction,2015-05-20,09:00,45
+TQC,2015,regular,Area law fixed points rapidly mixing dissipative,Angelo Lucia,Angelo Lucia,,,,,,,,,added from schedule (no matching CSV row); source_type=claude_extraction,2015-05-20,09:45,25
+TQC,2015,regular,Computation generalised probabilistic theories,Ciaran Lee,Ciaran Lee,,,,,,,,,added from schedule (no matching CSV row); source_type=claude_extraction,2015-05-20,11:05,25
+TQC,2015,regular,Local hidden variable models entangled finite shared randomness,Flavien Hirsch,Flavien Hirsch,,,,,,,,,added from schedule (no matching CSV row); source_type=claude_extraction,2015-05-20,11:30,25
+TQC,2015,regular,Quantum Circuits Isometries,Raban Iten,Raban Iten,,,,,,,,,added from schedule (no matching CSV row); source_type=claude_extraction,2015-05-20,15:15,25
+TQC,2015,invited,Quantum property testing survey new result,Ronald de Wolf,Ronald de Wolf,,,,,,,,,added from schedule (no matching CSV row); source_type=claude_extraction,2015-05-21,09:00,45
+TQC,2015,regular,Hierarchy efficiently computable faithful lower bounds quantum discord,Marco Piani,Marco Piani,,,,,,,,,added from schedule (no matching CSV row); source_type=claude_extraction,2015-05-21,09:45,25
+TQC,2015,regular,Rate-loss analysis efficient quantum repeater architecture,Saikat Guha,Saikat Guha,,,,,,,,,added from schedule (no matching CSV row); source_type=claude_extraction,2015-05-21,11:30,25
+TQC,2015,regular,Renormalising entanglement distillation,Janina Gertis,Janina Gertis,,,,,,,,,added from schedule (no matching CSV row); source_type=claude_extraction,2015-05-21,11:55,25
+TQC,2015,invited,Unbounded entanglement optimal success probability,Laura Mancinska,Laura Mancinska,,,,,,,,,added from schedule (no matching CSV row); source_type=claude_extraction,2015-05-21,14:00,45
+TQC,2015,regular,Qudit Gauge Colour Codes Spatial Dimensions,Dan Browne,Dan Browne,,,,,,,,,added from schedule (no matching CSV row); source_type=claude_extraction,2015-05-21,16:30,25
+TQC,2015,invited,quantum algorithm computing unit group degree number field,Sean Hallgren,Sean Hallgren,,,,,,,,,added from schedule (no matching CSV row); source_type=claude_extraction,2015-05-22,09:00,45

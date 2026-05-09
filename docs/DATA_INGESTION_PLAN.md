@@ -1,6 +1,6 @@
 # Conference data ingestion plan
 
-_Last updated: 2026-05-09 (Phase 1 progress: QIP 2008/2009/2014/2016/2017/2018/2019/2023/2026 done; QIP 2020/2022 deferred awaiting external source)._
+_Last updated: 2026-05-09 (Phase 1 progress: QIP 2008/2009/2014/2016/2017/2018/2019/2023/2026 done; QIP 2020/2022 deferred. TQC 2013-2017/2019-2025 schedules + workshop CSVs populated; TQC 2018 unrecoverable (Wix SPA), TQC 2006-2012 deferred. QCrypt 2025 seeded.)._
 
 ## Phase 0 status: completed (2026-05-08)
 
@@ -259,19 +259,19 @@ fill 2013 onward.
 | 2010 | – | – | – | not in CSV tree |
 | 2011 | – | – | – | not in CSV tree |
 | 2012 | – | – | – | not in CSV tree |
-| 2013 |  0 | 22 | 0 | proc only (LIPIcs); no workshop |
-| 2014 | 30 | 18 | 0 | proc only |
-| 2015 | 36 | 16 | 0 | proc only |
-| 2016 |  0 | 9  | 0 | proc only; committees missing |
-| 2017 | 53 | 10 | 32 (0/0/0/0) | workshop has rows but no metadata |
-| 2018 |  0 | 10 | 0 | committees + workshop missing |
-| 2019 | 42 | 10 | 32 (0/0/0/0) | workshop no metadata |
-| 2020 | 42 | 12 | 44 (0/0/0/0) | workshop no metadata |
-| 2021 | 51 | 10 | 80 (0/0/0/0) | workshop no metadata |
-| 2022 | 50 | 12 | 0 | workshop missing |
-| 2023 | 55 | 14 | 0 | workshop missing |
-| 2024 | 61 | 12 | 0 | workshop missing |
-| 2025 | 76 | 12 | 77 (0/0/0/0) | workshop no metadata |
+| 2013 | 34 | 22 (20 sched) |  8 (8/8/0/0)   | ✓ all 3 CSVs; +5 invited in workshop |
+| 2014 | 30 | 18 (18 sched) |  4 (4/4/0/0)   | ✓ all 3 CSVs; +3 invited in workshop |
+| 2015 | 36 | 16 (16 sched) | 12 (12/12/0/0) | ✓ all 3 CSVs; +4 invited in workshop |
+| 2016 | 38 |  9 (9 sched)  | 21 (21/21/0/0) | ✓ all 3 CSVs; +4 invited in workshop |
+| 2017 | 53 | 10 (6 sched)  | 32 (32/32/0/0) | ✓ schedule done; 4 proc papers without workshop counterpart unmatched |
+| 2018 |  0 | 10 (0 sched)  | 0 | committees + workshop unrecoverable (Wix SPA shell) |
+| 2019 | 42 | 10 (8 sched)  | 48 (44/44/0/0) | ✓ TQC + NISQ workshop talks merged |
+| 2020 | 42 | 12 (12 sched) | 47 (47/47/0/0) | ✓ all entries scheduled (online conf) |
+| 2021 | 51 | 10 (10 sched) | 85 (82/82/0/0) | ✓ lightning-talk era; pre-recorded |
+| 2022 | 50 | 12 (12 sched) | 48 (48/48/0/0) | ✓ workshop built fresh from PDFs |
+| 2023 | 55 | 14 (0 sched)  | 59 (59/59/0/0) | ✓ workshop has schedule; proc still lacks (TODO: copy from workshop) |
+| 2024 | 61 | 12 (0 sched)  | 92 (92/92/0/0) | ✓ workshop has schedule; proc still lacks (TODO) |
+| 2025 | 76 | 12 (12 sched) | 90 (90/90/0/0) | ✓ all entries scheduled |
 
 TQC has zero schedule and zero video data anywhere in workshop.csv.
 Pre-2013 (2006–2012) committee/proceedings data is not in the CSV tree
