@@ -1,6 +1,6 @@
 # Conference data ingestion plan
 
-_Last updated: 2026-05-09 (Phase 1 progress: QIP 2008/2009/2014/2016/2017/2018/2019/2023/2026 done; QIP 2020/2022 deferred. TQC 2013-2017/2019-2025 schedules + workshop CSVs populated; TQC 2018 unrecoverable (Wix SPA), TQC 2006-2012 deferred. QCrypt 2025 seeded.)._
+_Last updated: 2026-05-09 (Phase 1 progress: QIP 2008/2009/2014/2016/2017/2018/2019/2023/2026 done; QIP 2020/2022 deferred. TQC 2008-2017/2019-2025 done (2008-2010 partial); TQC 2006/2007/2018 unrecoverable from local archive. QCrypt 2025 seeded.)._
 
 ## Phase 0 status: completed (2026-05-08)
 
@@ -252,13 +252,13 @@ fill 2013 onward.
 
 | Year | Committees | Proc | Workshop (rows / date / time / video / yt) | Status |
 |------|-----------:|-----:|--------------------------------------------|--------|
-| 2006 | – | – | – | not in CSV tree |
-| 2007 | – | – | – | not in CSV tree |
-| 2008 | – | – | – | not in CSV tree |
-| 2009 | – | – | – | not in CSV tree |
-| 2010 | – | – | – | not in CSV tree |
-| 2011 | – | – | – | not in CSV tree |
-| 2012 | – | – | – | not in CSV tree |
+| 2006 | – | – | – | **deferred** — local archive shell-only (Wayback links to kecl.ntt.co.jp) |
+| 2007 | – | – | – | **deferred** — same as 2006 |
+| 2008 | 24 | – | 20 (20/20/0/0) | ✓ 6 invited + 14 contributed; LNCS 5106 post-proc not in CSV |
+| 2009 |  0 | – | 13 (0/0/0/0) | ✓ partial: 13 speakers from sparse archive; no committees, no schedule |
+| 2010 | 37 | – |  5 (0/0/0/0) | ✓ partial: committees + 5 invited speakers; talk roster unrecoverable |
+| 2011 | 36 | 17 (17 sched) | 6 (6/6/0/0) | ✓ full: PC 24 + OC 8 + SC 4; LNCS 6745 post-proc; 6 invited |
+| 2012 | 24 | 16 (16 sched) | 8 (8/8/0/0) | ✓ full: PC 17 + OC 2 + SC 5; LNCS 7582 post-proc; 8 invited |
 | 2013 | 34 | 22 (20 sched) |  8 (8/8/0/0)   | ✓ all 3 CSVs; +5 invited in workshop |
 | 2014 | 30 | 18 (18 sched) |  4 (4/4/0/0)   | ✓ all 3 CSVs; +3 invited in workshop |
 | 2015 | 36 | 16 (16 sched) | 12 (12/12/0/0) | ✓ all 3 CSVs; +4 invited in workshop |

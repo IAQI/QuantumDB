@@ -1,0 +1,9 @@
+venue,year,paper_type,title,speakers,authors,affiliations,abstract,arxiv_ids,presentation_url,video_url,youtube_id,session_name,award,notes,scheduled_date,scheduled_time,duration_minutes
+TQC,2012,invited,Quantum interactive proofs and semidefinite programming,John Watrous,John Watrous,"University of Waterloo, Canada",,,,,,Day 1 morning,,source_type=claude_extraction,2012-05-17,09:00,50
+TQC,2012,invited,Quantum lower bounds and group representation theory,Andris Ambainis,Andris Ambainis,"University of Latvia, Latvia",,,,,,Day 1 afternoon,,source_type=claude_extraction,2012-05-17,14:00,50
+TQC,2012,invited,Ground state entanglement in frustration-free spin chains,Sergey Bravyi,Sergey Bravyi,"IBM, United States",,,,,,Day 1 afternoon,,source_type=claude_extraction,2012-05-17,14:50,50
+TQC,2012,invited,Exponential Decay of Correlations Implies Area Law,Fernando Brandao,Fernando Brandao,"ETH Zurich, Switzerland",,,,,,Day 2 morning,,source_type=claude_extraction,2012-05-18,09:00,50
+TQC,2012,invited,Universally valid reformulation of the uncertainty principle,Masanao Ozawa,Masanao Ozawa,"Nagoya University, Japan",,,,,,Day 2 afternoon,,source_type=claude_extraction,2012-05-18,14:00,50
+TQC,2012,invited,Uncertain relation studied in neutron's successive spin-measurements,Yuji Hasegawa,Yuji Hasegawa,"Vienna University of Technology, Austria",,,,,,Day 2 afternoon,,source_type=claude_extraction,2012-05-18,14:50,50
+TQC,2012,invited,Quantum security analysis via smoothing of Renyi entropy of order 2,Masahito Hayashi,Masahito Hayashi,"Nagoya University, Japan and National University of Singapore, Singapore",,,,,,Day 3 morning,,source_type=claude_extraction,2012-05-19,09:00,50
+TQC,2012,invited,Partial quantum information,Michael Wolf,Michael Wolf,"Technical University Munich, Germany",,,,,,Day 3 morning,,source_type=claude_extraction,2012-05-19,09:50,50
