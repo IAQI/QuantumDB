@@ -1,6 +1,6 @@
 # Conference data ingestion plan
 
-_Last updated: 2026-05-09 (Phase 1 progress: QIP 2009/2014/2016/2019/2023 done; QIP 2022 deferred)._
+_Last updated: 2026-05-09 (Phase 1 progress: QIP 2008/2009/2014/2016/2017/2018/2019/2023/2026 done; QIP 2020/2022 deferred awaiting external source)._
 
 ## Phase 0 status: completed (2026-05-08)
 
@@ -203,7 +203,7 @@ Committees count is row count.
 | 2005 |  3 | 33 (33/33/0/0) | committees thin |
 | 2006 | 27 | 40 (40/40/0/0) | ✓ |
 | 2007 | 16 | 38 (34/34/0/0) | ✓ |
-| 2008 | 26 | 108 (0/0/0/0) | WIP — poster parsing in progress |
+| 2008 | 26 | 78 (42/42/0/0) | ✓ talks scheduled (10 inv + 30 reg + 2 tut + 36 posters); posters lack times by design |
 | 2009 | 32 | 65 (0/0/0/0) | no schedule |
 | 2010 | 32 | 40 (40/40/38/0) | ✓ |
 | 2011 | 37 | 58 (58/58/41/0) | ✓ |
@@ -212,10 +212,10 @@ Committees count is row count.
 | 2014 | 43 | 45 (45/45/0/0) | ✓ schedule from cgi-bin/talks/allprint.pl.html; +4 missing invited speakers added |
 | 2015 | 48 | 45 (45/45/41/0) | WIP per git diff |
 | 2016 | 53 | 53 (53/53/0/0) | ✓ schedule from scientific-program.html; +8 tutorials +3 invited added |
-| 2017 | 47 | **0** | TALKS MISSING |
-| 2018 | 55 | **0** | TALKS MISSING |
+| 2017 | 47 | 67 (67/67/0/0) | ✓ 4 tut + 3 inv + 6 ple + 54 reg; from index.html (plan note "MISSING" was wrong) |
+| 2018 | 55 | 70 (70/70/0/0) | ✓ 8 tut + 3 inv + 5 ple + 54 reg; from QuTech HTML + Accepted-Talks PDF |
 | 2019 | 46 | 7 (7/0/0/0) | partial only — 7 rows ≠ full programme |
-| 2020 | 79 | **0** | TALKS MISSING |
+| 2020 | 79 | **0** | TALKS MISSING — **deferred** (SPA: index.html is empty, no extractable program) |
 | 2021 | 46 | 113 (113/108/0/0) | ✓ |
 | 2022 | 71 | **0** | TALKS MISSING |
 | 2023 | 79 | 118 (117/117/108/0) | ✓ schedule from Indico timetable; +8 tutorials +1 invited added; 1 row (Liu Copy-Protection) lacks slot in archived JSON |
@@ -321,15 +321,15 @@ source and writes CSV with the verification protocol (rows tagged
 |------|-----|--------|-------|
 | 2003 | not seeded | defer | no archive |
 | 2004 | talks.csv ✓ (34 rows); abstracts mostly empty + a few title/abstract concatenations | claude-direct cleanup later | parser bug in `_parse_2004_abstracts_section` left some rows with merged title+abstract (e.g. rows 13, 14, 28); low priority |
-| 2008 | no schedule (108 talks) | finish in-flight WIP parser, then claude-direct for schedule | poster parsing already mostly written |
+| 2008 | done (78 rows: 42 scheduled talks + 36 posters) | claude-direct from QIP2008_files/Program.pdf | invited titles filled, +2 tutorials added; posters left unscheduled per convention |
 | 2009 | no schedule (65 talks) | claude-direct | small batch, one-off |
 | 2014 | done (45 rows w/ schedule) | claude-direct | extracted from cgi-bin/talks/allprint.pl.html |
 | 2015 | WIP (45 rows, modified locally) | finish current WIP | already in progress |
 | 2016 | done (53 rows w/ schedule, incl tutorials) | claude-direct | extracted from scientific-program.html + tutorial-program.html |
-| 2017 | TALKS MISSING | claude-direct, best-effort titles only | no program archived; mine Wayback / social / DBLP for titles, accept that schedule + abstracts will be empty |
-| 2018 | TALKS MISSING (programs in PDF) | claude-direct from PDF | feed Claude the PDFs, verify against published page count |
+| 2017 | done (67 rows w/ schedule) | claude-direct from index.html | "TALKS MISSING" plan note was wrong — index.html had full Schedule & Videos block incl. parallel tracks; presenters resolved via slide-PDF filenames |
+| 2018 | done (70 rows w/ schedule) | claude-direct | from QuTech HTML schedule page + QIP-2018-Accepted-Talks PDF; 5 plenaries, Penington=Best Student Paper |
 | 2019 | only 7 of ~50 talks | claude-direct | re-extract from whichever archive exists |
-| 2020 | TALKS MISSING (SPA) | claude-direct, best-effort titles only | try Wayback snapshot + social posts + DBLP; accept schedule/abstracts empty |
+| 2020 | TALKS MISSING (SPA) — **deferred** | needs Wayback / DBLP fetch | local archive's index.html is empty (0 lines); only static CSS/JS remain. Defer until external source fetched. |
 | 2021 | 113 talks ✓ but no video | done; revisit via YouTube enrichment | parser plan in memory is now stale (data already imported?) — verify before extending |
 | 2022 | TALKS MISSING — **deferred** | needs Wayback / DBLP | no local archive at `~/Web/qip.iaqi.org/2022/`; only `previousqips.html` line "QIP 2022: Pasadena, CA, USA (Caltech)" exists. Conference was virtual (COVID). Defer until an external source is fetched. |
 | 2023 | done (118 rows w/ schedule) | claude-direct | Indico timetable JSON had full 7-day schedule in one file (`event/13076/timetable/index.html`); 1 row missing slot in archived JSON |

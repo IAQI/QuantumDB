@@ -1,109 +1,79 @@
-venue,year,paper_type,title,speaker,authors,affiliations,abstract,arxiv_ids,presentation_url,video_url,session_name,award,notes,scheduled_date,scheduled_time,duration_minutes
-QIP,2008,invited,,Dorit Aharonov,Dorit Aharonov,Hebrew University,,,,,,,,,,50
-QIP,2008,invited,,Andris Ambainis,Andris Ambainis,University of Waterloo and University of Latvia,,,,,,,,,,50
-QIP,2008,invited,,Avraham Ben-Aroya,Avraham Ben-Aroya,Tel-Aviv university,,,,,,,,,,50
-QIP,2008,invited,,Fernando Brandao,Fernando Brandao,"Institute of Mathematical Sciences, Imperial College London",,,,,,,,,,50
-QIP,2008,invited,,Patrick Hayden,Patrick Hayden,McGill University,,,,,,,,,,50
-QIP,2008,invited,,Oded Regev,Oded Regev,Tel-Aviv University,,,,,,,,,,50
-QIP,2008,invited,,Ben Reichardt,Ben Reichardt,California Institute of Technology,,,,,,,,,,50
-QIP,2008,invited,,Renato Renner,Renato Renner,Cambridge,,,,,,,,,,50
-QIP,2008,invited,,Falk Unger,Falk Unger,"CWI, Amsterdam",,,,,,,,,,50
-QIP,2008,invited,,Michael Wolf,Michael Wolf,"Max-Planck-Institute for Quantumoptics, Garching",,,,,,,,,,50
-QIP,2008,regular,Simulating Quantum Correlations with Finite Communication.,Oded Regev,Oded Regev;Ben Toner,,,,,,,,,,,30
-QIP,2008,regular,The private classical capacity with a symmetric side channel,Graeme Smith,Graeme Smith,,,,,,,,,,,30
-QIP,2008,regular,Using Entanglement in Quantum Multi-Prover Interactive Proofs,Julia Kempe,Julia Kempe;Hirotada Kobayashi;Keiji Matsumoto;Thomas Vidick,,,,,,,,,,,30
-QIP,2008,regular,"An efficient quantum algorithm for  the hidden subgroup problem in nil-2
-groups",Gabor Ivanyos,Gabor Ivanyos;Luc Sanselme;Miklos Santha,,,,,,,,,,,30
-QIP,2008,regular,Codeword Stabilized Quantum Codes,Andrew Cross,Andrew Cross;Graeme Smith;John Smolin;Bei Zeng,,,,,,,,,,,30
-QIP,2008,regular,"Counterexamples to additivity of minimum output p-Renyi entropy for p
-close to 0",Toby Cubitt,Toby Cubitt;Aram Harrow;Debbie Leung;Ashley Montanaro;Andreas Winter,,,,,,,,,,,30
-QIP,2008,regular,"Classical approximation schemes for the ground-state energy of quantum
-and classical Ising spin glasses on planar graphs",Nikhil Bansal,Nikhil Bansal;Sergey Bravyi;Barbara Terhal,,,,,,,,,,,30
-QIP,2008,regular,Quantum entropic security and approximate quantum encryption,Simon-Pierre Desrosiers,Simon-Pierre Desrosiers;Frederic Dupuis,,,,,,,,,,,30
-QIP,2008,regular,The Unique Games Conjecture with Entangled Provers is False,Julia Kempe,Julia Kempe;Oded Regev;Ben Toner,,,,,,,,,,,30
-QIP,2008,regular,Anonymous quantum communication,Gilles Brassard,Gilles Brassard;Anne Broadbent;Joseph Fitzsimons;Sebastien Gambs;Alain Tapp,,,,,,,,,,,30
-QIP,2008,regular,Secure Identification and QKD in the Bounded-Quantum-Storage Model,Ivan Damgaard,Ivan Damgaard;Serge Fehr;Louis Salvail;Christian Schaffner,,,,,,,,,,,20
-QIP,2008,regular,"Quantum Reference Frames and the Classification of
-Rotationally-Invariant Maps",Jean Christian Boileau,Jean Christian Boileau;Lana Sheridan;Martin Laforest;Stephen Bartlett,,,,,,,,,,,20
-QIP,2008,regular,A Tight High-Order Entropic Quantum Uncertainty Relation With Applications,Ivan Damgaard,Ivan Damgaard;Serge Fehr;Renato Renner;Louis Salvail;Christian Schaffner,,,,,,,,,,,20
-QIP,2008,regular,Device-independent security of Quantum Key Distribution,Stefano Pironio,Stefano Pironio;Antonio Acin;Nicolas Brunner;Nicolas Gisin;Serge Massar;Valerio Scarani,,,,,,,,,,,20
-QIP,2008,regular,Higher entropic uncertainty relations for anti-commuting observables,Stephanie Wehner,Stephanie Wehner;Andreas Winter,,,,,,,,,,,20
-QIP,2008,regular,"Quantum probabilities, semidefinite programming, and optimization over
-Hilbert spaces",Stefano Pironio,Stefano Pironio;Miguel Navascues;Antonio Acin,,,,,,,,,,,20
-QIP,2008,regular,The LU-LC conjecture is false,Zhengfeng Ji,Zhengfeng Ji;Jianxin Chen;Zhaohui Wei;Mingsheng Ying,,,,,,,,,,,20
-QIP,2008,regular,Quantum Copy-Protection,Scott Aaronson,Scott Aaronson,,,,,,,,,,,20
-QIP,2008,regular,On the Power of Entangled Provers: Immunizing games against entanglement,Julia Kempe,Julia Kempe;Hirotada Kobayashi;Keiji Matsumoto;Ben Toner;Thomas Vidick,,,,,,,,,,,20
-QIP,2008,regular,Determinism in Measurement based quantum computation,Daniel E. Browne,Daniel E. Browne;Elham Kashefi;Mehdi Mhalla;Simon Perdrix,,,,,,,,,,,20
-QIP,2008,regular,"Phase transition of computational power in the resource states for
-one-way quantum computation",Dan Browne,Dan Browne;Matthew Elliot;Steven Flammia;Seth Merkel;Akimasa Miyake;Anthony Short,,,,,,,,,,,20
-QIP,2008,regular,Quantum expanders from any classical Cayley graph expander,Aram Harrow,Aram Harrow,,,,,,,,,,,20
-QIP,2008,regular,"Generalized Tsirelson Inequalities, Commuting-Operator Provers, and
-Multi-Prover Interactive Proof Systems",Tsuyoshi Ito,Tsuyoshi Ito;Hirotada Kobayashi;Daniel Preda;Xiaoming Sun;Andrew C.-C. Yao,,,,,,,,,,,20
-QIP,2008,regular,Self-teleportation and its application on LOCC estimation and other tasks,Keiji Matsumoto,Keiji Matsumoto,,,,,,,,,,,20
-QIP,2008,regular,Unbounded-Error Classical and Quantum Communication Complexity,Kazuo Iwama,Kazuo Iwama;Harumichi Nishimura;Rudy Raymond;Shigeru Yamashita,,,,,,,,,,,20
-QIP,2008,regular,Sampling of min-entropy relative to quantum knowledge,Robert Koenig,Robert Koenig;Renato Renner,,,,,,,,,,,20
-QIP,2008,regular,"De Finetti theorems for finitely exchangeable conditional probability=20
-distributions",Matthias Christandl,Matthias Christandl;Ben Toner,,,,,,,,,,,20
-QIP,2008,regular,Quantum hacking: experimental demonstration of time-shift attack,Yi Zhao,Yi Zhao;Fred Fung;Bing Qi;Christine Chen;Hoi-Kwong Lo,,,,,,,,,,,20
-QIP,2008,regular,The complexity of simulating non-signaling distributions,Julien Degorre,Julien Degorre;Marc Kaplan;Sophie Laplante;Jeremie Roland,,,,,,,,,,,20
-QIP,2008,regular,Completely Entangled Random Subspaces,Jonathan Walgate,Jonathan Walgate;Andrew Scott,,,,,,,,,,,20
-QIP,2008,poster,Graph identification by quantum walks,Jingbo Wang,Jingbo Wang;Brendan Douglas,,,,,,,,,,,
-QIP,2008,poster,A Fast Quantum Circuit for Addition with Few Qubits,Yasuhiro Takahashi,Yasuhiro Takahashi;Noboru Kunihiro,,,,,,,,,,,
-QIP,2008,poster,Cryptography from Noisy Quantum Storage,Christian Schaffner,Christian Schaffner;Barbara Terhal;Stephanie Wehner,,,,,,,,,,,
-QIP,2008,poster,"Quantum Protocols using Quantum
-Orthogonal States: ``Collapsing Quantum Digital Signatures'' and
-``Quantum Identity Authentication''",Go Kato,Go Kato;Yasuhito Kawano,,,,,,,,,,,
-QIP,2008,poster,"A comparative
-study on measures of pure state entanglement through Incomparability",Amit Bhar,Amit Bhar;Indrani Chattopadhyay;Debasis Sarkar,,,,,,,,,,,
-QIP,2008,poster,"Incomparability of Pure bipartite states as non-locality beyond
-Entropy of Entanglement.",Debasis Sarkar,Debasis Sarkar;Indrani Chattopadhyay,,,,,,,,,,,
-QIP,2008,poster,Quantum search of partially ordered sets,Ashley Montanaro,Ashley Montanaro,,,,,,,,,,,
-QIP,2008,poster,"The role of help in Classical
-and Quantum Zero-Knowledge",Andre Chailloux,Andre Chailloux;Iordanis Kerenidis,,,,,,,,,,,
-QIP,2008,poster,"Honest-Verifier Quantum
-Statistical Zero Knowledge for all Interactive Protocols",Andre Chailloux,Andre Chailloux;Iordanis Kerenidis,,,,,,,,,,,
-QIP,2008,poster,Efficient classical simulation of the Quantum Fourier Transform,Dan Browne,Dan Browne,,,,,,,,,,,
-QIP,2008,poster,"Synthesis of quantum
-circuits for d-level systems using KAK decomposition",Yumi Nakajima,Yumi Nakajima;Yasuhito Kawano;Hiroshi Sekigawa;Masaki Nakanishi;Shigeru Yamashita;Yasuhiko Nakashima,,,,,,,,,,,
-QIP,2008,poster,"Control of Two Qubit Systems with
-Hamiltonian Feedback",Charles Hill,Charles Hill;Jason Ralph,,,,,,,,,,,
-QIP,2008,poster,"Quantum computers can search rapidly by using almost
-any oracle transformation",Tathagat Tulsi,Tathagat Tulsi,,,,,,,,,,,
-QIP,2008,poster,"Globally controlled
-fault-tolerant quantum computation",Joseph Fitzsimons,Joseph Fitzsimons;Jason Twamley,,,,,,,,,,,
-QIP,2008,poster,Purification of Non-Stabilizer States,Jop Briet,Jop Briet;Peter Hoyer,,,,,,,,,,,
-QIP,2008,poster,"Spin Chains as Quantum Channel with Memory and Antiferromagnets as
-Channels",Sougato Bose,Sougato Bose;Abolfazl Bayat;Stefano Mancini;Daniel Burgarth,,,,,,,,,,,
-QIP,2008,poster,"Lower bounds and exact entanglement cost in
-distinguishing orthogonal quantum states by LOCC",Somshubhro Bandyopadhyay,Somshubhro Bandyopadhyay,,,,,,,,,,,
-QIP,2008,poster,"Translation
-Techniques Between Quantum Circuit Architectures",Donny Cheung,Donny Cheung;Dmitri Maslov;Simone Severini,,,,,,,,,,,
-QIP,2008,poster,Improving Quantum Random Walk Search on a Hypercubic Lattice,Apoorva Patel,Apoorva Patel,,,,,,,,,,,
-QIP,2008,poster,"A novel secure quantum
-direct communication protocol without quantum memory",Shuang Wang,Shuang Wang;Zheng-fu Han;Guangcan Guo,,,,,,,,,,,
-QIP,2008,poster,Optimizing quantum process tomography with unitary 2-designs,Andrew Scott,Andrew Scott,,,,,,,,,,,
-QIP,2008,poster,"Reconstruction of unknown qubit states
-after measurements",Chirag Dhara,Chirag Dhara;ND Hari Dass,,,,,,,,,,,
-QIP,2008,poster,"Tripartite entanglement and
-nonlocality in 3-qubit states",Shohini Ghose,Shohini Ghose;Neil Sinclair,,,,,,,,,,,
-QIP,2008,poster,"Quantum Sort: An efficient
-approach to sort the elements than classical merge sort",Phaneendra HD,Phaneendra HD;Shivakumar MS,,,,,,,,,,,
-QIP,2008,poster,"Quantum Traveling: An efficient
-approach for solving Traveling salesman problem",Phaneendra HD,Phaneendra HD;Shivakumar MS,,,,,,,,,,,
-QIP,2008,poster,"Quantum framework for
-graph isomorphism problem",Vidya Raj Chitradurga,Vidya Raj Chitradurga;Shivakumar MS,,,,,,,,,,,
-QIP,2008,poster,"Accidental cloning of a single photon qubit in
-two-channel continuous-variable quantum teleportation",Toshiki Ide,Toshiki Ide,,,,,,,,,,,
-QIP,2008,poster,"Quantum Property Testing of Group
-Solvability",Francois Le Gall,Francois Le Gall;Yoshifumi Inui,,,,,,,,,,,
-QIP,2008,poster,Efficient implementation of quantum walks,Brendan Douglas,Brendan Douglas;Jingbo Wang,,,,,,,,,,,
-QIP,2008,poster,Random Circuits are Approximate 2-designs,Aram Harrow,Aram Harrow;Richard Low,,,,,,,,,,,
-QIP,2008,poster,"Probabilistic model of fault
-detection in quantum circuits",Anindita Banerjee,Anindita Banerjee;Anirban Pathak,,,,,,,,,,,
-QIP,2008,poster,Three-party d-level quantum secret sharing protocol,Dong Pyo Chi,Dong Pyo Chi;Jeong Woon Choi;Taewan Kim;Jeong San Kim;Soojoon Lee,,,,,,,,,,,
-QIP,2008,poster,"Analysis of fast quantum
-algorithm for hamiltonian circuits",Vidya Raj Chitradurga,Vidya Raj Chitradurga;Shivakumar MS,,,,,,,,,,,
-QIP,2008,poster,Generation of higher order n-CAT states.,Arijit Ghosh,Arijit Ghosh;Sudebkumar Pal;Anupam Prakash;Virendra Singh Shekhawat,,,,,,,,,,,
-QIP,2008,poster,"Yet another framework of a quantum
-noncooperative game",Akira SaiToh,Akira SaiToh;Robabeh Rahimi,,,,,,,,,,,
-QIP,2008,poster,Quantum learning tasks,Sebastien Gambs,Sebastien Gambs,,,,,,,,,,,
+venue,year,paper_type,title,speakers,authors,affiliations,abstract,arxiv_ids,presentation_url,video_url,youtube_id,session_name,award,notes,scheduled_date,scheduled_time,duration_minutes
+QIP,2008,invited,Quantum algorithms and universality with non-unitary operators: Approximating the Potts model and the Tutte polynomial,Dorit Aharonov,Dorit Aharonov,Hebrew University,,,,,,,,source_type=claude_extraction,2007-12-21,09:50,45
+QIP,2008,invited,An O(N^{1/2+o(1)}) time algorithm for evaluating Boolean formulas on a quantum computer,Andris Ambainis,Andris Ambainis,University of Waterloo and University of Latvia,,,,,,,,source_type=claude_extraction,2007-12-17,11:35,45
+QIP,2008,invited,Quantum expanders: motivation and constructions,Avraham Ben-Aroya,Avraham Ben-Aroya,Tel-Aviv university,,,,,,,,source_type=claude_extraction,2007-12-19,09:50,45
+QIP,2008,invited,A reversible theory of entanglement and its relation to the second law,Fernando Brandao,Fernando Brandao,"Institute of Mathematical Sciences, Imperial College London",,,,,,,,source_type=claude_extraction,2007-12-20,09:50,45
+QIP,2008,invited,Counterexamples to the maximal p-norm multiplicativity conjecture for p > 1,Patrick Hayden,Patrick Hayden,McGill University,,,,,,,,source_type=claude_extraction,2007-12-19,09:00,45
+QIP,2008,invited,A hypercontractive inequality for matrix-valued functions,Oded Regev,Oded Regev,Tel-Aviv University,,,,,,,,source_type=claude_extraction,2007-12-18,09:50,45
+QIP,2008,invited,Span-program-based quantum algorithm for evaluating formulas,Ben Reichardt,Ben Reichardt,California Institute of Technology,,,,,,,,source_type=claude_extraction,2007-12-17,14:00,45
+QIP,2008,invited,Generalized entropies,Renato Renner,Renato Renner,Cambridge,,,,,,,,source_type=claude_extraction,2007-12-20,09:00,45
+QIP,2008,invited,Upper bounds on the noise threshold for fault-tolerant quantum computing,Falk Unger,Falk Unger,"CWI, Amsterdam",,,,,,,,source_type=claude_extraction,2007-12-21,09:00,45
+QIP,2008,invited,Quantum evolution from a snapshot,Michael Wolf,Michael Wolf,"Max-Planck-Institute for Quantumoptics, Garching",,,,,,,,source_type=claude_extraction,2007-12-18,09:00,45
+QIP,2008,regular,Simulating Quantum Correlations with Finite Communication.,Oded Regev,Oded Regev;Ben Toner,,,,,,,,,source_type=claude_extraction,2007-12-21,14:20,30
+QIP,2008,regular,The private classical capacity with a symmetric side channel,Graeme Smith,Graeme Smith,,,,,,,,,source_type=claude_extraction,2007-12-21,11:00,30
+QIP,2008,regular,Using Entanglement in Quantum Multi-Prover Interactive Proofs,Julia Kempe,Julia Kempe;Hirotada Kobayashi;Keiji Matsumoto;Thomas Vidick,,,,,,,,,source_type=claude_extraction,2007-12-21,14:50,30
+QIP,2008,regular,An efficient quantum algorithm for the hidden subgroup problem in nil-2 groups,Gabor Ivanyos,Gabor Ivanyos;Luc Sanselme;Miklos Santha,,,,,,,,,source_type=claude_extraction,2007-12-17,14:50,30
+QIP,2008,regular,Codeword Stabilized Quantum Codes,Andrew Cross,Andrew Cross;Graeme Smith;John Smolin;Bei Zeng,,,,,,,,,source_type=claude_extraction,2007-12-19,12:10,30
+QIP,2008,regular,Counterexamples to additivity of minimum output p-Renyi entropy for p close to 0,Toby Cubitt,Toby Cubitt;Aram Harrow;Debbie Leung;Ashley Montanaro;Andreas Winter,,,,,,,,,source_type=claude_extraction,2007-12-19,11:00,30
+QIP,2008,regular,Classical approximation schemes for the ground-state energy of quantum and classical Ising spin glasses on planar graphs,Nikhil Bansal,Nikhil Bansal;Sergey Bravyi;Barbara Terhal,,,,,,,,,source_type=claude_extraction,2007-12-18,11:00,30
+QIP,2008,regular,Quantum entropic security and approximate quantum encryption,Simon-Pierre Desrosiers,Simon-Pierre Desrosiers;Frederic Dupuis,,,,,,,,,source_type=claude_extraction,2007-12-20,14:20,30
+QIP,2008,regular,The Unique Games Conjecture with Entangled Provers is False,Julia Kempe,Julia Kempe;Oded Regev;Ben Toner,,,,,,,,,source_type=claude_extraction,2007-12-20,14:50,30
+QIP,2008,regular,Anonymous quantum communication,Gilles Brassard,Gilles Brassard;Anne Broadbent;Joseph Fitzsimons;Sebastien Gambs;Alain Tapp,,,,,,,,,source_type=claude_extraction,2007-12-20,11:00,30
+QIP,2008,regular,Secure Identification and QKD in the Bounded-Quantum-Storage Model,Ivan Damgaard,Ivan Damgaard;Serge Fehr;Louis Salvail;Christian Schaffner,,,,,,,,,source_type=claude_extraction,2007-12-20,12:10,20
+QIP,2008,regular,Quantum Reference Frames and the Classification of Rotationally-Invariant Maps,Jean Christian Boileau,Jean Christian Boileau;Lana Sheridan;Martin Laforest;Stephen Bartlett,,,,,,,,,source_type=claude_extraction,2007-12-17,16:25,20
+QIP,2008,regular,A Tight High-Order Entropic Quantum Uncertainty Relation With Applications,Ivan Damgaard,Ivan Damgaard;Serge Fehr;Renato Renner;Louis Salvail;Christian Schaffner,,,,,,,,,source_type=claude_extraction,2007-12-20,11:50,20
+QIP,2008,regular,Device-independent security of Quantum Key Distribution,Stefano Pironio,Stefano Pironio;Antonio Acin;Nicolas Brunner;Nicolas Gisin;Serge Massar;Valerio Scarani,,,,,,,,,source_type=claude_extraction,2007-12-20,11:30,20
+QIP,2008,regular,Higher entropic uncertainty relations for anti-commuting observables,Stephanie Wehner,Stephanie Wehner;Andreas Winter,,,,,,,,,source_type=claude_extraction,2007-12-20,15:45,20
+QIP,2008,regular,"Quantum probabilities, semidefinite programming, and optimization over Hilbert spaces",Stefano Pironio,Stefano Pironio;Miguel Navascues;Antonio Acin,,,,,,,,,source_type=claude_extraction,2007-12-17,16:05,20
+QIP,2008,regular,The LU-LC conjecture is false,Zhengfeng Ji,Zhengfeng Ji;Jianxin Chen;Zhaohui Wei;Mingsheng Ying,,,,,,,,,source_type=claude_extraction,2007-12-18,12:10,20
+QIP,2008,regular,Quantum Copy-Protection,Scott Aaronson,Scott Aaronson,,,,,,,,,source_type=claude_extraction,2007-12-20,16:05,20
+QIP,2008,regular,On the Power of Entangled Provers: Immunizing games against entanglement,Julia Kempe,Julia Kempe;Hirotada Kobayashi;Keiji Matsumoto;Ben Toner;Thomas Vidick,,,,,,,,,source_type=claude_extraction,2007-12-21,11:30,20
+QIP,2008,regular,Determinism in Measurement based quantum computation,Daniel E. Browne,Daniel E. Browne;Elham Kashefi;Mehdi Mhalla;Simon Perdrix,,,,,,,,,source_type=claude_extraction,2007-12-18,11:30,20
+QIP,2008,regular,Phase transition of computational power in the resource states for one-way quantum computation,Dan Browne,Dan Browne;Matthew Elliot;Steven Flammia;Seth Merkel;Akimasa Miyake;Anthony Short,,,,,,,,,source_type=claude_extraction,2007-12-18,11:50,20
+QIP,2008,regular,Quantum expanders from any classical Cayley graph expander,Aram Harrow,Aram Harrow,,,,,,,,,source_type=claude_extraction,2007-12-19,11:30,20
+QIP,2008,regular,"Generalized Tsirelson Inequalities, Commuting-Operator Provers, and Multi-Prover Interactive Proof Systems",Tsuyoshi Ito,Tsuyoshi Ito;Hirotada Kobayashi;Daniel Preda;Xiaoming Sun;Andrew C.-C. Yao,,,,,,,,,source_type=claude_extraction,2007-12-21,11:50,20
+QIP,2008,regular,Self-teleportation and its application on LOCC estimation and other tasks,Keiji Matsumoto,Keiji Matsumoto,,,,,,,,,source_type=claude_extraction,2007-12-17,15:45,20
+QIP,2008,regular,Unbounded-Error Classical and Quantum Communication Complexity,Kazuo Iwama,Kazuo Iwama;Harumichi Nishimura;Rudy Raymond;Shigeru Yamashita,,,,,,,,,source_type=claude_extraction,2007-12-21,15:45,20
+QIP,2008,regular,Sampling of min-entropy relative to quantum knowledge,Robert Koenig,Robert Koenig;Renato Renner,,,,,,,,,source_type=claude_extraction,2007-12-21,16:05,20
+QIP,2008,regular,De Finetti theorems for finitely exchangeable conditional probability=20 distributions,Matthias Christandl,Matthias Christandl;Ben Toner,,,,,,,,,source_type=claude_extraction,2007-12-21,16:25,20
+QIP,2008,regular,Quantum hacking: experimental demonstration of time-shift attack,Yi Zhao,Yi Zhao;Fred Fung;Bing Qi;Christine Chen;Hoi-Kwong Lo,,,,,,,,,source_type=claude_extraction,2007-12-20,16:25,20
+QIP,2008,regular,The complexity of simulating non-signaling distributions,Julien Degorre,Julien Degorre;Marc Kaplan;Sophie Laplante;Jeremie Roland,,,,,,,,,source_type=claude_extraction,2007-12-21,12:10,20
+QIP,2008,regular,Completely Entangled Random Subspaces,Jonathan Walgate,Jonathan Walgate;Andrew Scott,,,,,,,,,source_type=claude_extraction,2007-12-19,11:50,20
+QIP,2008,poster,Graph identification by quantum walks,Jingbo Wang,Jingbo Wang;Brendan Douglas,,,,,,,,,source_type=claude_extraction,,,
+QIP,2008,poster,A Fast Quantum Circuit for Addition with Few Qubits,Yasuhiro Takahashi,Yasuhiro Takahashi;Noboru Kunihiro,,,,,,,,,source_type=claude_extraction,,,
+QIP,2008,poster,Cryptography from Noisy Quantum Storage,Christian Schaffner,Christian Schaffner;Barbara Terhal;Stephanie Wehner,,,,,,,,,source_type=claude_extraction,,,
+QIP,2008,poster,Quantum Protocols using Quantum Orthogonal States: ``Collapsing Quantum Digital Signatures'' and ``Quantum Identity Authentication'',Go Kato,Go Kato;Yasuhito Kawano,,,,,,,,,source_type=claude_extraction,,,
+QIP,2008,poster,A comparative study on measures of pure state entanglement through Incomparability,Amit Bhar,Amit Bhar;Indrani Chattopadhyay;Debasis Sarkar,,,,,,,,,source_type=claude_extraction,,,
+QIP,2008,poster,Incomparability of Pure bipartite states as non-locality beyond Entropy of Entanglement.,Debasis Sarkar,Debasis Sarkar;Indrani Chattopadhyay,,,,,,,,,source_type=claude_extraction,,,
+QIP,2008,poster,Quantum search of partially ordered sets,Ashley Montanaro,Ashley Montanaro,,,,,,,,,source_type=claude_extraction,,,
+QIP,2008,poster,The role of help in Classical and Quantum Zero-Knowledge,Andre Chailloux,Andre Chailloux;Iordanis Kerenidis,,,,,,,,,source_type=claude_extraction,,,
+QIP,2008,poster,Honest-Verifier Quantum Statistical Zero Knowledge for all Interactive Protocols,Andre Chailloux,Andre Chailloux;Iordanis Kerenidis,,,,,,,,,source_type=claude_extraction,,,
+QIP,2008,poster,Efficient classical simulation of the Quantum Fourier Transform,Dan Browne,Dan Browne,,,,,,,,,source_type=claude_extraction,,,
+QIP,2008,poster,Synthesis of quantum circuits for d-level systems using KAK decomposition,Yumi Nakajima,Yumi Nakajima;Yasuhito Kawano;Hiroshi Sekigawa;Masaki Nakanishi;Shigeru Yamashita;Yasuhiko Nakashima,,,,,,,,,source_type=claude_extraction,,,
+QIP,2008,poster,Control of Two Qubit Systems with Hamiltonian Feedback,Charles Hill,Charles Hill;Jason Ralph,,,,,,,,,source_type=claude_extraction,,,
+QIP,2008,poster,Quantum computers can search rapidly by using almost any oracle transformation,Tathagat Tulsi,Tathagat Tulsi,,,,,,,,,source_type=claude_extraction,,,
+QIP,2008,poster,Globally controlled fault-tolerant quantum computation,Joseph Fitzsimons,Joseph Fitzsimons;Jason Twamley,,,,,,,,,source_type=claude_extraction,,,
+QIP,2008,poster,Purification of Non-Stabilizer States,Jop Briet,Jop Briet;Peter Hoyer,,,,,,,,,source_type=claude_extraction,,,
+QIP,2008,poster,Spin Chains as Quantum Channel with Memory and Antiferromagnets as Channels,Sougato Bose,Sougato Bose;Abolfazl Bayat;Stefano Mancini;Daniel Burgarth,,,,,,,,,source_type=claude_extraction,,,
+QIP,2008,poster,Lower bounds and exact entanglement cost in distinguishing orthogonal quantum states by LOCC,Somshubhro Bandyopadhyay,Somshubhro Bandyopadhyay,,,,,,,,,source_type=claude_extraction,,,
+QIP,2008,poster,Translation Techniques Between Quantum Circuit Architectures,Donny Cheung,Donny Cheung;Dmitri Maslov;Simone Severini,,,,,,,,,source_type=claude_extraction,,,
+QIP,2008,poster,Improving Quantum Random Walk Search on a Hypercubic Lattice,Apoorva Patel,Apoorva Patel,,,,,,,,,source_type=claude_extraction,,,
+QIP,2008,poster,A novel secure quantum direct communication protocol without quantum memory,Shuang Wang,Shuang Wang;Zheng-fu Han;Guangcan Guo,,,,,,,,,source_type=claude_extraction,,,
+QIP,2008,poster,Optimizing quantum process tomography with unitary 2-designs,Andrew Scott,Andrew Scott,,,,,,,,,source_type=claude_extraction,,,
+QIP,2008,poster,Reconstruction of unknown qubit states after measurements,Chirag Dhara,Chirag Dhara;ND Hari Dass,,,,,,,,,source_type=claude_extraction,,,
+QIP,2008,poster,Tripartite entanglement and nonlocality in 3-qubit states,Shohini Ghose,Shohini Ghose;Neil Sinclair,,,,,,,,,source_type=claude_extraction,,,
+QIP,2008,poster,Quantum Sort: An efficient approach to sort the elements than classical merge sort,Phaneendra HD,Phaneendra HD;Shivakumar MS,,,,,,,,,source_type=claude_extraction,,,
+QIP,2008,poster,Quantum Traveling: An efficient approach for solving Traveling salesman problem,Phaneendra HD,Phaneendra HD;Shivakumar MS,,,,,,,,,source_type=claude_extraction,,,
+QIP,2008,poster,Quantum framework for graph isomorphism problem,Vidya Raj Chitradurga,Vidya Raj Chitradurga;Shivakumar MS,,,,,,,,,source_type=claude_extraction,,,
+QIP,2008,poster,Accidental cloning of a single photon qubit in two-channel continuous-variable quantum teleportation,Toshiki Ide,Toshiki Ide,,,,,,,,,source_type=claude_extraction,,,
+QIP,2008,poster,Quantum Property Testing of Group Solvability,Francois Le Gall,Francois Le Gall;Yoshifumi Inui,,,,,,,,,source_type=claude_extraction,,,
+QIP,2008,poster,Efficient implementation of quantum walks,Brendan Douglas,Brendan Douglas;Jingbo Wang,,,,,,,,,source_type=claude_extraction,,,
+QIP,2008,poster,Random Circuits are Approximate 2-designs,Aram Harrow,Aram Harrow;Richard Low,,,,,,,,,source_type=claude_extraction,,,
+QIP,2008,poster,Probabilistic model of fault detection in quantum circuits,Anindita Banerjee,Anindita Banerjee;Anirban Pathak,,,,,,,,,source_type=claude_extraction,,,
+QIP,2008,poster,Three-party d-level quantum secret sharing protocol,Dong Pyo Chi,Dong Pyo Chi;Jeong Woon Choi;Taewan Kim;Jeong San Kim;Soojoon Lee,,,,,,,,,source_type=claude_extraction,,,
+QIP,2008,poster,Analysis of fast quantum algorithm for hamiltonian circuits,Vidya Raj Chitradurga,Vidya Raj Chitradurga;Shivakumar MS,,,,,,,,,source_type=claude_extraction,,,
+QIP,2008,poster,Generation of higher order n-CAT states.,Arijit Ghosh,Arijit Ghosh;Sudebkumar Pal;Anupam Prakash;Virendra Singh Shekhawat,,,,,,,,,source_type=claude_extraction,,,
+QIP,2008,poster,Yet another framework of a quantum noncooperative game,Akira SaiToh,Akira SaiToh;Robabeh Rahimi,,,,,,,,,source_type=claude_extraction,,,
+QIP,2008,poster,Quantum learning tasks,Sebastien Gambs,Sebastien Gambs,,,,,,,,,source_type=claude_extraction,,,
+QIP,2008,tutorial,Quantum computation and Shor's factoring algorithm,Ronald de Wolf,Ronald de Wolf,,,,,,,,,added from schedule (tutorial not in original CSV); source_type=claude_extraction,2007-12-17,09:30,45
+QIP,2008,tutorial,An invitation to quantum complexity theory,Scott Aaronson,Scott Aaronson,,,,,,,,,added from schedule (tutorial not in original CSV); source_type=claude_extraction,2007-12-17,10:15,45
