@@ -1,6 +1,6 @@
 # Conference data ingestion plan
 
-_Last updated: 2026-05-09 (Phase 1 progress: QIP 2008/2009/2014/2016/2017/2018/2019/2023/2026 done; QIP 2020/2022 deferred. TQC 2008-2017/2019-2025 done (2008-2010 partial); TQC 2006/2007/2018 unrecoverable from local archive. QCrypt 2025 seeded.)._
+_Last updated: 2026-05-10 (Phase 1 + Wayback fill-in: QIP 2008/2009/2014/2016-2020/2022/2023/2026 done. TQC 2006-2025 all populated (2009/2010 partial — committees gap & schedule gap; 2018 no schedule). QCrypt 2025 seeded.)._
 
 ## Phase 0 status: completed (2026-05-08)
 
@@ -215,9 +215,9 @@ Committees count is row count.
 | 2017 | 47 | 67 (67/67/0/0) | ✓ 4 tut + 3 inv + 6 ple + 54 reg; from index.html (plan note "MISSING" was wrong) |
 | 2018 | 55 | 70 (70/70/0/0) | ✓ 8 tut + 3 inv + 5 ple + 54 reg; from QuTech HTML + Accepted-Talks PDF |
 | 2019 | 46 | 7 (7/0/0/0) | partial only — 7 rows ≠ full programme |
-| 2020 | 79 | **0** | TALKS MISSING — **deferred** (SPA: index.html is empty, no extractable program) |
+| 2020 | 79 | 84 (83/83/0/0) | ✓ via Wayback (szpclab.com Vue SPA bundle); 4 tut + 5 plenary + 75 regular |
 | 2021 | 46 | 113 (113/108/0/0) | ✓ |
-| 2022 | 71 | **0** | TALKS MISSING |
+| 2022 | 71 | 113 (0/0/0/0) | ✓ via Wayback (Cvent PDFs); 3 long + 12 short plenary + 98 regular; no schedule (Cvent React SPA had none) |
 | 2023 | 79 | 118 (117/117/108/0) | ✓ schedule from Indico timetable; +8 tutorials +1 invited added; 1 row (Liu Copy-Protection) lacks slot in archived JSON |
 | 2024 | 85 | 131 (20/16/0/0) | partial schedule |
 | 2025 |  – | – | not seeded |
@@ -252,11 +252,11 @@ fill 2013 onward.
 
 | Year | Committees | Proc | Workshop (rows / date / time / video / yt) | Status |
 |------|-----------:|-----:|--------------------------------------------|--------|
-| 2006 | – | – | – | **deferred** — local archive shell-only (Wayback links to kecl.ntt.co.jp) |
-| 2007 | – | – | – | **deferred** — same as 2006 |
+| 2006 | 11 | – | 16 (16/16/0/0) | ✓ via Wayback (brl.ntt.co.jp 2007-02-08 snapshot); 8 inv + 8 reg |
+| 2007 | 13 | – | 10 (10/10/0/0) | ✓ via Wayback; 1 keynote + 3 inv + 6 reg |
 | 2008 | 24 | – | 20 (20/20/0/0) | ✓ 6 invited + 14 contributed; LNCS 5106 post-proc not in CSV |
-| 2009 |  0 | – | 13 (0/0/0/0) | ✓ partial: 13 speakers from sparse archive; no committees, no schedule |
-| 2010 | 37 | – |  5 (0/0/0/0) | ✓ partial: committees + 5 invited speakers; talk roster unrecoverable |
+| 2009 |  0 | 10 (0 sched) | 13 (0/0/0/0) | ✓ DBLP-sourced LNCS 5906 proc; committees still missing (Wayback gap) |
+| 2010 | 37 | 15 (0 sched) |  5 (0/0/0/0) | ✓ DBLP-sourced LNCS 6519 proc; invited talk titles + schedule missing |
 | 2011 | 36 | 17 (17 sched) | 6 (6/6/0/0) | ✓ full: PC 24 + OC 8 + SC 4; LNCS 6745 post-proc; 6 invited |
 | 2012 | 24 | 16 (16 sched) | 8 (8/8/0/0) | ✓ full: PC 17 + OC 2 + SC 5; LNCS 7582 post-proc; 8 invited |
 | 2013 | 34 | 22 (20 sched) |  8 (8/8/0/0)   | ✓ all 3 CSVs; +5 invited in workshop |
@@ -264,7 +264,7 @@ fill 2013 onward.
 | 2015 | 36 | 16 (16 sched) | 12 (12/12/0/0) | ✓ all 3 CSVs; +4 invited in workshop |
 | 2016 | 38 |  9 (9 sched)  | 21 (21/21/0/0) | ✓ all 3 CSVs; +4 invited in workshop |
 | 2017 | 53 | 10 (6 sched)  | 32 (32/32/0/0) | ✓ schedule done; 4 proc papers without workshop counterpart unmatched |
-| 2018 |  0 | 10 (0 sched)  | 0 | committees + workshop unrecoverable (Wix SPA shell) |
+| 2018 | 47 | 10 (0 sched) | 24 (0/0/0/0) | ✓ via Wayback (Wix accepted-talks pages + LIPIcs vol 111); 4 inv + 20 reg; no schedule (Google Calendar embed) |
 | 2019 | 42 | 10 (8 sched)  | 48 (44/44/0/0) | ✓ TQC + NISQ workshop talks merged |
 | 2020 | 42 | 12 (12 sched) | 47 (47/47/0/0) | ✓ all entries scheduled (online conf) |
 | 2021 | 51 | 10 (10 sched) | 85 (82/82/0/0) | ✓ lightning-talk era; pre-recorded |
