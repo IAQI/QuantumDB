@@ -11,7 +11,7 @@ QCRYPT,2019,regular,Almost-tight and versatile security analysis of measurement-
 QCRYPT,2019,regular,Erasable bit commitment from temporary quantum trust Abstract,,Norbert Lütkenhaus;Ashutosh Marwah;Dave Touchette. This talk was originally scheduled at 16:15.,,,,,,,,,,2019-08-26,15:55,
 QCRYPT,2019,regular,Experimental demonstration of quantum advantage for one-way communication complexity with application in construction of robust quantum money Abstract,,Niraj Kumar;Iordanis Kerenidis;Eleni Diamanti. This talk will be shifted to Friday provided the first author manages to obtain a visa to travel to Canada.,,,,,,,,,,2019-08-26,16:15,
 QCRYPT,2019,regular,Building a more secure quantum future Abstract,Michele Mosca Biography,Michele Mosca Biography,,,,,,,,,,2019-08-26,19:00,
-QCRYPT,2019,tutorial,"DI-QKD and DI-QRNG, discussing security proofs and practical challenges Abstract",Rotem Arnon-Friedman,Rotem Arnon-Friedman,,,,,,,,,,2019-08-27,09:00,
+QCRYPT,2019,tutorial,"DI-QKD and DI-QRNG, discussing security proofs and practical challenges Abstract",Rotem Arnon-Friedman,Rotem Arnon-Friedman,,,,,https://www.youtube.com/watch?v=5KsW0d9JeqQ,5KsW0d9JeqQ,,,yt_match=0.90,2019-08-27,09:00,
 QCRYPT,2019,invited,Fundamental limits on key rates in DI-QKD Abstract,Eneet Kaur,Eneet Kaur,,,,,,,,,,2019-08-27,10:45,
 QCRYPT,2019,regular,A numerical method for computing reliable secret key rates for device-independent quantum key distribution Abstract,,René Schwonnek;Ernest Y.-Z. Tan;Ramona Wolf;Koon Tong Goh;Charles C.-W. Lim.,,,,,,,,,,2019-08-27,11:20,
 QCRYPT,2019,regular,A simple protocol for verifiable delegation of quantum computation in one round Abstract,Alex Bredariol Grilo.,Alex Bredariol Grilo.,,,,,,,,,,2019-08-27,11:40,
