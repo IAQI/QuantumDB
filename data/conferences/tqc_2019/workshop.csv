@@ -47,3 +47,7 @@ TQC,2019,invited,Krysta Svore (Microsoft),Krysta Svore,Krysta Svore,,,,,,,,,adde
 TQC,2019,invited,David Gosset (Waterloo),David Gosset,David Gosset,,,,,,,,,added from schedule (no matching CSV row); source_type=claude_extraction,2019-06-07,,45
 TQC,2019,invited,Elizabeth Crosson (UNM),Elizabeth Crosson,Elizabeth Crosson,,,,,,,,,added from schedule (no matching CSV row); source_type=claude_extraction,2019-06-07,,45
 TQC,2019,invited,Ashley Montanaro (Bristol),Ashley Montanaro,Ashley Montanaro,,,,,,,,,added from schedule (no matching CSV row); source_type=claude_extraction,2019-06-07,,45
+TQC,2019,industry,From Quantum Programming to Quantum Development,Chris Granade,Chris Granade,,,,,https://www.youtube.com/watch?v=KfVBBfU1KLg,KfVBBfU1KLg,,,source_type=claude_extraction; source=youtube; gap_fill,,,26
+TQC,2019,industry,Cambridge Quantum Computing — Focus Areas,Tom Benjamin; Krithik Puthalath,Tom Benjamin; Krithik Puthalath,,,,,https://www.youtube.com/watch?v=Cs0-r8w5nkw,Cs0-r8w5nkw,,,source_type=claude_extraction; source=youtube; gap_fill,,,17
+TQC,2019,industry,Research and technology for scalable quantum computing,Zachary Dutton,Zachary Dutton,,,,,https://www.youtube.com/watch?v=nujlvMFXDj4,nujlvMFXDj4,,,source_type=claude_extraction; source=youtube; gap_fill,,,24
+TQC,2019,industry,Introduction to Baidu Quantum Program,Lijing Jin,Lijing Jin,,,,,https://www.youtube.com/watch?v=k60fas7PD4g,k60fas7PD4g,,,source_type=claude_extraction; source=youtube; gap_fill,,,22
