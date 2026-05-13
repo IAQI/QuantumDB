@@ -1,6 +1,8 @@
 """Shared helpers for the scrape and import CLIs."""
 import logging
 import os
+import re
+import unicodedata
 from pathlib import Path
 from typing import List, Optional
 from urllib.parse import unquote
@@ -9,6 +11,56 @@ import asyncpg
 from dotenv import load_dotenv
 
 logger = logging.getLogger(__name__)
+
+
+# Special characters that don't decompose via Unicode NFD — mapped explicitly.
+# Mirror of src/utils/normalize.rs::replace_special_chars so Python and Rust
+# normalizers agree.
+_SPECIAL_CHAR_MAP = str.maketrans({
+    'Ł': 'L', 'ł': 'l',          # Polish
+    'Ø': 'O', 'ø': 'o',          # Nordic
+    'Æ': 'A', 'æ': 'a',
+    'Å': 'A', 'å': 'a',
+    'ß': 's',                    # German eszett
+    'Ð': 'D', 'ð': 'd',          # Icelandic
+    'Þ': 'T', 'þ': 't',
+    'Đ': 'D', 'đ': 'd',          # Croatian/Serbian
+    'İ': 'I', 'ı': 'i',          # Turkish
+    'Ğ': 'G', 'ğ': 'g',
+    'Ş': 'S', 'ş': 's',
+})
+
+
+def normalize_name(name: str) -> str:
+    """Normalize an author name for deduplication-grade matching.
+
+    Transformations (applied in order):
+      1. Strip honorifics / suffixes: Dr., Prof., Jr., Sr., Ph.D., M.D.
+      2. Replace special letters that don't decompose via NFD (ł, ø, æ, ß, …).
+      3. Unicode NFKD decomposition + strip combining marks (é → e, ü → u).
+      4. Lowercase.
+      5. Drop single-letter middle-initial tokens, both with and without a
+         trailing period (so "Umesh V. Vazirani" and "Umesh Vazirani" collapse).
+      6. Collapse whitespace.
+    """
+    if not name:
+        return ''
+    s = re.sub(r'\b(Dr|Prof|Jr|Sr|Ph\.?D|M\.?D)\.?\s*', ' ', name, flags=re.IGNORECASE)
+    s = s.translate(_SPECIAL_CHAR_MAP)
+    s = unicodedata.normalize('NFKD', s)
+    s = ''.join(c for c in s if not unicodedata.combining(c))
+    s = s.lower()
+    tokens = [t for t in s.split() if not re.fullmatch(r"[a-z]\.?", t)]
+    return ' '.join(tokens)
+
+
+def split_name(full_name: str) -> tuple[str, str]:
+    """Split a (normalized) full name into (family_name, given_name)."""
+    normalized = normalize_name(full_name)
+    parts = normalized.rsplit(' ', 1)
+    if len(parts) == 1:
+        return parts[0], ''
+    return parts[1], parts[0]
 
 
 def url_to_local_path(url: str, local_dir: Optional[Path] = None) -> Path:

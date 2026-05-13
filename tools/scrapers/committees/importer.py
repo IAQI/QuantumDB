@@ -11,32 +11,14 @@ from uuid import UUID
 import asyncpg
 from dotenv import load_dotenv
 
+from scrapers._lib import normalize_name, split_name
+
 
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
-
-
-def normalize_name(name: str) -> str:
-    """Normalize author name for matching."""
-    # Remove common prefixes/suffixes
-    name = re.sub(r'\b(Dr\.|Prof\.|Jr\.|Sr\.|Ph\.?D\.?|M\.?D\.?)\b', '', name, flags=re.IGNORECASE)
-    # Remove extra whitespace
-    name = ' '.join(name.split())
-    return name.strip()
-
-
-def split_name(full_name: str) -> tuple[str, str]:
-    """Split full name into family and given names."""
-    normalized = normalize_name(full_name)
-    parts = normalized.rsplit(' ', 1)
-    
-    if len(parts) == 1:
-        return parts[0], ''
-    else:
-        return parts[1], parts[0]
 
 
 def map_committee_type(committee_type: str) -> str:
