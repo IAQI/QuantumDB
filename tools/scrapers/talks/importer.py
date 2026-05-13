@@ -317,23 +317,24 @@ async def import_from_csv(
         talks_by_type[paper_type].append(talk)
 
     async with pool.acquire() as conn:
+        # Per-talk savepoints (inside one outer transaction) so a single bad
+        # row doesn't poison the rest of the file — postgres otherwise aborts
+        # the whole transaction on any constraint failure.
         async with conn.transaction():
             for paper_type, type_talks in talks_by_type.items():
                 for idx, talk in enumerate(type_talks, start=1):
+                    canonical_key = generate_canonical_key(venue, year, paper_type, idx)
+                    source_metadata = {
+                        'source_type': 'conference_website',
+                        'source_url': talk.get('notes', ''),
+                        'scraped_date': datetime.now().isoformat(),
+                        'notes': f'Imported from CSV'
+                    }
                     try:
-                        canonical_key = generate_canonical_key(venue, year, paper_type, idx)
-
-                        # Source metadata
-                        source_metadata = {
-                            'source_type': 'conference_website',
-                            'source_url': talk.get('notes', ''),  # Notes field can contain source URL
-                            'scraped_date': datetime.now().isoformat(),
-                            'notes': f'Imported from CSV'
-                        }
-
-                        success = await import_talk(
-                            conn, venue, year, talk, canonical_key, source_metadata, csv_file.name
-                        )
+                        async with conn.transaction():  # savepoint
+                            success = await import_talk(
+                                conn, venue, year, talk, canonical_key, source_metadata, csv_file.name
+                            )
                         if success:
                             imported += 1
                         else:
