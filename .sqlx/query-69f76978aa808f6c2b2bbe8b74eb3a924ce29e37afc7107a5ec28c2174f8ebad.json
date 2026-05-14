@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        SELECT\n            p.id,\n            p.title,\n            p.paper_type::text as \"paper_type!\",\n            p.award,\n            p.talk_date,\n            p.talk_time,\n            p.duration_minutes,\n            COALESCE(p.arxiv_ids, ARRAY[]::text[]) as \"arxiv_ids!\",\n            p.abstract as abstract_text,\n            p.doi\n        FROM publications p\n        WHERE p.conference_id = $1\n        ORDER BY\n            COALESCE(p.talk_date, '9999-12-31'::date),\n            COALESCE(p.talk_time, '23:59:59'::time),\n            p.paper_type,\n            p.title\n        ",
+  "query": "\n        SELECT\n            p.id,\n            p.title,\n            p.paper_type::text as \"paper_type!\",\n            p.award,\n            p.talk_date,\n            p.talk_time,\n            p.duration_minutes,\n            p.presenter_author_id,\n            COALESCE(p.arxiv_ids, ARRAY[]::text[]) as \"arxiv_ids!\",\n            COALESCE(p.abstract, '') as \"abstract_text!\",\n            COALESCE(p.video_url, '') as \"video_url!\"\n        FROM publications p\n        WHERE p.conference_id = $1\n        ORDER BY\n            COALESCE(p.talk_date, '9999-12-31'::date),\n            COALESCE(p.talk_time, '23:59:59'::time),\n            p.paper_type,\n            p.title\n        ",
   "describe": {
     "columns": [
       {
@@ -40,17 +40,22 @@
       },
       {
         "ordinal": 7,
+        "name": "presenter_author_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 8,
         "name": "arxiv_ids!",
         "type_info": "TextArray"
       },
       {
-        "ordinal": 8,
-        "name": "abstract_text",
+        "ordinal": 9,
+        "name": "abstract_text!",
         "type_info": "Text"
       },
       {
-        "ordinal": 9,
-        "name": "doi",
+        "ordinal": 10,
+        "name": "video_url!",
         "type_info": "Text"
       }
     ],
@@ -67,10 +72,11 @@
       true,
       true,
       true,
-      null,
       true,
-      true
+      null,
+      null,
+      null
     ]
   },
-  "hash": "a98f7454a07fcb3516258fe59db646ae8fbd412ee5e3dc9af94c9e05cde468ff"
+  "hash": "69f76978aa808f6c2b2bbe8b74eb3a924ce29e37afc7107a5ec28c2174f8ebad"
 }

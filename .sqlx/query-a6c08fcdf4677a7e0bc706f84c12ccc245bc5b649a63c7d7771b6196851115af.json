@@ -53,7 +53,8 @@
                 "keynote",
                 "plenary",
                 "plenary_short",
-                "plenary_long"
+                "plenary_long",
+                "industry"
               ]
             }
           }
@@ -153,7 +154,8 @@
                 "keynote",
                 "plenary",
                 "plenary_short",
-                "plenary_long"
+                "plenary_long",
+                "industry"
               ]
             }
           }

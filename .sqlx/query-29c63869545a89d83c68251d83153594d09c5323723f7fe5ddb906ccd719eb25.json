@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        SELECT \n            c.id,\n            c.venue,\n            c.year,\n            CONCAT(c.venue, c.year::text) as slug,\n            c.city,\n            c.country,\n            c.start_date,\n            c.end_date,\n            c.website_url,\n            c.proceedings_url,\n            c.is_virtual,\n            c.is_hybrid,\n            c.submission_count,\n            c.acceptance_count,\n            COALESCE(cs.publication_count, 0) as \"publication_count!\",\n            COALESCE(cs.regular_paper_count, 0) as \"regular_paper_count!\",\n            COALESCE(cs.invited_talk_count, 0) as \"invited_talk_count!\",\n            COALESCE(cs.award_count, 0) as \"award_count!\",\n            COALESCE(cs.committee_member_count, 0) as \"committee_member_count!\",\n            COALESCE(cs.unique_author_count, 0) as \"unique_author_count!\",\n            cs.acceptance_rate::text as acceptance_rate\n        FROM conferences c\n        LEFT JOIN conference_stats cs ON c.id = cs.id\n        WHERE c.venue = $1 AND c.year = $2\n        ",
+  "query": "\n        SELECT\n            c.id,\n            c.venue,\n            c.year,\n            LOWER(c.venue) || '-' || c.year::text as slug,\n            c.city,\n            c.country,\n            c.start_date,\n            c.end_date,\n            c.website_url,\n            c.proceedings_url,\n            c.is_virtual,\n            c.is_hybrid,\n            c.submission_count,\n            c.acceptance_count,\n            COALESCE(cs.publication_count, 0) as \"publication_count!\",\n            COALESCE(cs.regular_paper_count, 0) as \"regular_paper_count!\",\n            COALESCE(cs.invited_talk_count, 0) as \"invited_talk_count!\",\n            COALESCE(cs.award_count, 0) as \"award_count!\",\n            COALESCE(cs.committee_member_count, 0) as \"committee_member_count!\",\n            COALESCE(cs.unique_author_count, 0) as \"unique_author_count!\",\n            cs.acceptance_rate::text as acceptance_rate\n        FROM conferences c\n        LEFT JOIN conference_stats cs ON c.id = cs.id\n        WHERE c.venue = $1 AND c.year = $2\n        ",
   "describe": {
     "columns": [
       {
@@ -139,5 +139,5 @@
       null
     ]
   },
-  "hash": "86017fc4932981601175ff262dd528a28c6132dc43d59eeabf93e1d7510c498d"
+  "hash": "29c63869545a89d83c68251d83153594d09c5323723f7fe5ddb906ccd719eb25"
 }

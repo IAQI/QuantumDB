@@ -1,0 +1,106 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT\n            a.id,\n            a.slug as \"slug!\",\n            a.full_name,\n            COALESCE(a.family_name, '') as \"family_name!\",\n            COALESCE(a.given_name, '') as \"given_name!\",\n            COALESCE(ast.recent_affiliation, a.affiliation, '') as \"affiliation!\",\n            COALESCE(a.orcid, '') as \"orcid!\",\n            COALESCE(a.homepage_url, '') as \"homepage_url!\",\n            COALESCE(a.google_scholar_id, '') as \"google_scholar_id!\",\n            COALESCE(ast.publication_count, 0) as \"publication_count!\",\n            COALESCE(ast.committee_role_count, 0) as \"committee_role_count!\",\n            COALESCE(ast.leadership_count, 0) as \"leadership_count!\",\n            COALESCE(array_to_string(ast.venues, ', '), '') as \"venues!\",\n            COALESCE(ast.first_year::text, '') as \"first_year!\",\n            COALESCE(ast.last_year::text, '') as \"last_year!\"\n        FROM authors a\n        LEFT JOIN author_stats ast ON a.id = ast.id\n        WHERE a.slug = $1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "slug!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "full_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "family_name!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "given_name!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "affiliation!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "orcid!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "homepage_url!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "google_scholar_id!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "publication_count!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 10,
+        "name": "committee_role_count!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 11,
+        "name": "leadership_count!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 12,
+        "name": "venues!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 13,
+        "name": "first_year!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 14,
+        "name": "last_year!",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "9a65b19b32487a02f4b8c4009e21454344788910dc5cf27334a996e8d59e08a6"
+}

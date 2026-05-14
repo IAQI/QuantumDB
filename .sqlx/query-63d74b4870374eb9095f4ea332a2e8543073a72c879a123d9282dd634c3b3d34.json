@@ -1,0 +1,88 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT\n            p.title,\n            c.venue as \"conference_venue!\",\n            c.year as \"conference_year!\",\n            LOWER(c.venue) || '-' || c.year::text as \"conference_slug!\",\n            p.paper_type::text as \"paper_type!\",\n            COALESCE(\n                array_agg(a2.slug ORDER BY au2.author_position) FILTER (WHERE a2.id IS NOT NULL),\n                ARRAY[]::text[]\n            ) as \"coauthor_slugs!\",\n            COALESCE(\n                array_agg(a2.full_name ORDER BY au2.author_position) FILTER (WHERE a2.id IS NOT NULL),\n                ARRAY[]::text[]\n            ) as \"coauthor_names!\",\n            COALESCE(\n                array_agg(COALESCE(a2.id = p.presenter_author_id, false) ORDER BY au2.author_position) FILTER (WHERE a2.id IS NOT NULL),\n                ARRAY[]::boolean[]\n            ) as \"coauthor_is_speaker!\",\n            COALESCE(p.presenter_author_id = $1, false) as \"presenter_is_self!\",\n            COALESCE(p.arxiv_ids, ARRAY[]::text[]) as \"arxiv_ids!\",\n            COALESCE(p.abstract, '') as \"abstract_text!\",\n            COALESCE(p.video_url, '') as \"video_url!\"\n        FROM authorships au\n        JOIN publications p ON au.publication_id = p.id\n        JOIN conferences c ON p.conference_id = c.id\n        LEFT JOIN authorships au2 ON p.id = au2.publication_id AND au2.author_id != $1\n        LEFT JOIN authors a2 ON au2.author_id = a2.id\n        WHERE au.author_id = $1\n        GROUP BY p.id, p.title, c.venue, c.year, p.paper_type, p.arxiv_ids, p.abstract, p.video_url\n        ORDER BY c.year DESC, c.venue\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "title",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "conference_venue!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "conference_year!",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "conference_slug!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "paper_type!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "coauthor_slugs!",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 6,
+        "name": "coauthor_names!",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 7,
+        "name": "coauthor_is_speaker!",
+        "type_info": "BoolArray"
+      },
+      {
+        "ordinal": 8,
+        "name": "presenter_is_self!",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 9,
+        "name": "arxiv_ids!",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 10,
+        "name": "abstract_text!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 11,
+        "name": "video_url!",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "63d74b4870374eb9095f4ea332a2e8543073a72c879a123d9282dd634c3b3d34"
+}

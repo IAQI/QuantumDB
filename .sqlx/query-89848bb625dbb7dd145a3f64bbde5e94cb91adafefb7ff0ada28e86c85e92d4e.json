@@ -1,12 +1,12 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        SELECT \n            a.id,\n            a.full_name,\n            COALESCE(a.affiliation, '') as \"affiliation!\",\n            COALESCE(ast.publication_count, 0) as \"publication_count!\",\n            COALESCE(ast.committee_role_count, 0) as \"committee_role_count!\",\n            COALESCE(ast.first_year::text, '') as \"first_year!\",\n            COALESCE(ast.last_year::text, '') as \"last_year!\"\n        FROM authors a\n        LEFT JOIN author_stats ast ON a.id = ast.id\n        WHERE a.full_name ILIKE $1 OR a.normalized_name ILIKE $1\n        ORDER BY a.full_name\n        LIMIT 100\n        ",
+  "query": "\n        SELECT\n            a.slug as \"slug!\",\n            a.full_name,\n            COALESCE(ast.recent_affiliation, a.affiliation, '') as \"affiliation!\",\n            COALESCE(ast.publication_count, 0) as \"publication_count!\",\n            COALESCE(ast.committee_role_count, 0) as \"committee_role_count!\",\n            COALESCE(ast.first_year::text, '') as \"first_year!\",\n            COALESCE(ast.last_year::text, '') as \"last_year!\"\n        FROM authors a\n        LEFT JOIN author_stats ast ON a.id = ast.id\n        WHERE a.full_name ILIKE $1 OR a.normalized_name ILIKE $1\n        ORDER BY a.full_name\n        ",
   "describe": {
     "columns": [
       {
         "ordinal": 0,
-        "name": "id",
-        "type_info": "Uuid"
+        "name": "slug!",
+        "type_info": "Text"
       },
       {
         "ordinal": 1,
@@ -54,5 +54,5 @@
       null
     ]
   },
-  "hash": "70f23628a640031d99eb7c661dd9880e71fe9350204dc8460e5a6534ff21a181"
+  "hash": "89848bb625dbb7dd145a3f64bbde5e94cb91adafefb7ff0ada28e86c85e92d4e"
 }
