@@ -249,6 +249,7 @@ async def import_talk(
     )
 
     # Create authorships
+    name_to_author_id = {}
     for idx, author_name in enumerate(authors, start=1):
         # Get affiliation for this author position
         affiliation = None
@@ -257,6 +258,7 @@ async def import_talk(
 
         # Get or create author
         author_id = await get_or_create_author(conn, author_name, affiliation)
+        name_to_author_id[normalize_name(author_name).lower()] = author_id
 
         # Create authorship
         await conn.execute(
@@ -270,6 +272,22 @@ async def import_talk(
             """,
             publication_id, author_id, idx, author_name, affiliation, json.dumps(enriched_metadata)
         )
+
+    # Set the presenter from the `speakers` column. Only a single speaker can be
+    # represented (presenter_author_id is single-valued); the speaker must be one
+    # of the talk's authors (DB trigger enforces this). Always written so re-imports
+    # stay idempotent — resolves to NULL when there is no unambiguous speaker.
+    presenter_id = None
+    if speakers and len(speakers) == 1:
+        presenter_id = name_to_author_id.get(normalize_name(speakers[0]).lower())
+        if presenter_id is None:
+            logger.debug(
+                f"Speaker '{speakers[0]}' not among authors of '{talk.get('title')}'"
+            )
+    await conn.execute(
+        "UPDATE publications SET presenter_author_id = $1 WHERE id = $2",
+        presenter_id, publication_id
+    )
 
     logger.info(f"Imported: {talk.get('title')} with {len(authors)} author(s)")
     return True

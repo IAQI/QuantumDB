@@ -6,256 +6,718 @@
     <title>{% block title %}QuantumDB{% endblock %}</title>
     <meta name="description" content="Quantum Computing Conference Database - Track publications, authors, and committees for QIP, QCrypt, and TQC">
     <link rel="icon" type="image/png" href="/static/images/favicon.png">
-    
-    <!-- Pico CSS -->
+
+    <!-- Pico CSS (kept as a base reset; heavily overridden below) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
-    
+
+    <!-- Editorial typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..900,0..100&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+
     <!-- HTMX -->
     <script src="https://unpkg.com/htmx.org@2.0.4"></script>
-    
+
     <style>
+        /* ──────────────────────────────────────────────────────────────────
+         * Editorial palette + typography
+         * ────────────────────────────────────────────────────────────────── */
         :root {
-            --pico-font-size: 16px;
+            --paper:        #f6f1e7;
+            --paper-deep:   #efe7d4;
+            --ink:          #1a1a1a;
+            --ink-soft:     #3a3633;
+            --rule:         #d8cfbe;
+            --rule-strong:  #b8ac95;
+            --muted:        #6b6256;
+
+            --venue-qip:    #0072B2;  /* true blue (Wong palette) */
+            --venue-qcrypt: #E69F00;  /* orange (Wong palette) */
+            --venue-tqc:    #009E73;  /* green (Wong palette) */
+            --accent:       var(--ink);
+            --accent-tint:  rgba(26, 26, 26, 0.06);
+
+            /* Override Pico so inherited components blend in */
+            --pico-background-color:        var(--paper);
+            --pico-color:                   var(--ink);
+            --pico-primary:                 var(--accent);
+            --pico-primary-hover:           var(--accent);
+            --pico-primary-background:      var(--accent-tint);
+            --pico-primary-inverse:         var(--paper);
+            --pico-card-background-color:   transparent;
+            --pico-card-border-color:       var(--rule);
+            --pico-muted-color:             var(--muted);
+            --pico-muted-border-color:      var(--rule);
+            --pico-h1-color:                var(--ink);
+            --pico-h2-color:                var(--ink);
+            --pico-h3-color:                var(--ink);
+            --pico-border-radius:           0;
+            --pico-font-family:             "Newsreader", Georgia, "Times New Roman", serif;
+            --pico-font-size:               17px;
+            --pico-line-height:             1.55;
+
+            --grid-max:    78rem;
         }
-        
+
+        /* Per-venue accent cascade */
+        [data-venue="QIP"]    { --accent: var(--venue-qip);    --accent-tint: rgba(0,114,178,0.09);  --pico-primary-background: rgba(0,114,178,0.09);  }
+        [data-venue="QCRYPT"] { --accent: var(--venue-qcrypt); --accent-tint: rgba(230,159,0,0.12); --pico-primary-background: rgba(230,159,0,0.12); }
+        [data-venue="TQC"]    { --accent: var(--venue-tqc);    --accent-tint: rgba(0,158,115,0.10); --pico-primary-background: rgba(0,158,115,0.10); }
+
+        html, body {
+            background: var(--paper);
+            color: var(--ink);
+        }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: "Newsreader", Georgia, "Times New Roman", serif;
+            font-feature-settings: "onum", "kern";
+            font-size: 17px;
+            line-height: 1.55;
+        }
+
+        .display {
+            font-family: "Fraunces", "Times New Roman", serif;
+            font-feature-settings: "ss01", "ss02", "kern";
+            letter-spacing: -0.005em;
+        }
+        .mono {
+            font-family: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+            font-feature-settings: "zero", "kern";
+        }
+
+        h1, h2, h3 {
+            font-family: "Fraunces", "Times New Roman", serif;
+            font-weight: 500;
+            letter-spacing: -0.01em;
+            line-height: 1.15;
+            color: var(--ink);
+        }
+        h1 { font-size: clamp(2rem, 4vw, 3rem); margin: 0 0 1rem; }
+        h2 { font-size: 1.625rem; font-weight: 500; margin: 2.5rem 0 1rem; }
+        h3 { font-size: 1.25rem; font-weight: 500; margin: 2rem 0 0.75rem; color: var(--ink-soft); }
+        p  { margin: 0 0 1rem; }
+
+        a {
+            color: var(--accent);
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: border-color 120ms ease, color 120ms ease;
+        }
+        a:hover { border-bottom-color: var(--accent); }
+
+        /* ──────────────────────────────────────────────────────────────────
+         * Page shell — navbar + container + footer
+         * ────────────────────────────────────────────────────────────────── */
         nav.container-fluid {
-            padding: 0.5rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: var(--grid-max);
+            margin: 0 auto;
+            padding: 1.25rem clamp(1.25rem, 4vw, 3rem);
+            border-bottom: 1px solid var(--rule);
+            background: var(--paper);
         }
-        
-        nav ul li {
-            padding: 0 0.5rem;
+        nav.container-fluid > ul {
+            display: flex;
+            align-items: center;
+            gap: 1.75rem;
+            margin: 0;
+            padding: 0;
+            list-style: none;
         }
-        
+        nav.container-fluid > ul li { padding: 0; margin: 0; }
+
+        .brand {
+            display: flex; align-items: baseline; gap: 0.7rem;
+            text-decoration: none; color: var(--ink); border: 0;
+        }
+        .brand img { height: 28px; width: auto; align-self: center; }
+        .brand .wordmark {
+            font-family: "Fraunces", serif;
+            font-weight: 600;
+            font-size: 1.4rem;
+            letter-spacing: -0.01em;
+            font-variation-settings: "opsz" 144, "SOFT" 30;
+        }
+        .brand .colophon {
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 0.7rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+        }
+
+        nav .navlinks a {
+            font-family: "Newsreader", serif;
+            font-size: 0.95rem;
+            text-transform: lowercase;
+            letter-spacing: 0.02em;
+            color: var(--ink-soft);
+            border: 0;
+            padding-bottom: 2px;
+            border-bottom: 1px solid transparent;
+        }
+        nav .navlinks a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+        nav .navlinks a.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+        main.container {
+            max-width: var(--grid-max);
+            margin: 0 auto;
+            padding: 3rem clamp(1.25rem, 4vw, 3rem) 4rem;
+        }
+
+        /* Neutralise Pico's "card" treatment of <article> and its header/footer
+           (padding, negative margins, background, shadow) — the editorial layout
+           is flat, so every child must align to the same left edge. */
+        article {
+            margin: 0;
+            padding: 0;
+            background: transparent;
+            border: 0;
+            border-radius: 0;
+            box-shadow: none;
+        }
+        article > header,
+        article > footer {
+            margin: 0;
+            padding: 0;
+            background: transparent;
+            border: 0;
+        }
+
+        footer.container {
+            max-width: var(--grid-max);
+            margin: 0 auto;
+            padding: 2.5rem clamp(1.25rem, 4vw, 3rem) 3rem;
+            border-top: 1px solid var(--rule);
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 0.78rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            text-align: left;
+        }
+        footer.container p { margin: 0.4rem 0; }
+        footer.container a { color: var(--muted); border-bottom-color: var(--rule); }
+        footer.container a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+        /* ──────────────────────────────────────────────────────────────────
+         * Masthead (conference detail hero)
+         * ────────────────────────────────────────────────────────────────── */
+        .conference-page > *,
+        .author-page > * { animation: rise 480ms cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+        .conference-page > *:nth-child(1), .author-page > *:nth-child(1) { animation-delay:   0ms; }
+        .conference-page > *:nth-child(2), .author-page > *:nth-child(2) { animation-delay:  60ms; }
+        .conference-page > *:nth-child(3), .author-page > *:nth-child(3) { animation-delay: 140ms; }
+        .conference-page > *:nth-child(4), .author-page > *:nth-child(4) { animation-delay: 220ms; }
+        .conference-page > *:nth-child(5), .author-page > *:nth-child(5) { animation-delay: 300ms; }
+        .author-page > *:nth-child(6) { animation-delay: 380ms; }
+        .author-page > *:nth-child(7) { animation-delay: 440ms; }
+        @keyframes rise {
+            from { opacity: 0; transform: translateY(0.6rem); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .masthead {
+            display: grid;
+            grid-template-columns: minmax(0, 0.45fr) minmax(0, 1fr);
+            gap: clamp(1.5rem, 4vw, 3.5rem);
+            align-items: end;
+            padding: 1rem 0 1.5rem;
+        }
+        .masthead--solo { grid-template-columns: 1fr; }
+        .masthead-year {
+            font-family: "Fraunces", serif;
+            font-weight: 300;
+            font-variation-settings: "opsz" 144, "SOFT" 30;
+            font-size: clamp(5rem, 14vw, 11rem);
+            line-height: 0.85;
+            color: var(--accent);
+            letter-spacing: -0.04em;
+            font-feature-settings: "lnum", "ss01";
+            text-align: right;
+            font-variant-numeric: lining-nums;
+        }
+        .masthead-meta { display: flex; flex-direction: column; gap: 0.6rem; }
+        .masthead-meta h1 {
+            font-size: clamp(2.25rem, 5vw, 3.5rem);
+            font-weight: 400;
+            font-variation-settings: "opsz" 96, "SOFT" 50;
+            margin: 0;
+            color: var(--ink);
+        }
+        .masthead-meta h1 .venue-word {
+            color: var(--accent);
+            font-style: italic;
+            font-weight: 500;
+        }
+        .masthead-meta h1 .year-suffix { color: var(--muted); }
+
+        .venue-badge {
+            display: inline-block;
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            padding: 0.3rem 0.7rem;
+            align-self: flex-start;
+        }
+        .masthead-strip {
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 0.85rem;
+            color: var(--muted);
+            margin: 0;
+            letter-spacing: 0.02em;
+        }
+        .masthead-links {
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin: 0.25rem 0 0;
+            display: flex; flex-wrap: wrap; gap: 1.4rem;
+        }
+        .masthead-links a { color: var(--accent); border-bottom: 1px solid var(--accent); padding-bottom: 1px; }
+
+        .venue-rule {
+            border: 0;
+            height: 2px;
+            background: var(--accent);
+            margin: 0.5rem 0 2.5rem;
+            opacity: 0.85;
+        }
+
+        @media (max-width: 720px) {
+            .masthead { grid-template-columns: 1fr; align-items: start; gap: 0.5rem; }
+            .masthead-year { text-align: left; font-size: clamp(4rem, 22vw, 7rem); }
+        }
+
+        /* Author portrait + monogram (author detail masthead) */
+        .author-portrait {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            max-width: 240px;
+            aspect-ratio: 1 / 1;
+            border: 1px solid var(--rule-strong);
+            background: var(--paper-deep);
+            justify-self: end;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .author-monogram {
+            font-family: "Fraunces", serif;
+            font-variation-settings: "opsz" 144, "SOFT" 30;
+            font-weight: 400;
+            font-size: clamp(3.5rem, 9vw, 5.5rem);
+            line-height: 1;
+            letter-spacing: -0.02em;
+            color: var(--ink-soft);
+            user-select: none;
+        }
+        @media (max-width: 720px) {
+            .author-portrait { justify-self: start; max-width: 160px; }
+        }
+
+        /* ──────────────────────────────────────────────────────────────────
+         * Stats grid (used by home + conference_detail)
+         * ────────────────────────────────────────────────────────────────── */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin: 2rem 0;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 0;
+            margin: 1.5rem 0 3rem;
+            border-top: 1px solid var(--rule);
+            border-left: 1px solid var(--rule);
         }
-        
         .stat-card {
-            background: var(--pico-card-background-color);
-            padding: 1.5rem;
-            border-radius: var(--pico-border-radius);
-            text-align: center;
+            background: transparent;
+            padding: 1.4rem 1.25rem 1.2rem;
+            border-right: 1px solid var(--rule);
+            border-bottom: 1px solid var(--rule);
+            text-align: left;
+            border-radius: 0;
+            position: relative;
         }
-        
         .stat-value {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: var(--pico-primary);
+            font-family: "Fraunces", serif;
+            font-weight: 400;
+            font-variation-settings: "opsz" 144, "SOFT" 0;
+            font-size: 2.6rem;
+            line-height: 1;
+            color: var(--accent);
+            font-variant-numeric: lining-nums tabular-nums;
+            letter-spacing: -0.02em;
         }
-        
         .stat-label {
-            font-size: 0.875rem;
-            color: var(--pico-muted-color);
+            display: block;
+            margin-top: 0.6rem;
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 0.7rem;
+            color: var(--muted);
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.14em;
         }
-        
+        .stat-card.clickable { cursor: pointer; transition: background 120ms ease; }
+        .stat-card.clickable:hover { background: var(--accent-tint); }
+        .stat-card.clickable:hover .stat-value { color: var(--accent); }
+
+        /* ──────────────────────────────────────────────────────────────────
+         * Tables (talks, committees, conference list, authors list)
+         * ────────────────────────────────────────────────────────────────── */
         table {
             width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
         }
-        
-        .author-link, .conference-link {
-            text-decoration: none;
-            color: var(--pico-primary);
-        }
-        
-        .author-link:hover, .conference-link:hover {
-            text-decoration: underline;
-        }
-        
-        .search-box {
-            margin: 2rem 0;
-        }
-        
-        .venue-filters {
-            margin: 2rem 0;
-        }
-        
-        .filter-buttons {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-        
-        .venue-toggle {
-            padding: 0.5rem 1.5rem;
-            border: 2px solid var(--pico-primary);
+        thead th {
+            text-align: left;
+            font-family: "IBM Plex Mono", monospace;
+            font-weight: 500;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            color: var(--muted);
+            padding: 0.9rem 0.85rem;
+            border-bottom: 1px solid var(--rule-strong);
             background: transparent;
-            color: var(--pico-primary);
-            border-radius: var(--pico-border-radius);
+        }
+        tbody td {
+            padding: 0.85rem 0.85rem;
+            border-bottom: 1px solid var(--rule);
+            vertical-align: top;
+            background: transparent;
+        }
+        tbody tr:last-child td { border-bottom: 1px solid var(--rule-strong); }
+
+        .author-link, .conference-link {
+            color: var(--ink);
+            border-bottom: 1px solid var(--rule);
+            padding-bottom: 1px;
+        }
+        .author-link:hover, .conference-link:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+        /* Paper-type pill */
+        .ptype {
+            display: inline-block;
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 0.66rem;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            padding: 0.18rem 0.55rem;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            background: var(--accent-tint);
+            white-space: nowrap;
+        }
+        .ptype--regular  { border-style: solid;   }
+        .ptype--invited  { border-style: solid; background: var(--accent); color: var(--paper); }
+        .ptype--plenary, .ptype--plenary_short, .ptype--plenary_long, .ptype--keynote { border-style: solid; background: var(--accent); color: var(--paper); }
+        .ptype--tutorial { border-style: dashed; }
+        .ptype--poster   { border-style: dotted; }
+
+        /* Tabular metadata cells (datetime, duration, arxiv ids) rendered in mono */
+        .cell-mono { font-family: "IBM Plex Mono", monospace; font-size: 0.85rem; color: var(--ink-soft); }
+        .cell-mono .arxiv-extra { color: var(--muted); font-size: 0.78rem; }
+
+        /* Per-talk resource links (arXiv extras, abstract, video) */
+        .talk-meta {
+            margin-top: 0.35rem;
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.09em;
+            color: var(--muted);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.9rem;
+        }
+        .talk-meta a {
+            color: var(--accent);
+            border-bottom: 1px solid var(--rule);
+            padding-bottom: 1px;
+        }
+        .talk-meta a:hover { border-bottom-color: var(--accent); }
+        .talk-meta .tooltip-trigger {
+            color: var(--ink-soft);
+            border-bottom: 1px dotted var(--rule-strong);
+        }
+
+        /* Speaker / presenter marker */
+        .speaker-mark {
+            color: var(--accent);
+            font-size: 0.85em;
+            margin-right: 0.12rem;
+            vertical-align: 0.04em;
+        }
+        .speaker-self {
+            display: block;
+            margin-top: 0.35rem;
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 0.62rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 500;
+            color: var(--accent);
+        }
+        .speaker-dot { fill: var(--paper); }
+        .legend-block { vertical-align: -2px; margin: 0 0.3rem 0 0; }
+
+        /* Sortable indicators (replacement for previous block) */
+        .sortable-table th[data-sort] { cursor: pointer; user-select: none; transition: color 120ms ease; }
+        .sortable-table th[data-sort]:hover { color: var(--accent); }
+        .sortable-table th[data-sort]::after { content: ' ↕'; opacity: 0.25; }
+        .sortable-table th[data-sort].sorted-asc::after  { content: ' ↑'; opacity: 1; color: var(--accent); }
+        .sortable-table th[data-sort].sorted-desc::after { content: ' ↓'; opacity: 1; color: var(--accent); }
+
+        /* Row highlight after stat-card scroll */
+        @keyframes highlight-row {
+            0%   { background-color: var(--accent-tint); }
+            100% { background-color: transparent; }
+        }
+        .highlight-row { animation: highlight-row 1.8s ease-out; }
+
+        /* Anchor-jump target (e.g. clicking a cell in the contribution chart) */
+        tbody tr[id] { scroll-margin-top: 1.5rem; }
+        tbody tr:target { animation: highlight-row 2.4s ease-out; }
+
+        /* ──────────────────────────────────────────────────────────────────
+         * Committee sections (collapsible)
+         * ────────────────────────────────────────────────────────────────── */
+        .committee {
+            border-top: 1px solid var(--rule);
+            padding: 0.25rem 0;
+        }
+        .committee:last-of-type { border-bottom: 1px solid var(--rule); }
+        .committee > summary {
+            list-style: none;
             cursor: pointer;
-            transition: all 0.2s;
-            font-weight: 600;
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            padding: 1.1rem 0;
+            outline: none;
         }
-        
+        .committee > summary::-webkit-details-marker { display: none; }
+        .committee > summary > .committee-title {
+            font-family: "Fraunces", serif;
+            font-size: 1.25rem;
+            font-weight: 500;
+            color: var(--ink);
+        }
+        .committee > summary > .committee-meta {
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 0.72rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            display: flex; gap: 1rem; align-items: center;
+        }
+        .committee > summary > .committee-meta::after {
+            content: '+';
+            color: var(--accent);
+            font-family: "Fraunces", serif;
+            font-size: 1.5rem;
+            line-height: 0.6;
+            transition: transform 200ms ease;
+            display: inline-block;
+        }
+        .committee[open] > summary > .committee-meta::after { transform: rotate(45deg); }
+        .committee > .committee-body { padding: 0 0 1.5rem; }
+
+        /* ──────────────────────────────────────────────────────────────────
+         * Filter / search controls (lists)
+         * ────────────────────────────────────────────────────────────────── */
+        .search-box { margin: 2rem 0; }
+        .search-box input[type="search"] {
+            width: 100%;
+            background: transparent;
+            border: 0;
+            border-bottom: 1px solid var(--rule-strong);
+            padding: 0.7rem 0;
+            font-family: "Newsreader", serif;
+            font-size: 1.15rem;
+            color: var(--ink);
+            border-radius: 0;
+        }
+        .search-box input[type="search"]:focus {
+            outline: none;
+            border-bottom-color: var(--accent);
+            box-shadow: none;
+        }
+
+        .venue-filters { margin: 1.5rem 0 2rem; }
+        .filter-buttons { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+        .venue-toggle {
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            padding: 0.5rem 0.9rem;
+            border: 1px solid var(--rule-strong);
+            background: transparent;
+            color: var(--ink-soft);
+            border-radius: 0;
+            cursor: pointer;
+            transition: color 120ms ease, border-color 120ms ease, background 120ms ease;
+        }
+        .venue-toggle:hover { border-color: var(--accent); color: var(--accent); }
         .venue-toggle.active {
-            background: var(--pico-primary);
-            color: var(--pico-primary-inverse);
-        }
-        
-        .venue-toggle:hover {
-            opacity: 0.8;
-        }
-        
-        .htmx-indicator {
-            display: none;
-            color: var(--pico-primary);
-            font-size: 0.875rem;
-            margin-left: 0.5rem;
-        }
-        
-        .htmx-request .htmx-indicator {
-            display: inline;
-        }
-        
-        .htmx-request.htmx-indicator {
-            display: inline;
-        }
-        
-        footer {
-            margin-top: 3rem;
-            padding: 2rem 0;
-            border-top: 1px solid var(--pico-muted-border-color);
-            text-align: center;
-            color: var(--pico-muted-color);
-            font-size: 0.875rem;
+            background: var(--accent);
+            color: var(--paper);
+            border-color: var(--accent);
         }
 
-        /* Tooltip styles */
-        .tooltip-trigger {
-            position: relative;
-            cursor: help;
-        }
+        /* ──────────────────────────────────────────────────────────────────
+         * HTMX indicator
+         * ────────────────────────────────────────────────────────────────── */
+        .htmx-indicator { display: none; color: var(--accent); font-size: 0.78rem; margin-left: 0.5rem; font-family: "IBM Plex Mono", monospace; text-transform: uppercase; letter-spacing: 0.12em; }
+        .htmx-request .htmx-indicator { display: inline; }
+        .htmx-request.htmx-indicator { display: inline; }
 
+        /* ──────────────────────────────────────────────────────────────────
+         * Tooltips (preserved API; restyled)
+         * ────────────────────────────────────────────────────────────────── */
+        .tooltip-trigger { position: relative; cursor: help; }
         .tooltip-trigger::after {
             content: attr(data-tooltip);
             position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 0.5rem;
-            background: var(--pico-card-background-color);
-            border: 1px solid var(--pico-muted-border-color);
-            border-radius: var(--pico-border-radius);
-            max-width: 400px;
-            max-height: 200px;
+            bottom: 100%; left: 50%; transform: translateX(-50%);
+            padding: 0.6rem 0.75rem;
+            background: var(--ink);
+            color: var(--paper);
+            border: 0;
+            border-radius: 0;
+            max-width: 360px; max-height: 220px;
             width: max-content;
-            font-size: 0.875rem;
-            line-height: 1.4;
+            font-family: "Newsreader", serif;
+            font-size: 0.82rem;
+            line-height: 1.45;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.2s;
+            transition: opacity 120ms ease;
             z-index: 1000;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             overflow-y: auto;
             white-space: normal;
         }
-
-        .tooltip-trigger:hover::after {
-            opacity: 1;
-        }
-
+        .tooltip-trigger:hover::after { opacity: 1; }
         .tooltip-trigger::before {
             content: '';
             position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%);
+            bottom: 100%; left: 50%; transform: translateX(-50%);
             border: 6px solid transparent;
-            border-top-color: var(--pico-muted-border-color);
+            border-top-color: var(--ink);
             opacity: 0;
-            transition: opacity 0.2s;
+            transition: opacity 120ms ease;
             z-index: 1001;
         }
+        .tooltip-trigger:hover::before { opacity: 1; }
 
-        .tooltip-trigger:hover::before {
-            opacity: 1;
+        /* ──────────────────────────────────────────────────────────────────
+         * Contribution chart (author detail page)
+         * ────────────────────────────────────────────────────────────────── */
+        .fill-qip    { fill: var(--venue-qip);    color: var(--venue-qip);    }
+        .fill-qcrypt { fill: var(--venue-qcrypt); color: var(--venue-qcrypt); }
+        .fill-tqc    { fill: var(--venue-tqc);    color: var(--venue-tqc);    }
+        .fill-ink    { fill: var(--ink);          color: var(--ink);          }
+        .stroke-qip    { fill: var(--paper); stroke: var(--venue-qip);    stroke-width: 2.5; color: var(--venue-qip);    }
+        .stroke-qcrypt { fill: var(--paper); stroke: var(--venue-qcrypt); stroke-width: 2.5; color: var(--venue-qcrypt); }
+        .stroke-tqc    { fill: var(--paper); stroke: var(--venue-tqc);    stroke-width: 2.5; color: var(--venue-tqc);    }
+
+        .contrib-chart { margin: 1.5rem 0 3rem; }
+        .contrib-chart-wrap {
+            margin: 0.5rem 0;
+            overflow-x: auto;
+            border-top: 1px solid var(--rule);
+            border-bottom: 1px solid var(--rule);
+            padding: 0.5rem 0 0.25rem;
         }
-
-        /* Highlight animation for stats click */
-        @keyframes highlight-row {
-            0% { background-color: var(--pico-primary-background); }
-            100% { background-color: transparent; }
+        .contrib-chart svg {
+            max-width: 100%;
+            height: auto;
+            display: block;
         }
-
-        .highlight-row {
-            animation: highlight-row 2s ease-out;
+        .contrib-axis-label {
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 11px;
+            fill: var(--muted);
+            text-anchor: middle;
+            font-feature-settings: "lnum", "tnum";
         }
-
-        /* Clickable stat cards */
-        .stat-card.clickable {
+        .contrib-axis-rule {
+            stroke: var(--rule-strong);
+            stroke-width: 1;
+        }
+        .contrib-chart a { border: 0; }
+        .contrib-chart a:hover rect,
+        .contrib-chart a:hover polygon,
+        .contrib-chart a:hover circle {
+            opacity: 0.7;
             cursor: pointer;
-            transition: transform 0.1s, box-shadow 0.1s;
         }
 
-        .stat-card.clickable:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        .contrib-legend {
+            font-size: 0.75rem;
+            color: var(--muted);
+            margin-top: 0.8rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0;
+            line-height: 1.6;
+        }
+        .legend-swatch {
+            display: inline-block;
+            width: 0.7rem;
+            height: 0.7rem;
+            background: currentColor;
+            vertical-align: -1px;
+            margin: 0 0.3rem 0 0;
+        }
+        .legend-glyph {
+            display: inline-block;
+            font-size: 1.15rem;
+            line-height: 1;
+            margin: 0 0.3rem 0 0;
+            color: var(--ink);
+            text-transform: none;
+            letter-spacing: 0;
         }
 
-        /* Sortable table styles */
-        .sortable-table th[data-sort] {
-            cursor: pointer;
-            user-select: none;
-        }
-
-        .sortable-table th[data-sort]:hover {
-            background-color: var(--pico-primary-background);
-        }
-
-        .sortable-table th[data-sort]::after {
-            content: ' ↕';
-            opacity: 0.3;
-        }
-
-        .sortable-table th[data-sort].sorted-asc::after {
-            content: ' ↑';
-            opacity: 1;
-        }
-
-        .sortable-table th[data-sort].sorted-desc::after {
-            content: ' ↓';
-            opacity: 1;
-        }
+        /* Conference info legacy (used by some unredesigned pages) */
+        .conference-info { background: transparent; padding: 0; margin-bottom: 2rem; }
+        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-top: 0.75rem; }
+        .info-item { display: flex; flex-direction: column; gap: 0.3rem; }
+        .info-label { font-family: "IBM Plex Mono", monospace; font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.14em; }
+        .info-value { font-family: "Newsreader", serif; font-size: 1rem; }
     </style>
-    
+
     {% block extra_head %}{% endblock %}
 </head>
 <body>
     <nav class="container-fluid">
         <ul>
             <li>
-                <a href="/" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 0.75rem;">
-                    <img src="/static/images/iaqi-logo.png" alt="IAQI Logo" style="height: 40px; width: auto;">
-                    <strong>QuantumDB</strong>
+                <a href="/" class="brand">
+                    <img src="/static/images/iaqi-logo.png" alt="IAQI Logo">
+                    <span>
+                        <span class="wordmark">QuantumDB</span>
+                        <span class="colophon" style="display:block; margin-top:-2px;">an iaqi archive</span>
+                    </span>
                 </a>
             </li>
         </ul>
-        <ul>
-            <li><a href="/">Home</a></li>
-            <li><a href="/authors">Authors</a></li>
-            <li><a href="/conferences">Conferences</a></li>
-            <li><a href="/about">About</a></li>
-            <!-- <li>
-                <details class="dropdown">
-                    <summary>Quick Links</summary>
-                    <ul>
-                        <li><a href="/conferences/QIP2024">QIP 2024</a></li>
-                        <li><a href="/conferences/QIP2023">QIP 2023</a></li>
-                        <li><a href="/conferences/QCRYPT2024">QCrypt 2024</a></li>
-                        <li><a href="/conferences/QCRYPT2023">QCrypt 2023</a></li>
-                        <li><a href="/conferences/TQC2024">TQC 2024</a></li>
-                        <li><a href="/conferences/TQC2023">TQC 2023</a></li>
-                        <li><hr></li>
-                        <li><a href="/about">About</a></li>
-                        <li><a href="https://github.com/IAQI/QuantumDB" target="_blank">GitHub Repository</a></li>
-                    </ul>
-                </details>
-            </li> -->
-            <li><a href="/api/v1/swagger-ui/">API Docs</a></li>
+        <ul class="navlinks">
+            <li><a href="/">home</a></li>
+            <li><a href="/authors">authors</a></li>
+            <li><a href="/conferences">conferences</a></li>
+            <li><a href="/about">about</a></li>
+            <li><a href="/api/v1/swagger-ui/">api</a></li>
         </ul>
     </nav>
 
@@ -264,8 +726,8 @@
     </main>
 
     <footer class="container">
-        <p><a href="https://github.com/IAQI/QuantumDB" target="_blank">QuantumDB - Quantum Computing Conference Database</a></p>
-        <p><a href="/about">Tracking QIP, QCrypt, and TQC conferences</a>  | <a href="/api/v1/swagger-ui/">API Documentation</a> | <a href="/admin/refresh-stats" hx-boost="false">Refresh Statistics</a></p>
+        <p>QuantumDB — quantum computing conference database</p>
+        <p>tracking QIP · QCrypt · TQC &nbsp;·&nbsp; <a href="https://github.com/IAQI/QuantumDB" target="_blank">source</a> &nbsp;·&nbsp; <a href="/api/v1/swagger-ui/">api</a> &nbsp;·&nbsp; <a href="/about">about</a> &nbsp;·&nbsp; <a href="/admin/refresh-stats" hx-boost="false">refresh stats</a></p>
     </footer>
 
     <script>

@@ -14,7 +14,7 @@
     <tbody>
         {% for author in authors %}
         <tr>
-            <td data-value="name"><a href="/authors/{{ author.id }}" class="author-link">{{ author.full_name }}</a></td>
+            <td data-value="name"><a href="/authors/{{ author.slug }}" class="author-link">{{ author.full_name }}</a></td>
             <td data-value="affiliation">{{ author.affiliation }}</td>
             <td data-value="talks">{{ author.publication_count }}</td>
             <td data-value="committees">{{ author.committee_role_count }}</td>

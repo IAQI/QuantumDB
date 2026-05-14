@@ -81,13 +81,14 @@ struct PublicationItem {
     talk_time: String,
     duration_minutes: String,
     arxiv_ids: Vec<String>,
-    abstract_text: Option<String>,
-    doi: Option<String>,
+    abstract_text: String,
+    video_url: String,
 }
 
 struct AuthorInfo {
-    id: String,
+    slug: String,
     name: String,
+    is_speaker: bool,
 }
 
 #[derive(Clone)]
@@ -98,7 +99,7 @@ struct CommitteeSection {
 
 #[derive(Clone)]
 struct CommitteeMember {
-    author_id: String,
+    author_slug: String,
     author_name: String,
     position: String,
     role_title: String,
@@ -135,10 +136,10 @@ pub async fn conferences_list(
     
     let query_str = format!(
         r#"
-        SELECT 
+        SELECT
             c.venue,
             c.year,
-            CONCAT(c.venue, c.year::text) as slug,
+            LOWER(c.venue) || '-' || c.year::text as slug,
             c.city,
             c.country,
             c.start_date,
@@ -220,39 +221,18 @@ pub async fn conference_detail(
     Path(slug): Path<String>,
     State(pool): State<PgPool>,
 ) -> Result<Response, StatusCode> {
-    // Try to parse as UUID first, otherwise treat as slug
-    let (venue, year) = if let Ok(id) = Uuid::parse_str(&slug) {
-        // Get venue and year from conference ID
-        let conf = sqlx::query!(
-            r#"
-            SELECT venue, year FROM conferences WHERE id = $1
-            "#,
-            id
-        )
-        .fetch_optional(&pool)
-        .await
-        .map_err(|e| {
-            eprintln!("Database error: {}", e);
-            StatusCode::INTERNAL_SERVER_ERROR
-        })?
+    // Slug formats accepted: "qip-2024" (canonical) and legacy "QIP2024".
+    let (venue, year) = crate::utils::parse_conference_slug(&slug)
         .ok_or(StatusCode::NOT_FOUND)?;
-        (conf.venue, conf.year)
-    } else {
-        // Parse slug like "QIP2024"
-        let v = slug.chars().take_while(|c| c.is_alphabetic()).collect::<String>();
-        let year_str = slug.chars().skip_while(|c| c.is_alphabetic()).collect::<String>();
-        let y: i32 = year_str.parse().map_err(|_| StatusCode::BAD_REQUEST)?;
-        (v, y)
-    };
 
     // Now fetch conference with a single query
     let conference = sqlx::query!(
         r#"
-        SELECT 
+        SELECT
             c.id,
             c.venue,
             c.year,
-            CONCAT(c.venue, c.year::text) as slug,
+            LOWER(c.venue) || '-' || c.year::text as slug,
             c.city,
             c.country,
             c.start_date,
@@ -304,9 +284,10 @@ pub async fn conference_detail(
             p.talk_date,
             p.talk_time,
             p.duration_minutes,
+            p.presenter_author_id,
             COALESCE(p.arxiv_ids, ARRAY[]::text[]) as "arxiv_ids!",
-            p.abstract as abstract_text,
-            p.doi
+            COALESCE(p.abstract, '') as "abstract_text!",
+            COALESCE(p.video_url, '') as "video_url!"
         FROM publications p
         WHERE p.conference_id = $1
         ORDER BY
@@ -330,14 +311,16 @@ pub async fn conference_detail(
         let authors = sqlx::query!(
             r#"
             SELECT
-                a.id,
-                a.full_name
+                a.slug as "slug!",
+                a.full_name,
+                COALESCE(a.id = $2, false) as "is_speaker!"
             FROM authorships au
             JOIN authors a ON au.author_id = a.id
             WHERE au.publication_id = $1
             ORDER BY au.author_position
             "#,
-            pub_record.id
+            pub_record.id,
+            pub_record.presenter_author_id
         )
         .fetch_all(&pool)
         .await
@@ -347,8 +330,9 @@ pub async fn conference_detail(
         })?
         .into_iter()
         .map(|row| AuthorInfo {
-            id: row.id.to_string(),
+            slug: row.slug,
             name: row.full_name,
+            is_speaker: row.is_speaker,
         })
         .collect();
 
@@ -362,19 +346,19 @@ pub async fn conference_detail(
             duration_minutes: pub_record.duration_minutes.map(|d| d.to_string()).unwrap_or_default(),
             arxiv_ids: pub_record.arxiv_ids,
             abstract_text: pub_record.abstract_text,
-            doi: pub_record.doi,
+            video_url: pub_record.video_url,
         });
     }
 
     // Get committee members grouped by type
     let committee_members = sqlx::query!(
         r#"
-        SELECT 
+        SELECT
             cr.committee::text as "committee_type!",
             cr.position::text as "position!",
             COALESCE(cr.role_title, '') as "role_title!",
             COALESCE(cr.affiliation, '') as "affiliation!",
-            a.id as "author_id!",
+            a.slug as "author_slug!",
             a.full_name as "author_name!"
         FROM committee_roles cr
         JOIN authors a ON cr.author_id = a.id
@@ -408,7 +392,7 @@ pub async fn conference_detail(
         }
 
         current_members.push(CommitteeMember {
-            author_id: row.author_id.to_string(),
+            author_slug: row.author_slug,
             author_name: row.author_name,
             position: row.position,
             role_title: row.role_title,

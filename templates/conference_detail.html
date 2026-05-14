@@ -1,122 +1,81 @@
 {% extends "base.html" %}
 
-{% block title %}{{ conference.venue }} {{ conference.year }} - QuantumDB{% endblock %}
-
-{% block extra_head %}
-<style>
-    .conference-info {
-        background: var(--pico-card-background-color);
-        padding: 1.5rem;
-        border-radius: var(--pico-border-radius);
-        margin-bottom: 2rem;
-    }
-    .conference-info h2 {
-        margin-top: 0;
-        font-size: 1.25rem;
-    }
-    .info-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1rem;
-        margin-top: 1rem;
-    }
-    .info-item {
-        display: flex;
-        flex-direction: column;
-    }
-    .info-label {
-        font-size: 0.75rem;
-        color: var(--pico-muted-color);
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        margin-bottom: 0.25rem;
-    }
-    .info-value {
-        font-size: 1rem;
-        font-weight: 500;
-    }
-</style>
-{% endblock %}
+{% block title %}{{ conference.venue }} {{ conference.year }} — QuantumDB{% endblock %}
 
 {% block content %}
-<article>
-    <header>
-        <h1>{{ conference.venue }} {{ conference.year }}</h1>
+<article data-venue="{{ conference.venue }}" class="conference-page">
+
+    <header class="masthead masthead--solo">
+        <div class="masthead-meta">
+            <span class="venue-badge">{{ conference.venue }}</span>
+            <h1 class="display">
+                <span class="venue-word">{{ conference.venue }}</span><span class="year-suffix"> · {{ conference.year }}</span>
+            </h1>
+            <p class="mono masthead-strip">
+                {%- if !conference.location.is_empty() && conference.location != "-" -%}
+                    {{ conference.location }}
+                {%- endif -%}
+                {%- if !conference.start_date.is_empty() && conference.start_date != "-" -%}
+                    &nbsp;·&nbsp;{{ conference.start_date }}
+                    {%- if !conference.end_date.is_empty() && conference.end_date != "-" %} – {{ conference.end_date }}{% endif -%}
+                {%- endif -%}
+                {%- if conference.is_virtual %}&nbsp;·&nbsp;virtual{% else if conference.is_hybrid %}&nbsp;·&nbsp;hybrid{% endif -%}
+                {%- if !conference.acceptance_rate.is_empty() && conference.acceptance_rate != "-" -%}
+                    &nbsp;·&nbsp;{{ conference.acceptance_rate }} accepted
+                {%- endif -%}
+            </p>
+            <p class="masthead-links">
+                {% if !conference.website_url.is_empty() %}<a href="{{ conference.website_url }}" target="_blank" rel="noopener">website ↗</a>{% endif %}
+                {% if !conference.proceedings_url.is_empty() %}<a href="{{ conference.proceedings_url }}" target="_blank" rel="noopener">proceedings ↗</a>{% endif %}
+            </p>
+        </div>
     </header>
 
-    <section class="conference-info">
-        <h2>Conference Details</h2>
-        <div class="info-grid">
-            <div class="info-item">
-                <span class="info-label">Location</span>
-                <span class="info-value">{{ conference.location }}{% if conference.is_virtual %} (Virtual){% else if conference.is_hybrid %} (Hybrid){% endif %}</span>
-            </div>
-            {% if !conference.start_date.is_empty() && conference.start_date != "-" %}
-            <div class="info-item">
-                <span class="info-label">Dates</span>
-                <span class="info-value">{{ conference.start_date }}{% if !conference.end_date.is_empty() && conference.end_date != "-" %} – {{ conference.end_date }}{% endif %}</span>
-            </div>
-            {% endif %}
-            {% if !conference.website_url.is_empty() %}
-            <div class="info-item">
-                <span class="info-label">Website</span>
-                <span class="info-value"><a href="{{ conference.website_url }}" target="_blank">Conference Website ↗</a></span>
-            </div>
-            {% endif %}
-            {% if !conference.proceedings_url.is_empty() %}
-            <div class="info-item">
-                <span class="info-label">Proceedings</span>
-                <span class="info-value"><a href="{{ conference.proceedings_url }}" target="_blank">View Proceedings ↗</a></span>
-            </div>
-            {% endif %}
-        </div>
-    </section>
+    <hr class="venue-rule">
 
     <section class="stats-grid">
         <div class="stat-card clickable" onclick="scrollToHighlight('#talks-section', 'all')">
             <div class="stat-value">{{ conference.publication_count }}</div>
-            <div class="stat-label">Talks</div>
+            <span class="stat-label">talks</span>
         </div>
         <div class="stat-card clickable" onclick="scrollToHighlight('#talks-section', 'regular')">
             <div class="stat-value">{{ conference.regular_paper_count }}</div>
-            <div class="stat-label">Regular Papers</div>
+            <span class="stat-label">regular papers</span>
         </div>
         <div class="stat-card clickable" onclick="scrollToHighlight('#talks-section', 'invited')">
             <div class="stat-value">{{ conference.invited_talk_count }}</div>
-            <div class="stat-label">Invited Talks</div>
+            <span class="stat-label">invited talks</span>
         </div>
         <div class="stat-card">
             <div class="stat-value">{{ conference.award_count }}</div>
-            <div class="stat-label">Awards</div>
+            <span class="stat-label">awards</span>
         </div>
         <div class="stat-card">
             <div class="stat-value">{{ conference.unique_author_count }}</div>
-            <div class="stat-label">Unique Authors</div>
+            <span class="stat-label">unique authors</span>
         </div>
         <div class="stat-card clickable" onclick="scrollToHighlight('#committees-section', 'all')">
             <div class="stat-value">{{ conference.committee_member_count }}</div>
-            <div class="stat-label">Committee Members</div>
+            <span class="stat-label">committee members</span>
         </div>
     </section>
 
     {% if !conference.submission_count.is_empty() && conference.submission_count != "-" %}
-    <section>
-        <p><strong>Submissions:</strong> {{ conference.submission_count }} | 
-           <strong>Accepted:</strong> {{ conference.acceptance_count }} | 
-           <strong>Acceptance Rate:</strong> {{ conference.acceptance_rate }}</p>
-    </section>
+    <p class="mono" style="font-size: 0.85rem; color: var(--muted); margin: -1.5rem 0 2.5rem;">
+        submissions {{ conference.submission_count }} &nbsp;·&nbsp; accepted {{ conference.acceptance_count }} &nbsp;·&nbsp; rate {{ conference.acceptance_rate }}
+    </p>
     {% endif %}
 
     {% if !publications.is_empty() %}
     <section id="talks-section">
-        <h2>Talks</h2>
+        <h2>Programme</h2>
         <table id="talks-table" class="sortable-table">
             <thead>
                 <tr>
                     <th data-sort="title">Title</th>
                     <th data-sort="type">Type</th>
-                    <th data-sort="datetime">Date & Time</th>
-                    <th data-sort="duration">Duration (min)</th>
+                    <th data-sort="datetime">Date</th>
+                    <th data-sort="duration">Min</th>
                     <th data-sort="authors">Authors</th>
                     <th data-sort="award">Award</th>
                 </tr>
@@ -131,32 +90,41 @@
                                     <a href="https://arxiv.org/abs/{{ arxiv_id }}" target="_blank" rel="noopener noreferrer">{{ pub.title }} ↗</a>
                                 {% endif %}
                             {% endfor %}
-                            <br><small>
+                            <div class="cell-mono arxiv-extra">
                             {% for arxiv_id in pub.arxiv_ids %}
                                 {% if loop.index0 > 0 %}
                                     <a href="https://arxiv.org/abs/{{ arxiv_id }}" target="_blank" rel="noopener noreferrer">arXiv:{{ arxiv_id }} ↗</a>{% if !loop.last %}, {% endif %}
                                 {% endif %}
                             {% endfor %}
-                            </small>
+                            </div>
                         {% else %}
                             {{ pub.title }}
                         {% endif %}
-                    </td>
-                    <td data-value="type" data-filter="type">{{ pub.paper_type }}</td>
-                    <td data-value="datetime">
-                        {% if !pub.talk_date.is_empty() %}
-                            {{ pub.talk_date }}{% if !pub.talk_time.is_empty() %} {{ pub.talk_time }}{% endif %}
-                        {% else %}
-                            -
+                        {% if !pub.abstract_text.is_empty() || !pub.video_url.is_empty() %}
+                        <div class="talk-meta">
+                            {% if !pub.abstract_text.is_empty() %}<span class="tooltip-trigger" data-tooltip="{{ pub.abstract_text }}">abstract</span>{% endif %}
+                            {% if !pub.video_url.is_empty() %}<a href="{{ pub.video_url }}" target="_blank" rel="noopener">video ↗</a>{% endif %}
+                        </div>
                         {% endif %}
                     </td>
-                    <td data-value="duration">{% if !pub.duration_minutes.is_empty() %}{{ pub.duration_minutes }}{% else %}-{% endif %}</td>
+                    <td data-value="type" data-filter="type">
+                        <span class="ptype ptype--{{ pub.paper_type }}">{{ pub.paper_type }}</span>
+                    </td>
+                    <td data-value="datetime" class="cell-mono">
+                        {% if !pub.talk_date.is_empty() %}
+                            {{ pub.talk_date }}{% if !pub.talk_time.is_empty() %} <span style="color: var(--muted);">{{ pub.talk_time }}</span>{% endif %}
+                        {% else %}
+                            <span style="color: var(--muted);">—</span>
+                        {% endif %}
+                    </td>
+                    <td data-value="duration" class="cell-mono">{% if !pub.duration_minutes.is_empty() %}{{ pub.duration_minutes }}{% else %}<span style="color: var(--muted);">—</span>{% endif %}</td>
                     <td data-value="authors">
                         {% for author in pub.authors %}
-                        <a href="/authors/{{ author.id }}" class="author-link">{{ author.name }}</a>{% if !loop.last %}, {% endif %}
+                        {%- if author.is_speaker %}<span class="speaker-mark" title="presenter">▸</span>{% endif -%}
+                        <a href="/authors/{{ author.slug }}" class="author-link">{{ author.name }}</a>{% if !loop.last %}, {% endif %}
                         {% endfor %}
                     </td>
-                    <td data-value="award">{% if !pub.award.is_empty() %}{{ pub.award }}{% else %}-{% endif %}</td>
+                    <td data-value="award">{% if !pub.award.is_empty() %}<span class="ptype ptype--invited" style="border-style: solid;">{{ pub.award }}</span>{% else %}<span style="color: var(--muted);">—</span>{% endif %}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -168,29 +136,37 @@
     <section id="committees-section">
         <h2>Committees</h2>
         {% for section in committee_by_type %}
-        <h3>{{ section.committee_type }}</h3>
-        <table id="committee-{{ loop.index }}-table" class="sortable-table">
-            <thead>
-                <tr>
-                    <th data-sort="name">Name</th>
-                    <th data-sort="position">Position</th>
-                    <th data-sort="role">Role</th>
-                    <th data-sort="affiliation">Affiliation</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for member in section.members %}
-                <tr>
-                    <td data-value="name"><a href="/authors/{{ member.author_id }}" class="author-link">{{ member.author_name }}</a></td>
-                    <td data-value="position">{{ member.position }}</td>
-                    <td data-value="role">{% if !member.role_title.is_empty() %}{{ member.role_title }}{% else %}-{% endif %}</td>
-                    <td data-value="affiliation">{% if !member.affiliation.is_empty() %}{{ member.affiliation }}{% else %}-{% endif %}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <details class="committee" open>
+            <summary>
+                <span class="committee-title">{{ section.committee_type }}</span>
+                <span class="committee-meta"><span>{{ section.members.len() }} members</span></span>
+            </summary>
+            <div class="committee-body">
+            <table id="committee-{{ loop.index }}-table" class="sortable-table">
+                <thead>
+                    <tr>
+                        <th data-sort="name">Name</th>
+                        <th data-sort="position">Position</th>
+                        <th data-sort="role">Role</th>
+                        <th data-sort="affiliation">Affiliation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for member in section.members %}
+                    <tr>
+                        <td data-value="name"><a href="/authors/{{ member.author_slug }}" class="author-link">{{ member.author_name }}</a></td>
+                        <td data-value="position" data-filter="position" class="cell-mono">{{ member.position }}</td>
+                        <td data-value="role">{% if !member.role_title.is_empty() %}{{ member.role_title }}{% else %}<span style="color: var(--muted);">—</span>{% endif %}</td>
+                        <td data-value="affiliation">{% if !member.affiliation.is_empty() %}{{ member.affiliation }}{% else %}<span style="color: var(--muted);">—</span>{% endif %}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            </div>
+        </details>
         {% endfor %}
     </section>
     {% endif %}
+
 </article>
 {% endblock %}

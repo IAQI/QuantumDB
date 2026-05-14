@@ -1,55 +1,108 @@
 {% extends "base.html" %}
 
-{% block title %}{{ author.full_name }} - QuantumDB{% endblock %}
+{% block title %}{{ author.full_name }} — QuantumDB{% endblock %}
 
 {% block content %}
-<article>
-    <header>
-        <h1>{{ author.full_name }}</h1>
-        {% if !author.affiliation.is_empty() %}
-        <p><strong>Affiliation:</strong> {{ author.affiliation }}</p>
-        {% endif %}
-        <nav>
-            <ul>
-                {% if !author.orcid.is_empty() %}
-                <li><a href="https://orcid.org/{{ author.orcid }}" target="_blank">ORCID</a></li>
-                {% endif %}
-                {% if !author.homepage_url.is_empty() %}
-                <li><a href="{{ author.homepage_url }}" target="_blank">Homepage</a></li>
-                {% endif %}
-            </ul>
-        </nav>
+<article class="author-page">
+
+    <header class="masthead">
+        <figure class="author-portrait">
+            <div class="author-monogram display" aria-hidden="true">{{ author.initials }}</div>
+        </figure>
+        <div class="masthead-meta">
+            <span class="venue-badge">researcher</span>
+            <h1 class="display"><span class="venue-word">{{ author.full_name }}</span></h1>
+            <p class="mono masthead-strip">
+                {%- if !author.affiliation.is_empty() %}{{ author.affiliation }}{% endif -%}
+                {%- if !author.first_year.is_empty() %}
+                    {%- if !author.affiliation.is_empty() %}&nbsp;·&nbsp;{% endif -%}
+                    active {{ author.first_year }}–{{ author.last_year }}
+                {%- endif -%}
+                {%- if !author.venues.is_empty() %}&nbsp;·&nbsp;{{ author.venues }}{% endif -%}
+            </p>
+            <p class="masthead-links">
+                {% if !author.orcid.is_empty() %}<a href="https://orcid.org/{{ author.orcid }}" target="_blank" rel="noopener">orcid ↗</a>{% endif %}
+                {% if !author.google_scholar_id.is_empty() %}<a href="https://scholar.google.com/citations?user={{ author.google_scholar_id }}" target="_blank" rel="noopener">scholar ↗</a>{% endif %}
+                {% if !author.homepage_url.is_empty() %}<a href="{{ author.homepage_url }}" target="_blank" rel="noopener">homepage ↗</a>{% endif %}
+            </p>
+        </div>
     </header>
+
+    <hr class="venue-rule" style="background: var(--ink); opacity: 0.55;">
 
     <section class="stats-grid">
         <div class="stat-card clickable" onclick="scrollToHighlight('#talks-section', 'all')">
-            <div class="stat-value">{{ author.publication_count }}</div>
-            <div class="stat-label">Talks</div>
+            <div class="stat-value">{{ talks.len() }}</div>
+            <span class="stat-label">talks</span>
         </div>
+        {% if !posters.is_empty() %}
+        <div class="stat-card clickable" onclick="scrollToHighlight('#posters-section', 'all')">
+            <div class="stat-value">{{ posters.len() }}</div>
+            <span class="stat-label">posters</span>
+        </div>
+        {% endif %}
         <div class="stat-card clickable" onclick="scrollToHighlight('#committee-section', 'all')">
             <div class="stat-value">{{ author.committee_role_count }}</div>
-            <div class="stat-label">Committee Roles</div>
+            <span class="stat-label">committee roles</span>
         </div>
         <div class="stat-card clickable" onclick="scrollToHighlight('#committee-section', 'leadership')">
             <div class="stat-value">{{ author.leadership_count }}</div>
-            <div class="stat-label">Leadership Roles</div>
+            <span class="stat-label">leadership roles</span>
         </div>
         <div class="stat-card">
-            <div class="stat-value">{% if !author.first_year.is_empty() %}{{ author.first_year }}–{{ author.last_year }}{% else %}-{% endif %}</div>
-            <div class="stat-label">Years Active</div>
+            <div class="stat-value">{% if !author.first_year.is_empty() %}{{ author.first_year }}<span style="color: var(--muted); font-size: 1.4rem;">–{{ author.last_year }}</span>{% else %}—{% endif %}</div>
+            <span class="stat-label">years active</span>
         </div>
     </section>
 
-    {% if !author.venues.is_empty() %}
-    <section>
-        <p><strong>Venues:</strong> {{ author.venues }}</p>
+    {% if contribution.year_count > 0 %}
+    <section class="contrib-chart">
+        <h2>Contributions</h2>
+        <div class="contrib-chart-wrap">
+            <svg viewBox="0 0 {{ contribution.viewbox_w }} {{ contribution.viewbox_h }}" width="{{ contribution.viewbox_w }}" height="{{ contribution.viewbox_h }}" role="img" aria-label="Contribution timeline" preserveAspectRatio="xMidYMid meet">
+                <line x1="0" y1="{{ contribution.axis_y }}" x2="{{ contribution.viewbox_w }}" y2="{{ contribution.axis_y }}" class="contrib-axis-rule" />
+
+                {% for label in contribution.year_labels %}
+                <text x="{{ label.x }}" y="{{ contribution.axis_label_y }}" class="contrib-axis-label">{{ label.year }}</text>
+                {% endfor %}
+
+                {% for p in contribution.papers %}
+                <a href="#{{ p.target_id }}">
+                    <rect x="{{ p.x }}" y="{{ p.y }}" width="28" height="22" class="{{ p.venue_class }}"><title>{{ p.tooltip }}</title></rect>
+                    {% if p.is_speaker %}<circle cx="{{ p.x + 22 }}" cy="{{ p.y + 6 }}" r="3" class="speaker-dot"><title>{{ p.tooltip }}</title></circle>{% endif %}
+                </a>
+                {% endfor %}
+
+                {% for c in contribution.committees %}
+                <a href="#{{ c.target_id }}">
+                    {% if c.shape == "circle" %}
+                    <circle cx="{{ c.cx }}" cy="{{ c.cy }}" r="8" class="{{ c.class_name }}"><title>{{ c.tooltip }}</title></circle>
+                    {% else %}
+                    <polygon points="{{ c.points }}" class="{{ c.class_name }}"><title>{{ c.tooltip }}</title></polygon>
+                    {% endif %}
+                </a>
+                {% endfor %}
+            </svg>
+        </div>
+        <p class="contrib-legend mono">
+            <span class="legend-swatch fill-qip"></span>QIP
+            &nbsp;&nbsp;<span class="legend-swatch fill-qcrypt"></span>QCrypt
+            &nbsp;&nbsp;<span class="legend-swatch fill-tqc"></span>TQC
+            &nbsp;&nbsp;<svg class="legend-block" width="15" height="13"><rect width="15" height="13" class="fill-ink"></rect><circle cx="11" cy="4" r="2.6" class="speaker-dot"></circle></svg>presenter
+            &nbsp;&nbsp;·&nbsp;&nbsp;
+            <span class="legend-glyph">△</span>program
+            &nbsp;<span class="legend-glyph">◇</span>steering
+            &nbsp;<span class="legend-glyph">○</span>organising
+            &nbsp;<span class="legend-glyph">□</span>local
+            &nbsp;·&nbsp; filled = chair
+        </p>
     </section>
     {% endif %}
 
-    {% if !publications.is_empty() %}
+    {% if !talks.is_empty() %}
     <section id="talks-section">
         <h2>Talks</h2>
-        <table id="publications-table" class="sortable-table">
+        <table id="talks-table" class="sortable-table">
             <thead>
                 <tr>
                     <th data-sort="title">Title</th>
@@ -59,8 +112,8 @@
                 </tr>
             </thead>
             <tbody>
-                {% for pub in publications %}
-                <tr>
+                {% for pub in talks %}
+                <tr id="talk-{{ loop.index0 }}" data-venue="{{ pub.conference_venue }}">
                     <td data-value="title">
                         {% if !pub.arxiv_ids.is_empty() %}
                             {% for arxiv_id in pub.arxiv_ids %}
@@ -68,20 +121,76 @@
                                     <a href="https://arxiv.org/abs/{{ arxiv_id }}" target="_blank" rel="noopener noreferrer">{{ pub.title }} ↗</a>
                                 {% endif %}
                             {% endfor %}
-                            <br><small>
+                            <div class="cell-mono arxiv-extra">
                             {% for arxiv_id in pub.arxiv_ids %}
                                 {% if loop.index0 > 0 %}
                                     <a href="https://arxiv.org/abs/{{ arxiv_id }}" target="_blank" rel="noopener noreferrer">arXiv:{{ arxiv_id }} ↗</a>{% if !loop.last %}, {% endif %}
                                 {% endif %}
                             {% endfor %}
-                            </small>
+                            </div>
                         {% else %}
                             {{ pub.title }}
                         {% endif %}
+                        {% if !pub.abstract_text.is_empty() || !pub.video_url.is_empty() %}
+                        <div class="talk-meta">
+                            {% if !pub.abstract_text.is_empty() %}<span class="tooltip-trigger" data-tooltip="{{ pub.abstract_text }}">abstract</span>{% endif %}
+                            {% if !pub.video_url.is_empty() %}<a href="{{ pub.video_url }}" target="_blank" rel="noopener">video ↗</a>{% endif %}
+                        </div>
+                        {% endif %}
                     </td>
                     <td data-value="conference"><a href="/conferences/{{ pub.conference_slug }}" class="conference-link">{{ pub.conference_venue }} {{ pub.conference_year }}</a></td>
-                    <td data-value="type">{{ pub.paper_type }}</td>
-                    <td data-value="coauthors">{% if !pub.coauthors.is_empty() %}{{ pub.coauthors }}{% else %}-{% endif %}</td>
+                    <td data-value="type" data-filter="type">
+                        <span class="ptype ptype--{{ pub.paper_type }}">{{ pub.paper_type }}</span>
+                        {% if pub.presenter_is_self %}<span class="speaker-self" title="this author presented">▸ presenter</span>{% endif %}
+                    </td>
+                    <td data-value="coauthors">{% if !pub.coauthors.is_empty() %}{% for co in pub.coauthors %}{% if co.is_speaker %}<span class="speaker-mark" title="presenter">▸</span>{% endif %}<a href="/authors/{{ co.slug }}" class="author-link">{{ co.name }}</a>{% if !loop.last %}, {% endif %}{% endfor %}{% else %}<span style="color: var(--muted);">—</span>{% endif %}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+    {% endif %}
+
+    {% if !posters.is_empty() %}
+    <section id="posters-section">
+        <h2>Posters</h2>
+        <table id="posters-table" class="sortable-table">
+            <thead>
+                <tr>
+                    <th data-sort="title">Title</th>
+                    <th data-sort="conference">Conference</th>
+                    <th data-sort="coauthors">Co-authors</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pub in posters %}
+                <tr data-venue="{{ pub.conference_venue }}">
+                    <td data-value="title">
+                        {% if !pub.arxiv_ids.is_empty() %}
+                            {% for arxiv_id in pub.arxiv_ids %}
+                                {% if loop.first %}
+                                    <a href="https://arxiv.org/abs/{{ arxiv_id }}" target="_blank" rel="noopener noreferrer">{{ pub.title }} ↗</a>
+                                {% endif %}
+                            {% endfor %}
+                            <div class="cell-mono arxiv-extra">
+                            {% for arxiv_id in pub.arxiv_ids %}
+                                {% if loop.index0 > 0 %}
+                                    <a href="https://arxiv.org/abs/{{ arxiv_id }}" target="_blank" rel="noopener noreferrer">arXiv:{{ arxiv_id }} ↗</a>{% if !loop.last %}, {% endif %}
+                                {% endif %}
+                            {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ pub.title }}
+                        {% endif %}
+                        {% if !pub.abstract_text.is_empty() || !pub.video_url.is_empty() %}
+                        <div class="talk-meta">
+                            {% if !pub.abstract_text.is_empty() %}<span class="tooltip-trigger" data-tooltip="{{ pub.abstract_text }}">abstract</span>{% endif %}
+                            {% if !pub.video_url.is_empty() %}<a href="{{ pub.video_url }}" target="_blank" rel="noopener">video ↗</a>{% endif %}
+                        </div>
+                        {% endif %}
+                    </td>
+                    <td data-value="conference"><a href="/conferences/{{ pub.conference_slug }}" class="conference-link">{{ pub.conference_venue }} {{ pub.conference_year }}</a></td>
+                    <td data-value="coauthors">{% if !pub.coauthors.is_empty() %}{% for co in pub.coauthors %}{% if co.is_speaker %}<span class="speaker-mark" title="presenter">▸</span>{% endif %}<a href="/authors/{{ co.slug }}" class="author-link">{{ co.name }}</a>{% if !loop.last %}, {% endif %}{% endfor %}{% else %}<span style="color: var(--muted);">—</span>{% endif %}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -91,7 +200,7 @@
 
     {% if !committee_roles.is_empty() %}
     <section id="committee-section">
-        <h2>Committee Service</h2>
+        <h2>Committee service</h2>
         <table id="committee-table" class="sortable-table">
             <thead>
                 <tr>
@@ -103,11 +212,11 @@
             </thead>
             <tbody>
                 {% for role in committee_roles %}
-                <tr>
+                <tr id="committee-{{ loop.index0 }}" data-venue="{{ role.conference_venue }}">
                     <td data-value="conference"><a href="/conferences/{{ role.conference_slug }}" class="conference-link">{{ role.conference_venue }} {{ role.conference_year }}</a></td>
-                    <td data-value="committee">{{ role.committee_type }}</td>
-                    <td data-value="position" data-filter="position">{{ role.position }}</td>
-                    <td data-value="title">{% if !role.role_title.is_empty() %}{{ role.role_title }}{% else %}-{% endif %}</td>
+                    <td data-value="committee"><span class="ptype">{{ role.committee_type }}</span></td>
+                    <td data-value="position" data-filter="position" class="cell-mono">{{ role.position }}</td>
+                    <td data-value="title">{% if !role.role_title.is_empty() %}{{ role.role_title }}{% else %}<span style="color: var(--muted);">—</span>{% endif %}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -122,19 +231,20 @@
             <thead>
                 <tr>
                     <th data-sort="name">Co-author</th>
-                    <th data-sort="count">Joint Talks</th>
+                    <th data-sort="count">Joint talks</th>
                 </tr>
             </thead>
             <tbody>
                 {% for coauthor in coauthors %}
                 <tr>
-                    <td data-value="name"><a href="/authors/{{ coauthor.coauthor_id }}" class="author-link">{{ coauthor.coauthor_name }}</a></td>
-                    <td data-value="count">{{ coauthor.collaboration_count }}</td>
+                    <td data-value="name"><a href="/authors/{{ coauthor.coauthor_slug }}" class="author-link">{{ coauthor.coauthor_name }}</a></td>
+                    <td data-value="count" class="cell-mono">{{ coauthor.collaboration_count }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </section>
     {% endif %}
+
 </article>
 {% endblock %}
