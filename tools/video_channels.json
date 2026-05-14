@@ -1,0 +1,28 @@
+{
+  "_comment": "Per-conference YouTube source registry for tools/video_pass.py. Keys are '<venue>_<year>' (lowercase venue). Each entry has 'sources' (a list of playlist or channel URLs) and optionally 'channel_filter_year' (when a source is a channel hosting many conference years, prefer videos uploaded that year) and 'notes'. Seeded from the channels/playlists discovered in the initial YouTube enrichment pass; extend it as new conferences are found.",
+
+  "qip_2015": { "sources": ["https://www.youtube.com/channel/UCZ1yRuDPlCsXRBELSClnfCw"] },
+  "qip_2016": { "sources": ["https://www.youtube.com/channel/UCzmk-rGeX1siWh6tUx6IJ2Q"], "notes": "Iqst Ucalgary channel" },
+  "qip_2017": { "sources": ["https://www.youtube.com/playlist?list=PLq2e2Zi6KW-vedSEsTvM81xrbB7WnfTz5"], "notes": "Microsoft Research channel playlist" },
+  "qip_2019": { "sources": ["https://www.youtube.com/playlist?list=PLGdMsPGuoD25wLgnY7RBoTAxsnQEMsNA0"], "notes": "CU Boulder playlist" },
+  "qip_2021": { "sources": ["https://www.youtube.com/playlist?list=PL5DZ45amUsqIaqE9EIemfc9LzeWzXnGY_"] },
+  "qip_2022": { "sources": ["https://www.youtube.com/channel/UCfN1uBQkn_FIp9EpkHZFi2w"], "notes": "Caltech QIP 2022 channel" },
+  "qip_2023": { "sources": ["https://www.youtube.com/@QIP2023"] },
+  "qip_2024": { "sources": ["https://www.youtube.com/@QIP2024"] },
+  "qip_2025": { "sources": ["https://www.youtube.com/@QIP2025"] },
+
+  "qcrypt_2015": { "sources": ["https://www.youtube.com/@qcryptconference239"], "channel_filter_year": 2015, "notes": "shared QCrypt channel; narrow by title match + upload year" },
+  "qcrypt_2016": { "sources": ["https://www.youtube.com/@qcryptconference239"], "channel_filter_year": 2016 },
+  "qcrypt_2018": { "sources": ["https://www.youtube.com/@qcryptconference239"], "channel_filter_year": 2018 },
+  "qcrypt_2019": { "sources": ["https://www.youtube.com/@qcryptconference239"], "channel_filter_year": 2019 },
+  "qcrypt_2020": { "sources": ["https://www.youtube.com/@qcryptconference239"], "channel_filter_year": 2020 },
+  "qcrypt_2021": { "sources": ["https://www.youtube.com/@qcryptconference239"], "channel_filter_year": 2021 },
+  "qcrypt_2022": { "sources": ["https://www.youtube.com/@qcryptconference239"], "channel_filter_year": 2022 },
+
+  "tqc_2019": { "sources": ["https://www.youtube.com/playlist?list=PLUz_4vZOI0H1uT0Anxj5gn0RNXuDDN8U9"], "notes": "UMD/Maryland playlist" },
+  "tqc_2020": { "sources": ["https://www.youtube.com/c/TQC2020"], "channel_filter_year": 2020, "notes": "Latvia online TQC; day-livestreams only" },
+  "tqc_2021": { "sources": ["https://www.youtube.com/c/TQC2020"], "channel_filter_year": 2021, "notes": "shared with TQC 2020 channel" },
+  "tqc_2023": { "sources": ["https://www.youtube.com/@SquidSchools"], "channel_filter_year": 2023, "notes": "Aveiro; 5 day-playlists exist on the channel" },
+  "tqc_2024": { "sources": ["https://www.youtube.com/@SquidSchools"], "channel_filter_year": 2024, "notes": "Okinawa" },
+  "tqc_2025": { "sources": ["https://www.youtube.com/@tqc-conference"], "channel_filter_year": 2025, "notes": "Bengaluru/Mannheim" }
+}

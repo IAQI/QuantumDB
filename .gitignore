@@ -27,3 +27,6 @@ target/
 # Added by cargo
 
 /target
+
+# video_pass.py yt-dlp metadata cache
+tools/.video_cache/
