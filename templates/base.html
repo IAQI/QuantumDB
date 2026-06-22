@@ -18,6 +18,30 @@
     <!-- HTMX -->
     <script src="https://unpkg.com/htmx.org@2.0.4"></script>
 
+    <!-- MathJax (renders LaTeX in abstracts; typeset lazily per panel) -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true,
+                macros: {
+                    ket: ['{\\left|#1\\right\\rangle}', 1],
+                    bra: ['{\\left\\langle#1\\right|}', 1],
+                    braket: ['{\\left\\langle#1\\middle|#2\\right\\rangle}', 2],
+                    ketbra: ['{\\left|#1\\right\\rangle\\!\\left\\langle#2\\right|}', 2],
+                    Tr: ['{\\operatorname{Tr}}', 0]
+                }
+            },
+            options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] },
+            startup: { typeset: false }
+        };
+    </script>
+    <script id="MathJax-script" async
+            src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"
+            integrity="sha384-Wuix6BuhrWbjDBs24bXrjf4ZQ5aFeFWBuKkFekO2t8xFU0iNaLQfp2K6/1Nxveei"
+            crossorigin="anonymous"></script>
+
     <style>
         /* ──────────────────────────────────────────────────────────────────
          * Editorial palette + typography
@@ -441,9 +465,17 @@
             padding-bottom: 1px;
         }
         .talk-meta a:hover { border-bottom-color: var(--accent); }
-        .talk-meta .tooltip-trigger {
+        .talk-meta .abstract-toggle {
             color: var(--ink-soft);
             border-bottom: 1px dotted var(--rule-strong);
+            cursor: pointer;
+            user-select: none;
+        }
+        .talk-meta .abstract-toggle::before { content: '▸ '; }
+        .talk-meta .abstract-toggle.is-open::before { content: '▾ '; }
+        .talk-meta .abstract-toggle.is-open {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
         }
 
         /* Speaker / presenter marker */
@@ -579,42 +611,25 @@
         .htmx-request.htmx-indicator { display: inline; }
 
         /* ──────────────────────────────────────────────────────────────────
-         * Tooltips (preserved API; restyled)
+         * Abstract panel (click "abstract" to toggle the text below the talk)
          * ────────────────────────────────────────────────────────────────── */
-        .tooltip-trigger { position: relative; cursor: help; }
-        .tooltip-trigger::after {
-            content: attr(data-tooltip);
-            position: absolute;
-            bottom: 100%; left: 50%; transform: translateX(-50%);
-            padding: 0.6rem 0.75rem;
-            background: var(--ink);
-            color: var(--paper);
-            border: 0;
-            border-radius: 0;
-            max-width: 360px; max-height: 220px;
-            width: max-content;
+        /* Full-width row that drops in beneath a talk to hold its abstract */
+        .abstract-row[hidden] { display: none; }
+        tr.has-open-abstract > td { border-bottom: none; }
+        .abstract-row > td { padding: 0 0.85rem 0.9rem; border-bottom: 1px solid var(--rule); }
+        .abstract-panel {
+            padding: 0.7rem 1rem;
+            background: var(--accent-tint);
+            border-left: 2px solid var(--rule-strong);
+            max-width: 80ch;
             font-family: "Newsreader", serif;
-            font-size: 0.82rem;
-            line-height: 1.45;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 120ms ease;
-            z-index: 1000;
-            overflow-y: auto;
-            white-space: normal;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: var(--ink);
+            text-transform: none;
+            letter-spacing: normal;
+            white-space: pre-wrap;
         }
-        .tooltip-trigger:hover::after { opacity: 1; }
-        .tooltip-trigger::before {
-            content: '';
-            position: absolute;
-            bottom: 100%; left: 50%; transform: translateX(-50%);
-            border: 6px solid transparent;
-            border-top-color: var(--ink);
-            opacity: 0;
-            transition: opacity 120ms ease;
-            z-index: 1001;
-        }
-        .tooltip-trigger:hover::before { opacity: 1; }
 
         /* ──────────────────────────────────────────────────────────────────
          * Contribution chart (author detail page)
@@ -787,9 +802,19 @@
          * Sort table rows by column
          */
         function sortTable(tbody, column, direction) {
-            const rows = Array.from(tbody.querySelectorAll('tr'));
+            // Group each talk row with any abstract row that trails it, so the
+            // abstract panel stays attached to its talk when the table reorders.
+            const groups = [];
+            Array.from(tbody.children).forEach(row => {
+                if (row.classList.contains('abstract-row') && groups.length) {
+                    groups[groups.length - 1].extra.push(row);
+                } else {
+                    groups.push({ main: row, extra: [] });
+                }
+            });
 
-            rows.sort((a, b) => {
+            groups.sort((ga, gb) => {
+                const a = ga.main, b = gb.main;
                 const cellA = a.querySelector(`[data-value="${column}"]`);
                 const cellB = b.querySelector(`[data-value="${column}"]`);
 
@@ -823,8 +848,11 @@
                 return direction === 'asc' ? comparison : -comparison;
             });
 
-            // Reorder rows in DOM
-            rows.forEach(row => tbody.appendChild(row));
+            // Reorder rows in DOM, keeping each abstract row after its talk row
+            groups.forEach(g => {
+                tbody.appendChild(g.main);
+                g.extra.forEach(e => tbody.appendChild(e));
+            });
         }
 
         /**
@@ -874,6 +902,33 @@
 
         // Re-initialize when HTMX swaps content
         document.body.addEventListener('htmx:afterSwap', initAllSortableTables);
+
+        // Toggle abstract panels (click or keyboard-activate the "abstract" link)
+        function toggleAbstract(trigger) {
+            const talkRow = trigger.closest('tr');
+            const row = talkRow && talkRow.nextElementSibling;
+            if (!row || !row.classList.contains('abstract-row')) return;
+            const panel = row.querySelector('.abstract-panel');
+            const willOpen = row.hasAttribute('hidden');
+            row.toggleAttribute('hidden', !willOpen);
+            talkRow.classList.toggle('has-open-abstract', willOpen);
+            trigger.classList.toggle('is-open', willOpen);
+            trigger.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+            // Typeset math the first time this panel becomes visible.
+            if (willOpen && panel && !panel.dataset.typeset && window.MathJax && MathJax.typesetPromise) {
+                panel.dataset.typeset = '1';
+                MathJax.typesetPromise([panel]).catch((err) => console.error('MathJax:', err));
+            }
+        }
+        document.addEventListener('click', (e) => {
+            const trigger = e.target.closest('.abstract-toggle');
+            if (trigger) toggleAbstract(trigger);
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key !== 'Enter' && e.key !== ' ') return;
+            const trigger = e.target.closest('.abstract-toggle');
+            if (trigger) { e.preventDefault(); toggleAbstract(trigger); }
+        });
     </script>
 </body>
 </html>

@@ -133,7 +133,7 @@
                         {% endif %}
                         {% if !pub.abstract_text.is_empty() || !pub.video_url.is_empty() %}
                         <div class="talk-meta">
-                            {% if !pub.abstract_text.is_empty() %}<span class="tooltip-trigger" data-tooltip="{{ pub.abstract_text }}">abstract</span>{% endif %}
+                            {% if !pub.abstract_text.is_empty() %}<span class="abstract-toggle" tabindex="0" aria-expanded="false">abstract</span>{% endif %}
                             {% if !pub.video_url.is_empty() %}<a href="{{ pub.video_url }}" target="_blank" rel="noopener">video ↗</a>{% endif %}
                         </div>
                         {% endif %}
@@ -145,6 +145,11 @@
                     </td>
                     <td data-value="coauthors">{% if !pub.coauthors.is_empty() %}{% for co in pub.coauthors %}{% if co.is_speaker %}<span class="speaker-mark" title="presenter">▸</span>{% endif %}<a href="/authors/{{ co.slug }}" class="author-link">{{ co.name }}</a>{% if !loop.last %}, {% endif %}{% endfor %}{% else %}<span style="color: var(--muted);">—</span>{% endif %}</td>
                 </tr>
+                {% if !pub.abstract_text.is_empty() %}
+                <tr class="abstract-row" hidden>
+                    <td colspan="4"><div class="abstract-panel">{{ pub.abstract_text }}</div></td>
+                </tr>
+                {% endif %}
                 {% endfor %}
             </tbody>
         </table>
@@ -184,7 +189,7 @@
                         {% endif %}
                         {% if !pub.abstract_text.is_empty() || !pub.video_url.is_empty() %}
                         <div class="talk-meta">
-                            {% if !pub.abstract_text.is_empty() %}<span class="tooltip-trigger" data-tooltip="{{ pub.abstract_text }}">abstract</span>{% endif %}
+                            {% if !pub.abstract_text.is_empty() %}<span class="abstract-toggle" tabindex="0" aria-expanded="false">abstract</span>{% endif %}
                             {% if !pub.video_url.is_empty() %}<a href="{{ pub.video_url }}" target="_blank" rel="noopener">video ↗</a>{% endif %}
                         </div>
                         {% endif %}
@@ -192,6 +197,11 @@
                     <td data-value="conference"><a href="/conferences/{{ pub.conference_slug }}" class="conference-link">{{ pub.conference_venue }} {{ pub.conference_year }}</a></td>
                     <td data-value="coauthors">{% if !pub.coauthors.is_empty() %}{% for co in pub.coauthors %}{% if co.is_speaker %}<span class="speaker-mark" title="presenter">▸</span>{% endif %}<a href="/authors/{{ co.slug }}" class="author-link">{{ co.name }}</a>{% if !loop.last %}, {% endif %}{% endfor %}{% else %}<span style="color: var(--muted);">—</span>{% endif %}</td>
                 </tr>
+                {% if !pub.abstract_text.is_empty() %}
+                <tr class="abstract-row" hidden>
+                    <td colspan="3"><div class="abstract-panel">{{ pub.abstract_text }}</div></td>
+                </tr>
+                {% endif %}
                 {% endfor %}
             </tbody>
         </table>

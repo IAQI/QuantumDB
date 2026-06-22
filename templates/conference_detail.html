@@ -25,7 +25,8 @@
                 {%- endif -%}
             </p>
             <p class="masthead-links">
-                {% if !conference.website_url.is_empty() %}<a href="{{ conference.website_url }}" target="_blank" rel="noopener">website ↗</a>{% endif %}
+                {% if !conference.website_url.is_empty() %}<a href="{{ conference.website_url }}" target="_blank" rel="noopener">original site ↗</a>{% endif %}
+                {% if !conference.archive_url.is_empty() %}<a href="{{ conference.archive_url }}" target="_blank" rel="noopener">IAQI copy ↗</a>{% endif %}
                 {% if !conference.proceedings_url.is_empty() %}<a href="{{ conference.proceedings_url }}" target="_blank" rel="noopener">proceedings ↗</a>{% endif %}
             </p>
         </div>
@@ -102,7 +103,7 @@
                         {% endif %}
                         {% if !pub.abstract_text.is_empty() || !pub.video_url.is_empty() %}
                         <div class="talk-meta">
-                            {% if !pub.abstract_text.is_empty() %}<span class="tooltip-trigger" data-tooltip="{{ pub.abstract_text }}">abstract</span>{% endif %}
+                            {% if !pub.abstract_text.is_empty() %}<span class="abstract-toggle" tabindex="0" aria-expanded="false">abstract</span>{% endif %}
                             {% if !pub.video_url.is_empty() %}<a href="{{ pub.video_url }}" target="_blank" rel="noopener">video ↗</a>{% endif %}
                         </div>
                         {% endif %}
@@ -126,6 +127,11 @@
                     </td>
                     <td data-value="award">{% if !pub.award.is_empty() %}<span class="ptype ptype--invited" style="border-style: solid;">{{ pub.award }}</span>{% else %}<span style="color: var(--muted);">—</span>{% endif %}</td>
                 </tr>
+                {% if !pub.abstract_text.is_empty() %}
+                <tr class="abstract-row" hidden>
+                    <td colspan="6"><div class="abstract-panel">{{ pub.abstract_text }}</div></td>
+                </tr>
+                {% endif %}
                 {% endfor %}
             </tbody>
         </table>
