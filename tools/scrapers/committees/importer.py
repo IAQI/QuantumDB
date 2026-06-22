@@ -11,7 +11,7 @@ from uuid import UUID
 import asyncpg
 from dotenv import load_dotenv
 
-from scrapers._lib import normalize_name, split_name
+from scrapers._lib import clean_field, normalize_name, split_name
 
 
 logging.basicConfig(
@@ -130,6 +130,11 @@ async def import_member(
         logger.error(f"Conference not found: {venue} {year}")
         return False
     
+    # Normalise text fields (decode entities, fold odd whitespace)
+    member['full_name'] = clean_field(member.get('full_name'))
+    member['affiliation'] = clean_field(member.get('affiliation')) or None
+    member['role_title'] = clean_field(member.get('role_title')) or None
+
     # Get or create author
     author_id = await get_or_create_author(
         conn,

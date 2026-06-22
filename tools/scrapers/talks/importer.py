@@ -1,6 +1,7 @@
 """CLI body for `import_from_csv.py talks` — import talk CSVs into the DB."""
 
 import csv
+import html
 import logging
 import os
 import re
@@ -13,7 +14,7 @@ from datetime import datetime
 import asyncpg
 from dotenv import load_dotenv
 
-from scrapers._lib import normalize_name, split_name
+from scrapers._lib import clean_field, normalize_name, split_name
 
 
 logging.basicConfig(
@@ -23,11 +24,38 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+# Rows whose "title" is empty and whose author/speaker is one of these are
+# schedule/logistics entries that were scraped as if they were talks. Matched
+# case-insensitively as a prefix so "Poster session 1" / "Lunch & free time" /
+# "Tour of IQC's labs" are all caught.
+_SCHEDULE_PREFIXES = (
+    'lunch', 'break', 'coffee', 'poster session', 'registration',
+    'public lecture', 'free time', 'tour of', 'conference dinner',
+    'social dinner', 'business meeting', 'dinner', 'banquet', 'excursion',
+    'welcome', 'reception', 'closing', 'opening remarks',
+)
+
+
 def parse_semicolon_list(value: str) -> Optional[List[str]]:
-    """Parse semicolon-separated string into list."""
+    """Parse a semicolon-separated string into a cleaned list.
+
+    HTML entities are decoded *before* the split (see ``clean_field``) so that
+    a ``;`` inside an entity like ``&eacute;`` can't shatter a name.
+    """
     if not value or not value.strip():
         return None
-    return [item.strip() for item in value.split(';') if item.strip()]
+    value = html.unescape(value)
+    items = [clean_field(item) for item in value.split(';')]
+    items = [item for item in items if item]
+    return items or None
+
+
+def _is_schedule_row(talk: Dict[str, str]) -> bool:
+    """True if a row is a schedule/logistics entry, not a real talk."""
+    if clean_field(talk.get('title')):
+        return False
+    label = clean_field(talk.get('authors') or talk.get('speaker') or '').lower()
+    return any(label.startswith(prefix) for prefix in _SCHEDULE_PREFIXES)
 
 
 def generate_canonical_key(venue: str, year: int, paper_type: str, index: int) -> str:
@@ -124,6 +152,11 @@ async def import_talk(
     if not conference_id:
         logger.error(f"Conference not found: {venue} {year}")
         return False
+
+    # Normalise single-value text fields (decode entities, fold odd whitespace).
+    # URL fields are deliberately left untouched.
+    for field in ('title', 'abstract', 'session_name', 'award'):
+        talk[field] = clean_field(talk.get(field))
 
     # Parse list fields
     speakers = parse_semicolon_list(talk.get('speakers', ''))
@@ -334,6 +367,21 @@ async def import_from_csv(
 
     if not talks:
         logger.error("No talks in CSV")
+        return 0, []
+
+    # Drop schedule/logistics rows that were scraped as if they were talks
+    # (empty title + a schedule-word "author" like Lunch/Break/Registration).
+    kept = []
+    for talk in talks:
+        if _is_schedule_row(talk):
+            label = clean_field(talk.get('authors') or talk.get('speaker') or '')
+            logger.info(f"Skipping schedule/logistics row (not a talk): {label!r}")
+            continue
+        kept.append(talk)
+    talks = kept
+
+    if not talks:
+        logger.error("No talks in CSV (all rows were schedule entries)")
         return 0, []
 
     venue = talks[0]['venue']
