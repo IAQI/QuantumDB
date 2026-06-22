@@ -5,29 +5,29 @@ QIP,2006,regular,On the complexity of simulating quantum systems,Frank Verstraet
 QIP,2006,regular,Quantum computation as geometry,Andrew Doherty,Andrew Doherty;Michael Nielsen;Mark Dowling;Mile Gu,University of Queensland,,,,,,,,2006-01-16,12:00,15
 QIP,2006,invited,"Fourier sampling, representations, and the hunt for a quantum algorithm for Graph Isomorphism",Cris Moore,Cris Moore;Alex Russell;Leonard Schulman,University of New Mexico,,,,,,,,2006-01-16,14:15,50
 QIP,2006,regular,From optimal measurement to efficient quantum algorithms for the hidden subgroup problem over semidirect product groups,Wim van Dam,Wim van Dam;Andrew M. Childs;Dave Bacon,"University of California, Santa Barbara",,,,,,,,2006-01-16,15:35,35
-QIP,2006,regular,Extremality of Gaussian quantum states,Michael Wolf,Michael Wolf;Geza Giedke;Ignacio Cirac,"Max Planck Institut f&uuml;r Quantenoptik, Garching",,,,,,,,2006-01-16,16:10,35
+QIP,2006,regular,Extremality of Gaussian quantum states,Michael Wolf,Michael Wolf;Geza Giedke;Ignacio Cirac,"Max Planck Institut für Quantenoptik, Garching",,,,,,,,2006-01-16,16:10,35
 QIP,2006,regular,Schumacher compression with minimum time-space product,Masahiro Kitagawa,Masahiro Kitagawa,Osaka University / JST,,,,,,,,2006-01-16,16:45,15
 QIP,2006,invited,"Graph Isomorphism, the hidden subgroup problem and distinguishing quantum states",Pranab Sen,Pranab Sen;Sean Hallgren;Martin Rotteler,NEC Labs America,,,,,,,,2006-01-17,09:30,50
 QIP,2006,regular,Bounded-Error Quantum State Identification with Applications to Communication Complexity,Dmitry Gavinsky,Dmitry Gavinsky;Julia Kempe;Oded Regev;Ronald de Wolf,University of Calgary,,,,,,,,2006-01-17,10:50,35
 QIP,2006,regular,A de Finetti theorem for finite quantum states - Locked correlations and secret keys,Robert Koenig,Robert Koenig;Renato Renner,"CQC, Cambridge",,,,,,,,2006-01-17,11:25,35
 QIP,2006,regular,Lower Bounds on Matrix Rigidity via a Quantum Argument,Ronald de Wolf,Ronald de Wolf,CWI,,,,,,,,2006-01-17,12:00,15
 QIP,2006,invited,Cryptography in the Bounded Quantum-Storage Model,Christian Schaffner,Christian Schaffner;Ivan B. Damgaard;Serge Fehr;Louis Salvail,"BRICS, University of Aarhus",,,,,,,,2006-01-17,14:15,50
-QIP,2006,regular,Verifiable Quantum Secret Sharing and Secure Multi-Party Quantum Computation,Michael Ben-Or,Michael Ben-Or;Claude Cr&eacute;peau;Daniel Gottesman;Avinatan Hassidim;Adam Smith,Hebrew University,,,,,,,,2006-01-17,15:35,35
-QIP,2006,regular,Classical and quantum strategies for two-prover bit commitments,Claude Cr&eacute;peau,Claude Cr&eacute;peau;Jean-Raymond Simard;Alain Tapp,McGill University,,,,,,,,2006-01-17,16:10,35
+QIP,2006,regular,Verifiable Quantum Secret Sharing and Secure Multi-Party Quantum Computation,Michael Ben-Or,Michael Ben-Or;Claude Crépeau;Daniel Gottesman;Avinatan Hassidim;Adam Smith,Hebrew University,,,,,,,,2006-01-17,15:35,35
+QIP,2006,regular,Classical and quantum strategies for two-prover bit commitments,Claude Crépeau,Claude Crépeau;Jean-Raymond Simard;Alain Tapp,McGill University,,,,,,,,2006-01-17,16:10,35
 QIP,2006,regular,Unconditionally secure privacy using channels that cannot convey quantum information 1,Karol Horodecki,Karol Horodecki;M. Horodecki;P. Horodecki;D. Leung;H-K. Lo;J. Oppenheim,University of Gdansk,,,,,,,,2006-01-17,16:45,15
 QIP,2006,invited,An exponential de Finetti theorem and its applications to quantum cryptography,Renato Renner,Renato Renner,"CQC, Cambridge",,,,,,,,2006-01-18,09:30,50
 QIP,2006,regular,The classical and quantum private capacities of a secret shared Cartesian frame,Patrick Hayden,Patrick Hayden;Stephen Bartlett;Robert Spekkens,McGill University,,,,,,,,2006-01-18,10:50,35
 QIP,2006,regular,Communicating over adversarial quantum channels,Graeme Smith,Graeme Smith;Aram Harrow;Debbie Leung,Caltech,,,,,,,,2006-01-18,11:25,35
 QIP,2006,regular,Quantum communication by erasure channel assisted by back classical communication,Debbie Leung,Debbie Leung;Peter Shor,University of Waterloo,,,,,,,,2006-01-18,12:00,15
-QIP,2006,invited,Quantum information with Rydberg atoms and photons in cavities: results and perspectives,Serge Haroche,Serge Haroche,"Coll&egrave;ge de France and Ecole Normale Sup&eacute;rieure, Paris",,,,,,,,2006-01-19,09:30,50
+QIP,2006,invited,Quantum information with Rydberg atoms and photons in cavities: results and perspectives,Serge Haroche,Serge Haroche,"Collège de France and Ecole Normale Supérieure, Paris",,,,,,,,2006-01-19,09:30,50
 QIP,2006,regular,A classical analogue of negative information,Jonathan Oppenheim,Jonathan Oppenheim;Rob Spekkens;Andreas Winter,University of Cambridge,,,,,,,,2006-01-19,10:50,35
 QIP,2006,regular,Irreversibility for all bound entangled states,Barbara Synak-Radtke,Barbara Synak-Radtke;Dong Yang;Michal Horodecki;Ryszard Horodecki,University of Gdansk,,,,,,,,2006-01-19,11:25,35
 QIP,2006,regular,The Dynamics of 1D Quantum Spin Systems Can Be Approximated Efficiently,Tobias Osborne,Tobias Osborne,"Royal Holloway, University of London",,,,,,,,2006-01-19,12:00,15
 QIP,2006,regular,Entanglement in Interactive Proof Systems with Binary Answers,Stephanie Wehner,Stephanie Wehner,CWI,,,,,,,,2006-01-19,14:15,15
-QIP,2006,regular,Quantum entanglement can be simulated without communication,Nicolas Cerf,Nicolas Cerf;Nicolas Gisin;Serge Massar;Sandu Popescu,Universit&eacute; Libre de Bruxelles,,,,,,,,2006-01-19,14:30,15
-QIP,2006,regular,Simulating quantum correlations as a distributed sampling problem,Julien Degorre,Julien Degorre;Sophie Laplante;J&eacute;r&eacute;mie Roland,"Universit&eacute; Paris-Sud, Orsay",,,,,,,,2006-01-19,14:45,15
+QIP,2006,regular,Quantum entanglement can be simulated without communication,Nicolas Cerf,Nicolas Cerf;Nicolas Gisin;Serge Massar;Sandu Popescu,Université Libre de Bruxelles,,,,,,,,2006-01-19,14:30,15
+QIP,2006,regular,Simulating quantum correlations as a distributed sampling problem,Julien Degorre,Julien Degorre;Sophie Laplante;Jérémie Roland,"Université Paris-Sud, Orsay",,,,,,,,2006-01-19,14:45,15
 QIP,2006,regular,From Bell's Theorem to Secure Quantum Key Distribution,Nicolas Gisin,Nicolas Gisin;Antonio Acin;LLuis Masanes,Geneva University,,,,,,,,2006-01-19,15:00,15
-QIP,2006,regular,Self-Testing of Quantum Circuits,Harold Ollivier,Harold Ollivier;Fr&eacute;d&eacute;ric Magniez;Dominic Mayers;Michele Mosca,Perimeter Institute,,,,,,,,2006-01-19,15:45,15
+QIP,2006,regular,Self-Testing of Quantum Circuits,Harold Ollivier,Harold Ollivier;Frédéric Magniez;Dominic Mayers;Michele Mosca,Perimeter Institute,,,,,,,,2006-01-19,15:45,15
 QIP,2006,regular,Dualities in quantum information theory,Igor Devetak,Igor Devetak,University of Southern California,,,,,,,,2006-01-19,16:00,15
 QIP,2006,regular,Asymmetric unitary gate capacities,Aram Harrow,Aram Harrow;Peter Shor,University of Bristol,,,,,,,,2006-01-19,16:15,15
 QIP,2006,regular,Monogamy of nonlocal quantum correlations,Benjamin Toner,Benjamin Toner,Caltech,,,,,,,,2006-01-19,16:30,15
@@ -38,4 +38,4 @@ QIP,2006,regular,Quantum Search in an Ordered List via Adaptive Learning,Avinata
 QIP,2006,invited,Rigorous fault-tolerance thresholds,Ben Reichardt,Ben Reichardt,"University of California, Berkeley",,,,,,,,2006-01-20,14:15,50
 QIP,2006,regular,A fault-tolerant one-way quantum computer,Robert Raussendorf,Robert Raussendorf;Jim Harrington;Kovid Goyal,Caltech,,,,,,,,2006-01-20,15:35,35
 QIP,2006,regular,New Limits on Fault-Tolerant Quantum Computation,Falk Unger,Falk Unger;Harry Buhrman;Richard Cleve;Monique Laurant;Noah Linden;Alexander Schrijver,CWI,,,,,,,,2006-01-20,16:10,35
-QIP,2006,regular,A limit on nonlocality in any world in which communication complexity is not trivial,Andr&eacute; M&eacute;thot,Andr&eacute; M&eacute;thot;Gilles Brassard;Harry Buhrman;Noah Linden;Alain Tapp;Falk Unger,Universit&eacute; de Montr&eacute;al,,,,,,,,2006-01-20,16:45,15
+QIP,2006,regular,A limit on nonlocality in any world in which communication complexity is not trivial,André Méthot,André Méthot;Gilles Brassard;Harry Buhrman;Noah Linden;Alain Tapp;Falk Unger,Université de Montréal,,,,,,,,2006-01-20,16:45,15

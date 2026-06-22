@@ -27,7 +27,6 @@ QIP,2012,regular,Epsilon-net method for optimizations over separable states,Xiao
 QIP,2012,regular,Hedging bets with correlated quantum strategies,Abel Molina,Abel Molina;John Watrous,,,1104.1140,,http://www.iro.umontreal.ca/~qip2012/videos/Talks/Wednesday/QIP2012-Wednesday-molina.m4v,,,,2011-12-14,10:45,25
 QIP,2012,regular,Explicit lower and upper bounds on the entangled value of multiplayer XOR games,Jop Briet,Jop Briet;Thomas Vidick,,,,,http://www.iro.umontreal.ca/~qip2012/videos/Talks/Wednesday/QIP2012-Wednesday-briet.mov,,,,2011-12-14,11:10,25
 QIP,2012,invited,Parallel approximation of min-max problems with applications to classical and quantum zero-sum games,Xiaodi Wu,Gus Gutoski;Xiaodi Wu,,,1011.2787,,http://www.iro.umontreal.ca/~qip2012/videos/Talks/Wednesday/QIP2012-Wednesday-wu2.mov,,,,2011-12-14,11:35,30
-QIP,2012,regular,,Conference Dinner,Conference Dinner,,,,,,,,,2011-12-14,19:00,
 QIP,2012,plenary,Span Programs for Functions with Constant-Sized 1-certificates,Aleksandrs Belovs,Aleksandrs Belovs,,,1105.4024,,http://www.iro.umontreal.ca/~qip2012/videos/Talks/Thursday/QIP2012-Thursday-belovs.mov,,,,2011-12-15,09:00,55
 QIP,2012,regular,Improved Output-Sensitive Quantum Algorithms for Boolean Matrix Multiplication,Francois Le Gall,Francois Le Gall,,,,,,,,,2011-12-15,09:55,25
 QIP,2012,regular,"Discrete simulations of continuous-time query algorithms
@@ -35,12 +34,10 @@ QIP,2012,regular,"Discrete simulations of continuous-time query algorithms
 QIP,2012,regular,Hidden Symmetry Subgroup Problems,Miklos Santha,Thomas Decker;Gábor Ivanyos;Miklos Santha;Pawel Wocjan,,,,,http://www.iro.umontreal.ca/~qip2012/videos/Talks/Thursday/QIP2012-Thursday-santha.mov,,,,2011-12-15,11:05,25
 QIP,2012,regular,A quantum information cost trade-off for the Augmented Index,Ashwin Nayak,Rahul Jain;Ashwin Nayak,,,,,,,,,2011-12-15,11:30,25
 QIP,2012,regular,Hardness of approximation for quantum problems,Sevag Gharibian,Sevag Gharibian;Julia Kempe,,,,,,,,,2011-12-15,11:55,25
-QIP,2012,regular,Quantum rejection sampling,Jérémie Roland,"Jérémie Roland (Plenary lecture;based on 
-			joint work with Maris Ozols;Martin Roetteler)",,,1103.2774,,http://www.iro.umontreal.ca/~qip2012/videos/Talks/Thursday/QIP2012-Thursday-roland.mov,,,,2011-12-15,14:00,
+QIP,2012,regular,Quantum rejection sampling,Jérémie Roland,Jérémie Roland;Martin Roetteler;Maris Ozols,,,1103.2774,,http://www.iro.umontreal.ca/~qip2012/videos/Talks/Thursday/QIP2012-Thursday-roland.mov,,,,2011-12-15,14:00,
 QIP,2012,regular,Spectral Gap Amplification,Rolando Somma,Rolando Somma;Sergio Boixo,,,,,,,,,2011-12-15,14:55,25
 QIP,2012,invited,Quantum query complexity for state conversion,Rajat Mittal,Troy Lee;Rajat Mittal;Ben Reichardt;Robert Spalek;Mario Szegedy,,,,,http://www.iro.umontreal.ca/~qip2012/videos/Talks/Thursday/QIP2012-Thursday-mittal.mov,,,,2011-12-15,15:40,30
 QIP,2012,invited,Local random quantum circuits are approximate polynomial-designs,Fernando Brandao,Fernando Brandao;Aram Harrow;Michal Horodecki,,,,,http://www.iro.umontreal.ca/~qip2012/videos/Talks/Thursday/QIP2012-Thursday-brandao.mov,,,,2011-12-15,16:15,30
-QIP,2012,regular,,Business Meeting...,Business Meeting...,,,,,,,,,2011-12-15,16:45,
 QIP,2012,plenary,Increasing Entanglement by Separable Operations and New Monotones for W-type Entanglement,Eric Chitambar,Eric Chitambar;Wei Cui;Hoi-Kwong Lo,,,1106.1208,,http://www.iro.umontreal.ca/~qip2012/videos/Talks/Friday/QIP2012-Friday-chitambar.mov,,,,2011-12-16,09:00,55
 QIP,2012,regular,Quantum correlations require multipartite information principles,Rodrigo Gallego,Rodrigo Gallego;Lars Erik Würflinger;Antonio Acín;Miguel Navascués,,,1107.3738,,http://www.iro.umontreal.ca/~qip2012/videos/Talks/Friday/QIP2012-Friday-gallego.mov,,,,2011-12-16,09:55,25
 QIP,2012,regular,Preparing projected entangled pair states on a quantum computer,Martin Schwarz,Martin Schwarz;Kristan Temme;Frank Verstraete;Toby Cubitt;David Perez-Garcia,,,,,http://www.iro.umontreal.ca/~qip2012/videos/Talks/Friday/QIP2012-Friday-schwarz.mov,,,,2011-12-16,10:40,25
