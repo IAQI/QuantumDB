@@ -277,17 +277,43 @@ async def import_talk(
     # represented (presenter_author_id is single-valued); the speaker must be one
     # of the talk's authors (DB trigger enforces this). Always written so re-imports
     # stay idempotent — resolves to NULL when there is no unambiguous speaker.
+    #
+    # When the lone speaker is NOT among the authors, it's a stand-in presentation
+    # (e.g. a co-author/colleague presented on behalf of the authors). The trigger
+    # forbids a non-author presenter_author_id, so we follow the documented
+    # convention instead: leave presenter_author_id NULL and record the presenter
+    # in metadata.presenter_name (+ presenter_note).
     presenter_id = None
+    presenter_name = None
     if speakers and len(speakers) == 1:
         presenter_id = name_to_author_id.get(normalize_name(speakers[0]).lower())
         if presenter_id is None:
+            presenter_name = speakers[0]
             logger.debug(
-                f"Speaker '{speakers[0]}' not among authors of '{talk.get('title')}'"
+                f"Stand-in presenter '{speakers[0]}' not among authors of "
+                f"'{talk.get('title')}' — recording in metadata.presenter_name"
             )
     await conn.execute(
         "UPDATE publications SET presenter_author_id = $1 WHERE id = $2",
         presenter_id, publication_id
     )
+    # Merge or strip the metadata presenter keys (idempotent across re-imports).
+    if presenter_name:
+        await conn.execute(
+            "UPDATE publications SET metadata = COALESCE(metadata, '{}'::jsonb) || $1::jsonb "
+            "WHERE id = $2",
+            json.dumps({
+                "presenter_name": presenter_name,
+                "presenter_note": "presented on behalf of the authors (not an author)",
+            }),
+            publication_id,
+        )
+    else:
+        await conn.execute(
+            "UPDATE publications SET metadata = (metadata - 'presenter_name' - 'presenter_note') "
+            "WHERE id = $1 AND metadata ? 'presenter_name'",
+            publication_id,
+        )
 
     logger.info(f"Imported: {talk.get('title')} with {len(authors)} author(s)")
     return True
