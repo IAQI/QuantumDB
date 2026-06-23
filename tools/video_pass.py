@@ -108,8 +108,23 @@ def _run_yt_dlp(args):
     return proc.stdout
 
 
+def normalize_source_url(url):
+    """A bare channel URL (`@handle`, `/channel/<id>`, `/c/<name>`, `/user/<name>`)
+    enumerates almost nothing under `--flat-playlist`; YouTube only lists a channel's
+    uploads under its `/videos` tab. Append `/videos` to such URLs. Playlists and URLs
+    that already target a tab (`/videos`, `/streams`, `/shorts`) are left untouched, so
+    a registry entry can still point at a specific playlist or the livestream tab."""
+    u = url.rstrip("/")
+    if "list=" in u or "/playlist" in u:
+        return url
+    if u.endswith(("/videos", "/streams", "/shorts", "/featured")):
+        return url
+    return u + "/videos"
+
+
 def fetch_playlist(source_url, refresh=False):
     """Stage A: flat-enumerate a playlist/channel. Returns [{id, title}, ...]."""
+    source_url = normalize_source_url(source_url)
     CACHE_DIR.mkdir(exist_ok=True)
     key = hashlib.sha1(source_url.encode()).hexdigest()[:16]
     cache = CACHE_DIR / f"playlist_{key}.json"
@@ -403,7 +418,13 @@ def update_notes(existing, updates):
 
 # ─── per-CSV processing ─────────────────────────────────────────────────────
 
-def process_csv(csv_path, sources, confident, weak, refresh, sleep, write):
+def _video_year(v):
+    """Upload year as int, or None when the metadata fetch didn't yield a date."""
+    d = (v.get("upload_date") or "")[:4]
+    return int(d) if d.isdigit() else None
+
+
+def process_csv(csv_path, sources, confident, weak, refresh, sleep, write, filter_year=None):
     with open(csv_path, encoding="utf-8", newline="") as f:
         reader = csv.DictReader(f)
         fieldnames = reader.fieldnames
@@ -425,6 +446,16 @@ def process_csv(csv_path, sources, confident, weak, refresh, sleep, write):
             seen_ids.add(e["id"])
             meta = fetch_video(e["id"], refresh=refresh, sleep=sleep)
             videos.append(meta or {"id": e["id"], "title": e["title"], "description": ""})
+
+    # channel_filter_year: when a source is a channel hosting many conference years,
+    # keep only videos uploaded in the target year. Undated videos (fetch failed) are
+    # kept — title + author-overlap matching still gates them.
+    if filter_year:
+        before = len(videos)
+        videos = [v for v in videos if _video_year(v) in (None, filter_year)]
+        if before != len(videos):
+            print(f"    channel_filter_year={filter_year}: kept {len(videos)}/{before} videos",
+                  file=sys.stderr)
 
     assigned, used_vids = match_videos_to_talks(rows, videos, confident, weak)
 
@@ -576,6 +607,7 @@ def run_one(venue, year, registry, args, out):
     key = f"{venue.lower()}_{year}"
     entry = registry.get(key)
     sources = entry["sources"] if entry else []
+    filter_year = entry.get("channel_filter_year") if entry else None
     if not sources:
         # fallback: derive from existing video_url rows in the first CSV
         with open(csvs[0], encoding="utf-8", newline="") as f:
@@ -590,7 +622,8 @@ def run_one(venue, year, registry, args, out):
 
     for csv_path in csvs:
         rep = process_csv(csv_path, sources, args.confident, args.weak,
-                          args.refresh_cache, args.sleep, args.write)
+                          args.refresh_cache, args.sleep, args.write,
+                          filter_year=filter_year)
         if rep:
             print_report(rep, out)
 
