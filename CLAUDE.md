@@ -151,7 +151,7 @@ src/
 │       └── admin.rs     # Admin utilities (stats refresh)
 ├── middleware/          # Request middleware (implemented)
 │   ├── mod.rs
-│   └── auth.rs          # JWT-based Bearer token authentication
+│   └── auth.rs          # Opaque Bearer-token auth (constant-time comparison)
 └── utils/               # Shared utilities (implemented)
     ├── mod.rs
     ├── normalize.rs     # Unicode normalization, name similarity, loose matching
@@ -190,7 +190,7 @@ src/
 **Core tables** (see DATABASE_SCHEMA.md for full details):
 
 - **conferences** - QIP, QCrypt, TQC conference instances with location, dates, proceedings metadata, **archive URLs** (archive_url, archive_organizers_url, archive_pc_url, archive_steering_url, archive_program_url for static website backups)
-- **authors** - Unique individuals with name fields (full_name, family_name, given_name), ORCID, no email (privacy)
+- **authors** - Unique individuals with name fields (full_name, family_name, given_name), permanent URL `slug`, ORCID, `google_scholar_id`, no email (privacy)
 - **author_name_variants** - Track name changes, transliterations, abbreviations
 - **publications** - Papers/talks with arxiv_ids (array), paper_type enum, full-text search
 - **authorships** - Links authors to publications with position, point-in-time affiliation, **JSONB metadata field** for source tracking
@@ -292,7 +292,7 @@ API requests with other values will fail at the database level.
 
 ### Paper Types
 
-The `paper_type` enum has 8 values representing different publication/talk types as they appear in conference programs (not the selection mechanism):
+The `paper_type` enum has 9 values representing different publication/talk types as they appear in conference programs (not the selection mechanism):
 
 - `regular` - Standard contributed talk (use for both historical single-track conferences and modern parallel-session contributed talks)
 - `poster` - Poster presentation
@@ -302,6 +302,7 @@ The `paper_type` enum has 8 values representing different publication/talk types
 - `plenary` - Contributed plenary talk (use only for modern parallel-track era prestigious talks)
 - `plenary_short` - Short plenary at QIP (~15 min)
 - `plenary_long` - Long plenary at QIP (~25+ min)
+- `industry` - Sponsored industry-session talk (added migration 20260509000000; e.g. QIP 2019's industry session)
 
 **Note:** The `short` type was removed (as of migration 20260101000000) in favor of using `duration_minutes` to track talk length.
 
@@ -363,8 +364,8 @@ All handlers use SQLx query macros (`query!`, `query_as!`) for compile-time veri
 - **src/lib.rs** - Library exports for models, handlers, utils
 - **src/models/** - All database models (Conference, Author, Publication, CommitteeRole, etc.)
 - **src/handlers/** - All API request handlers with full CRUD operations
-- **src/utils/** - Name normalization (405 lines), conference slug parsing
-- **tests/api_tests.rs** - Comprehensive test suite (1155 lines) covering all CRUD operations
+- **src/utils/** - Name normalization (405 lines), conference slug parsing, pagination clamping, input validation
+- **tests/api_tests.rs** - Comprehensive test suite (1547 lines) covering all CRUD operations
 - **migrations/** - Database schema migrations (SQLx format, run in order)
   - `20251228160000_create_conferences_table.sql`
   - `20251228160001_create_authors_table.sql`
@@ -380,6 +381,12 @@ All handlers use SQLx query macros (`query!`, `query_as!`) for compile-time veri
   - `20260101000000_add_talk_presenter_and_types.sql` - Removes 'short' paper type, adds plenary types, presenter tracking, proceedings track flag, and talk scheduling fields
   - `20260505000000_coauthor_pairs_unique_index.sql` - Adds UNIQUE INDEX on `coauthor_pairs(author1_id, author2_id)` so the view can be refreshed with `REFRESH MATERIALIZED VIEW CONCURRENTLY`
   - `20260505000001_authors_orcid_unique.sql` - Promotes the partial ORCID index to a UNIQUE constraint (`authors_orcid_unique`) and drops the redundant `idx_authors_orcid`
+  - `20260509000000_add_industry_paper_type.sql` - Adds `industry` to the `paper_type` enum (sponsored industry-session talks)
+  - `20260513000000_add_author_slug.sql` - Adds permanent `authors.slug` (auto-assigned on INSERT via trigger, never recomputed); adds `quantumdb_slugify()` and the `unaccent` extension
+  - `20260513000100_add_author_google_scholar.sql` - Adds `authors.google_scholar_id` (bare `?user=` value from a Scholar profile URL)
+  - `20260514000000_author_stats_recent_affiliation.sql` - Rebuilds the `author_stats` view to add `recent_affiliation` (from the author's most recent dated appearance, not the last-write-wins scalar)
+  - `20260622000000_create_conference_business_meetings.sql` - Adds the `conference_business_meetings` table (1:1 with a conference): stats **announced** at the annual business meeting (registered participants, submission/acceptance counts), with per-fact provenance in `metadata.sources`. Distinct from the computed `conference_stats`. Populated from a tall `business_meeting.csv` per conference via `import_from_csv.py business-meetings`.
+  - `20260623000000_add_business_meeting_slides.sql` - Adds `conference_business_meetings.slides` (JSONB array of `{label, url}`) linking the business-meeting slide decks (PC-chair report, local-organizers report). In the tall CSV these are `slide:<label>` rows.
 - **seeds/** - Initial data (run manually after migrations)
   - `insert_qip_conferences.sql` - Historical QIP data (1998-2024)
   - `insert_qcrypt_conferences.sql` - Historical QCrypt data
@@ -403,8 +410,12 @@ All handlers use SQLx query macros (`query!`, `query_as!`) for compile-time veri
 - **ARCHITECTURE.md** - System design, modular structure, API patterns
 - **DATABASE_SCHEMA.md** - Complete database schema with all tables and fields
 - **TESTING.md** - Test suite documentation, how to run tests
+- **DATA_POPULATION.md** - How the CSV-based scrape/import data pipeline works
+- **docs/DATA_INGESTION_PLAN.md** - Authoritative working plan + per-conference inventory for filling out conference data
+- **docs/REMAINING_WORK.md** - Feature/roadmap punch list (data work superseded by DATA_INGESTION_PLAN.md)
 - **docs/CODE_REVIEW.md** - Comprehensive security + code-quality review with findings, severities, and fixes
 - **docs/archive/** - Historical planning documents
+- **TODO.md** - Quick scratchpad of pending work
 
 ## Development Workflow
 
@@ -439,7 +450,7 @@ When extending the codebase:
 
 2. **Follow established patterns**:
    - SQLx `query!` and `query_as!` macros for type safety (compile-time-checked against `.sqlx/`)
-   - UUID primary keys via `gen_random_uuid()`
+   - UUID primary keys via `uuid_generate_v4()` (the `uuid-ossp` extension)
    - `created_at`/`updated_at`/`creator`/`modifier` audit fields
    - JSONB `metadata` for extensible data (use for source tracking)
    - `State(Pool<Postgres>)` for database access in handlers (the project uses `with_state`, not `Extension`)

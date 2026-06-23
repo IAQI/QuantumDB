@@ -1,0 +1,9 @@
+venue,year,field,value,source_type,source_url,source_date,notes
+QCRYPT,2022,meeting_date,2022-08-31,slides,2022/slides/01_PC_Report.pdf,2022-08-31,
+QCRYPT,2022,talk_submissions,121,slides,2022/slides/01_PC_Report.pdf,2022-08-31,
+QCRYPT,2022,talks_accepted,33,slides,2022/slides/01_PC_Report.pdf,2022-08-31,"19 theory; 14 experiment"
+QCRYPT,2022,posters_accepted,130,slides,2022/slides/01_PC_Report.pdf,2022-08-31,"reported as ""130+"""
+QCRYPT,2022,registered_participants,389,slides,2022/slides/02_Local organizers report_business-meeting.pdf,2022-08-31,"total registrations"
+QCRYPT,2022,onsite_participants,45,slides,2022/slides/02_Local organizers report_business-meeting.pdf,2022-08-31,"approximate"
+QCRYPT,2022,slide:PC chair report,https://qcrypt.iaqi.org/2022/slides/01_PC_Report.pdf,slides,,2022-08-31,
+QCRYPT,2022,slide:local organizers report,https://qcrypt.iaqi.org/2022/slides/02_Local%20organizers%20report_business-meeting.pdf,slides,,2022-08-31,

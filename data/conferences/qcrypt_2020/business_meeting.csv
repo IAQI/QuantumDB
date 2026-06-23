@@ -1,0 +1,7 @@
+venue,year,field,value,source_type,source_url,source_date,notes
+QCRYPT,2020,meeting_date,2020-08-13,slides,2020/slides/slides-pc.pdf,2020-08-13,
+QCRYPT,2020,talk_submissions,99,slides,2020/slides/slides-pc.pdf,2020-08-13,"95 in 2019, 102 in 2018 (cross-referenced in the PC deck)"
+QCRYPT,2020,talks_accepted,33,slides,2020/slides/slides-pc.pdf,2020-08-13,"including 3 mergers, giving 30 contributed talks"
+QCRYPT,2020,posters_accepted,91,slides,2020/slides/slides-pc.pdf,2020-08-13,"including 37 poster-only submissions"
+QCRYPT,2020,slide:PC chair report,https://qcrypt.iaqi.org/2020/slides/slides-pc.pdf,slides,,2020-08-13,
+QCRYPT,2020,slide:local organizers report,https://qcrypt.iaqi.org/2020/slides/LocalChairQCrypt2020.pdf,slides,,2020-08-13,

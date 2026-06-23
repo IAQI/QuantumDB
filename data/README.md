@@ -11,6 +11,7 @@ the supported way to contribute corrections.
 ```
 data/
   SOURCES.md                             # provenance per conference (which page each CSV came from)
+  author_aliases.csv                     # curated name-change/identity merges (applied by tools/dedup_authors.py)
   conferences/
     qip_2024/
       committees.csv
@@ -76,6 +77,51 @@ Order in `affiliations` must match the order in `authors`.
 Only `venue`, `year`, `paper_type`, and `title` are required; everything else
 may be empty.
 
+### `business_meeting.csv`
+
+Stats announced at a conference's annual business meeting (registered
+participants, submission/acceptance counts, etc.). Unlike the other CSVs, this
+one is **tall**: one row per announced *fact*, so you can append just the facts
+you have — each carrying its own provenance. Much of this data arrives ad-hoc by
+email from past chairs, so per-fact `source_type` matters.
+
+| Column        | Description                                                                 |
+|---------------|-----------------------------------------------------------------------------|
+| `venue`       | `QIP`, `QCRYPT`, or `TQC` (upper-case)                                       |
+| `year`        | Conference year                                                             |
+| `field`       | Which fact this row records (see vocabulary below)                          |
+| `value`       | The value (integer, `YYYY-MM-DD`, percent, or JSON for `track_breakdown`)   |
+| `source_type` | `slides`, `conference_website`, `email`, `manual`, … (provenance)           |
+| `source_url`  | Where it came from — archive path, page, or deck (optional)                 |
+| `source_date` | When it was sourced/announced (optional)                                    |
+| `notes`       | Per-fact annotation (optional; folded into the row's narrative notes)       |
+
+`field` vocabulary: `meeting_date`, `registered_participants`,
+`onsite_participants`, `countries_represented`, `talk_submissions`,
+`talks_accepted`, `posters_submitted`, `posters_accepted`, `acceptance_rate`,
+`track_breakdown` (value is a JSON object — used for TQC's proceedings/workshop/
+poster-only splits), and `notes` (general narrative). Unknown field names are
+warned about on import and stashed in the row's `metadata.extra` (never dropped).
+
+**Slide-deck links** use a `slide:<label>` field, where `value` is the full URL;
+the label is shown as the link text on the conference page. There's usually a
+PC-chair report and a local-organizers report, e.g.:
+
+```
+QCRYPT,2022,slide:PC chair report,https://qcrypt.iaqi.org/2022/slides/01_PC_Report.pdf,slides,,2022-08-31,
+QCRYPT,2022,slide:local organizers report,https://qcrypt.iaqi.org/2022/slides/02_Local%20organizers%20report_business-meeting.pdf,slides,,2022-08-31,
+```
+
+Only `http(s)` URLs are rendered. Multiple `slide:` rows are kept in file order.
+
+The importer pivots all rows for a conference into one
+`conference_business_meetings` row and records per-fact provenance in
+`metadata.sources`. Re-importing a file overwrites that conference's row from
+the CSV, so keep all known facts for a conference in its file.
+
+Prizes (best paper / best student paper) are **not** recorded here — they live on
+the winning publication's `award` field in `talks.csv`.
+
 ## How to submit a fix
 
 1. Edit the CSV in your favourite editor (VS Code, Excel, Numbers, LibreOffice).
@@ -92,8 +138,9 @@ import locally (against the dockerised dev DB):
 
 ```bash
 cd tools/scrapers
-./import_from_csv.py committees ../../data/conferences/qip_2024/committees.csv --dry-run
-./import_from_csv.py talks      ../../data/conferences/qip_2024/talks.csv      --dry-run
+./import_from_csv.py committees        ../../data/conferences/qip_2024/committees.csv      --dry-run
+./import_from_csv.py talks             ../../data/conferences/qip_2024/talks.csv           --dry-run
+./import_from_csv.py business-meetings ../../data/conferences/qcrypt_2022/business_meeting.csv --dry-run
 ```
 
 The same directory holds the scrapers themselves — see

@@ -1,0 +1,4 @@
+venue,year,field,value,source_type,source_url,source_date,notes
+TQC,2024,talk_submissions,460,conference_website,2025/talks-2024/index.html,,
+TQC,2024,talks_accepted,92,conference_website,2025/talks-2024/index.html,,
+TQC,2024,acceptance_rate,20,conference_website,2025/talks-2024/index.html,,"92 out of 460 = 20%"

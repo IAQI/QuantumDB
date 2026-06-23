@@ -78,8 +78,13 @@ CREATE TABLE authors (
     given_name          TEXT,                 -- First/given name: "Alice B."
     normalized_name     TEXT NOT NULL,        -- Lowercase, no accents, for matching
 
+    -- Permanent human-readable URL slug. Auto-assigned on INSERT via the
+    -- authors_assign_slug() trigger; never recomputed (URLs stay stable).
+    slug                TEXT NOT NULL,
+
     -- Public identifiers (no private data like email)
     orcid               TEXT,                 -- ORCID identifier (0000-0000-0000-0000)
+    google_scholar_id   TEXT,                 -- Google Scholar user_id (the ?user=… value)
     homepage_url        TEXT,                 -- Personal/academic website
 
     -- Current affiliation (historical affiliations in authorships)
@@ -98,9 +103,16 @@ CREATE TABLE authors (
 -- Indexes
 CREATE INDEX idx_authors_normalized_name ON authors(normalized_name);
 CREATE INDEX idx_authors_family_name ON authors(family_name);
-CREATE INDEX idx_authors_orcid ON authors(orcid) WHERE orcid IS NOT NULL;
+CREATE UNIQUE INDEX authors_orcid_unique ON authors(orcid) WHERE orcid IS NOT NULL;
+CREATE UNIQUE INDEX authors_slug_unique ON authors(slug);
 CREATE INDEX idx_authors_metadata ON authors USING GIN(metadata);
 ```
+
+> **Note**: `slug`, `google_scholar_id`, the `authors_orcid_unique` constraint, and the
+> slug auto-assignment trigger were added in later migrations (`20260505000001`,
+> `20260513000000`, `20260513000100`). The `slug` is computed from
+> `family_name`/`given_name` (accents stripped, lowercased, non-alphanumeric collapsed
+> to hyphens) with a deterministic numeric suffix on collision.
 
 ### 3. author_name_variants
 Tracks alternative names/spellings for the same author (name changes, transliterations, etc.)
@@ -134,7 +146,8 @@ CREATE TYPE paper_type AS ENUM (
     'keynote',          -- Keynote address
     'plenary',          -- Contributed plenary talk (more prestigious)
     'plenary_short',    -- Short plenary at QIP (15 min)
-    'plenary_long'      -- Long plenary at QIP (25+ min)
+    'plenary_long',     -- Long plenary at QIP (25+ min)
+    'industry'          -- Sponsored industry-session talk (added migration 20260509000000)
 );
 
 CREATE TABLE publications (
@@ -214,6 +227,7 @@ Paper types represent what appears in conference programs, not the selection mec
 - `plenary` - Contributed plenary talk (use only for modern parallel-track era prestigious talks)
 - `plenary_short` - Short plenary at QIP (~15 min)
 - `plenary_long` - Long plenary at QIP (~25+ min)
+- `industry` - Sponsored industry-session talk (not peer-reviewed, not an academic invited speaker; e.g. QIP 2019's industry session)
 
 **Note:** The `short` type was removed in favor of using `duration_minutes` to track talk length. Historical short talks should use `regular` with appropriate duration values.
 
@@ -307,7 +321,6 @@ CREATE TABLE committee_roles (
     updated_at          TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     creator             TEXT NOT NULL,
     modifier            TEXT NOT NULL,
-    metadata            JSONB DEFAULT '{}'::jsonb,
 
     -- A person can have multiple roles at same conference (e.g., OC chair + PC member)
     -- but not the same role twice
@@ -319,6 +332,48 @@ CREATE INDEX idx_committee_roles_conference ON committee_roles(conference_id);
 CREATE INDEX idx_committee_roles_author ON committee_roles(author_id);
 CREATE INDEX idx_committee_roles_committee ON committee_roles(committee, position);
 ```
+
+### 7. conference_business_meetings
+
+Statistics **announced** at a conference's annual business meeting (registered
+participants, submission/acceptance counts, prizes context). One row per
+conference (1:1). These are sourced, point-in-time figures and are deliberately
+distinct from the **computed** counts in the `conference_stats` view — the two
+may legitimately diverge (e.g. "130+ posters" announced vs N imported). Added in
+migration `20260622000000`.
+
+```sql
+CREATE TABLE conference_business_meetings (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    conference_id UUID NOT NULL UNIQUE REFERENCES conferences(id) ON DELETE CASCADE,
+    meeting_date DATE,
+    -- Announced participation
+    registered_participants INT,
+    onsite_participants     INT,
+    countries_represented   INT,
+    -- Announced submission / acceptance
+    talk_submissions  INT,
+    talks_accepted    INT,
+    posters_submitted INT,
+    posters_accepted  INT,
+    acceptance_rate   NUMERIC(4,1),
+    track_breakdown   JSONB,        -- TQC proceedings/workshop/poster-only splits
+    slides            JSONB NOT NULL DEFAULT '[]'::jsonb,  -- [{label, url}] links to slide decks (added 20260623000000)
+    notes             TEXT,
+    metadata          JSONB NOT NULL DEFAULT '{}'::jsonb,  -- per-fact provenance: metadata.sources
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    creator TEXT NOT NULL,
+    modifier TEXT NOT NULL
+);
+
+-- Index
+CREATE INDEX idx_conference_business_meetings_metadata
+    ON conference_business_meetings USING GIN (metadata);
+```
+
+Populated from a tall `business_meeting.csv` per conference (see `data/README.md`).
+Prizes are **not** stored here — they live on `publications.award`.
 
 ## Example Data
 
@@ -357,6 +412,7 @@ VALUES ('...', '...', 'SC', 'member', '2020-01-01', '2024-12-31', 'system', 'sys
 
 ### Author Statistics
 ```sql
+-- Rebuilt by migration 20260514000000 to add recent_affiliation.
 CREATE MATERIALIZED VIEW author_stats AS
 SELECT
     a.id,
@@ -367,13 +423,33 @@ SELECT
     COUNT(DISTINCT CASE WHEN cr.position IN ('chair', 'co_chair') THEN cr.id END) as leadership_count,
     array_agg(DISTINCT c.venue ORDER BY c.venue) FILTER (WHERE c.venue IS NOT NULL) as venues,
     MIN(c.year) as first_year,
-    MAX(c.year) as last_year
+    MAX(c.year) as last_year,
+    -- Affiliation from the author's most recent dated appearance (across
+    -- authorships + committee_roles), falling back to authors.affiliation.
+    -- Replaces displaying the last-write-wins authors.affiliation scalar.
+    COALESCE(
+        (SELECT app.affiliation FROM (
+            SELECT au2.affiliation, c2.year
+            FROM authorships au2
+            JOIN publications p2 ON au2.publication_id = p2.id
+            JOIN conferences c2 ON p2.conference_id = c2.id
+            WHERE au2.author_id = a.id AND au2.affiliation IS NOT NULL AND au2.affiliation <> ''
+            UNION ALL
+            SELECT cr2.affiliation, c2.year
+            FROM committee_roles cr2
+            JOIN conferences c2 ON cr2.conference_id = c2.id
+            WHERE cr2.author_id = a.id AND cr2.affiliation IS NOT NULL AND cr2.affiliation <> ''
+        ) app
+        ORDER BY app.year DESC NULLS LAST
+        LIMIT 1),
+        a.affiliation
+    ) as recent_affiliation
 FROM authors a
 LEFT JOIN authorships au ON a.id = au.author_id
 LEFT JOIN publications p ON au.publication_id = p.id
 LEFT JOIN committee_roles cr ON a.id = cr.author_id
 LEFT JOIN conferences c ON (p.conference_id = c.id OR cr.conference_id = c.id)
-GROUP BY a.id, a.full_name, a.family_name;
+GROUP BY a.id, a.full_name, a.family_name, a.affiliation;
 
 CREATE UNIQUE INDEX idx_author_stats_id ON author_stats(id);
 ```

@@ -71,6 +71,31 @@ struct ConferenceDetail {
     submission_count: String,
     acceptance_count: String,
     acceptance_rate: String,
+    /// Stats announced at the business meeting (None if not recorded).
+    business_meeting: Option<BusinessMeetingView>,
+}
+
+/// Pre-formatted business-meeting figures for display. Each field is an empty
+/// string when that figure wasn't announced/recorded; the template renders a
+/// line only when its value is non-empty.
+struct BusinessMeetingView {
+    meeting_date: String,
+    registered_participants: String,
+    onsite_participants: String,
+    countries_represented: String,
+    talk_submissions: String,
+    talks_accepted: String,
+    posters_submitted: String,
+    posters_accepted: String,
+    acceptance_rate: String,
+    notes: String,
+    /// Links to the business-meeting slide decks (PC report, local report, …).
+    slides: Vec<SlideLink>,
+}
+
+struct SlideLink {
+    label: String,
+    url: String,
 }
 
 struct PublicationItem {
@@ -415,6 +440,64 @@ pub async fn conference_detail(
         });
     }
 
+    // Business-meeting stats (announced figures), if recorded for this conference
+    let business_meeting = sqlx::query!(
+        r#"
+        SELECT
+            meeting_date,
+            registered_participants,
+            onsite_participants,
+            countries_represented,
+            talk_submissions,
+            talks_accepted,
+            posters_submitted,
+            posters_accepted,
+            acceptance_rate::text as acceptance_rate,
+            notes,
+            slides
+        FROM conference_business_meetings
+        WHERE conference_id = $1
+        "#,
+        conference_id
+    )
+    .fetch_optional(&pool)
+    .await
+    .map_err(|e| {
+        eprintln!("Database error fetching business meeting: {}", e);
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?
+    .map(|bm| {
+        let int = |v: Option<i32>| v.map(|n| n.to_string()).unwrap_or_default();
+        // Parse the slides JSONB array into validated {label, url} links.
+        // Only http(s) URLs are kept (these render as <a href>).
+        let slides: Vec<SlideLink> = serde_json::from_value::<Vec<serde_json::Value>>(bm.slides)
+            .unwrap_or_default()
+            .into_iter()
+            .filter_map(|s| {
+                let url = s.get("url")?.as_str()?.to_string();
+                let lower = url.to_ascii_lowercase();
+                if !(lower.starts_with("http://") || lower.starts_with("https://")) {
+                    return None;
+                }
+                let label = s.get("label").and_then(|l| l.as_str()).unwrap_or("slides").to_string();
+                Some(SlideLink { label, url })
+            })
+            .collect();
+        BusinessMeetingView {
+            meeting_date: bm.meeting_date.map(|d| d.to_string()).unwrap_or_default(),
+            registered_participants: int(bm.registered_participants),
+            onsite_participants: int(bm.onsite_participants),
+            countries_represented: int(bm.countries_represented),
+            talk_submissions: int(bm.talk_submissions),
+            talks_accepted: int(bm.talks_accepted),
+            posters_submitted: int(bm.posters_submitted),
+            posters_accepted: int(bm.posters_accepted),
+            acceptance_rate: bm.acceptance_rate.map(|r| format!("{}%", r)).unwrap_or_default(),
+            notes: bm.notes.unwrap_or_default(),
+            slides,
+        }
+    });
+
     let template = ConferenceDetailTemplate {
         conference: ConferenceDetail {
             slug: conference.slug.unwrap_or_default(),
@@ -437,6 +520,7 @@ pub async fn conference_detail(
             submission_count: conference.submission_count.map(|s| s.to_string()).unwrap_or_else(|| String::from("-")),
             acceptance_count: conference.acceptance_count.map(|a| a.to_string()).unwrap_or_else(|| String::from("-")),
             acceptance_rate: conference.acceptance_rate.map(|r| format!("{}%", r)).unwrap_or_else(|| String::from("-")),
+            business_meeting,
         },
         publications,
         committee_by_type,

@@ -7,6 +7,22 @@ file under `data/conferences/`. Local archive paths for QIP are relative to
 QCrypt committee provenance is not yet captured here; see
 `tools/scrapers/committees/qcrypt.py` for the current source URLs.
 
+> **QCrypt student paper prizes** (the `Best Student Paper Award …` values in
+> the `award` column of each `qcrypt_<year>/talks.csv`) come from the official
+> history page <https://qcrypt.net/2026/history/#student-paper-prizes>
+> (2012–2025; Theory/Experiment split from 2017 on). Note: for 2013 that page
+> lists the recipient as Tobias Gehring, whereas our talk row and the archived
+> 2013 business-meeting page name Tobias Eberle as the speaker — same paper,
+> unresolved name discrepancy.
+
+> **Business-meeting stats** (`business_meeting.csv`) carry their provenance
+> per-fact, inline in each file's `source_type`/`source_url`/`source_date`
+> columns, so they aren't duplicated here. The richest source is the QCrypt
+> business-meeting **slide decks** under `~/Web/qcrypt.iaqi.org/<year>/slides/`
+> (PC/Local-Chair reports, 2020–2023, read via `pdftotext`); TQC/QIP figures
+> come from archived HTML. Many gaps will only be fillable by emailing past
+> chairs — those rows use `source_type=email`.
+
 ---
 
 # QIP

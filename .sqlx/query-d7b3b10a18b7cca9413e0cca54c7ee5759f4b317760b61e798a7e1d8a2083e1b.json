@@ -1,0 +1,82 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT\n            meeting_date,\n            registered_participants,\n            onsite_participants,\n            countries_represented,\n            talk_submissions,\n            talks_accepted,\n            posters_submitted,\n            posters_accepted,\n            acceptance_rate::text as acceptance_rate,\n            notes,\n            slides\n        FROM conference_business_meetings\n        WHERE conference_id = $1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "meeting_date",
+        "type_info": "Date"
+      },
+      {
+        "ordinal": 1,
+        "name": "registered_participants",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 2,
+        "name": "onsite_participants",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "countries_represented",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 4,
+        "name": "talk_submissions",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 5,
+        "name": "talks_accepted",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 6,
+        "name": "posters_submitted",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 7,
+        "name": "posters_accepted",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 8,
+        "name": "acceptance_rate",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "notes",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 10,
+        "name": "slides",
+        "type_info": "Jsonb"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      null,
+      true,
+      false
+    ]
+  },
+  "hash": "d7b3b10a18b7cca9413e0cca54c7ee5759f4b317760b61e798a7e1d8a2083e1b"
+}

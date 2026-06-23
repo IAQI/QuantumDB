@@ -1,0 +1,7 @@
+venue,year,field,value,source_type,source_url,source_date,notes
+QCRYPT,2021,meeting_date,2021-08-26,slides,2021/slides/business-meeting.pdf,2021-08-26,
+QCRYPT,2021,talk_submissions,137,slides,2021/slides/business-meeting.pdf,2021-08-26,"versus ~100 in a typical year"
+QCRYPT,2021,talks_accepted,29,slides,2021/slides/business-meeting.pdf,2021-08-26,"including 2 merges"
+QCRYPT,2021,acceptance_rate,23,slides,2021/slides/business-meeting.pdf,2021-08-26,
+QCRYPT,2021,posters_accepted,141,slides,2021/slides/business-meeting.pdf,2021-08-26,
+QCRYPT,2021,slide:business meeting slides,https://qcrypt.iaqi.org/2021/slides/business-meeting.pdf,slides,,2021-08-26,"combined PC + local report"

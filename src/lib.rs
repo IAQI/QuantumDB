@@ -10,6 +10,7 @@ pub use models::{
     CommitteeRole, CommitteeType, CommitteePosition, CreateCommitteeRole, UpdateCommitteeRole,
     Conference, CreateConference, UpdateConference,
     Publication, PaperType, CreatePublication, UpdatePublication,
+    BusinessMeeting, CreateBusinessMeeting, UpdateBusinessMeeting,
     normalize_name,
 };
 pub use handlers::*;

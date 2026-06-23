@@ -1,0 +1,3 @@
+venue,year,field,value,source_type,source_url,source_date,notes
+QIP,2023,registered_participants,1000,conference_website,index.html,,"approximate — site descriptor ""around 1000 attendees ... (as of 2023)"", not an official 2023 count"
+QIP,2023,talk_submissions,500,conference_website,index.html,,"approximate — site descriptor ""500 submissions (as of 2023)"", not an official 2023 count"

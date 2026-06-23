@@ -1,342 +1,258 @@
 # Data Population Guide
 
-This guide covers populating QuantumDB with conference data from various sources.
+How conference data (committees, talks, proceedings) gets into QuantumDB.
 
-## Overview
+> **Roadmap vs. mechanics.** This file documents the *mechanics* of the
+> pipeline. For the *plan* — which conference-years are complete, partial, or
+> missing, and how each gap should be filled — see
+> [`docs/DATA_INGESTION_PLAN.md`](docs/DATA_INGESTION_PLAN.md), which is the
+> authoritative working document.
 
-QuantumDB supports two main data population approaches:
+## The pipeline
 
-1. **Committee Scraper** - Extracts committee memberships from archived websites
-2. **HotCRP Importer** (planned) - Imports publications and authorships from HotCRP JSON exports
+QuantumDB uses a **CSV-as-source-of-truth** model:
 
-Both tools use **direct database access** via SQLx for performance and transactional integrity.
+```
+  scrape (or hand-extract)        import
+  ───────────────────────►  CSV  ─────────►  PostgreSQL
+                             │
+                   data/conferences/<venue>_<year>/
+```
 
-## Prerequisites
+1. **CSVs are the source of truth.** Every conference's data lives in
+   `data/conferences/<venue>_<year>/` as plain CSV files. To *fix* data, edit
+   the CSV and re-import — don't patch the database directly.
+2. **Scrapers and the importer are separate.** Scraping produces a CSV;
+   importing reads a CSV into the database. They never talk to each other
+   directly.
+3. **Provenance is tracked.** `data/SOURCES.md` records where each CSV came
+   from; row-level `metadata` JSONB records `source_type` per row.
+
+### CSV layout
+
+```
+data/conferences/
+├── qip_2024/
+│   ├── committees.csv      # committee membership
+│   └── talks.csv           # talks / papers
+├── tqc_2023/
+│   ├── committees.csv
+│   ├── proceedings.csv     # TQC only — formal LIPIcs proceedings track
+│   └── workshop.csv        # TQC only — workshop track
+└── ...
+```
+
+- QIP / QCrypt use `committees.csv` + `talks.csv`.
+- TQC uses `committees.csv` + `proceedings.csv` + `workshop.csv` (no `talks.csv`).
+- Full column schemas for each CSV type are in [`data/README.md`](data/README.md).
+
+## Tooling
+
+The unified scrape + import package lives in `tools/scrapers/`:
+
+```
+tools/scrapers/
+├── scrape_to_csv.py        # CLI: scrape a conference → CSV
+├── import_from_csv.py      # CLI: import CSV(s) → database
+├── committees/             # per-venue committee scrapers + importer
+│   ├── qip.py  qcrypt.py  tqc.py
+│   ├── runner.py           # scrape orchestration
+│   └── importer.py         # DB import logic
+└── talks/                  # per-venue talk scrapers + importer
+    ├── qip.py  qcrypt.py  tqc.py
+    ├── runner.py
+    └── importer.py
+```
+
+Archived one-off and historical scrapers (QIP 2026 JSON converter, the
+TQC 2023–24 BibTeX converter, the old monolithic scrapers, the LIPIcs fetcher)
+live under `tools/one_off/` — kept for reference, not part of the live pipeline.
+
+### Prerequisites
 
 ```bash
-# Ensure database is running
+# Stack running (provides the database on localhost:5432)
 docker compose up -d
 
-# Or local PostgreSQL
-brew services start postgresql@15
+# Python deps for the scrapers
+pip install -r tools/scrapers/requirements.txt
 
-# Verify migrations are current
-sqlx migrate run
-
-# Load conference metadata (if not already done)
-psql quantumdb < seeds/insert_qip_conferences.sql
-psql quantumdb < seeds/insert_qcrypt_conferences.sql
-psql quantumdb < seeds/insert_tqc_conferences.sql
+# The importer needs DATABASE_URL (or pass --db-url explicitly)
+export DATABASE_URL=postgres://quantumdb:quantumdb@localhost:5432/quantumdb
 ```
 
-## Committee Scraper
-
-### Quick Start
+## Scraping to CSV
 
 ```bash
-# Dry run to preview what would be scraped
-cargo run -p scrape_committees -- --dry-run
+cd tools/scrapers
 
-# Scrape all conferences with archive URLs
-cargo run -p scrape_committees
+# Scrape committees for one conference (from a local HTML mirror under ~/Web)
+./scrape_to_csv.py committees --venue QIP --year 2024 --local
 
-# Scrape specific venue
-cargo run -p scrape_committees -- --venue QIP
+# Scrape talks
+./scrape_to_csv.py talks --venue QCRYPT --year 2023 --local
 
-# Scrape specific conference
-cargo run -p scrape_committees -- --venue QIP --year 2024
+# Fetch from the live web instead of a local mirror (omit --local)
+./scrape_to_csv.py committees --venue QCRYPT --year 2024
 
-# Force re-scrape (overwrites existing data)
-cargo run -p scrape_committees -- --force
+# Point at a specific local file / base directory
+./scrape_to_csv.py talks --venue QIP --year 2024 --local-file ~/Web/qip.iaqi.org/2024/program.html
 ```
 
-### What It Does
+Output is written to `data/conferences/<venue>_<year>/<committees|talks>.csv`.
+Use `--force` to overwrite an existing file.
 
-1. Queries `conferences` table for entries with archive URLs
-2. Fetches HTML from `archive_pc_url`, `archive_organizers_url`, `archive_steering_url`
-3. Parses committee members using generic HTML selectors
-4. Extracts names, affiliations, positions
-5. Uses `normalize_name()` to find or create authors
-6. Inserts into `committee_roles` with source metadata
+**Scraper coverage is uneven** — the QCrypt scrapers are year-aware and cover
+all years; the QIP talk scraper is currently tailored to recent years. For
+conference-years with no usable scraper (old archives, JS-rendered SPAs,
+PDF-only programs), CSVs are built by **direct extraction** from a saved local
+source, following the verification protocol in `docs/DATA_INGESTION_PLAN.md`.
+Either way, the result is the same: a CSV in `data/conferences/`.
 
-### Output Example
-
-```
-INFO scrape_committees: Connected to database
-INFO scrape_committees: Found 3 conference(s) to scrape
-INFO scrape_committees: Processing QIP 2024
-INFO scrape_committees: Scraping PC from: https://web.archive.org/web/20240315/qip2024.tw/pc
-INFO scrape_committees: Successfully inserted 47 committee members for QIP 2024
-```
-
-### Verify Results
+## Importing a CSV
 
 ```bash
-# Check inserted committee members
-psql quantumdb -c "
-SELECT c.venue, c.year, COUNT(*) as members
-FROM committee_roles cr
-JOIN conferences c ON cr.conference_id = c.id
-GROUP BY c.venue, c.year
-ORDER BY c.year DESC, c.venue;
-"
+cd tools/scrapers
 
-# View specific conference committee
-psql quantumdb -c "
-SELECT a.full_name, cr.committee, cr.position, cr.role_title, cr.affiliation
-FROM committee_roles cr
-JOIN authors a ON cr.author_id = a.id
-JOIN conferences c ON cr.conference_id = c.id
-WHERE c.venue = 'QIP' AND c.year = 2024
-ORDER BY cr.committee, cr.position;
-"
+# Always dry-run first — parses and validates without writing
+./import_from_csv.py committees ../../data/conferences/qip_2024/committees.csv --dry-run
+
+# Real import
+./import_from_csv.py committees ../../data/conferences/qip_2024/committees.csv
+
+# Talks
+./import_from_csv.py talks ../../data/conferences/qcrypt_2023/talks.csv
+
+# Multiple files at once
+./import_from_csv.py talks ../../data/conferences/tqc_2023/*.csv
+
+# Business-meeting stats (tall CSV: one row per announced fact)
+./import_from_csv.py business-meetings ../../data/conferences/qcrypt_2022/business_meeting.csv
+
+# Override the database connection
+./import_from_csv.py committees path/to.csv --db-url postgres://user:pass@host/db
 ```
 
-## HotCRP Importer (Planned)
+The importer:
+- Resolves the conference by `(venue, year)` — it must already be seeded.
+- Finds or creates authors via normalized-name matching (see "Deduplication");
+  existing authors are updated in place rather than duplicated.
+- Inserts `committee_roles` / `publications` + `authorships` rows. The
+  committees importer does explicit find-then-update-or-insert; the talks
+  importer generates `canonical_key`s and wraps each row in its own savepoint
+  so one bad row doesn't poison the rest of the file.
+- Writes a `metadata` JSONB with source info on each row. **Note:** the talks
+  importer currently hard-codes `source_type: "conference_website"` for every
+  row. The CSV-driven `source_type` convention (`"scraper"` vs
+  `"claude_extraction"`) is described in `docs/DATA_INGESTION_PLAN.md` as a
+  planned surgical change to `talks/importer.py` — it is **not yet wired up**,
+  so verify before relying on `source_type` to distinguish trust classes.
 
-HotCRP conference management software can export submission data as JSON. This will be used to populate publications and authorships.
+### After a bulk import
 
-### Planned Usage
+Refresh the materialized views:
 
 ```bash
-# Import from HotCRP JSON export
-cargo run -p import_hotcrp -- qip2024.json
-
-# Dry run mode
-cargo run -p import_hotcrp -- --dry-run qip2024.json
-
-# Specify conference
-cargo run -p import_hotcrp -- --conference QIP2024 qip2024.json
+docker exec quantumdb-db-1 psql -U quantumdb -d quantumdb -c \
+  "REFRESH MATERIALIZED VIEW CONCURRENTLY author_stats;
+   REFRESH MATERIALIZED VIEW CONCURRENTLY conference_stats;
+   REFRESH MATERIALIZED VIEW CONCURRENTLY coauthor_pairs;"
 ```
 
-### What It Will Do
+Or hit the auth-protected `GET /admin/refresh-stats` endpoint.
 
-1. Parse HotCRP JSON export
-2. Extract accepted papers (or all submissions)
-3. For each paper:
-   - Create publication record
-   - Parse author names and affiliations
-   - Use `normalize_name()` to find or create authors
-   - Create authorship records linking authors to publications
-   - Populate metadata JSONB with HotCRP source info
+## Prerequisite: conference metadata
 
-### Expected HotCRP JSON Structure
+The importer matches CSVs to conferences by `(venue, year)`, so the conference
+row must exist first. Conference metadata is seeded from:
+
+```
+seeds/insert_qip_conferences.sql
+seeds/insert_qcrypt_conferences.sql
+seeds/insert_tqc_conferences.sql
+```
+
+These run automatically on a fresh database (`docker-init.sh` runs everything
+in `seeds/` after `migrations/`). To add a not-yet-seeded year, add it to the
+relevant seed file (or insert it via the API) before importing its CSVs.
+
+## Data quality
+
+### Name normalization & deduplication
+
+Authors are matched by **normalized name** (`normalize_name()` in
+`src/utils/normalize.rs` — Unicode NFKD, accent stripping, lowercasing; the
+importer mirrors this logic). A new author row is created only when no match
+is found. `tools/dedup_authors.py` then consolidates identities (re-run it,
+with `--commit`, after a bulk import). It does two things:
+
+- **Curated aliases** (`data/author_aliases.csv`, columns
+  `former_name,current_name,variant_type,notes`) — explicit merges that
+  normalization can't detect, above all **surname changes** (e.g. "Tobias
+  Eberle" → "Tobias Gehring"). Matched by exact `full_name`. This file is the
+  durable home for such merges so they survive a rebuild-from-CSV — the DB has
+  no signal that two different surnames are one person.
+- **Normalized-name collapse** — residual duplicates that share a
+  `normalized_name` (e.g. "Alex B. Grilo" vs "Alex Bredariol Grilo").
+
+In both cases each authorship's `published_as_name` is preserved (the paper
+keeps the name it was published under) and the merged spelling is recorded in
+`author_name_variants`.
+
+Find potential duplicates:
+
+```bash
+docker exec quantumdb-db-1 psql -U quantumdb -d quantumdb -c "
+SELECT normalized_name, COUNT(*), array_agg(full_name)
+FROM authors GROUP BY normalized_name HAVING COUNT(*) > 1;"
+```
+
+### Source tracking
+
+Imported rows carry a `metadata` JSONB with provenance:
 
 ```json
 {
-  "submissions": [
-    {
-      "pid": 123,
-      "title": "Quantum Error Correction with...",
-      "authors": [
-        {
-          "first": "Alice",
-          "last": "Quantum",
-          "email": "alice@example.edu",
-          "affiliation": "MIT"
-        }
-      ],
-      "abstract": "We present...",
-      "decision": "accept",
-      "submission_time": "2024-01-15T10:30:00Z"
-    }
-  ]
+  "source_type": "conference_website",
+  "source_url": "...",
+  "scraped_date": "2026-05-09",
+  "notes": "Imported from CSV"
 }
 ```
 
-## Database State Management
+The *intended* `source_type` convention distinguishes trust classes —
+`"scraper"` (re-runnable Python parser) vs `"claude_extraction"` (one-shot
+direct extraction) vs the standard `"dblp"` / `"arxiv"` / `"manual_entry"` /
+`"orcid"` values. **As currently coded**, the talks importer writes
+`"conference_website"` for every row regardless of origin; the CSV-column-driven
+convention is planned but not yet implemented. See
+`docs/DATA_INGESTION_PLAN.md` for the full design and the exact importer change
+required.
 
-### Approach
+## Verification
 
-1. **Migrations** - Schema changes (already in `migrations/`)
-2. **Seeds** - Minimal reference data (conference metadata)
-3. **Scraped Data** - Bulk imports from tools (committees, publications)
-4. **Snapshots** - Periodic backups after major imports
+For any CSV before/after import:
 
-### Creating Snapshots
-
-After running scrapers, create snapshots:
-
-```bash
-# Snapshot specific tables
-pg_dump quantumdb \
-  --data-only \
-  --table=authors \
-  --table=committee_roles \
-  > snapshots/committee_data_$(date +%Y%m%d).sql
-
-# Full database snapshot
-pg_dump quantumdb > snapshots/full_db_$(date +%Y%m%d).sql
-
-# Compressed backup
-pg_dump quantumdb | gzip > snapshots/quantumdb_$(date +%Y%m%d).sql.gz
-```
-
-### Restoring from Snapshot
-
-```bash
-# Restore specific tables
-psql quantumdb < snapshots/committee_data_20251230.sql
-
-# Restore full database
-dropdb quantumdb
-createdb quantumdb
-sqlx migrate run
-psql quantumdb < snapshots/full_db_20251230.sql
-```
-
-## Workflow Example
-
-Complete workflow for populating the database:
-
-```bash
-# 1. Fresh start
-docker compose down -v
-docker compose up -d
-sleep 5  # Wait for PostgreSQL to start
-
-# 2. Run migrations
-sqlx migrate run
-
-# 3. Load conference metadata
-psql quantumdb < seeds/insert_qip_conferences.sql
-psql quantumdb < seeds/insert_qcrypt_conferences.sql
-psql quantumdb < seeds/insert_tqc_conferences.sql
-
-# 4. Verify conferences loaded
-psql quantumdb -c "SELECT venue, COUNT(*) FROM conferences GROUP BY venue;"
-
-# 5. Scrape committees (dry run first)
-cargo run -p scrape_committees -- --dry-run
-
-# 6. Scrape committees (for real)
-cargo run -p scrape_committees
-
-# 7. Create snapshot
-mkdir -p snapshots
-pg_dump quantumdb --data-only > snapshots/with_committees_$(date +%Y%m%d).sql
-
-# 8. Import HotCRP data (when available)
-# cargo run -p import_hotcrp -- qip2024.json
-
-# 9. Refresh materialized views
-psql quantumdb -c "REFRESH MATERIALIZED VIEW CONCURRENTLY author_stats;"
-psql quantumdb -c "REFRESH MATERIALIZED VIEW CONCURRENTLY conference_stats;"
-
-# 10. Final snapshot
-pg_dump quantumdb | gzip > snapshots/quantumdb_complete_$(date +%Y%m%d).sql.gz
-```
-
-## Data Quality
-
-### Name Normalization
-
-Both tools use `quantumdb::utils::normalize::normalize_name()` for consistency:
-
-```rust
-// Normalizes "François Müller" → "francois muller"
-let normalized = normalize_name(raw_name);
-
-// Find existing author
-let author = query!("SELECT id FROM authors WHERE normalized_name = $1", normalized)
-    .fetch_optional(&pool)
-    .await?;
-```
-
-### Deduplication
-
-- **Authors**: Matched by normalized name, creates new only if no match
-- **Committee Roles**: `ON CONFLICT DO NOTHING` for idempotency
-- **Publications**: Unique `canonical_key` prevents duplicates
-
-### Source Tracking
-
-All imported data includes metadata JSONB:
-
-```json
-{
-  "source_type": "archive_org",
-  "source_url": "https://web.archive.org/...",
-  "scraped_date": "2025-12-30",
-  "notes": "Parsed from committee page"
-}
-```
-
-This allows:
-- Data provenance tracking
-- Re-scraping from original sources
-- Quality assessment
-- Debugging
+1. Row count matches the source page's published total when stated.
+2. Spot-check 3 random rows against the source HTML/PDF.
+3. `import_from_csv.py … --dry-run` parses cleanly.
+4. After the real import, query the API or DB to confirm the row count
+   round-trips:
+   ```bash
+   curl -s "http://localhost:3000/api/v1/publications?conference_id=<uuid>" | jq length
+   ```
 
 ## Troubleshooting
 
-### Scraper finds no data
-
-```bash
-# Check archive URLs are set
-psql quantumdb -c "SELECT venue, year, archive_pc_url FROM conferences WHERE archive_pc_url IS NOT NULL;"
-
-# Test URL manually
-curl -L "https://web.archive.org/web/20240315/qip2024.tw/pc"
-
-# Enable debug logging
-RUST_LOG=debug cargo run -p scrape_committees -- --venue QIP --year 2024 --dry-run
-```
-
-### Duplicate authors created
-
-```bash
-# Find potential duplicates
-psql quantumdb -c "
-SELECT normalized_name, COUNT(*), array_agg(full_name)
-FROM authors
-GROUP BY normalized_name
-HAVING COUNT(*) > 1;
-"
-
-# Manually merge and add name variants
-```
+### Importer can't find the conference
+The `(venue, year)` isn't seeded. Check `SELECT venue, year FROM conferences`
+and add the missing row to the relevant `seeds/` file first.
 
 ### Connection errors
+Confirm the stack is up (`docker compose ps`) and `DATABASE_URL` points at
+`localhost:5432` (host) — not `db:5432`, which only resolves inside Docker.
 
-```bash
-# Check database is running
-docker compose ps
-
-# Verify DATABASE_URL
-echo $DATABASE_URL
-
-# Test connection
-psql $DATABASE_URL -c "SELECT 1;"
-```
-
-## Performance Tips
-
-### Bulk Imports
-
-For large datasets:
-
-1. Use transactions (already implemented in scrapers)
-2. Batch inserts (100-1000 rows per transaction)
-3. Disable triggers temporarily (if needed)
-4. Refresh materialized views AFTER bulk import, not during
-
-### Parallel Scraping
-
-Currently sequential. Future enhancement:
-
-```bash
-# Scrape different venues in parallel
-cargo run -p scrape_committees -- --venue QIP &
-cargo run -p scrape_committees -- --venue QCRYPT &
-cargo run -p scrape_committees -- --venue TQC &
-wait
-```
-
-## Next Steps
-
-1. **Implement HotCRP importer** - Parse JSON, import publications/authorships
-2. **Conference-specific parsers** - Better accuracy for each venue's HTML structure
-3. **Manual review UI** - Flag ambiguous entries for human verification
-4. **Automated scheduling** - Cron jobs to re-scrape periodically
-5. **Data validation** - Sanity checks and quality metrics
+### Scraper produces an empty / wrong CSV
+The local mirror may be JS-rendered or PDF-only (common for older years). Check
+`docs/DATA_INGESTION_PLAN.md` for that conference-year's known status and
+recommended extraction method.

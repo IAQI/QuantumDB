@@ -67,6 +67,34 @@
     </p>
     {% endif %}
 
+    {% if let Some(bm) = conference.business_meeting %}
+    <section id="business-meeting-section" class="business-meeting">
+        <h2>Announced at the business meeting</h2>
+        <p class="mono business-meeting-note">
+            figures as reported by the chairs{% if !bm.meeting_date.is_empty() %} · {{ bm.meeting_date }}{% endif %} — may differ from the computed counts above
+        </p>
+        <section class="stats-grid">
+            {% if !bm.registered_participants.is_empty() %}<div class="stat-card"><div class="stat-value">{{ bm.registered_participants }}</div><span class="stat-label">registered</span></div>{% endif %}
+            {% if !bm.onsite_participants.is_empty() %}<div class="stat-card"><div class="stat-value">{{ bm.onsite_participants }}</div><span class="stat-label">on-site</span></div>{% endif %}
+            {% if !bm.countries_represented.is_empty() %}<div class="stat-card"><div class="stat-value">{{ bm.countries_represented }}</div><span class="stat-label">countries</span></div>{% endif %}
+            {% if !bm.talk_submissions.is_empty() %}<div class="stat-card"><div class="stat-value">{{ bm.talk_submissions }}</div><span class="stat-label">talk submissions</span></div>{% endif %}
+            {% if !bm.talks_accepted.is_empty() %}<div class="stat-card"><div class="stat-value">{{ bm.talks_accepted }}</div><span class="stat-label">talks accepted</span></div>{% endif %}
+            {% if !bm.acceptance_rate.is_empty() %}<div class="stat-card"><div class="stat-value">{{ bm.acceptance_rate }}</div><span class="stat-label">acceptance rate</span></div>{% endif %}
+            {% if !bm.posters_submitted.is_empty() %}<div class="stat-card"><div class="stat-value">{{ bm.posters_submitted }}</div><span class="stat-label">poster submissions</span></div>{% endif %}
+            {% if !bm.posters_accepted.is_empty() %}<div class="stat-card"><div class="stat-value">{{ bm.posters_accepted }}</div><span class="stat-label">posters accepted</span></div>{% endif %}
+        </section>
+        {% if !bm.slides.is_empty() %}
+        <p class="business-meeting-slides">
+            <span class="bm-slides-label mono">slides</span>
+            {% for s in bm.slides %}<a href="{{ s.url }}" target="_blank" rel="noopener">{{ s.label }} ↗</a>{% if !loop.last %}<span class="bm-slides-sep">·</span>{% endif %}{% endfor %}
+        </p>
+        {% endif %}
+        {% if !bm.notes.is_empty() %}
+        <p class="mono business-meeting-note">{{ bm.notes }}</p>
+        {% endif %}
+    </section>
+    {% endif %}
+
     {% if !publications.is_empty() %}
     <section id="talks-section">
         <h2>Programme</h2>
