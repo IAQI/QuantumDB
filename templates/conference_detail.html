@@ -101,10 +101,11 @@
                         {% else %}
                             {{ pub.title }}
                         {% endif %}
-                        {% if !pub.abstract_text.is_empty() || !pub.video_url.is_empty() %}
+                        {% if !pub.abstract_text.is_empty() || !pub.video_url.is_empty() || !pub.presenter_name.is_empty() %}
                         <div class="talk-meta">
                             {% if !pub.abstract_text.is_empty() %}<span class="abstract-toggle" tabindex="0" aria-expanded="false">abstract</span>{% endif %}
                             {% if !pub.video_url.is_empty() %}<a href="{{ pub.video_url }}" target="_blank" rel="noopener">video ↗</a>{% endif %}
+                            {% if !pub.presenter_name.is_empty() %}<span class="presented-by">presented by {{ pub.presenter_name }}</span>{% endif %}
                         </div>
                         {% endif %}
                     </td>

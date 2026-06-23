@@ -84,6 +84,9 @@ struct PublicationItem {
     arxiv_ids: Vec<String>,
     abstract_text: String,
     video_url: String,
+    /// Name of a non-author stand-in presenter (from metadata.presenter_name);
+    /// empty when the talk was presented by one of its authors.
+    presenter_name: String,
 }
 
 struct AuthorInfo {
@@ -289,7 +292,8 @@ pub async fn conference_detail(
             p.presenter_author_id,
             COALESCE(p.arxiv_ids, ARRAY[]::text[]) as "arxiv_ids!",
             COALESCE(p.abstract, '') as "abstract_text!",
-            COALESCE(p.video_url, '') as "video_url!"
+            COALESCE(p.video_url, '') as "video_url!",
+            COALESCE(p.metadata->>'presenter_name', '') as "presenter_name!"
         FROM publications p
         WHERE p.conference_id = $1
         ORDER BY
@@ -349,6 +353,7 @@ pub async fn conference_detail(
             arxiv_ids: pub_record.arxiv_ids,
             abstract_text: pub_record.abstract_text,
             video_url: pub_record.video_url,
+            presenter_name: pub_record.presenter_name,
         });
     }
 
