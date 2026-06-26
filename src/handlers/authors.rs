@@ -129,6 +129,8 @@ pub async fn get_author(
     request_body = CreateAuthor,
     responses(
         (status = 201, description = "Author created", body = Author),
+        (status = 400, description = "Bad request - validation error or constraint violation"),
+        (status = 409, description = "Conflict - duplicate unique field (e.g. ORCID already in use)"),
         (status = 401, description = "Unauthorized - missing or invalid token"),
         (status = 500, description = "Internal server error")
     ),
@@ -176,7 +178,7 @@ pub async fn create_author(
     .await
     .map_err(|e| {
         tracing::error!("Failed to create author: {:?}", e);
-        StatusCode::INTERNAL_SERVER_ERROR
+        crate::utils::map_db_error(&e)
     })?;
 
     Ok((StatusCode::CREATED, Json(author)))
@@ -190,6 +192,8 @@ pub async fn create_author(
     request_body = UpdateAuthor,
     responses(
         (status = 200, description = "Author updated", body = Author),
+        (status = 400, description = "Bad request - validation error or constraint violation"),
+        (status = 409, description = "Conflict - duplicate unique field (e.g. ORCID already in use)"),
         (status = 401, description = "Unauthorized - missing or invalid token"),
         (status = 404, description = "Author not found"),
         (status = 500, description = "Internal server error")
@@ -265,7 +269,7 @@ pub async fn update_author(
     .await
     .map_err(|e| {
         tracing::error!("Failed to update author: {:?}", e);
-        StatusCode::INTERNAL_SERVER_ERROR
+        crate::utils::map_db_error(&e)
     })?;
 
     Ok(Json(author))

@@ -1,4 +1,5 @@
-FROM rust:latest as builder
+# Pinned builder base (major version + matching Debian release) for reproducibility.
+FROM rust:1-bookworm AS builder
 
 WORKDIR /usr/src/app
 RUN apt-get update && apt-get install -y \
@@ -45,13 +46,19 @@ RUN apt-get update && apt-get install -y \
     libssl3 \
     && rm -rf /var/lib/apt/lists/*
 
+# Run as an unprivileged user: if the app is ever compromised it has no root in
+# the container. The app is stateless (DB is external) and binds port 3000 (>1024),
+# so it needs no write access or privileged ports.
+RUN useradd --system --uid 10001 --user-group --no-create-home appuser
+
 WORKDIR /app
 COPY --from=builder /usr/src/app/quantumdb/target/release/quantumdb /usr/local/bin/
-COPY --from=builder /usr/src/app/quantumdb/templates ./templates
-COPY --from=builder /usr/src/app/quantumdb/static ./static
+COPY --from=builder --chown=appuser:appuser /usr/src/app/quantumdb/templates ./templates
+COPY --from=builder --chown=appuser:appuser /usr/src/app/quantumdb/static ./static
 
 ENV RUST_LOG=info
 EXPOSE 3000
+USER appuser
 
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
     CMD curl -fsS http://localhost:3000/health || exit 1

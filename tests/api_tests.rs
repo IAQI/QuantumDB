@@ -155,7 +155,8 @@ async fn test_conference_crud() {
 async fn test_conference_venue_validation() {
     let server = setup().await;
 
-    // Try to create with invalid venue - should fail at database level
+    // Try to create with invalid venue - rejected by the CHECK constraint,
+    // surfaced as a 400 (client error), not a 500.
     let create_body = json!({
         "venue": "INVALID",
         "year": unique_test_year(),
@@ -164,7 +165,7 @@ async fn test_conference_venue_validation() {
     });
 
     let response = server.post("/conferences").json(&create_body).await;
-    response.assert_status(axum::http::StatusCode::INTERNAL_SERVER_ERROR);
+    response.assert_status(axum::http::StatusCode::BAD_REQUEST);
 }
 
 // ============================================================================
@@ -291,8 +292,8 @@ async fn test_author_orcid_validation() {
     });
 
     let response = server.post("/authors").json(&create_body).await;
-    // Should fail due to ORCID check constraint
-    response.assert_status(axum::http::StatusCode::INTERNAL_SERVER_ERROR);
+    // Rejected by the ORCID CHECK constraint, surfaced as a 400 (client error).
+    response.assert_status(axum::http::StatusCode::BAD_REQUEST);
 }
 
 // ============================================================================

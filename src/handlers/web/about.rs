@@ -12,7 +12,7 @@ pub async fn about() -> Result<Response, StatusCode> {
     match template.render() {
         Ok(html) => Ok(Html(html).into_response()),
         Err(e) => {
-            eprintln!("Template error: {}", e);
+            tracing::error!("Template error: {}", e);
             Err(StatusCode::INTERNAL_SERVER_ERROR)
         }
     }

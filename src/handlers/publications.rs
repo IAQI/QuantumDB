@@ -215,6 +215,8 @@ pub async fn get_publication(
     request_body = CreatePublication,
     responses(
         (status = 201, description = "Publication created", body = Publication),
+        (status = 400, description = "Bad request - validation error or unknown conference_id"),
+        (status = 409, description = "Conflict - duplicate canonical_key"),
         (status = 401, description = "Unauthorized - missing or invalid token"),
         (status = 500, description = "Internal server error")
     ),
@@ -292,7 +294,7 @@ pub async fn create_publication(
     .await
     .map_err(|e| {
         tracing::error!("Failed to create publication: {:?}", e);
-        StatusCode::INTERNAL_SERVER_ERROR
+        crate::utils::map_db_error(&e)
     })?;
 
     Ok((StatusCode::CREATED, Json(publication)))
@@ -306,6 +308,8 @@ pub async fn create_publication(
     request_body = UpdatePublication,
     responses(
         (status = 200, description = "Publication updated", body = Publication),
+        (status = 400, description = "Bad request - validation error or unknown conference_id"),
+        (status = 409, description = "Conflict - duplicate canonical_key"),
         (status = 401, description = "Unauthorized - missing or invalid token"),
         (status = 404, description = "Publication not found"),
         (status = 500, description = "Internal server error")
@@ -418,7 +422,7 @@ pub async fn update_publication(
     .await
     .map_err(|e| {
         tracing::error!("Failed to update publication: {:?}", e);
-        StatusCode::INTERNAL_SERVER_ERROR
+        crate::utils::map_db_error(&e)
     })?;
 
     Ok(Json(publication))

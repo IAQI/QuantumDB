@@ -30,3 +30,11 @@ target/
 
 # video_pass.py yt-dlp metadata cache
 tools/.video_cache/
+
+# Python bytecode caches
+__pycache__/
+*.pyc
+
+# Claude Code local state
+.claude/worktrees/
+tools/.claude/

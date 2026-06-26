@@ -16,6 +16,9 @@ QuantumDB provides a comprehensive system for tracking:
 - [Architecture](ARCHITECTURE.md) - System design and technical stack
 - [Database Schema](DATABASE_SCHEMA.md) - Detailed database structure
 - [Testing](TESTING.md) - Test suite and development testing guide
+- [Data Population](DATA_POPULATION.md) - CSV-based scrape/import data pipeline
+- [Data Ingestion Plan](docs/DATA_INGESTION_PLAN.md) - Per-conference data inventory and working plan
+- [CLAUDE.md](CLAUDE.md) - Detailed development guide (commands, workflow, conventions)
 
 ## Technology Stack
 
@@ -81,7 +84,7 @@ QuantumDB provides a comprehensive system for tracking:
 
 3. **Access the Application**
    - Web Interface: http://localhost:3000
-   - Swagger UI: http://localhost:3000/swagger-ui/
+   - Swagger UI: http://localhost:3000/api/v1/swagger-ui/
    - PgAdmin: http://localhost:5050 (admin@example.com / quantumdb)
 
 ### Local Development
@@ -130,7 +133,7 @@ QuantumDB provides a comprehensive system for tracking:
 
 5. **Access Services**
    - Web Interface: http://localhost:3000
-   - Swagger UI: http://localhost:3000/swagger-ui/
+   - Swagger UI: http://localhost:3000/api/v1/swagger-ui/
 
 ## Features
 
@@ -146,9 +149,11 @@ QuantumDB provides a user-friendly web interface for browsing and exploring quan
 
 ### REST API
 
-**Interactive API Explorer**: Visit `/swagger-ui/` when running the server for complete interactive API documentation with live testing capabilities.
+**Interactive API Explorer**: Visit `/api/v1/swagger-ui/` when running the server for complete interactive API documentation with live testing capabilities.
 
-All API endpoints are fully documented with request/response schemas, examples, and try-it-now functionality.
+All API endpoints are fully documented with request/response schemas, examples, and try-it-now functionality. The REST API is versioned under `/api/v1/`.
+
+**Hardening**: every response carries security headers (`X-Frame-Options`, `X-Content-Type-Options`, etc.), requests are rate-limited per IP, and CORS is applied. See [CLAUDE.md](CLAUDE.md) for the middleware stack details.
 
 ### Authentication
 
@@ -169,8 +174,8 @@ openssl rand -base64 32 | tr -d '=/' | tr '+' '-'
 curl -H "Authorization: Bearer YOUR_TOKEN_HERE" \
   -X POST \
   -H "Content-Type: application/json" \
-  -d '{"name": "QIP", "year": 2026}' \
-  http://localhost:3000/api/conferences
+  -d '{"venue": "QIP", "year": 2026, "creator": "you", "modifier": "you"}' \
+  http://localhost:3000/api/v1/conferences
 ```
 
 **Setting Up Tokens:**
@@ -202,7 +207,7 @@ curl -H "Authorization: Bearer YOUR_TOKEN_HERE" \
    ```
 
 **Protected Endpoints:**
-- All POST, PUT, DELETE operations on `/api/conferences`, `/api/authors`, `/api/publications`, `/api/committees`, `/api/authorships`
+- All POST, PUT, DELETE operations on `/api/v1/conferences`, `/api/v1/authors`, `/api/v1/publications`, `/api/v1/committees`, `/api/v1/authorships`
 - `GET /admin/refresh-stats` (admin materialized view refresh)
 
 **Public Endpoints:**
@@ -213,27 +218,28 @@ curl -H "Authorization: Bearer YOUR_TOKEN_HERE" \
 
 **Token Requirements:**
 - Minimum 32 characters
-- Alphanumeric characters plus hyphens (-) and underscores (_)
+- The token body is opaque — any character set is accepted
 - Use cryptographically secure random generation
+- Comparison is constant-time (`subtle` crate) against every configured token
 - Store securely and never commit to version control
 
 ### API Endpoints
 
-The API provides full CRUD operations for:
+The API provides full CRUD operations (all under the versioned `/api/v1/` prefix) for:
 
 ```
-/conferences          # Conference management
-/publications         # Publication tracking
-/authors             # Author profiles
-/authorships         # Author-publication relationships
-/committees          # Committee role management
+/api/v1/conferences   # Conference management
+/api/v1/publications  # Publication tracking
+/api/v1/authors       # Author profiles
+/api/v1/authorships   # Author-publication relationships
+/api/v1/committees    # Committee role management
 ```
 
 All endpoints are documented with:
 - Request/response schemas
 - Example payloads
 - Live testing interface
-- OpenAPI 3.0 specification at `/api-docs/openapi.json`
+- OpenAPI 3.0 specification at `/api/v1/openapi.json`
 
 ## Development
 
@@ -245,7 +251,6 @@ See [TESTING.md](TESTING.md) for testing instructions and [DATABASE_SCHEMA.md](D
 2. Create your feature branch
 3. Commit your changes
 4. Push to the branch
-5. Create a Pull Request
 5. Create a Pull Request
 
 ## License

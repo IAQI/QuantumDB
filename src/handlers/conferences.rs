@@ -157,6 +157,8 @@ pub async fn get_conference(
     request_body = CreateConference,
     responses(
         (status = 201, description = "Conference created", body = Conference),
+        (status = 400, description = "Bad request - validation error or invalid venue"),
+        (status = 409, description = "Conflict - a conference with this venue and year already exists"),
         (status = 401, description = "Unauthorized - missing or invalid token"),
         (status = 500, description = "Internal server error")
     ),
@@ -243,7 +245,7 @@ pub async fn create_conference(
     .await
     .map_err(|e| {
         tracing::error!("Failed to create conference: {:?}", e);
-        StatusCode::INTERNAL_SERVER_ERROR
+        crate::utils::map_db_error(&e)
     })?;
 
     Ok((StatusCode::CREATED, Json(conference)))
@@ -257,6 +259,8 @@ pub async fn create_conference(
     request_body = UpdateConference,
     responses(
         (status = 200, description = "Conference updated", body = Conference),
+        (status = 400, description = "Bad request - validation error or invalid venue"),
+        (status = 409, description = "Conflict - venue/year already used by another conference"),
         (status = 401, description = "Unauthorized - missing or invalid token"),
         (status = 404, description = "Conference not found"),
         (status = 400, description = "Invalid ID format"),
@@ -386,7 +390,7 @@ pub async fn update_conference(
     .await
     .map_err(|e| {
         tracing::error!("Failed to update conference: {:?}", e);
-        StatusCode::INTERNAL_SERVER_ERROR
+        crate::utils::map_db_error(&e)
     })?;
 
     Ok(Json(conference))

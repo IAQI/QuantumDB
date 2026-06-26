@@ -25,10 +25,11 @@ struct ConferenceListItem {
     slug: String,
     city: Option<String>,
     country: Option<String>,
-    start_date: Option<chrono::NaiveDate>,
-    publication_count: i64,
+    talk_count: i64,
+    poster_count: i64,
     committee_member_count: i64,
-    acceptance_rate: String,
+    acceptance_rate: Option<f64>,
+    registered_participants: Option<i32>,
 }
 
 struct ConferenceListItemDisplay {
@@ -36,10 +37,11 @@ struct ConferenceListItemDisplay {
     venue: String,
     year: i32,
     location: String,
-    start_date: String,
-    publication_count: i64,
+    talk_count: i64,
+    poster_count: i64,
     committee_member_count: i64,
     acceptance_rate: String,
+    registered_participants: String,
 }
 
 #[derive(Template)]
@@ -62,7 +64,8 @@ struct ConferenceDetail {
     proceedings_url: String,
     is_virtual: bool,
     is_hybrid: bool,
-    publication_count: i64,
+    talk_count: i64,
+    poster_count: i64,
     regular_paper_count: i64,
     invited_talk_count: i64,
     award_count: i64,
@@ -171,16 +174,24 @@ pub async fn conferences_list(
             LOWER(c.venue) || '-' || c.year::text as slug,
             c.city,
             c.country,
-            c.start_date,
-            COALESCE(cs.publication_count, 0) as publication_count,
+            COALESCE(pc.talk_count, 0) as talk_count,
+            COALESCE(pc.poster_count, 0) as poster_count,
             COALESCE(cs.committee_member_count, 0) as committee_member_count,
-            CASE 
-                WHEN cs.acceptance_rate IS NOT NULL 
-                THEN cs.acceptance_rate::text || '%'
-                ELSE ''
-            END as acceptance_rate
+            COALESCE(
+                bm.acceptance_rate,
+                ROUND(bm.talks_accepted::numeric / NULLIF(bm.talk_submissions, 0) * 100, 1)
+            )::float8 as acceptance_rate,
+            bm.registered_participants as registered_participants
         FROM conferences c
         LEFT JOIN conference_stats cs ON c.id = cs.id
+        LEFT JOIN (
+            SELECT conference_id,
+                   COUNT(*) FILTER (WHERE paper_type <> 'poster') AS talk_count,
+                   COUNT(*) FILTER (WHERE paper_type =  'poster') AS poster_count
+            FROM publications
+            GROUP BY conference_id
+        ) pc ON pc.conference_id = c.id
+        LEFT JOIN conference_business_meetings bm ON bm.conference_id = c.id
         {}
         ORDER BY c.year DESC, c.venue
         "#,
@@ -198,7 +209,7 @@ pub async fn conferences_list(
         .fetch_all(&pool)
         .await
         .map_err(|e| {
-            eprintln!("Database error: {}", e);
+            tracing::error!("Database error: {}", e);
             StatusCode::INTERNAL_SERVER_ERROR
         })?;
 
@@ -216,10 +227,17 @@ pub async fn conferences_list(
                 venue: row.venue,
                 year: row.year,
                 location,
-                start_date: row.start_date.map(|d| d.to_string()).unwrap_or_else(|| String::from("-")),
-                publication_count: row.publication_count,
+                talk_count: row.talk_count,
+                poster_count: row.poster_count,
                 committee_member_count: row.committee_member_count,
-                acceptance_rate: row.acceptance_rate,
+                acceptance_rate: row
+                    .acceptance_rate
+                    .map(|r| format!("{}%", r))
+                    .unwrap_or_default(),
+                registered_participants: row
+                    .registered_participants
+                    .map(|n| n.to_string())
+                    .unwrap_or_default(),
             }
         })
         .collect();
@@ -240,7 +258,7 @@ pub async fn conferences_list(
     match html {
         Ok(html) => Ok(Html(html).into_response()),
         Err(e) => {
-            eprintln!("Template error: {}", e);
+            tracing::error!("Template error: {}", e);
             Err(StatusCode::INTERNAL_SERVER_ERROR)
         }
     }
@@ -290,7 +308,7 @@ pub async fn conference_detail(
     .fetch_optional(&pool)
     .await
     .map_err(|e| {
-        eprintln!("Database error: {}", e);
+        tracing::error!("Database error: {}", e);
         StatusCode::INTERNAL_SERVER_ERROR
     })?
     .ok_or(StatusCode::NOT_FOUND)?;
@@ -332,9 +350,17 @@ pub async fn conference_detail(
     .fetch_all(&pool)
     .await
     .map_err(|e| {
-        eprintln!("Database error fetching publications: {}", e);
+        tracing::error!("Database error fetching publications: {}", e);
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
+
+    // Split the headline programme count into talks vs posters (computed from the
+    // live publications, like the conferences list page does).
+    let poster_count = pub_records
+        .iter()
+        .filter(|r| r.paper_type == "poster")
+        .count() as i64;
+    let talk_count = pub_records.len() as i64 - poster_count;
 
     // For each publication, get its authors
     let mut publications = Vec::new();
@@ -356,7 +382,7 @@ pub async fn conference_detail(
         .fetch_all(&pool)
         .await
         .map_err(|e| {
-            eprintln!("Database error fetching authors: {}", e);
+            tracing::error!("Database error fetching authors: {}", e);
             StatusCode::INTERNAL_SERVER_ERROR
         })?
         .into_iter()
@@ -402,7 +428,7 @@ pub async fn conference_detail(
     .fetch_all(&pool)
     .await
     .map_err(|e| {
-        eprintln!("Database error fetching committees: {}", e);
+        tracing::error!("Database error fetching committees: {}", e);
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
 
@@ -463,7 +489,7 @@ pub async fn conference_detail(
     .fetch_optional(&pool)
     .await
     .map_err(|e| {
-        eprintln!("Database error fetching business meeting: {}", e);
+        tracing::error!("Database error fetching business meeting: {}", e);
         StatusCode::INTERNAL_SERVER_ERROR
     })?
     .map(|bm| {
@@ -511,7 +537,8 @@ pub async fn conference_detail(
             proceedings_url: conference.proceedings_url.unwrap_or_default(),
             is_virtual: conference.is_virtual.unwrap_or(false),
             is_hybrid: conference.is_hybrid.unwrap_or(false),
-            publication_count: conference.publication_count,
+            talk_count,
+            poster_count,
             regular_paper_count: conference.regular_paper_count,
             invited_talk_count: conference.invited_talk_count,
             award_count: conference.award_count,
@@ -529,7 +556,7 @@ pub async fn conference_detail(
     match template.render() {
         Ok(html) => Ok(Html(html).into_response()),
         Err(e) => {
-            eprintln!("Template error: {}", e);
+            tracing::error!("Template error: {}", e);
             Err(StatusCode::INTERNAL_SERVER_ERROR)
         }
     }

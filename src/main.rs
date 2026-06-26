@@ -5,13 +5,16 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use axum::{
+    extract::DefaultBodyLimit,
     http::{header, HeaderValue, Method},
     middleware,
     response::Json,
     routing::get,
     Router,
 };
-use tower_governor::{governor::GovernorConfigBuilder, GovernorLayer};
+use tower_governor::{
+    governor::GovernorConfigBuilder, key_extractor::SmartIpKeyExtractor, GovernorLayer,
+};
 use tower_http::{
     cors::CorsLayer,
     services::ServeDir,
@@ -59,6 +62,7 @@ use quantumdb::{handlers, middleware::auth_middleware, models::*};
         handlers::create_authorship,
         handlers::update_authorship,
         handlers::delete_authorship,
+        handlers::list_conference_stats,
     ),
     components(schemas(
         Conference, CreateConference, UpdateConference,
@@ -66,6 +70,7 @@ use quantumdb::{handlers, middleware::auth_middleware, models::*};
         Publication, CreatePublication, UpdatePublication, PaperType,
         CommitteeRole, CreateCommitteeRole, UpdateCommitteeRole, CommitteeType, CommitteePosition,
         Authorship, CreateAuthorship, UpdateAuthorship,
+        ConferenceStat,
     )),
     modifiers(&SecurityAddon),
     tags(
@@ -74,6 +79,7 @@ use quantumdb::{handlers, middleware::auth_middleware, models::*};
         (name = "publications", description = "Publication management"),
         (name = "committees", description = "Committee role management"),
         (name = "authorships", description = "Authorship (author-publication links) management"),
+        (name = "stats", description = "Aggregated conference statistics"),
     )
 )]
 struct ApiDoc;
@@ -108,7 +114,7 @@ async fn main() -> Result<(), sqlx::Error> {
     tracing_subscriber::fmt().with_max_level(Level::INFO).init();
 
     // API routes (JSON endpoints)
-    let api_routes = Router::new()
+    let mut api_routes = Router::new()
         // Conference routes (read-only)
         .route("/conferences", get(handlers::list_conferences))
         .route("/conferences/{id}", get(handlers::get_conference))
@@ -124,10 +130,16 @@ async fn main() -> Result<(), sqlx::Error> {
         // Authorship routes (read-only)
         .route("/authorships", get(handlers::list_authorships))
         .route("/authorships/{id}", get(handlers::get_authorship))
-        // OpenAPI spec endpoint
-        .route("/openapi.json", get(|| async { Json(ApiDoc::openapi()) }))
-        // Swagger UI (will be served at /api/v1/swagger-ui/)
-        .merge(SwaggerUi::new("/swagger-ui").url("/api/v1/openapi.json", ApiDoc::openapi()));
+        .route("/stats/conferences", get(handlers::list_conference_stats));
+
+    // API docs (OpenAPI spec + Swagger UI) enumerate the API surface, so they are
+    // gated behind ENABLE_SWAGGER. Enabled by default for local/dev convenience;
+    // set ENABLE_SWAGGER=0 (or false) in production to hide them.
+    if env_flag("ENABLE_SWAGGER", true) {
+        api_routes = api_routes
+            .route("/openapi.json", get(|| async { Json(ApiDoc::openapi()) }))
+            .merge(SwaggerUi::new("/swagger-ui").url("/api/v1/openapi.json", ApiDoc::openapi()));
+    }
 
     // Protected API routes (require authentication)
     let protected_api_routes = Router::new()
@@ -193,38 +205,46 @@ async fn main() -> Result<(), sqlx::Error> {
         .route("/admin/refresh-stats", get(handlers::web::refresh_stats))
         .layer(middleware::from_fn(auth_middleware));
 
-    // CORS: allow GET on read-only endpoints from any origin (read API is public);
-    // write endpoints additionally require a Bearer token, which CORS does not protect
-    // against — the token check is the real boundary. Tighten origins via env if needed.
-    let cors = CorsLayer::new()
-        .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE])
-        .allow_headers([header::AUTHORIZATION, header::CONTENT_TYPE])
-        .allow_origin(tower_http::cors::Any);
-
-    // Per-IP rate limit: 10 req/sec sustained (period = 100ms) with bursts up to 100.
-    // A normal browser page-load fans out a few parallel requests; this absorbs that
-    // and caps an abusive client at ~600/min sustained.
-    let governor_conf = Arc::new(
-        GovernorConfigBuilder::default()
-            .per_millisecond(100)
-            .burst_size(100)
-            .use_headers()
-            .finish()
-            .expect("rate limit config is valid"),
-    );
-
-    // Background task: periodically prune the limiter's per-IP state so memory doesn't
-    // grow unbounded. The crate's docs explicitly recommend this.
-    let governor_limiter = governor_conf.limiter().clone();
-    tokio::spawn(async move {
-        let mut ticker = tokio::time::interval(Duration::from_secs(60));
-        loop {
-            ticker.tick().await;
-            governor_limiter.retain_recent();
+    // CORS is driven by CORS_ALLOWED_ORIGINS (comma-separated origins). When unset,
+    // cross-origin browser requests are disallowed (same-origin requests are
+    // unaffected). Set it to a list of origins in production, or to `*` to keep the
+    // old any-origin behaviour for a fully public read API. Note: write endpoints
+    // require a Bearer token, which CORS does not protect — the token is the real
+    // boundary; this just controls which sites a browser may call the API from.
+    let cors = {
+        let cors = CorsLayer::new()
+            .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE])
+            .allow_headers([header::AUTHORIZATION, header::CONTENT_TYPE]);
+        match std::env::var("CORS_ALLOWED_ORIGINS") {
+            Ok(v) if v.trim() == "*" => cors.allow_origin(tower_http::cors::Any),
+            Ok(v) if !v.trim().is_empty() => {
+                let origins: Vec<HeaderValue> = v
+                    .split(',')
+                    .filter_map(|o| o.trim().parse::<HeaderValue>().ok())
+                    .collect();
+                cors.allow_origin(origins)
+            }
+            _ => {
+                info!("CORS_ALLOWED_ORIGINS not set; cross-origin browser requests are disallowed");
+                cors
+            }
         }
-    });
+    };
 
     // Hardening response headers applied to every response.
+    //
+    // The Content-Security-Policy allows the inline scripts/styles the templates rely
+    // on plus the specific CDNs they load (Pico/MathJax via jsdelivr, HTMX via unpkg,
+    // Google Fonts). 'unsafe-inline' is required by the existing inline handlers and
+    // styles, so the CSP mainly hardens framing and restricts external origins.
+    // HSTS is always sent; browsers ignore it over plain HTTP and only honour it on
+    // HTTPS responses, which is exactly what we want once TLS is terminated by a proxy.
+    const CSP: &str = "default-src 'self'; \
+        script-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net; \
+        style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; \
+        font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net data:; \
+        img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; \
+        base-uri 'self'; form-action 'self'";
     let security_headers = tower::ServiceBuilder::new()
         .layer(SetResponseHeaderLayer::if_not_present(
             header::X_FRAME_OPTIONS,
@@ -241,6 +261,14 @@ async fn main() -> Result<(), sqlx::Error> {
         .layer(SetResponseHeaderLayer::if_not_present(
             header::HeaderName::from_static("permissions-policy"),
             HeaderValue::from_static("geolocation=(), microphone=(), camera=()"),
+        ))
+        .layer(SetResponseHeaderLayer::if_not_present(
+            header::CONTENT_SECURITY_POLICY,
+            HeaderValue::from_static(CSP),
+        ))
+        .layer(SetResponseHeaderLayer::if_not_present(
+            header::STRICT_TRANSPORT_SECURITY,
+            HeaderValue::from_static("max-age=31536000; includeSubDomains"),
         ));
 
     let app = Router::new()
@@ -248,19 +276,68 @@ async fn main() -> Result<(), sqlx::Error> {
         .merge(protected_web_routes)
         .nest("/api/v1", api_routes.merge(protected_api_routes))
         .nest_service("/static", ServeDir::new("static"))
-        .layer(GovernorLayer { config: governor_conf })
         .layer(cors)
         .layer(security_headers)
+        // Cap request bodies; the largest legitimate payload is a ~50 KB abstract.
+        .layer(DefaultBodyLimit::max(1024 * 1024))
         // Database pool state
         .with_state(pool);
 
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
+    // Per-IP rate limit: 10 req/sec sustained (period = 100ms) with bursts up to 100,
+    // applied outermost so over-limit requests are rejected before any handler work.
+    // Behind a reverse proxy every request arrives from the proxy IP, which would
+    // collapse the limit into one global bucket — set TRUST_PROXY=1 to key on the
+    // X-Forwarded-For / X-Real-IP the proxy sets. Only enable it when a trusted proxy
+    // actually overwrites those headers, otherwise clients can spoof them to evade limits.
+    let trust_proxy = env_flag("TRUST_PROXY", false);
+    let app = if trust_proxy {
+        let conf = Arc::new(
+            GovernorConfigBuilder::default()
+                .per_millisecond(100)
+                .burst_size(100)
+                .use_headers()
+                .key_extractor(SmartIpKeyExtractor)
+                .finish()
+                .expect("rate limit config is valid"),
+        );
+        let limiter = conf.limiter().clone();
+        tokio::spawn(async move {
+            let mut ticker = tokio::time::interval(Duration::from_secs(60));
+            loop {
+                ticker.tick().await;
+                limiter.retain_recent();
+            }
+        });
+        app.layer(GovernorLayer { config: conf })
+    } else {
+        let conf = Arc::new(
+            GovernorConfigBuilder::default()
+                .per_millisecond(100)
+                .burst_size(100)
+                .use_headers()
+                .finish()
+                .expect("rate limit config is valid"),
+        );
+        let limiter = conf.limiter().clone();
+        tokio::spawn(async move {
+            let mut ticker = tokio::time::interval(Duration::from_secs(60));
+            loop {
+                ticker.tick().await;
+                limiter.retain_recent();
+            }
+        });
+        app.layer(GovernorLayer { config: conf })
+    };
 
-    info!("Server is running on http://0.0.0.0:3000");
-    info!("Web interface available at http://0.0.0.0:3000/");
-    info!("API documentation at http://0.0.0.0:3000/api/v1/swagger-ui/");
+    // Bind address is configurable (BIND_ADDR). Default 0.0.0.0:3000 keeps Docker and
+    // local dev working; for a direct (non-containerised) run behind a proxy you can
+    // set 127.0.0.1:3000 so only the proxy can reach the app.
+    let bind_addr = std::env::var("BIND_ADDR").unwrap_or_else(|_| "0.0.0.0:3000".to_string());
+    let listener = tokio::net::TcpListener::bind(&bind_addr).await.unwrap();
+
+    info!("Server is running on http://{bind_addr}");
     // `with_connect_info` exposes the peer SocketAddr to the rate-limiter middleware
-    // so it can key on client IP. Required by tower_governor's default extractor.
+    // so it can key on client IP (also the fallback for SmartIpKeyExtractor).
     axum::serve(listener, app.into_make_service_with_connect_info::<SocketAddr>())
         .await
         .unwrap();
@@ -271,4 +348,18 @@ async fn main() -> Result<(), sqlx::Error> {
 // Health check endpoint
 async fn health() -> &'static str {
     "OK"
+}
+
+/// Read a boolean-ish environment variable. Treats `1`/`true`/`yes`/`on`
+/// (case-insensitive) as true and `0`/`false`/`no`/`off` as false; any other
+/// value (or unset) yields `default`.
+fn env_flag(name: &str, default: bool) -> bool {
+    match std::env::var(name) {
+        Ok(v) => match v.trim().to_ascii_lowercase().as_str() {
+            "1" | "true" | "yes" | "on" => true,
+            "0" | "false" | "no" | "off" => false,
+            _ => default,
+        },
+        Err(_) => default,
+    }
 }

@@ -35,9 +35,13 @@
     <hr class="venue-rule">
 
     <section class="stats-grid">
-        <div class="stat-card clickable" onclick="scrollToHighlight('#talks-section', 'all')">
-            <div class="stat-value">{{ conference.publication_count }}</div>
+        <div class="stat-card clickable" onclick="scrollToHighlight('#talks-section', 'talks')">
+            <div class="stat-value">{{ conference.talk_count }}</div>
             <span class="stat-label">talks</span>
+        </div>
+        <div class="stat-card clickable" onclick="scrollToHighlight('#talks-section', 'poster')">
+            <div class="stat-value">{{ conference.poster_count }}</div>
+            <span class="stat-label">posters</span>
         </div>
         <div class="stat-card clickable" onclick="scrollToHighlight('#talks-section', 'regular')">
             <div class="stat-value">{{ conference.regular_paper_count }}</div>

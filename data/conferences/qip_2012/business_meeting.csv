@@ -1,0 +1,4 @@
+venue,year,field,value,source_type,source_url,source_date,notes
+QIP,2012,talks_accepted,40,slides,2012/QIP2012Booklet.pdf,2012,"PC-chair report in program booklet: ""pick 40 papers and 122 posters"""
+QIP,2012,posters_accepted,122,slides,2012/QIP2012Booklet.pdf,2012,
+QIP,2012,slide:program booklet (PC-chair report),https://qip.iaqi.org/2012/QIP2012Booklet.pdf,slides,,2012,

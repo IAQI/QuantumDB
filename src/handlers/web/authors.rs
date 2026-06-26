@@ -27,6 +27,7 @@ struct AuthorListItem {
     affiliation: String,
     publication_count: i64,
     committee_role_count: i64,
+    award_count: i64,
     first_year: String,
     last_year: String,
 }
@@ -75,6 +76,7 @@ struct ContribPaperCell {
     tooltip: String,
     target_id: String, // anchor of the matching row in the Talks table
     is_speaker: bool,  // page author was the presenter of this talk
+    has_award: bool,   // talk won an award/prize
 }
 
 struct ContribCommitteeCell {
@@ -286,6 +288,10 @@ fn build_contribution_graph(
             if p.presenter_is_self {
                 tooltip.push_str("  ▸ presenter");
             }
+            if !p.award.is_empty() {
+                tooltip.push_str("  ★ ");
+                tooltip.push_str(&p.award);
+            }
             papers.push(ContribPaperCell {
                 x: cx - CONTRIB_PAPER_W / 2,
                 y: axis_y - CONTRIB_PAPER_H - (stack_idx as i32) * CONTRIB_PAPER_STEP,
@@ -293,6 +299,7 @@ fn build_contribution_graph(
                 tooltip,
                 target_id: format!("talk-{}", orig_idx),
                 is_speaker: p.presenter_is_self,
+                has_award: !p.award.is_empty(),
             });
         }
     }
@@ -395,6 +402,8 @@ struct PublicationItem {
     abstract_text: String,
     video_url: String,
     presenter_is_self: bool,
+    /// Award/prize text (empty when the publication won none).
+    award: String,
 }
 
 struct CoauthorRef {
@@ -439,10 +448,18 @@ pub async fn authors_list(
             COALESCE(ast.recent_affiliation, a.affiliation, '') as "affiliation!",
             COALESCE(ast.publication_count, 0) as "publication_count!",
             COALESCE(ast.committee_role_count, 0) as "committee_role_count!",
+            COALESCE(aw.award_count, 0) as "award_count!",
             COALESCE(ast.first_year::text, '') as "first_year!",
             COALESCE(ast.last_year::text, '') as "last_year!"
         FROM authors a
         LEFT JOIN author_stats ast ON a.id = ast.id
+        LEFT JOIN (
+            SELECT au.author_id, COUNT(*) AS award_count
+            FROM authorships au
+            JOIN publications p ON p.id = au.publication_id
+            WHERE p.award IS NOT NULL
+            GROUP BY au.author_id
+        ) aw ON aw.author_id = a.id
         WHERE a.full_name ILIKE $1 OR a.normalized_name ILIKE $1
         ORDER BY a.full_name
         "#,
@@ -451,7 +468,7 @@ pub async fn authors_list(
     .fetch_all(&pool)
     .await
     .map_err(|e| {
-        eprintln!("Database error: {}", e);
+        tracing::error!("Database error: {}", e);
         StatusCode::INTERNAL_SERVER_ERROR
     })?
     .into_iter()
@@ -461,6 +478,7 @@ pub async fn authors_list(
         affiliation: row.affiliation,
         publication_count: row.publication_count,
         committee_role_count: row.committee_role_count,
+        award_count: row.award_count,
         first_year: row.first_year,
         last_year: row.last_year,
     })
@@ -488,7 +506,7 @@ pub async fn authors_list(
     match html {
         Ok(html) => Ok(Html(html).into_response()),
         Err(e) => {
-            eprintln!("Template error: {}", e);
+            tracing::error!("Template error: {}", e);
             Err(StatusCode::INTERNAL_SERVER_ERROR)
         }
     }
@@ -526,7 +544,7 @@ pub async fn author_detail(
     .fetch_optional(&pool)
     .await
     .map_err(|e| {
-        eprintln!("Database error: {}", e);
+        tracing::error!("Database error: {}", e);
         StatusCode::INTERNAL_SERVER_ERROR
     })?
     .ok_or(StatusCode::NOT_FOUND)?;
@@ -557,14 +575,15 @@ pub async fn author_detail(
             COALESCE(p.presenter_author_id = $1, false) as "presenter_is_self!",
             COALESCE(p.arxiv_ids, ARRAY[]::text[]) as "arxiv_ids!",
             COALESCE(p.abstract, '') as "abstract_text!",
-            COALESCE(p.video_url, '') as "video_url!"
+            COALESCE(p.video_url, '') as "video_url!",
+            COALESCE(p.award, '') as "award!"
         FROM authorships au
         JOIN publications p ON au.publication_id = p.id
         JOIN conferences c ON p.conference_id = c.id
         LEFT JOIN authorships au2 ON p.id = au2.publication_id AND au2.author_id != $1
         LEFT JOIN authors a2 ON au2.author_id = a2.id
         WHERE au.author_id = $1
-        GROUP BY p.id, p.title, c.venue, c.year, p.paper_type, p.arxiv_ids, p.abstract, p.video_url
+        GROUP BY p.id, p.title, c.venue, c.year, p.paper_type, p.arxiv_ids, p.abstract, p.video_url, p.award
         ORDER BY c.year DESC, c.venue
         "#,
         author_id
@@ -572,7 +591,7 @@ pub async fn author_detail(
     .fetch_all(&pool)
     .await
     .map_err(|e| {
-        eprintln!("Database error fetching publications: {}", e);
+        tracing::error!("Database error fetching publications: {}", e);
         StatusCode::INTERNAL_SERVER_ERROR
     })?
     .into_iter()
@@ -599,6 +618,7 @@ pub async fn author_detail(
             abstract_text: row.abstract_text,
             video_url: row.video_url,
             presenter_is_self: row.presenter_is_self,
+            award: row.award,
         }
     })
     .collect();
@@ -623,7 +643,7 @@ pub async fn author_detail(
     .fetch_all(&pool)
     .await
     .map_err(|e| {
-        eprintln!("Database error fetching committee roles: {}", e);
+        tracing::error!("Database error fetching committee roles: {}", e);
         StatusCode::INTERNAL_SERVER_ERROR
     })?
     .into_iter()
@@ -660,7 +680,7 @@ pub async fn author_detail(
     .fetch_all(&pool)
     .await
     .map_err(|e| {
-        eprintln!("Database error fetching coauthors: {}", e);
+        tracing::error!("Database error fetching coauthors: {}", e);
         StatusCode::INTERNAL_SERVER_ERROR
     })?
     .into_iter()
@@ -707,7 +727,7 @@ pub async fn author_detail(
     match template.render() {
         Ok(html) => Ok(Html(html).into_response()),
         Err(e) => {
-            eprintln!("Template error: {}", e);
+            tracing::error!("Template error: {}", e);
             Err(StatusCode::INTERNAL_SERVER_ERROR)
         }
     }

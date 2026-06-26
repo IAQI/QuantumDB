@@ -522,7 +522,28 @@
             color: var(--accent);
         }
         .speaker-dot { fill: var(--paper); }
+        /* Gold star marking an award/prize; dark outline keeps it legible on any venue colour */
+        .award-star {
+            fill: #f6c945;
+            paint-order: stroke;
+            stroke: var(--ink);
+            stroke-width: 0.7px;
+            font-size: 14px;
+        }
         .legend-block { vertical-align: -2px; margin: 0 0.3rem 0 0; }
+        /* Award ribbon shown next to a publication title (legible amber on paper) */
+        .award-badge {
+            display: inline-block;
+            margin-top: 0.3rem;
+            padding: 0.08rem 0.45rem;
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 0.7rem;
+            letter-spacing: 0.01em;
+            color: #7a5b00;
+            background: rgba(246, 201, 69, 0.22);
+            border: 1px solid rgba(184, 140, 11, 0.5);
+        }
+        .award-badge::before { content: "★ "; }
 
         /* Sortable indicators (replacement for previous block) */
         .sortable-table th[data-sort] { cursor: pointer; user-select: none; transition: color 120ms ease; }
@@ -730,6 +751,108 @@
             letter-spacing: 0;
         }
 
+        /* ──────────────────────────────────────────────────────────────────
+         * Conference statistics — "figure plate" from a proceedings volume
+         * ────────────────────────────────────────────────────────────────── */
+        .conf-stats { margin: 2.75rem 0 3rem; }
+        .conf-stats__eyebrow {
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 0.7rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin: 0 0 0.5rem;
+        }
+        .conf-stats__title {
+            font-size: clamp(1.9rem, 4.5vw, 2.7rem);
+            line-height: 1.02;
+            letter-spacing: -0.018em;
+            margin: 0 0 0.55rem;
+        }
+        .conf-stats__lede {
+            font-family: "Newsreader", serif;
+            font-size: 1.04rem;
+            line-height: 1.5;
+            color: var(--ink-soft);
+            max-width: 44rem;
+            margin: 0 0 1.1rem;
+        }
+        .conf-stats__meta {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.6rem 1rem;
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 0.72rem;
+            letter-spacing: 0.03em;
+            color: var(--muted);
+            margin: 0;
+        }
+        .conf-stats__meta a {
+            color: var(--muted);
+            border: 0;
+            text-decoration: underline;
+            text-decoration-color: var(--rule-strong);
+            text-underline-offset: 2px;
+        }
+        .conf-stats__legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            text-transform: uppercase;
+        }
+        .conf-stats__legend .legend-swatch { width: 0.72rem; height: 0.72rem; margin: 0 0.34rem 0 0; }
+        .conf-stats__dot { color: var(--rule-strong); }
+
+        /* Ledger grid: flush outer edges, hairline rules between cells */
+        .figures {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            margin-top: 1.5rem;
+            border-top: 1px solid var(--rule-strong);
+        }
+        .figure {
+            min-width: 0;
+            border-bottom: 1px solid var(--rule);
+            padding: 1.15rem 1.5rem 1.45rem;
+        }
+        .figure:nth-child(odd)  { padding-left: 0;  border-right: 1px solid var(--rule); }
+        .figure:nth-child(even) { padding-right: 0; }
+        .figure__head { display: flex; align-items: baseline; gap: 0.65rem; }
+        .figure__num {
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--ink-soft);
+            white-space: nowrap;
+        }
+        .figure__title {
+            font-family: "Newsreader", serif;
+            font-size: 1.06rem;
+            font-weight: 600;
+            line-height: 1.2;
+            color: var(--ink);
+            margin: 0;
+        }
+        .figure__sub {
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 0.68rem;
+            letter-spacing: 0.015em;
+            color: var(--muted);
+            margin: 0.2rem 0 0.85rem;
+        }
+        /* canvas needs a sized box when Chart.js maintainAspectRatio:false */
+        .figure__canvas { position: relative; height: 392px; }
+
+        @media (max-width: 720px) {
+            .figures { grid-template-columns: 1fr; }
+            .figure,
+            .figure:nth-child(odd),
+            .figure:nth-child(even) { padding: 1.1rem 0 1.3rem; border-right: 0; }
+            .figure__canvas { height: 300px; }
+        }
+
         /* Conference info legacy (used by some unredesigned pages) */
         .conference-info { background: transparent; padding: 0; margin-bottom: 2rem; }
         .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-top: 0.75rem; }
@@ -850,26 +973,35 @@
                 let valueA = cellA.textContent.trim();
                 let valueB = cellB.textContent.trim();
 
-                // Handle empty values - push to end
-                if (!valueA || valueA === '-') return 1;
-                if (!valueB || valueB === '-') return -1;
+                // Empty / "-" values always sink to the bottom, in both directions
+                const emptyA = !valueA || valueA === '-';
+                const emptyB = !valueB || valueB === '-';
+                if (emptyA && emptyB) return 0;
+                if (emptyA) return 1;
+                if (emptyB) return -1;
 
-                // Try to parse as dates (YYYY-MM-DD format or other parseable date formats)
-                const dateA = new Date(valueA);
-                const dateB = new Date(valueB);
-                if (!isNaN(dateA.getTime()) && !isNaN(dateB.getTime())) {
-                    return direction === 'asc' ? dateA - dateB : dateB - dateA;
-                }
-
-                // Try to parse as numbers
-                const numA = parseFloat(valueA);
-                const numB = parseFloat(valueB);
-
-                if (!isNaN(numA) && !isNaN(numB)) {
+                // Numbers first: cells that are purely numeric (allowing %, thousands
+                // commas and surrounding whitespace) sort numerically. Checking this
+                // before dates is essential — new Date("44"), new Date("34%") etc. all
+                // parse as bogus dates and would otherwise hijack every count column.
+                const cleanA = valueA.replace(/[\s,%]/g, '');
+                const cleanB = valueB.replace(/[\s,%]/g, '');
+                const numRe = /^-?\d+(\.\d+)?$/;
+                if (numRe.test(cleanA) && numRe.test(cleanB)) {
+                    const numA = parseFloat(cleanA), numB = parseFloat(cleanB);
                     return direction === 'asc' ? numA - numB : numB - numA;
                 }
 
-                // String comparison
+                // Dates only when the value actually looks like one (contains - or /),
+                // so date columns such as 2023-08-14 still sort chronologically.
+                if (/[-/]/.test(valueA) && /[-/]/.test(valueB)) {
+                    const dateA = new Date(valueA), dateB = new Date(valueB);
+                    if (!isNaN(dateA.getTime()) && !isNaN(dateB.getTime())) {
+                        return direction === 'asc' ? dateA - dateB : dateB - dateA;
+                    }
+                }
+
+                // Fallback: locale-aware string comparison
                 const comparison = valueA.localeCompare(valueB);
                 return direction === 'asc' ? comparison : -comparison;
             });
@@ -904,6 +1036,10 @@
 
                 if (filter === 'all') {
                     shouldHighlight = true;
+                } else if (filter === 'talks') {
+                    // Every programme row that isn't a poster
+                    const typeCell = row.querySelector('[data-filter="type"]');
+                    shouldHighlight = typeCell && typeCell.textContent.trim().toLowerCase() !== 'poster';
                 } else if (filter === 'leadership') {
                     // Check position column for chair/co_chair
                     const posCell = row.querySelector('[data-filter="position"]');

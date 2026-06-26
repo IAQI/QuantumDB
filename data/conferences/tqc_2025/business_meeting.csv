@@ -1,3 +1,6 @@
 venue,year,field,value,source_type,source_url,source_date,notes
 TQC,2025,talk_submissions,375,conference_website,2025/index.html,,
 TQC,2025,talks_accepted,77,conference_website,2025/index.html,,"77 accepted talks out of 375 submissions"
+TQC,2025,meeting_date,2025-09-17,conference_website,2025/index.html,,"announced at the TQC 2025 business meeting, 17 Sep 2025; poster count given as 150+ (website) / 200+ (abstract booklet)"
+TQC,2025,track_breakdown,"{""with_proceedings"": {""talks"": 12}, ""total"": {""submissions"": 375, ""talks"": 77}}",proceedings,10.4230/LIPIcs.TQC.2025.0,2025,"LIPIcs foreword (vol 350): 375 submissions, 77 selected incl. 12 published in the With Proceedings track"
+TQC,2025,slide:proceedings foreword,https://drops.dagstuhl.de/storage/00lipics/lipics-vol350-tqc2025/LIPIcs.TQC.2025.0/LIPIcs.TQC.2025.0.pdf,proceedings,,2025,

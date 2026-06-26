@@ -70,6 +70,7 @@
                 <a href="#{{ p.target_id }}">
                     <rect x="{{ p.x }}" y="{{ p.y }}" width="28" height="22" class="{{ p.venue_class }}"><title>{{ p.tooltip }}</title></rect>
                     {% if p.is_speaker %}<circle cx="{{ p.x + 22 }}" cy="{{ p.y + 6 }}" r="3" class="speaker-dot"><title>{{ p.tooltip }}</title></circle>{% endif %}
+                    {% if p.has_award %}<text x="{{ p.x + 14 }}" y="{{ p.y + 16 }}" text-anchor="middle" class="award-star">★<title>{{ p.tooltip }}</title></text>{% endif %}
                 </a>
                 {% endfor %}
 
@@ -89,6 +90,7 @@
             &nbsp;&nbsp;<span class="legend-swatch fill-qcrypt"></span>QCrypt
             &nbsp;&nbsp;<span class="legend-swatch fill-tqc"></span>TQC
             &nbsp;&nbsp;<svg class="legend-block" width="15" height="13"><rect width="15" height="13" class="fill-ink"></rect><circle cx="11" cy="4" r="2.6" class="speaker-dot"></circle></svg>presenter
+            &nbsp;&nbsp;<svg class="legend-block" width="15" height="13"><rect width="15" height="13" class="fill-ink"></rect><text x="7.5" y="11" text-anchor="middle" class="award-star" style="font-size:12px">★</text></svg>award
             &nbsp;&nbsp;·&nbsp;&nbsp;
             <span class="legend-glyph">△</span>program
             &nbsp;<span class="legend-glyph">◇</span>steering
@@ -131,6 +133,7 @@
                         {% else %}
                             {{ pub.title }}
                         {% endif %}
+                        {% if !pub.award.is_empty() %}<div><span class="award-badge">{{ pub.award }}</span></div>{% endif %}
                         {% if !pub.abstract_text.is_empty() || !pub.video_url.is_empty() %}
                         <div class="talk-meta">
                             {% if !pub.abstract_text.is_empty() %}<span class="abstract-toggle" tabindex="0" aria-expanded="false">abstract</span>{% endif %}
@@ -187,6 +190,7 @@
                         {% else %}
                             {{ pub.title }}
                         {% endif %}
+                        {% if !pub.award.is_empty() %}<div><span class="award-badge">{{ pub.award }}</span></div>{% endif %}
                         {% if !pub.abstract_text.is_empty() || !pub.video_url.is_empty() %}
                         <div class="talk-meta">
                             {% if !pub.abstract_text.is_empty() %}<span class="abstract-toggle" tabindex="0" aria-expanded="false">abstract</span>{% endif %}

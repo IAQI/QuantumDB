@@ -1,0 +1,3 @@
+venue,year,field,value,source_type,source_url,source_date,notes
+TQC,2022,talk_submissions,216,conference_website,2025/tqc2023/index.html,,"derived = 32 conference-track + 184 workshop-track; figures stated as year-over-year comparison in the TQC 2023 PC report"
+TQC,2022,track_breakdown,"{""conference"": {""submissions"": 32}, ""workshop"": {""submissions"": 184}, ""poster_only"": {""submissions"": 31}}",conference_website,2025/tqc2023/index.html,,"second-hand: reported in TQC 2023 as comparison to 2022; acceptance counts not recovered"

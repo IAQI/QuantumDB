@@ -10,23 +10,8 @@ use uuid::Uuid;
 
 use crate::models::{Authorship, CreateAuthorship, UpdateAuthorship};
 use crate::utils::{
-    validate_metadata, validate_optional_text_len, validate_text_len, MAX_NAME_LEN,
+    map_db_error, validate_metadata, validate_optional_text_len, validate_text_len, MAX_NAME_LEN,
 };
-
-/// PostgreSQL SQLSTATE for `unique_violation`.
-const PG_UNIQUE_VIOLATION: &str = "23505";
-
-/// Map an SQLx error to a status code, treating unique-constraint violations as 409.
-/// Used for authorship inserts where the `(publication_id, author_position)` UNIQUE
-/// constraint can fire if two clients race to claim the same slot.
-fn map_db_error(err: &sqlx::Error) -> StatusCode {
-    if let Some(db_err) = err.as_database_error() {
-        if db_err.code().as_deref() == Some(PG_UNIQUE_VIOLATION) {
-            return StatusCode::CONFLICT;
-        }
-    }
-    StatusCode::INTERNAL_SERVER_ERROR
-}
 
 #[derive(Debug, Deserialize, IntoParams)]
 pub struct AuthorshipQuery {
@@ -132,6 +117,7 @@ pub async fn get_authorship(
     request_body = CreateAuthorship,
     responses(
         (status = 201, description = "Authorship created", body = Authorship),
+        (status = 400, description = "Bad request - validation error or unknown publication_id/author_id"),
         (status = 401, description = "Unauthorized - missing or invalid token"),
         (status = 409, description = "Conflict - duplicate (publication_id, author_position) or other unique constraint"),
         (status = 500, description = "Internal server error")
@@ -190,6 +176,7 @@ pub async fn create_authorship(
     request_body = UpdateAuthorship,
     responses(
         (status = 200, description = "Authorship updated", body = Authorship),
+        (status = 400, description = "Bad request - validation error or unknown publication_id/author_id"),
         (status = 401, description = "Unauthorized - missing or invalid token"),
         (status = 404, description = "Authorship not found"),
         (status = 409, description = "Conflict - new author_position duplicates an existing one for this publication"),

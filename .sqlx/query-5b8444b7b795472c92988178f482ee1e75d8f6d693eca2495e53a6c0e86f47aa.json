@@ -1,0 +1,62 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT\n            c.venue                      AS \"venue!\",\n            c.year                       AS \"year!\",\n            COALESCE(pc.talk_count, 0)   AS \"talk_count!\",\n            COALESCE(pc.poster_count, 0) AS \"poster_count!\",\n            bm.talk_submissions          AS submission_count,\n            bm.talks_accepted            AS acceptance_count,\n            COALESCE(\n                bm.acceptance_rate,\n                ROUND(bm.talks_accepted::numeric / NULLIF(bm.talk_submissions, 0) * 100, 1)\n            )::float8                    AS acceptance_rate,\n            bm.registered_participants   AS registered_participants\n        FROM conferences c\n        LEFT JOIN (\n            SELECT conference_id,\n                   COUNT(*) FILTER (WHERE paper_type <> 'poster') AS talk_count,\n                   COUNT(*) FILTER (WHERE paper_type =  'poster') AS poster_count\n            FROM publications\n            GROUP BY conference_id\n        ) pc ON pc.conference_id = c.id\n        LEFT JOIN conference_business_meetings bm ON bm.conference_id = c.id\n        ORDER BY c.venue, c.year\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "venue!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "year!",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 2,
+        "name": "talk_count!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 3,
+        "name": "poster_count!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 4,
+        "name": "submission_count",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 5,
+        "name": "acceptance_count",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 6,
+        "name": "acceptance_rate",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 7,
+        "name": "registered_participants",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      null,
+      null,
+      true,
+      true,
+      null,
+      true
+    ]
+  },
+  "hash": "5b8444b7b795472c92988178f482ee1e75d8f6d693eca2495e53a6c0e86f47aa"
+}

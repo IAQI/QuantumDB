@@ -36,7 +36,7 @@ pub async fn home(State(pool): State<PgPool>) -> Result<Response, StatusCode> {
     .fetch_one(&pool)
     .await
     .map_err(|e| {
-        eprintln!("Database error fetching stats: {}", e);
+        tracing::error!("Database error fetching stats: {}", e);
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
 
@@ -58,7 +58,7 @@ pub async fn home(State(pool): State<PgPool>) -> Result<Response, StatusCode> {
     .fetch_all(&pool)
     .await
     .map_err(|e| {
-        eprintln!("Database error fetching conferences: {}", e);
+        tracing::error!("Database error fetching conferences: {}", e);
         StatusCode::INTERNAL_SERVER_ERROR
     })?
     .into_iter()
@@ -90,7 +90,7 @@ pub async fn home(State(pool): State<PgPool>) -> Result<Response, StatusCode> {
     match template.render() {
         Ok(html) => Ok(Html(html).into_response()),
         Err(e) => {
-            eprintln!("Template error: {}", e);
+            tracing::error!("Template error: {}", e);
             Err(StatusCode::INTERNAL_SERVER_ERROR)
         }
     }

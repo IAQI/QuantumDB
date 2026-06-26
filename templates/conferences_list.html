@@ -32,6 +32,56 @@
         </div>
     </section>
 
+    <section class="conf-stats">
+        <p class="conf-stats__eyebrow">Aggregate data · QIP · QCrypt · TQC</p>
+        <h2 class="conf-stats__title display">Year by year</h2>
+        <p class="conf-stats__lede">Three series of quantum-information meetings, charted by venue across the years the archive covers. Every figure draws live from the public API and grows as more of the record is filled in.</p>
+        <div class="conf-stats__meta">
+            <span class="conf-stats__legend">
+                <span><span class="legend-swatch fill-qip"></span>QIP</span>
+                <span><span class="legend-swatch fill-qcrypt"></span>QCrypt</span>
+                <span><span class="legend-swatch fill-tqc"></span>TQC</span>
+            </span>
+            <span class="conf-stats__dot">·</span>
+            <a href="/api/v1/stats/conferences">/api/v1/stats/conferences</a>
+        </div>
+
+        <div class="figures">
+            <figure class="figure">
+                <div class="figure__head">
+                    <span class="figure__num">Fig. 1</span>
+                    <h3 class="figure__title">Accepted contributions per year</h3>
+                </div>
+                <p class="figure__sub">Solid talks · faint posters</p>
+                <div class="figure__canvas"><canvas id="chart-papers"></canvas></div>
+            </figure>
+            <figure class="figure">
+                <div class="figure__head">
+                    <span class="figure__num">Fig. 2</span>
+                    <h3 class="figure__title">Submissions against acceptances</h3>
+                </div>
+                <p class="figure__sub">Solid accepted · full bar submitted</p>
+                <div class="figure__canvas"><canvas id="chart-submissions"></canvas></div>
+            </figure>
+            <figure class="figure">
+                <div class="figure__head">
+                    <span class="figure__num">Fig. 3</span>
+                    <h3 class="figure__title">Acceptance rate</h3>
+                </div>
+                <p class="figure__sub">Announced, or computed from talk counts</p>
+                <div class="figure__canvas"><canvas id="chart-acceptance"></canvas></div>
+            </figure>
+            <figure class="figure">
+                <div class="figure__head">
+                    <span class="figure__num">Fig. 4</span>
+                    <h3 class="figure__title">Registered participants</h3>
+                </div>
+                <p class="figure__sub">As reported at the business meeting</p>
+                <div class="figure__canvas"><canvas id="chart-participants"></canvas></div>
+            </figure>
+        </div>
+    </section>
+
     <section id="conference-table">
         {% if conferences.is_empty() %}
         <p>No conferences found.</p>
@@ -41,10 +91,11 @@
                 <tr>
                     <th data-sort="conference">Conference</th>
                     <th data-sort="location">Location</th>
-                    <th data-sort="date">Date</th>
-                    <th data-sort="papers">Papers</th>
+                    <th data-sort="papers">Talks</th>
+                    <th data-sort="posters">Posters</th>
                     <th data-sort="committee">Committee</th>
                     <th data-sort="rate">Acceptance Rate</th>
+                    <th data-sort="participants">Participants</th>
                 </tr>
             </thead>
             <tbody>
@@ -52,10 +103,11 @@
                 <tr>
                     <td data-value="conference"><a href="/conferences/{{ conf.slug }}" class="conference-link"><strong>{{ conf.venue }} {{ conf.year }}</strong></a></td>
                     <td data-value="location">{{ conf.location }}</td>
-                    <td data-value="date">{{ conf.start_date }}</td>
-                    <td data-value="papers">{{ conf.publication_count }}</td>
+                    <td data-value="papers">{{ conf.talk_count }}</td>
+                    <td data-value="posters">{% if conf.poster_count > 0 %}{{ conf.poster_count }}{% else %}-{% endif %}</td>
                     <td data-value="committee">{{ conf.committee_member_count }}</td>
                     <td data-value="rate">{% if !conf.acceptance_rate.is_empty() %}{{ conf.acceptance_rate }}{% else %}-{% endif %}</td>
+                    <td data-value="participants">{% if !conf.registered_participants.is_empty() %}{{ conf.registered_participants }}{% else %}-{% endif %}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -86,6 +138,182 @@ function updateConferences() {
 // Load initial data on page load
 document.addEventListener('DOMContentLoaded', function() {
     updateConferences();
+});
+</script>
+
+<script src="/static/js/chart.umd.min.js"></script>
+<script>
+// Venue colours — must stay in sync with --venue-* CSS vars in base.html.
+const VENUE_COLOR = { QIP: '#0072B2', QCRYPT: '#E69F00', TQC: '#009E73' };
+const VENUE_LABEL = { QIP: 'QIP', QCRYPT: 'QCrypt', TQC: 'TQC' };
+const VENUE_ORDER = ['QIP', 'QCRYPT', 'TQC'];
+
+// Editorial tokens — mirror the --paper/--ink/--rule CSS vars in base.html.
+const PAPER = '#f6f1e7', INK = '#1a1a1a', INK_SOFT = '#3a3633', MUTED = '#6b6256';
+const RULE = '#d8cfbe', RULE_STRONG = '#b8ac95', GRID = 'rgba(184,172,149,0.30)';
+const MONO = "'IBM Plex Mono', ui-monospace, monospace";
+
+// Render every chart in the site's data face, not Chart.js's Helvetica default.
+Chart.defaults.font.family = MONO;
+Chart.defaults.font.size = 10;
+Chart.defaults.color = MUTED;
+
+// A tooltip styled as a small mono data card on paper, not the default bubble.
+const TOOLTIP = {
+    backgroundColor: PAPER,
+    titleColor: INK,
+    bodyColor: INK_SOFT,
+    borderColor: RULE_STRONG,
+    borderWidth: 1,
+    cornerRadius: 0,
+    padding: 9,
+    titleFont: { family: MONO, size: 11, weight: '600' },
+    bodyFont: { family: MONO, size: 11 },
+    boxWidth: 9, boxHeight: 9, boxPadding: 5,
+};
+
+// Hairline, horizontal-only grid with tabular mono ticks.
+function scales(yOpts) {
+    return {
+        x: {
+            grid: { display: false },
+            border: { color: RULE_STRONG },
+            ticks: { maxRotation: 0, autoSkip: true, autoSkipPadding: 14, font: { family: MONO, size: 9.5 } },
+        },
+        y: Object.assign({
+            beginAtZero: true,
+            grid: { color: GRID, drawTicks: false },
+            border: { display: false },
+            ticks: { maxTicksLimit: 5, padding: 6, font: { family: MONO, size: 9.5 } },
+        }, yOpts || {}),
+    };
+}
+
+function hexToRgba(hex, alpha) {
+    const n = parseInt(hex.slice(1), 16);
+    return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${alpha})`;
+}
+
+// Line series drawn as honest piecewise segments with paper-ringed dots.
+function lineSeries(byVenue, years, present, field) {
+    return present.map(v => ({
+        label: VENUE_LABEL[v],
+        data: seriesFor(byVenue, years, v, field),
+        borderColor: VENUE_COLOR[v],
+        backgroundColor: VENUE_COLOR[v],
+        pointBackgroundColor: VENUE_COLOR[v],
+        pointBorderColor: PAPER,
+        pointBorderWidth: 1.5,
+        borderWidth: 2,
+        tension: 0,
+        spanGaps: true,
+        pointRadius: 3,
+        pointHoverRadius: 5,
+    }));
+}
+
+// Build a value series for one venue aligned to the shared `years` axis.
+// Missing years become null so Chart.js can span/skip the gap.
+function seriesFor(byVenue, years, venue, field) {
+    const map = byVenue[venue] || {};
+    return years.map(y => (map[y] && map[y][field] != null ? map[y][field] : null));
+}
+
+function renderCharts(rows) {
+    // Group rows by venue keyed by year, and collect the shared year axis.
+    const byVenue = {};
+    const yearSet = new Set();
+    for (const r of rows) {
+        (byVenue[r.venue] = byVenue[r.venue] || {})[r.year] = r;
+        yearSet.add(r.year);
+    }
+    const years = Array.from(yearSet).sort((a, b) => a - b);
+    const present = VENUE_ORDER.filter(v => byVenue[v]);
+
+    // One shared legend lives above the plate, so charts carry none of their own.
+    const baseOpts = {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: { legend: { display: false }, tooltip: TOOLTIP },
+    };
+
+    // 1. Accepted contributions — stacked bar per venue: talks (solid) at the
+    //    base, posters (faint) above, so posters are counted apart from talks.
+    const contribDatasets = [];
+    for (const v of present) {
+        contribDatasets.push({
+            label: `${VENUE_LABEL[v]} talks`,
+            data: seriesFor(byVenue, years, v, 'talk_count'),
+            backgroundColor: VENUE_COLOR[v],
+            stack: v, categoryPercentage: 0.72, barPercentage: 0.92,
+        });
+        contribDatasets.push({
+            label: `${VENUE_LABEL[v]} posters`,
+            data: seriesFor(byVenue, years, v, 'poster_count'),
+            backgroundColor: hexToRgba(VENUE_COLOR[v], 0.20),
+            stack: v, categoryPercentage: 0.72, barPercentage: 0.92,
+        });
+    }
+    const contribScales = scales();
+    contribScales.x.stacked = true;
+    contribScales.y.stacked = true;
+    new Chart(document.getElementById('chart-papers'), {
+        type: 'bar',
+        data: { labels: years, datasets: contribDatasets },
+        options: { ...baseOpts, scales: contribScales },
+    });
+
+    // 2. Submissions vs accepted — one stacked bar per venue: accepted (solid)
+    //    at the base, rejected (faint) above, so the full height is submissions
+    //    and the solid share reads as the acceptance fraction.
+    const subDatasets = [];
+    for (const v of present) {
+        const acc = seriesFor(byVenue, years, v, 'acceptance_count');
+        const sub = seriesFor(byVenue, years, v, 'submission_count');
+        const rej = acc.map((a, i) => (a != null && sub[i] != null ? sub[i] - a : null));
+        subDatasets.push({
+            label: `${VENUE_LABEL[v]} accepted`,
+            data: acc,
+            backgroundColor: VENUE_COLOR[v],
+            stack: v, order: 1, categoryPercentage: 0.7, barPercentage: 0.94,
+        });
+        subDatasets.push({
+            label: `${VENUE_LABEL[v]} rejected`,
+            data: rej,
+            backgroundColor: hexToRgba(VENUE_COLOR[v], 0.20),
+            stack: v, order: 1, categoryPercentage: 0.7, barPercentage: 0.94,
+        });
+    }
+    const stackedScales = scales();
+    stackedScales.x.stacked = true;
+    stackedScales.y.stacked = true;
+    new Chart(document.getElementById('chart-submissions'), {
+        type: 'bar',
+        data: { labels: years, datasets: subDatasets },
+        options: { ...baseOpts, scales: stackedScales },
+    });
+
+    // 3. Acceptance rate — lines, fixed 0–100%, bridge null years.
+    new Chart(document.getElementById('chart-acceptance'), {
+        type: 'line',
+        data: { labels: years, datasets: lineSeries(byVenue, years, present, 'acceptance_rate') },
+        options: { ...baseOpts, scales: scales({ max: 100, ticks: { maxTicksLimit: 5, padding: 6, font: { family: MONO, size: 9.5 }, callback: v => v + '%' } }) },
+    });
+
+    // 4. Participants per year — lines (sparse).
+    new Chart(document.getElementById('chart-participants'), {
+        type: 'line',
+        data: { labels: years, datasets: lineSeries(byVenue, years, present, 'registered_participants') },
+        options: { ...baseOpts, scales: scales() },
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    fetch('/api/v1/stats/conferences')
+        .then(r => r.ok ? r.json() : Promise.reject(r.status))
+        .then(renderCharts)
+        .catch(err => console.error('Failed to load conference stats:', err));
 });
 </script>
 

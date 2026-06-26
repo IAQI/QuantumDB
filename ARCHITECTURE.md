@@ -53,7 +53,9 @@ quantumdb/
 │   └── utils/              # Shared utilities (IMPLEMENTED)
 │       ├── mod.rs
 │       ├── normalize.rs     # Unicode normalization, name similarity, variants
-│       └── conference.rs    # Conference slug parsing (e.g., "QIP2024")
+│       ├── conference.rs    # Conference slug parsing (e.g., "QIP2024")
+│       ├── pagination.rs    # clamp_pagination() — bounds limit/offset
+│       └── validation.rs    # URL scheme + length + JSONB metadata validators
 ├── migrations/              # Database migrations (SQLx)
 ├── seeds/                   # Initial/sample data
 ├── templates/               # HTML templates (Askama)
@@ -71,17 +73,20 @@ quantumdb/
 │       ├── favicon.png     # Site favicon
 │       └── iaqi-logo.png   # IAQI branding logo
 └── tests/
-    └── api_tests.rs         # Comprehensive test suite (1155 lines)
+    ├── api_tests.rs         # Comprehensive test suite (1547 lines)
+    └── common.rs            # Shared test pool + router setup
 ```
 
-**Note**: Error handling is done directly in handlers with `StatusCode` returns. Database connection uses SQLx's `Extension(Pool<Postgres>)` pattern. No separate `config.rs`, `error.rs`, `db/`, or `api/` modules exist.
+**Note**: Error handling is done directly in handlers with `StatusCode` returns. Database access uses Axum's `State(Pool<Postgres>)` pattern (the router is built with `.with_state(pool)`, not `Extension`). No separate `config.rs`, `error.rs`, `db/`, or `api/` modules exist.
 
 ## API Design
 
+The REST API is versioned and mounted under `/api/v1/`. The HTML web interface and `/health` are unversioned.
+
 ### Interactive API Documentation
 
-**Swagger UI**: `GET /swagger-ui/` - Interactive API explorer with live testing  
-**OpenAPI Spec**: `GET /api-docs/openapi.json` - OpenAPI 3.0 specification
+**Swagger UI**: `GET /api/v1/swagger-ui/` - Interactive API explorer with live testing  
+**OpenAPI Spec**: `GET /api/v1/openapi.json` - OpenAPI 3.0 specification
 
 All endpoints are fully documented with request/response schemas in Swagger UI.
 
@@ -112,49 +117,51 @@ GET    /admin/refresh-stats   # Refresh materialized views
 GET    /health                # API health status
 ```
 
+All CRUD endpoints below are mounted under `/api/v1/`. `GET` is public; `POST`/`PUT`/`DELETE` require a Bearer token.
+
 **Conferences** (full CRUD):
 ```
-GET    /conferences           # List all conferences
-GET    /conferences/:id       # Get conference by UUID
-POST   /conferences           # Create new conference
-PUT    /conferences/:id       # Update conference
-DELETE /conferences/:id       # Delete conference
+GET    /api/v1/conferences           # List all conferences
+GET    /api/v1/conferences/:id       # Get conference by UUID
+POST   /api/v1/conferences           # Create new conference
+PUT    /api/v1/conferences/:id       # Update conference
+DELETE /api/v1/conferences/:id       # Delete conference
 ```
 
 **Publications** (full CRUD):
 ```
-GET    /publications          # List all publications
-GET    /publications/:id      # Get publication by UUID
-POST   /publications          # Create new publication
-PUT    /publications/:id      # Update publication
-DELETE /publications/:id      # Delete publication
+GET    /api/v1/publications          # List all publications
+GET    /api/v1/publications/:id      # Get publication by UUID
+POST   /api/v1/publications          # Create new publication
+PUT    /api/v1/publications/:id      # Update publication
+DELETE /api/v1/publications/:id      # Delete publication
 ```
 
 **Authors** (full CRUD):
 ```
-GET    /authors               # List all authors
-GET    /authors/:id           # Get author by UUID
-POST   /authors               # Create new author
-PUT    /authors/:id           # Update author
-DELETE /authors/:id           # Delete author
+GET    /api/v1/authors               # List all authors
+GET    /api/v1/authors/:id           # Get author by UUID
+POST   /api/v1/authors               # Create new author
+PUT    /api/v1/authors/:id           # Update author
+DELETE /api/v1/authors/:id           # Delete author
 ```
 
 **Authorships** (full CRUD):
 ```
-GET    /authorships           # List all authorships
-GET    /authorships/:id       # Get authorship by UUID
-POST   /authorships           # Create new authorship
-PUT    /authorships/:id       # Update authorship
-DELETE /authorships/:id       # Delete authorship
+GET    /api/v1/authorships           # List all authorships
+GET    /api/v1/authorships/:id       # Get authorship by UUID
+POST   /api/v1/authorships           # Create new authorship  (409 on position conflict)
+PUT    /api/v1/authorships/:id       # Update authorship      (409 on position conflict)
+DELETE /api/v1/authorships/:id       # Delete authorship
 ```
 
 **Committee Roles** (full CRUD):
 ```
-GET    /committees            # List all committee roles
-GET    /committees/:id        # Get committee role by UUID
-POST   /committees            # Create new committee role
-PUT    /committees/:id        # Update committee role
-DELETE /committees/:id        # Delete committee role
+GET    /api/v1/committees            # List all committee roles
+GET    /api/v1/committees/:id        # Get committee role by UUID
+POST   /api/v1/committees            # Create new committee role
+PUT    /api/v1/committees/:id        # Update committee role
+DELETE /api/v1/committees/:id        # Delete committee role
 ```
 
 ### Common Features
@@ -174,7 +181,7 @@ DELETE /committees/:id        # Delete committee role
 3. **OpenAPI Integration** (implemented)
    - `#[utoipa::path(...)]` annotations on all handlers
    - Automatic schema generation from Rust types
-   - Interactive Swagger UI at `/swagger-ui/`
+   - Interactive Swagger UI at `/api/v1/swagger-ui/`
 
 4. **Name Normalization** (implemented)
    - Unicode NFKD normalization for author names
@@ -188,7 +195,7 @@ DELETE /committees/:id        # Delete committee role
    - Tracks source_type, source_url, scraped_date, notes
 
 6. **Authentication** (implemented)
-   - JWT-based Bearer token authentication
+   - Opaque Bearer-token authentication (shared secrets, ≥32 chars, constant-time comparison via the `subtle` crate — not JWT)
    - Environment variable token configuration (API_TOKENS)
    - Multiple tokens supported (comma-separated)
    - Protects write operations (POST, PUT, DELETE)
@@ -202,9 +209,16 @@ DELETE /committees/:id        # Delete committee role
    - Author and conference browsing
    - About page with IAQI branding
 
-8. **Future Features**
-   - Pagination for API endpoints (limit/offset)
-   - Full-text search for publications
+8. **Pagination & Validation** (implemented)
+   - `clamp_pagination()` bounds `limit`/`offset` on every list endpoint (default 100, max 1000)
+   - Input validators for URL scheme, text length, and JSONB metadata on all `Create*`/`Update*` handlers
+
+9. **Hardening** (implemented)
+   - Per-IP rate limiting (`tower_governor`)
+   - CORS and security-header middleware (`tower-http`)
+
+10. **Future Features**
+   - Dedicated full-text search endpoints for publications (schema has `search_vector` already)
    - Advanced filtering
    - Export to BibTeX, CSV
 

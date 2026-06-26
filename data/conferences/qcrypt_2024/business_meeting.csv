@@ -1,0 +1,4 @@
+venue,year,field,value,source_type,source_url,source_date,notes
+QCRYPT,2024,meeting_date,2024-09-05,conference_website,2024/sessions/business/index.html,2024,"Awards and Business Meeting, Thu 5 Sep 18:00-20:00"
+QCRYPT,2024,talks_accepted,36,conference_website,2024/accepted-papers/index.html,2024,"counted from official accepted-talks list; no business-meeting report deck archived"
+QCRYPT,2024,posters_accepted,193,conference_website,2024/accepted-papers/index.html,2024,"counted from official accepted-posters list"

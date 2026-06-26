@@ -17,11 +17,70 @@ QCrypt committee provenance is not yet captured here; see
 
 > **Business-meeting stats** (`business_meeting.csv`) carry their provenance
 > per-fact, inline in each file's `source_type`/`source_url`/`source_date`
-> columns, so they aren't duplicated here. The richest source is the QCrypt
-> business-meeting **slide decks** under `~/Web/qcrypt.iaqi.org/<year>/slides/`
-> (PC/Local-Chair reports, 2020–2023, read via `pdftotext`); TQC/QIP figures
-> come from archived HTML. Many gaps will only be fillable by emailing past
-> chairs — those rows use `source_type=email`.
+> columns. The **Business-Meeting Report Sources** catalog below lists the
+> underlying report documents (PC-chair / local-organizer decks, program
+> booklets, stat-bearing pages) per conference-year. Many gaps will only be
+> fillable by emailing past chairs — those rows use `source_type=email`.
+
+---
+
+# Business-Meeting Report Sources
+
+Catalog of the documents from which `business_meeting.csv` stats were drawn.
+Paths are relative to the local static mirrors: `~/Web/qcrypt.iaqi.org/` (QCrypt),
+`~/Web/qip.iaqi.org/` (QIP), `~/Web/tqc.iaqi.org/` (TQC). Slide decks are read via
+`pdftotext -layout`; `.pptx` via `unzip -p <f> 'ppt/slides/slide*.xml'`. "Derived"
+= counted from an official accepted-items list rather than an announced figure.
+
+## QCrypt
+
+| Year | Report source(s) | What was extracted |
+|------|------------------|--------------------|
+| 2011 | `2011/participants.pdf` (~138-name roster); `2011/box_feeder/booklet.pdf` | registered_participants=140 (baseline; roster corroborates) |
+| 2014 | `2014/wp-content/uploads/List-of-participants-QCrypt-2014.pdf` (~216 names) | participant roster only (not yet recorded as a stat) |
+| 2015 | `2015/index.html` | talk_submissions=174, talks_accepted=25 |
+| 2020 | `2020/slides/slides-pc.pdf` (PC report); `2020/slides/LocalChairQCrypt2020.pdf` (local chair); `2020/slides/OpeningSlides.pdf`; `2020/slides/BusinessQCrypt2020.pptx` (agenda); `2020/slides/Closing.pdf` | talk_submissions=99, talks_accepted=33, posters_accepted=91; registrations stated as ">1000" (virtual — kept in notes) |
+| 2021 | `2021/slides/business-meeting.pdf`; `2021/slides/OpeningSlides.pdf`; `2021/slides/ClosingRemarks.pdf` | talk_submissions=137, talks_accepted=29, acceptance_rate=23, posters_accepted=141; ~1000 registrations (virtual — notes) |
+| 2022 | `2022/slides/01_PC_Report.pdf`; `2022/slides/02_Local organizers report_business-meeting.pdf` | talk_submissions=121, talks_accepted=33, posters_accepted=130, registered_participants=389, onsite_participants=45; theory/experiment splits in notes |
+| 2023 | `2023/slides/QCrypt2023_PC_Report.pdf`; `2023/slides/QCrypt2023_LC_Report.pdf` | talk_submissions=106, talks_accepted=33, acceptance_rate=34, posters_accepted=104, countries_represented=24, registered_participants=206 |
+| 2024 | `2024/accepted-papers/index.html`; `2024/sessions/business/index.html` | meeting_date=2024-09-05; talks_accepted=36, posters_accepted=193 (both derived). No PC/LC report deck archived; `2023/slides/QCrypt2024_Org_Report.pdf` is a save-the-date promo with no stats |
+
+## QIP
+
+| Year | Report source(s) | What was extracted |
+|------|------------------|--------------------|
+| 2010 | `2010/index.html`; `2010/call_submission.html`; `2010/box_feeder/programbooklet` (PDF) | talk_submissions=168, talks_accepted=34, acceptance_rate=20, posters_accepted=140, posters_submitted≈80. Discrepancy: call page says 31 contributed talks vs index's 34 total |
+| 2011 | `2011/submissions/index.html`; `2011/images/QIP2011_Booklet.pdf` (PC-chair report) | talk_submissions=187, talks_accepted=35, posters_accepted=156 |
+| 2012 | `2012/QIP2012Booklet.pdf` (PC-chair report) | talks_accepted=40, posters_accepted=122 |
+| 2013 | `2013/qip2013.pdf` (PC-chair report) | talk_submissions=167, talks_accepted=33 (9 featured), posters_submitted=170, posters_accepted=150 |
+| 2019 | `2019/qip2019_accepted_posters.pdf` (poster list); `2019/qip2019_attendees_list.pdf` (roster) | posters_accepted=310 |
+| 2023 | `2023/` site (per-fact inline provenance) | registered_participants=1000, talk_submissions=500 |
+
+No dedicated QIP business-meeting slide decks were archived; pre-2014 stats come
+from PC-chair intro letters embedded in the program booklets.
+
+## TQC
+
+| Year | Report source(s) | What was extracted |
+|------|------------------|--------------------|
+| 2021 | `2021/index.html` | registered_participants=465, countries_represented=37 (virtual) |
+| 2022 | `2025/tqc2023/index.html` (second-hand: year-over-year comparison in the 2023 report) | talk_submissions=216 (32 conference + 184 workshop), track_breakdown (incl. 31 poster-only). Acceptance counts not recovered |
+| 2023 | `2025/tqc2023/index.html` | talk_submissions=342, talks_accepted=74, posters_accepted=266, full track_breakdown |
+| 2024 | `2025/talks-2024/index.html`; `2025/posters-2024/index.html`; LIPIcs foreword `10.4230/LIPIcs.TQC.2024.0` (vol 310); `simplystatic/.../wp-content/uploads/2024/05/TQC-2024-booklet-1.pdf` (pre-event est.) | talk_submissions=460, talks_accepted=92, acceptance_rate=20, posters_accepted=429; foreword adds track_breakdown (44 of 460 also to With Proceedings; 12 of 92 With Proceedings; 19 outstanding posters). Booklet's "~400 in-person" is a pre-event estimate, not stored |
+| 2025 | `2025/index.html`; LIPIcs foreword `10.4230/LIPIcs.TQC.2025.0` (vol 350); `simplystatic/.../wp-content/uploads/2025/09/Abstract_Booklet.pdf` | talk_submissions=375, talks_accepted=77, meeting_date=2025-09-17; foreword adds track_breakdown (12 of 77 published in With Proceedings). Poster count conflicts (150+ page vs 200+ booklet — kept in notes) |
+
+No PC-chair/local-organizer slide decks were archived for TQC; figures come from
+inline HTML, the two recent booklet PDFs, and the LIPIcs proceedings forewords.
+
+**LIPIcs proceedings forewords.** TQC has published in LIPIcs since 2013; the
+front-matter PDF (which contains the foreword/preface) is at
+`https://drops.dagstuhl.de/storage/00lipics/lipics-vol<NNN>-tqc<YYYY>/LIPIcs.TQC.<YYYY>.<id>/...`
+where `<id>` is `0` for 2016+ and `i` for 2013–2015. All 13 forewords (2013–2025)
+were checked: **only the 2024 and 2025 forewords state submission/acceptance
+counts** — every earlier foreword (2013–2023) only describes the program
+structure and lists prior editions, with no numbers. TQC volume map: 2013=022,
+2014=027, 2015=044, 2016=061, 2017=073, 2018=111, 2019=135, 2020=158, 2021=197,
+2022=232, 2023=266, 2024=310, 2025=350.
 
 ---
 

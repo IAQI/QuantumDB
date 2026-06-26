@@ -1,3 +1,5 @@
 venue,year,field,value,source_type,source_url,source_date,notes
 QIP,2011,talk_submissions,187,conference_website,2011/submissions/index.html,,
+QIP,2011,talks_accepted,35,slides,2011/images/QIP2011_Booklet.pdf,2011,"PC-chair report in program booklet: ""select 35 talks and 156 posters"""
 QIP,2011,posters_accepted,156,conference_website,2011/submissions/index.html,,
+QIP,2011,slide:program booklet (PC-chair report),https://qip.iaqi.org/2011/images/QIP2011_Booklet.pdf,slides,,2011,

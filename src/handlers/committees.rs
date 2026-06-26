@@ -209,6 +209,8 @@ pub async fn get_committee_role(
     request_body = CreateCommitteeRole,
     responses(
         (status = 201, description = "Committee role created", body = CommitteeRole),
+        (status = 400, description = "Bad request - validation error or unknown conference_id/author_id"),
+        (status = 409, description = "Conflict - duplicate committee role"),
         (status = 401, description = "Unauthorized - missing or invalid token"),
         (status = 500, description = "Internal server error")
     ),
@@ -262,7 +264,7 @@ pub async fn create_committee_role(
     .await
     .map_err(|e| {
         tracing::error!("Failed to create committee role: {:?}", e);
-        StatusCode::INTERNAL_SERVER_ERROR
+        crate::utils::map_db_error(&e)
     })?;
 
     Ok((StatusCode::CREATED, Json(role)))
@@ -276,6 +278,8 @@ pub async fn create_committee_role(
     request_body = UpdateCommitteeRole,
     responses(
         (status = 200, description = "Committee role updated", body = CommitteeRole),
+        (status = 400, description = "Bad request - validation error or unknown conference_id/author_id"),
+        (status = 409, description = "Conflict - duplicate committee role"),
         (status = 401, description = "Unauthorized - missing or invalid token"),
         (status = 404, description = "Committee role not found"),
         (status = 500, description = "Internal server error")
@@ -354,7 +358,7 @@ pub async fn update_committee_role(
     .await
     .map_err(|e| {
         tracing::error!("Failed to update committee role: {:?}", e);
-        StatusCode::INTERNAL_SERVER_ERROR
+        crate::utils::map_db_error(&e)
     })?;
 
     Ok(Json(role))

@@ -1,3 +1,6 @@
+# DEVELOPMENT stack — publishes Postgres (5432) and pgAdmin (5050) with default
+# credentials and exposes the app on all interfaces. Do NOT run this on a public
+# server. For production use docker-compose.prod.yml (see docs/DEPLOYMENT.md).
 services:
   app:
     build: .
