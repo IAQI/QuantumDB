@@ -24,8 +24,8 @@ services:
       # Allowed browser origins for the public read API; e.g. https://quantumdb.example.org
       # Leave unset to disallow all cross-origin browser requests.
       - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-}
-      # Hide the OpenAPI spec + Swagger UI in production.
-      - ENABLE_SWAGGER=0
+      # OpenAPI spec + Swagger UI. Default off; set ENABLE_SWAGGER=1 in .env to expose them.
+      - ENABLE_SWAGGER=${ENABLE_SWAGGER:-0}
       # NOTE: AUTH_DISABLED is intentionally absent — never enable it in production.
     depends_on:
       db:
