@@ -282,6 +282,7 @@ pub async fn update_author(
     params(("id" = Uuid, Path, description = "Author ID")),
     responses(
         (status = 204, description = "Author deleted"),
+        (status = 409, description = "Conflict - author still has authorships or committee roles"),
         (status = 401, description = "Unauthorized - missing or invalid token"),
         (status = 404, description = "Author not found"),
         (status = 500, description = "Internal server error")
@@ -297,7 +298,7 @@ pub async fn delete_author(
     let result = sqlx::query!("DELETE FROM authors WHERE id = $1", id)
         .execute(&pool)
         .await
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+        .map_err(|e| crate::utils::map_delete_error(&e))?;
 
     if result.rows_affected() == 0 {
         return Err(StatusCode::NOT_FOUND);

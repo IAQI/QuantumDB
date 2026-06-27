@@ -265,7 +265,7 @@ pub async fn delete_authorship(
         .bind(id)
         .execute(&pool)
         .await
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+        .map_err(|e| crate::utils::map_delete_error(&e))?;
 
     if result.rows_affected() == 0 {
         Err(StatusCode::NOT_FOUND)

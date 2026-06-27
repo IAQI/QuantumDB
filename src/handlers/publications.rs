@@ -435,6 +435,7 @@ pub async fn update_publication(
     params(("id" = Uuid, Path, description = "Publication ID")),
     responses(
         (status = 204, description = "Publication deleted"),
+        (status = 409, description = "Conflict - publication still has authorships"),
         (status = 401, description = "Unauthorized - missing or invalid token"),
         (status = 404, description = "Publication not found"),
         (status = 500, description = "Internal server error")
@@ -450,7 +451,7 @@ pub async fn delete_publication(
     let result = sqlx::query!("DELETE FROM publications WHERE id = $1", id)
         .execute(&pool)
         .await
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+        .map_err(|e| crate::utils::map_delete_error(&e))?;
 
     if result.rows_affected() == 0 {
         return Err(StatusCode::NOT_FOUND);

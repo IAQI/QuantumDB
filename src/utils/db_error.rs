@@ -35,3 +35,17 @@ pub fn map_db_error(err: &sqlx::Error) -> StatusCode {
     }
     StatusCode::INTERNAL_SERVER_ERROR
 }
+
+/// Map an SQLx error from a DELETE to a status code. A foreign-key violation here
+/// means the row is still referenced by child rows (e.g. a conference that still
+/// has publications/committee roles), which is a 409 Conflict — the request is
+/// well-formed, the resource just can't be removed while it's referenced. Anything
+/// else is an unexpected 500.
+pub fn map_delete_error(err: &sqlx::Error) -> StatusCode {
+    if let Some(db_err) = err.as_database_error() {
+        if db_err.code().as_deref() == Some(PG_FOREIGN_KEY_VIOLATION) {
+            return StatusCode::CONFLICT;
+        }
+    }
+    StatusCode::INTERNAL_SERVER_ERROR
+}

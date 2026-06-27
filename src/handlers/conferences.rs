@@ -403,9 +403,10 @@ pub async fn update_conference(
     params(("id" = String, Path, description = "Conference ID (UUID) or slug (e.g., QIP2024, QCRYPT2018, TQC2022)")),
     responses(
         (status = 204, description = "Conference deleted"),
+        (status = 400, description = "Invalid ID format"),
         (status = 401, description = "Unauthorized - missing or invalid token"),
         (status = 404, description = "Conference not found"),
-        (status = 400, description = "Invalid ID format"),
+        (status = 409, description = "Conflict - conference still has publications or committee roles"),
         (status = 500, description = "Internal server error")
     ),
     security(
@@ -420,7 +421,7 @@ pub async fn delete_conference(
     let result = sqlx::query!("DELETE FROM conferences WHERE id = $1", id)
         .execute(&pool)
         .await
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+        .map_err(|e| crate::utils::map_delete_error(&e))?;
 
     if result.rows_affected() == 0 {
         return Err(StatusCode::NOT_FOUND);

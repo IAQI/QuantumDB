@@ -1546,3 +1546,43 @@ async fn test_short_paper_type_rejected() {
     // Should fail because 'short' is not a valid enum value anymore
     response.assert_status(axum::http::StatusCode::UNPROCESSABLE_ENTITY);
 }
+
+#[tokio::test]
+async fn test_delete_conference_with_publications_conflicts() {
+    let server = setup().await;
+
+    // Create a conference and a publication that references it.
+    let conf_body = json!({
+        "venue": "QIP",
+        "year": unique_test_year(),
+        "creator": "test_user",
+        "modifier": "test_user"
+    });
+    let conf: serde_json::Value = server.post("/conferences").json(&conf_body).await.json();
+    let conference_id = conf["id"].as_str().unwrap();
+
+    let pub_body = json!({
+        "conference_id": conference_id,
+        "canonical_key": format!("del-conflict-{}", Uuid::new_v4()),
+        "title": "Blocks the parent delete",
+        "creator": "test_user",
+        "modifier": "test_user"
+    });
+    let pub_resp = server.post("/publications").json(&pub_body).await;
+    pub_resp.assert_status(axum::http::StatusCode::CREATED);
+    let pub_id = pub_resp.json::<serde_json::Value>()["id"].as_str().unwrap().to_string();
+
+    // Deleting the still-referenced conference is a 409, not a 500.
+    let response = server.delete(&format!("/conferences/{}", conference_id)).await;
+    response.assert_status(axum::http::StatusCode::CONFLICT);
+
+    // Remove the child, then the conference deletes cleanly.
+    server
+        .delete(&format!("/publications/{}", pub_id))
+        .await
+        .assert_status(axum::http::StatusCode::NO_CONTENT);
+    server
+        .delete(&format!("/conferences/{}", conference_id))
+        .await
+        .assert_status(axum::http::StatusCode::NO_CONTENT);
+}

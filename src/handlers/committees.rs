@@ -386,7 +386,7 @@ pub async fn delete_committee_role(
     let result = sqlx::query!("DELETE FROM committee_roles WHERE id = $1", id)
         .execute(&pool)
         .await
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+        .map_err(|e| crate::utils::map_delete_error(&e))?;
 
     if result.rows_affected() == 0 {
         return Err(StatusCode::NOT_FOUND);
