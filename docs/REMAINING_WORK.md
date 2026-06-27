@@ -1,19 +1,21 @@
 # QuantumDB Project: Remaining Work & Recommendations
 
-**Last Updated**: 2026-05-14
+**Last Updated**: 2026-06-27
 
 ## Executive Summary
 
-**Project Status**: Production-ready core; data population well underway.
+**Project Status**: Deployed and live; data population well underway.
 - ✅ **Complete**: All core CRUD operations, opaque-token auth, rate limiting,
   CORS + security headers, input validation, pagination, web interface, test
   suite, OpenAPI/Swagger docs.
+- ✅ **Deployed**: Live at <https://quantumdb.iaqi.org> since 2026-06-27. See
+  [`DEPLOYMENT.md`](DEPLOYMENT.md) for the runbook.
 - 🟡 **In progress**: Data population — the database now holds ~66 conferences,
-  ~3,700 publications, ~4,900 authors, and ~2,600 committee roles. Coverage is
-  uneven per conference-year; the authoritative status table is in
-  [`DATA_INGESTION_PLAN.md`](DATA_INGESTION_PLAN.md).
+  ~3,970 publications, ~5,540 authors, ~2,635 committee roles, and 18 business
+  meetings. Coverage is uneven per conference-year; the authoritative status
+  table is in [`DATA_INGESTION_PLAN.md`](DATA_INGESTION_PLAN.md).
 - 🔮 **Future**: Dedicated search endpoints, export features, analytics
-  endpoints, production deployment.
+  endpoints.
 
 **Where the live punch lists are:**
 - **Data work** → [`docs/DATA_INGESTION_PLAN.md`](DATA_INGESTION_PLAN.md) is the
@@ -82,20 +84,13 @@ currently a manual + `tools/dedup_authors.py` process — see `TODO.md`.
 
 ## 3. Operations & Deployment
 
-### Production Deployment Checklist
-- [ ] Choose hosting platform
-- [ ] Production PostgreSQL instance
-- [ ] Secure environment variable management
-- [ ] SSL/TLS termination
-- [ ] Tighten CORS origin list (currently `Any` — flagged in CLAUDE.md)
-- [ ] Backup strategy (automated `pg_dump`)
-- [ ] Monitoring (app logs, DB metrics)
-- [ ] Document the deployment process
+✅ **Done** — the app is live on an Infomaniak VPS (Docker prod compose + Caddy
+auto-TLS, hardened env, CORS driven by `CORS_ALLOWED_ORIGINS`). The full
+deployment guide and operations runbook (deploy, restart, token rotation, data
+reload, backups) live in [`DEPLOYMENT.md`](DEPLOYMENT.md).
 
-### Backup & Recovery
-- Daily automated database dumps
-- Archive all raw CSVs (already version-controlled under `data/conferences/`)
-- Periodic restore tests
+Still nice-to-have (not blocking): automated/scheduled `pg_dump` backups (the
+runbook documents the manual dump) and external uptime/DB-metric monitoring.
 
 ---
 
@@ -118,7 +113,6 @@ currently a manual + `tools/dedup_authors.py` process — see `TODO.md`.
    the schema already supports full-text search.
 3. BibTeX/CSV export (Feature B).
 4. Analytics endpoints (Feature C).
-5. Production deployment hardening (Section 3).
 
 **Architecture is sound — no structural changes needed, just feature additions
 and continued data population.**

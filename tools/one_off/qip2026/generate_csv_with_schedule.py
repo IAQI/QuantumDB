@@ -689,5 +689,5 @@ if __name__ == '__main__':
     print(f"\nNext steps:")
     print(f"  1. Review: {output_csv}")
     print(f"  2. Manual review: {str(output_csv).replace('_final.csv', '_manual_review.txt')}")
-    print(f"  3. Import: cd tools/scrape_talks && ./import_from_csv.py scraped_data/qip_2026_papers_final.csv")
+    print(f"  3. Import: ./tools/scrapers/import_from_csv.py talks scraped_data/qip_2026_papers_final.csv")
 

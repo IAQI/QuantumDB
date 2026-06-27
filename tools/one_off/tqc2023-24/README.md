@@ -141,7 +141,7 @@ CSV files are written to `../scraped_data/`:
 After generating the CSV files, import them into QuantumDB:
 
 ```bash
-cd /Users/chris/Github/QuantumDB/tools/scrape_talks
+cd /Users/chris/Github/QuantumDB/tools/scrapers
 
 # Import TQC 2023 (73 talks, 100% matched with schedule)
 python3 import_from_csv.py scraped_data/tqc_2023_talks_with_schedule.csv

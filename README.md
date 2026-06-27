@@ -2,6 +2,8 @@
 
 A REST API service for tracking quantum computing conferences (QIP, QCrypt, TQC), built with Rust and PostgreSQL.
 
+**Live:** <https://quantumdb.iaqi.org>
+
 ## Overview
 
 QuantumDB provides a comprehensive system for tracking:
@@ -18,6 +20,7 @@ QuantumDB provides a comprehensive system for tracking:
 - [Testing](TESTING.md) - Test suite and development testing guide
 - [Data Population](DATA_POPULATION.md) - CSV-based scrape/import data pipeline
 - [Data Ingestion Plan](docs/DATA_INGESTION_PLAN.md) - Per-conference data inventory and working plan
+- [Deployment](docs/DEPLOYMENT.md) - Deploy guide + operations runbook for the live instance
 - [CLAUDE.md](CLAUDE.md) - Detailed development guide (commands, workflow, conventions)
 
 ## Technology Stack
@@ -63,7 +66,7 @@ QuantumDB provides a comprehensive system for tracking:
 
 1. **Clone and Configure**
    ```bash
-   git clone https://github.com/yourusername/QuantumDB.git
+   git clone https://github.com/IAQI/QuantumDB.git
    cd QuantumDB
    
    # Generate API token

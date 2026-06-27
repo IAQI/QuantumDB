@@ -73,7 +73,7 @@ quantumdb/
 │       ├── favicon.png     # Site favicon
 │       └── iaqi-logo.png   # IAQI branding logo
 └── tests/
-    ├── api_tests.rs         # Comprehensive test suite (1547 lines)
+    ├── api_tests.rs         # Comprehensive test suite (~1588 lines)
     └── common.rs            # Shared test pool + router setup
 ```
 
@@ -217,7 +217,11 @@ DELETE /api/v1/committees/:id        # Delete committee role
    - Per-IP rate limiting (`tower_governor`)
    - CORS and security-header middleware (`tower-http`)
 
-10. **Future Features**
+10. **Business-Meeting Stats** (implemented)
+   - `conference_business_meetings` table (1:1 with a conference) records figures *announced* at the annual business meeting — registered/onsite participants, countries, submission/acceptance counts, posters, `track_breakdown` (JSONB), and slide-deck links (`slides` JSONB). Distinct from the computed `conference_stats` view.
+   - Populated from a tall `business_meeting.csv` per conference via `import_from_csv.py business-meetings`; rendered on the conference detail page and (registered count) on the conference overview.
+
+11. **Future Features**
    - Dedicated full-text search endpoints for publications (schema has `search_vector` already)
    - Advanced filtering
    - Export to BibTeX, CSV

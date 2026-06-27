@@ -1,8 +1,8 @@
-# Deployment & production hardening
+# Deployment & operations
 
-This guide covers running QuantumDB on a server (a single VM) and the security
-hardening applied to the codebase. See `docs/CODE_REVIEW.md` for the full review
-history.
+How to run QuantumDB on a server, the security hardening applied to the
+codebase, and the runbook for the **live instance** (<https://quantumdb.iaqi.org>).
+See `docs/CODE_REVIEW.md` for the security-review history.
 
 ## Environment variables
 
@@ -13,7 +13,7 @@ history.
 | `API_TOKENS` | yes | — | Comma-separated Bearer tokens for write/admin endpoints. Generate with `./tools/generate_token.sh`. |
 | `CORS_ALLOWED_ORIGINS` | no | *(none → no cross-origin)* | Comma-separated browser origins allowed to call the API cross-origin. `*` restores any-origin. Same-origin always works. |
 | `TRUST_PROXY` | no | `false` | When `1`, the rate limiter keys on `X-Forwarded-For`/`X-Real-IP`. Enable **only** behind a proxy that overwrites those headers. |
-| `ENABLE_SWAGGER` | no | `true` | Set `0` to hide `/api/v1/openapi.json` and the Swagger UI in production. |
+| `ENABLE_SWAGGER` | no | `true` (app) | Gates `/api/v1/openapi.json` + the Swagger UI. The app enables it by default; the **prod compose flips the default off** (`${ENABLE_SWAGGER:-0}`), so set `ENABLE_SWAGGER=1` in `.env` to expose it in prod. |
 | `BIND_ADDR` | no | `0.0.0.0:3000` | Listen address. Use `127.0.0.1:3000` for a direct run behind a same-host proxy. |
 | `RUST_LOG` | no | `info` | Log level. |
 | `AUTH_DISABLED` | no | unset | `1` bypasses auth entirely. **Local dev only — never set in production.** |
@@ -35,7 +35,7 @@ expose Postgres or pgAdmin.
    docker compose -f docker-compose.prod.yml up -d --build
    ```
    This runs `app` (loopback-only) + `db` (internal-only, healthchecked), with
-   `TRUST_PROXY=1` and `ENABLE_SWAGGER=0` baked in. No pgAdmin, no published 5432.
+   `TRUST_PROXY=1` baked in and Swagger off by default. No pgAdmin, no published 5432.
 3. **Reverse proxy with automatic HTTPS — Caddy** (simplest):
    ```
    # /etc/caddy/Caddyfile
@@ -50,20 +50,20 @@ expose Postgres or pgAdmin.
 5. **DB admin** — use `docker compose -f docker-compose.prod.yml exec db psql -U quantumdb`
    or an SSH tunnel; pgAdmin is intentionally absent from the prod stack.
 
-## Security hardening applied (pre-deploy pass)
+## Security hardening applied
 
-- **Auth**: removed the `?token=` query-string fallback (tokens no longer leak to
-  proxy/access logs, history, or `Referer`); Bearer header only. Constant-time
-  comparison and the 32-char minimum are unchanged.
+- **Auth**: Bearer header only — the `?token=` query-string fallback was removed
+  (tokens no longer leak to proxy/access logs, history, or `Referer`).
+  Constant-time comparison and the 32-char minimum are enforced.
 - **Rate limiting**: proxy-aware via `TRUST_PROXY` (X-Forwarded-For) so the limit
   stays per-client behind a proxy instead of collapsing to one global bucket.
-- **Response headers**: added `Content-Security-Policy` (allows only the CDNs the
-  app uses + inline scripts/styles it relies on; blocks framing and foreign
-  origins) and `Strict-Transport-Security` (HSTS), alongside the existing
-  X-Frame-Options / X-Content-Type-Options / Referrer-Policy / Permissions-Policy.
-- **CORS**: now driven by `CORS_ALLOWED_ORIGINS`; default denies cross-origin.
+- **Response headers**: `Content-Security-Policy` (allows only the CDNs the app
+  uses + the inline scripts/styles it relies on; blocks framing and foreign
+  origins) and `Strict-Transport-Security` (HSTS), alongside X-Frame-Options /
+  X-Content-Type-Options / Referrer-Policy / Permissions-Policy.
+- **CORS**: driven by `CORS_ALLOWED_ORIGINS`; default denies cross-origin.
 - **Request size**: explicit 1 MB body limit.
-- **API docs**: Swagger/OpenAPI gated behind `ENABLE_SWAGGER` (off in prod compose).
+- **API docs**: Swagger/OpenAPI gated behind `ENABLE_SWAGGER` (off by default in prod compose).
 - **Container**: runs as a non-root user; builder base pinned (`rust:1-bookworm`).
 - **Logging**: web handlers use structured `tracing` instead of `eprintln!`.
 
@@ -80,3 +80,120 @@ expose Postgres or pgAdmin.
   a trustworthy actor trail (tokens are opaque and carry no principal identity).
 - The CSP relies on `'unsafe-inline'` because the templates use inline scripts and
   event handlers; self-hosting the CDN assets would allow a stricter policy.
+
+---
+
+# Live instance — quantumdb.iaqi.org
+
+Record of the production deployment and its operations runbook.
+
+- **Live URL:** <https://quantumdb.iaqi.org>  ·  **API:** `/api/v1`  ·  **Swagger:** `/api/v1/swagger-ui/`
+- **Deployed:** 2026-06-27 (Infomaniak VPS)
+
+## Host
+
+| | |
+|---|---|
+| SSH | `ssh infomaniak-quantumdb` (user `ubuntu`, passwordless sudo) |
+| Public IP | `179.237.80.172` (A) · `2001:1600:18:206::34f` (AAAA) — domain has both |
+| OS | Ubuntu 24.04 LTS, 1 vCPU / 1.9 GB RAM / ~17 GB disk |
+| Swap | 4 GB swapfile (`/swapfile`, in `/etc/fstab`) — added for the Rust build |
+| Repo | `~/quantumdb`, cloned via read-only GitHub **deploy key** `~/.ssh/quantumdb_deploy` |
+
+## Architecture
+
+```
+Internet ──443/80──> Caddy (host, auto-TLS) ──127.0.0.1:3000──> app container ──> db container
+                                                                 (Postgres, internal-only)
+```
+
+- **Docker Compose** stack from `docker-compose.prod.yml`:
+  - `app` — published to `127.0.0.1:3000` **only** (not public), runs as a non-root user.
+  - `db` — Postgres 15, **no published port** (reachable only by `app` over the compose network);
+    data in the `postgres_data` volume; schema+seed conferences loaded on first boot via `docker-init.sh`.
+  - Both `restart: unless-stopped`; Docker enabled on boot.
+- **Caddy** (host service, apt) reverse-proxies `quantumdb.iaqi.org → 127.0.0.1:3000` with
+  automatic Let's Encrypt TLS. Config: `/etc/caddy/Caddyfile`. Sets `X-Forwarded-For` (the app
+  uses it for rate limiting via `TRUST_PROXY=1`).
+- **Firewall** (`ufw`): only **22/80/443** open. Ports 3000 and 5432 are not externally reachable.
+
+## Environment / secrets
+
+App config lives in `~/quantumdb/.env` (gitignored; perms 600). **Never commit it.** Live values:
+
+| Var | Value in prod | Notes |
+|---|---|---|
+| `POSTGRES_PASSWORD` | *(secret)* | builds `DATABASE_URL` + initialises the DB |
+| `API_TOKENS` | *(secret)* | Bearer token(s) for write/admin endpoints |
+| `ENABLE_SWAGGER` | `1` | Swagger UI + OpenAPI exposed (compose default is off) |
+| `CORS_ALLOWED_ORIGINS` | *(empty)* | web UI is same-origin; no cross-origin grant needed |
+| `RUST_LOG` | `info` | |
+| `TRUST_PROXY` | baked into the compose file (`=1`, behind Caddy) | |
+
+Retrieve the live API token: `grep API_TOKENS ~/quantumdb/.env`.
+
+## Operations runbook
+
+All commands run from `~/quantumdb` on the host.
+
+**Deploy code updates** (Rust change → rebuild, ~6 min first time, faster after thanks to layer cache):
+```bash
+GIT_SSH_COMMAND='ssh -i ~/.ssh/quantumdb_deploy -o IdentitiesOnly=yes' git pull --ff-only
+docker compose -f docker-compose.prod.yml up -d --build
+```
+
+**Restart / recreate app** (e.g. after an `.env` change — no rebuild):
+```bash
+docker compose -f docker-compose.prod.yml up -d app
+```
+
+**Logs / status:**
+```bash
+docker compose -f docker-compose.prod.yml ps
+docker compose -f docker-compose.prod.yml logs -f app
+```
+
+**Rotate the API token:**
+```bash
+NEW=$(openssl rand -hex 32)
+sed -i "s|^API_TOKENS=.*|API_TOKENS=${NEW}|" .env
+docker compose -f docker-compose.prod.yml up -d app
+```
+
+**Toggle Swagger** in prod: set `ENABLE_SWAGGER=1` (or `0`) in `.env`, then `… up -d app`.
+
+**DB shell:** `docker compose -f docker-compose.prod.yml exec db psql -U quantumdb -d quantumdb`
+
+**Refresh / reload data** (re-run the CSV importers — they're idempotent). The DB is
+internal-only, so expose it on loopback for the import then remove the port:
+```bash
+printf 'services:\n  db:\n    ports:\n      - "127.0.0.1:5432:5432"\n' > docker-compose.import.yml
+docker compose -f docker-compose.prod.yml -f docker-compose.import.yml up -d db
+python3 -m venv ~/venv && ~/venv/bin/pip install -r tools/scrapers/requirements.txt   # once
+source .env; export DATABASE_URL="postgres://quantumdb:${POSTGRES_PASSWORD}@127.0.0.1:5432/quantumdb"
+~/venv/bin/python tools/scrapers/import_from_csv.py committees data/conferences/*/committees.csv
+~/venv/bin/python tools/scrapers/import_from_csv.py talks data/conferences/*/talks.csv data/conferences/tqc_*/proceedings.csv data/conferences/tqc_*/workshop.csv
+~/venv/bin/python tools/scrapers/import_from_csv.py business-meetings data/conferences/*/business_meeting.csv
+~/venv/bin/python tools/dedup_authors.py --commit         # also refreshes the materialized views
+rm docker-compose.import.yml
+docker compose -f docker-compose.prod.yml up -d --force-recreate db   # back to internal-only
+```
+After bulk data changes, materialized views must be refreshed (`dedup_authors.py --commit` does
+this; otherwise `REFRESH MATERIALIZED VIEW CONCURRENTLY author_stats, conference_stats, coauthor_pairs`).
+
+**Backups:** the only state is the `postgres_data` Docker volume. To dump:
+`docker compose -f docker-compose.prod.yml exec -T db pg_dump -U quantumdb quantumdb | gzip > backup.sql.gz`.
+
+## Current data (as of go-live)
+
+~66 conferences · ~5,540 authors · ~3,970 publications · ~13,640 authorships ·
+2,635 committee roles · 18 business meetings.
+
+## Notes / gotchas
+
+- **Deleting a conference (or author/publication) that still has children returns 409**, not a
+  delete — FKs are `NO ACTION` (no cascade). Remove the children first, or add `ON DELETE CASCADE`
+  deliberately.
+- **Askama templates compile into the binary** → any `templates/` change needs a rebuild
+  (`… up -d --build`); `static/` is served live.
+- The on-box Rust build can peak past 2 GB RAM; the 4 GB swap covers it.

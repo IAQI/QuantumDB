@@ -1,5 +1,26 @@
 # QuantumDB Comprehensive Code Review
 
+> **Status — closed out (2026-06-27).** Every actionable finding below has been
+> implemented; this document is retained as the security-review record. Summary
+> of the resolutions (the line/route references in the findings themselves are
+> from the original review and have since shifted):
+>
+> - **C1** — admin route moved onto `protected_web_routes` with `auth_middleware` (`src/main.rs`).
+> - **C2** — constant-time token comparison via `subtle::ConstantTimeEq` (`src/middleware/auth.rs`).
+> - **H1** — `clamp_pagination()` (default 100 / max 1000) applied in every list handler (`src/utils/pagination.rs`).
+> - **H2 / H3 / H4** — length caps, JSONB-object/size check, and `http(s)`-only URL validation (`src/utils/validation.rs`), called at the top of every Create/Update handler.
+> - **M1** — web handlers use structured `tracing` (no `eprintln!` remains in `src/`).
+> - **M2 / M3** — CORS (`CORS_ALLOWED_ORIGINS`), security headers (CSP/HSTS/X-Frame-Options/…), and an explicit 1 MB body limit (`src/main.rs`).
+> - **M5** — `REFRESH MATERIALIZED VIEW CONCURRENTLY` (`src/handlers/web/admin.rs`).
+> - **M6** — `authors_orcid_unique` constraint (migration `20260505000001`).
+> - **M7** — character whitelist dropped; tokens are opaque, ≥32 chars (`src/middleware/auth.rs`).
+> - **M8** — authorship `(publication_id, author_position)` conflicts return **409** on SQLState `23505`.
+> - **L1** per-IP rate limiting (`tower_governor`) · **L2** Dockerfile `HEALTHCHECK` · **L3** API versioned at `/api/v1` · **L5** importer is lookup-then-insert (`get_or_create_author`).
+>
+> **Deliberately accepted (not changed):** **M4** — `creator`/`modifier` stay
+> client-supplied advisory fields (see [DEPLOYMENT.md](DEPLOYMENT.md) “Known
+> limitations”); **L4** — CRUD boilerplate left as-is until it earns extraction.
+
 ## Context
 
 A comprehensive review of the QuantumDB codebase (Rust + Axum + PostgreSQL REST API for tracking quantum computing conferences) with particular attention to security. Findings come from reading the actual source — every file:line reference has been verified, not inferred.

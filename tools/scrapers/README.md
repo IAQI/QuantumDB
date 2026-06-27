@@ -23,10 +23,13 @@ tools/scrapers/
     base.py, qip.py, qcrypt.py, tqc.py
     runner.py
     importer.py
+  business_meetings/       # import-only (no scraper)
+    importer.py            # `import_from_csv.py business-meetings ...` body
 ```
 
-Both CLIs use a `committees | talks` subcommand; the CSV schemas are
-documented in [`/data/README.md`](../../data/README.md).
+The scrape CLI takes a `committees | talks` subcommand; the import CLI also
+supports `business-meetings` (hand-authored CSVs — there is no scraper for it).
+The CSV schemas are documented in [`/data/README.md`](../../data/README.md).
 
 ## Quick start
 
@@ -80,6 +83,10 @@ semicolon-separated (e.g. `Alice Quantum;Bob Crypto`).
 # Real import
 ./tools/scrapers/import_from_csv.py talks \
     data/conferences/qip_2024/talks.csv
+
+# Business-meeting stats (tall CSV → conference_business_meetings)
+./tools/scrapers/import_from_csv.py business-meetings \
+    data/conferences/qcrypt_2022/business_meeting.csv
 ```
 
 `--db-url` overrides `DATABASE_URL` if you need to point at a different

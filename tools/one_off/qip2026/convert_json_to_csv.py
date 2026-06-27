@@ -145,4 +145,4 @@ if __name__ == '__main__':
     
     print(f"\nNext steps:")
     print(f"  1. Review: {output_csv}")
-    print(f"  2. Import: cd tools/scrape_talks && ./import_from_csv.py ../../{output_csv}")
+    print(f"  2. Import: ./tools/scrapers/import_from_csv.py talks {output_csv}")

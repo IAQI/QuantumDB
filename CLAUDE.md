@@ -162,7 +162,7 @@ src/
 
 ### Key Utilities
 
-**Name Normalization** (`src/utils/normalize.rs`, 405 lines):
+**Name Normalization** (`src/utils/normalize.rs`, ~404 lines):
 - `normalize_name()` - Unicode NFKD normalization, strip accents, lowercase
 - `normalize_for_loose_match()` - Aggressive normalization for fuzzy matching
 - `names_similar()` - Similarity scoring between names
@@ -364,8 +364,8 @@ All handlers use SQLx query macros (`query!`, `query_as!`) for compile-time veri
 - **src/lib.rs** - Library exports for models, handlers, utils
 - **src/models/** - All database models (Conference, Author, Publication, CommitteeRole, etc.)
 - **src/handlers/** - All API request handlers with full CRUD operations
-- **src/utils/** - Name normalization (405 lines), conference slug parsing, pagination clamping, input validation
-- **tests/api_tests.rs** - Comprehensive test suite (1547 lines) covering all CRUD operations
+- **src/utils/** - Name normalization (~404 lines), conference slug parsing, pagination clamping, input validation
+- **tests/api_tests.rs** - Comprehensive test suite (~1588 lines) covering all CRUD operations
 - **migrations/** - Database schema migrations (SQLx format, run in order)
   - `20251228160000_create_conferences_table.sql`
   - `20251228160001_create_authors_table.sql`
@@ -390,8 +390,7 @@ All handlers use SQLx query macros (`query!`, `query_as!`) for compile-time veri
 - **seeds/** - Initial data (run manually after migrations)
   - `insert_qip_conferences.sql` - Historical QIP data (1998-2024)
   - `insert_qcrypt_conferences.sql` - Historical QCrypt data
-  - `insert_tqc_conferences.sql` - Historical TQC data
-  - `z_insert_2024_committee_data.sql` - Committee role examples
+  - `insert_tqc_conferences.sql` - Historical TQC data (proceedings URLs as DOIs: LIPIcs for 2013+, Springer LNCS for 2008–2012)
 - **Cargo.toml** - Dependencies and project configuration
 - **Dockerfile** - Multi-stage build for production deployment
 - **docker-compose.yml** - Development environment (app + DB + PgAdmin)
@@ -413,8 +412,8 @@ All handlers use SQLx query macros (`query!`, `query_as!`) for compile-time veri
 - **DATA_POPULATION.md** - How the CSV-based scrape/import data pipeline works
 - **docs/DATA_INGESTION_PLAN.md** - Authoritative working plan + per-conference inventory for filling out conference data
 - **docs/REMAINING_WORK.md** - Feature/roadmap punch list (data work superseded by DATA_INGESTION_PLAN.md)
-- **docs/CODE_REVIEW.md** - Comprehensive security + code-quality review with findings, severities, and fixes
-- **docs/archive/** - Historical planning documents
+- **docs/CODE_REVIEW.md** - Security + code-quality review (closed out — all findings resolved; kept as a record)
+- **docs/DEPLOYMENT.md** - Deployment guide + operations runbook for the live instance (<https://quantumdb.iaqi.org>)
 - **TODO.md** - Quick scratchpad of pending work
 
 ## Development Workflow
