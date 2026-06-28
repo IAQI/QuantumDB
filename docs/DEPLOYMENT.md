@@ -114,7 +114,10 @@ Internet ──443/80──> Caddy (host, auto-TLS) ──127.0.0.1:3000──> 
   - Both `restart: unless-stopped`; Docker enabled on boot.
 - **Caddy** (host service, apt) reverse-proxies `quantumdb.iaqi.org → 127.0.0.1:3000` with
   automatic Let's Encrypt TLS. Config: `/etc/caddy/Caddyfile`. Sets `X-Forwarded-For` (the app
-  uses it for rate limiting via `TRUST_PROXY=1`).
+  uses it for rate limiting via `TRUST_PROXY=1`). Caddy also writes a JSON **access log** to
+  `/var/log/caddy/access.log` (rolled at 10 MiB × 10 files, 30-day cap) — the input for the
+  traffic dashboard. A second vhost, `stats.quantumdb.iaqi.org`, serves that dashboard behind
+  HTTP basic auth (see *Traffic analytics* in the runbook).
 - **Firewall** (`ufw`): only **22/80/443** open. Ports 3000 and 5432 are not externally reachable.
 
 ## Environment / secrets
@@ -183,6 +186,33 @@ this; otherwise `REFRESH MATERIALIZED VIEW CONCURRENTLY author_stats, conference
 
 **Backups:** the only state is the `postgres_data` Docker volume. To dump:
 `docker compose -f docker-compose.prod.yml exec -T db pg_dump -U quantumdb quantumdb | gzip > backup.sql.gz`.
+
+## Traffic analytics (GoAccess)
+
+A static [GoAccess](https://goaccess.io) dashboard reports site/API traffic (unique visitors,
+top pages, status codes, etc.) from Caddy's access log. It is **not** part of the Docker stack —
+everything runs on the host.
+
+- **Dashboard:** <https://stats.quantumdb.iaqi.org> — HTTP basic auth, user `iaqi`. The password
+  is stored only as a bcrypt hash in the Caddyfile (not recoverable); keep the plaintext in a
+  password manager. To reset it: `caddy hash-password --plaintext '<new>'`, paste the hash into
+  the `stats.quantumdb.iaqi.org` block in `/etc/caddy/Caddyfile`, then `sudo systemctl reload caddy`.
+- **DNS:** `stats.quantumdb.iaqi.org` needs `A 179.237.80.172` + `AAAA 2001:1600:18:206::34f`
+  (same targets as the apex). Caddy auto-provisions the TLS cert once the record resolves.
+- **Moving parts on the host:**
+  - Caddy `log` directive → `/var/log/caddy/access.log` (JSON, self-rotating).
+  - `/usr/local/bin/quantumdb-stats.sh` — converts the JSON log to Apache COMBINED with `jq`
+    (GoAccess 1.8 can't parse Caddy's log envelope directly), then renders
+    `/var/www/quantumdb-stats/index.html`. IPs are anonymized (`--anonymize-ip`) and known
+    crawlers excluded (`--ignore-crawlers`).
+  - `/etc/cron.d/quantumdb-stats` — regenerates the report every 15 min.
+  - `stats.quantumdb.iaqi.org` vhost in `/etc/caddy/Caddyfile` — `basic_auth` + `file_server`
+    over `/var/www/quantumdb-stats`.
+- **Regenerate on demand:** `sudo /usr/local/bin/quantumdb-stats.sh`.
+- **Raw ad-hoc queries** (no dashboard needed), e.g. unique client IPs in the current log:
+  `sudo jq -r '.request.client_ip' /var/log/caddy/access.log | sort -u | wc -l`.
+- **Privacy:** client IPs are personal data. The dashboard anonymizes them and logs self-rotate
+  with a 30-day cap; tighten `roll_keep`/`roll_keep_for` in the Caddyfile if you want shorter retention.
 
 ## Current data (as of go-live)
 
