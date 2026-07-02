@@ -254,10 +254,10 @@ everything runs on the host.
 - **Privacy:** client IPs are personal data. The dashboard anonymizes them and logs self-rotate
   with a 30-day cap; tighten `roll_keep`/`roll_keep_for` in the Caddyfile if you want shorter retention.
 
-## Current data (as of go-live)
+## Current data (as of 2026-07-02)
 
-~66 conferences · ~5,540 authors · ~3,970 publications · ~13,640 authorships ·
-2,635 committee roles · 18 business meetings.
+66 conferences · ~8,640 authors · ~7,250 publications (~1,480 with abstracts) ·
+~24,250 authorships · 2,640 committee roles · 18 business meetings.
 
 ## Notes / gotchas
 
