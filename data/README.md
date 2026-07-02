@@ -20,13 +20,16 @@ data/
     qip_2024/
       committees.csv
       talks.csv
+      posters.csv                        # accepted posters (paper_type=poster)
     qcrypt_2024/
       committees.csv
       talks.csv
+      posters.csv
     tqc_2025/
       committees.csv
       proceedings.csv                    # TQC formal proceedings track (LIPIcs)
       workshop.csv                       # TQC workshop track
+      posters.csv
     qip_2026/
       committees.csv
       talks.csv
@@ -35,8 +38,11 @@ data/
 
 One folder per conference instance, named `<venue>_<year>` (lower-case venue).
 TQC has both `proceedings.csv` and `workshop.csv` in years where both tracks
-ran. A `raw/` subfolder, when present, contains scraper inputs and intermediate
-files — you usually don't need to touch these.
+ran. `posters.csv`, when present, holds the accepted posters (same schema as
+`talks.csv`, every row `paper_type=poster`); it is scraper-generated
+(`scrape_to_csv.py posters`) and overwritten wholesale — fix the parser/source,
+not the file. A `raw/` subfolder, when present, contains scraper inputs and
+intermediate files — you usually don't need to touch these.
 
 ## CSV schemas
 
@@ -55,7 +61,7 @@ Order in `affiliations` must match the order in `authors`.
 | `affiliation`   | Affiliation at time of service (optional)                                                |
 | `role_title`    | Free-text label such as `General Chair`, `Program Chair`, `Publicity Chair` (optional)    |
 
-### `talks.csv` (and `proceedings.csv` / `workshop.csv` for TQC)
+### `talks.csv` (and `proceedings.csv` / `workshop.csv` for TQC, and `posters.csv`)
 
 | Column             | Description                                                                              |
 |--------------------|------------------------------------------------------------------------------------------|
