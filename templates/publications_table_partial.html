@@ -38,7 +38,7 @@
                 </div>
                 {% endif %}
             </td>
-            <td data-value="conference"><a href="/conferences/{{ pub.conference_slug }}" class="conference-link">{{ pub.conference_venue }} {{ pub.conference_year }}</a></td>
+            <td data-value="conference" data-sort-value="{{ pub.conference_year }} {{ pub.conference_venue }}"><a href="/conferences/{{ pub.conference_slug }}" class="conference-link">{{ pub.conference_venue }} {{ pub.conference_year }}</a></td>
             <td data-value="type" data-filter="type">
                 <span class="ptype ptype--{{ pub.paper_type }}">{{ pub.paper_type }}</span>
             </td>
