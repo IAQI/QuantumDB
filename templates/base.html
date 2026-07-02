@@ -859,11 +859,45 @@
         .info-item { display: flex; flex-direction: column; gap: 0.3rem; }
         .info-label { font-family: "IBM Plex Mono", monospace; font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.14em; }
         .info-value { font-family: "Newsreader", serif; font-size: 1rem; }
+
+        /* ──────────────────────────────────────────────────────────────────
+         * Site-wide "work in progress" notice (top of every page)
+         * ────────────────────────────────────────────────────────────────── */
+        .site-banner {
+            background: var(--paper-deep);
+            border-bottom: 1px solid var(--rule-strong);
+            color: var(--ink-soft);
+        }
+        .site-banner__inner {
+            max-width: var(--grid-max);
+            margin: 0 auto;
+            padding: 0.7rem clamp(1.25rem, 4vw, 3rem);
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 0.78rem;
+            letter-spacing: 0.04em;
+            line-height: 1.5;
+        }
+        .site-banner__inner span[aria-hidden] { margin-right: 0.5rem; }
+        .site-banner__link {
+            color: var(--accent);
+            border-bottom: 1px solid var(--rule-strong);
+            white-space: nowrap;
+            margin-left: 0.4rem;
+        }
+        .site-banner__link:hover { border-bottom-color: var(--accent); }
     </style>
 
     {% block extra_head %}{% endblock %}
 </head>
 <body>
+    <div class="site-banner" role="status">
+        <p class="site-banner__inner">
+            <span aria-hidden="true">🔨</span>
+            QuantumDB is a work in progress — we're still collecting conference data,
+            so some talks, authors, and committees may be missing or incomplete.
+            <a href="/about#data-status" class="site-banner__link">Learn more &amp; how to help →</a>
+        </p>
+    </div>
     <nav class="container-fluid">
         <ul>
             <li>
