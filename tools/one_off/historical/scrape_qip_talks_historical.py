@@ -335,47 +335,41 @@ def parse_2004() -> List[Dict]:
     return talks
 
 
-def _parse_2004_abstracts_section(abs_soup) -> Dict[str, Dict]:
-    """Build dict from abstracts.html keyed by <a name="...">."""
+def _parse_2004_abstracts_section(abs_html: str) -> Dict[str, Dict]:
+    """Build dict from abstracts.html keyed by <a name="...">.
+
+    Boundary-split on the ``<font size="4|5">`` blocks that head each speaker
+    entry rather than walking DOM siblings. The old sibling-walk broke for
+    speakers whose block was separated by an unclosed ``<p>`` (Kuperberg, Leung,
+    Magniez, Maurer, Shor): the parser nested the following title/abstract inside
+    the ``<p>`` and merged many talks into one giant title. Splitting on the raw
+    ``<font size="4">`` string is immune to that nesting.
+    """
+    def _clean(s: str) -> str:
+        return re.sub(r'\s+', ' ', re.sub(r'<[^>]+>', ' ', s)).strip()
+
     abs_data = {}
-    # Find all named anchors in font tags
-    for font in abs_soup.find_all('font', size='4'):
-        a = font.find('a', attrs={'name': True})
-        if not a:
+    seps = [m.start() for m in re.finditer(r'<font size="[45]"', abs_html)]
+    seps.append(len(abs_html))
+    for a, b in zip(seps, seps[1:]):
+        block = abs_html[a:b]
+        nm = re.search(r'<a name="([^"]+)">([^<]*)</a>', block)
+        if not nm:
             continue
-        anchor = a['name']
+        anchor = nm.group(1)
         if not anchor or anchor in ('invited', 'contributed'):
             continue
-        name_text = a.get_text(strip=True).rstrip(':')
-
-        # Collect title and abstract from siblings following this font tag
-        title = ''
-        abstract_parts = []
-        nxt = font.find_next_sibling()
-        seen_next_section = False
-        while nxt and not seen_next_section:
-            if hasattr(nxt, 'name'):
-                if nxt.name == 'font' and nxt.get('size') == '4':
-                    break
-                if nxt.name in ('h2', 'h3', 'hr'):
-                    break
-                text = nxt.get_text(' ', strip=True)
-                if text:
-                    if not title:
-                        title = text
-                    else:
-                        abstract_parts.append(text)
-            else:
-                text = str(nxt).strip()
-                if text and text not in ('<br>', '<br/>', '&nbsp;'):
-                    if not title:
-                        title = text
-            nxt = nxt.find_next_sibling()
-
+        if anchor == 'posters':  # posters are a separate table, not talks
+            break
+        name_text = _clean(nm.group(2)).rstrip(':')
+        # Title is the first <b>...</b>; abstract is everything after it.
+        bt = re.search(r'<b>(.*?)</b>', block, re.S)
+        title = _clean(bt.group(1)) if bt else ''
+        abstract = _clean(block[bt.end():]) if bt else ''
         abs_data[anchor] = {
             'name': name_text,
-            'title': title.strip(),
-            'abstract': ' '.join(abstract_parts).strip(),
+            'title': title,
+            'abstract': abstract,
         }
     return abs_data
 
@@ -386,7 +380,9 @@ def parse_2004_v2() -> List[Dict]:
     sched_soup = read_html(base / 'schedule.html', encoding='iso-8859-1')
     abs_soup = read_html(base / 'abstracts.html', encoding='iso-8859-1')
 
-    abs_data = _parse_2004_abstracts_section(abs_soup)
+    with open(base / 'abstracts.html', encoding='iso-8859-1', errors='replace') as f:
+        abs_html = f.read()
+    abs_data = _parse_2004_abstracts_section(abs_html)
 
     # Determine which anchors are invited (in "Invited Talks" section)
     invited_anchors = set()
