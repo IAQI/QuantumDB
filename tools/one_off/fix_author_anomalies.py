@@ -124,8 +124,8 @@ def main():
         print(f"  {rel}: stripped {total} nickname token(s)")
         save(p, fields, rows)
 
-    # ---- talks: QCRYPT_2025 (tilde, truncated name, column misalignment) ----
-    p, fields, rows = load("QCRYPT_2025/talks.csv")
+    # ---- talks: qcrypt_2025 (tilde, truncated name, column misalignment) ----
+    p, fields, rows = load("qcrypt_2025/talks.csv")
     for row in rows:
         if "Vadim~Makarov" in row["authors"]:
             row["authors"] = row["authors"].replace("Vadim~Makarov", "Vadim Makarov")

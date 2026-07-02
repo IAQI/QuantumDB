@@ -31,7 +31,7 @@ CONF_ROOT = Path(__file__).resolve().parents[3] / "data" / "conferences"
 YEARS = [
     ("qcrypt_2023", "accepted-papers-2023.json", "posters-2023.json"),
     ("qcrypt_2024", "accepted-papers-2024.json", "posters-2024.json"),
-    ("QCRYPT_2025", "accepted-papers-2025.json", "posters-2025.json"),
+    ("qcrypt_2025", "accepted-papers-2025.json", "posters-2025.json"),
 ]
 
 
