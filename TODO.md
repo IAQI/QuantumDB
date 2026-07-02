@@ -8,6 +8,15 @@ Quick scratchpad of pending work. Add items freely; move done items out.
   done in the author-anomaly cleanup pass, along with 55 other fuzzy-duplicate
   groups (full middle name / initial / name-particle variants) via
   `tools/one_off/merge_fuzzy_authors.py`.
+- [x] **Re-run author-anomaly check after the big author influx (~8.6k authors)**
+  (2026-07-02). `merge_fuzzy_authors.py` surfaced 53 new groups: 47 clean fuzzy
+  merges appended to `data/author_aliases.csv`; 5 doubled-name scraping artifacts
+  (`Cecilia Lancien Lancien`, `Myungshik Kim Kim`, `Nike Dattani Dattani`,
+  `Mizanur Mizanur Rahaman`, `Subhendu Bikash Ghosh ×2`) + the `Marco Tlúio`→`Túlio`
+  typo fixed at source in the poster CSVs; `Subhendu B. Ghosh`→`Subhendu Bikash Ghosh`
+  added as the residual alias. Left un-merged for a human call: `Francesco/Antonio
+  Anna Mele` (suspicious "Anna" expansion), `Adnan A.E./Adil Hajomer`, and the
+  `Luis Felipe/Paulo/Luís Santos` group (likely ≥2 distinct people).
 - [ ] **Improve author dedup matching for full-middle-name vs initial** — the
   one-off merge above cleaned existing rows, but the *importers* still match only
   on exact `normalized_name` (`tools/scrapers/.../get_or_create_author`), so new
