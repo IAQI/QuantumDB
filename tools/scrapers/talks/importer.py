@@ -275,6 +275,19 @@ async def import_talk(
         )
         logger.info(f"Created publication: {talk.get('title')}")
 
+    # Clear the presenter before touching authorships. Re-importing replaces the
+    # authorship rows below (delete + re-insert); if the presenter's authorship is
+    # deleted while presenter_author_id still points at it, the presenter is left
+    # dangling and the authorships->publications sync trigger
+    # (trg_authorships_sync_author_names) trips the ensure_presenter_is_author
+    # check mid-delete. We restore the presenter after re-inserting authorships.
+    # (The 20260702180000 migration also enforces this at the DB level; this keeps
+    # the importer correct even against a schema without that trigger.)
+    await conn.execute(
+        "UPDATE publications SET presenter_author_id = NULL WHERE id = $1",
+        publication_id
+    )
+
     # Clear existing authorships (for updates)
     await conn.execute(
         "DELETE FROM authorships WHERE publication_id = $1",
