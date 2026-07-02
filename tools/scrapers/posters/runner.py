@@ -9,6 +9,7 @@ scrape is idempotent — no drop-and-regenerate merge is needed. Import with
 import argparse
 import csv
 import logging
+import re
 import subprocess
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -198,9 +199,20 @@ def _resolve_path(rel: str, venue: str, local_dir: Path) -> Path:
     return base / rel
 
 
+def _source_ref(rel: str, venue: str) -> str:
+    """A provenance string for the ``notes`` column that never leaks a local
+    filesystem path: the public site URL for a mirror page, or the repo-relative
+    path for an ``@`` data-dir source (e.g. a raw ``.bib``)."""
+    if rel.startswith('@'):
+        return rel[1:]
+    domain = _DOMAINS[venue.upper()]
+    url = f"https://{domain}/{rel.lstrip('/')}"
+    return re.sub(r'/index\.html$', '/', url)
+
+
 def _resolve_sources(venue: str, year: int, local_dir: Path,
                      local_files: Optional[List[str]]) -> tuple:
-    """Return (family, [Path]) for the given venue/year."""
+    """Return (family, [(Path, source_ref)]) for the given venue/year."""
     key = (venue.upper(), year)
     if local_files:
         family = POSTER_SOURCES.get(key, (None, None))[0]
@@ -208,14 +220,33 @@ def _resolve_sources(venue: str, year: int, local_dir: Path,
             raise ValueError(
                 f"No format family registered for {venue} {year}; cannot parse "
                 f"--local-file without one. Add it to POSTER_SOURCES.")
-        return family, [Path(f).expanduser() for f in local_files]
+        # Manual override: reconstruct the public URL from the mirror-relative
+        # tail if possible, else fall back to the given name (no local path).
+        entries = []
+        for f in local_files:
+            p = Path(f).expanduser()
+            entries.append((p, _url_from_local(p)))
+        return family, entries
 
     if key not in POSTER_SOURCES:
         raise ValueError(
             f"No poster sources registered for {venue} {year}. "
             f"Add an entry to POSTER_SOURCES, or pass --local-file.")
     family, rel_paths = POSTER_SOURCES[key]
-    return family, [_resolve_path(rel, venue, local_dir) for rel in rel_paths]
+    return family, [(_resolve_path(rel, venue, local_dir), _source_ref(rel, venue))
+                    for rel in rel_paths]
+
+
+def _url_from_local(path: Path) -> str:
+    """Best-effort public URL for an explicit local file: the tail from the
+    ``<domain>.iaqi.org`` component onward, else just the file name (never an
+    absolute local path)."""
+    parts = path.parts
+    for i, seg in enumerate(parts):
+        if seg in _DOMAINS.values():
+            url = f"https://{seg}/" + '/'.join(parts[i + 1:])
+            return re.sub(r'/index\.html$', '/', url)
+    return path.name
 
 
 async def async_main(args: argparse.Namespace) -> int:
@@ -224,7 +255,7 @@ async def async_main(args: argparse.Namespace) -> int:
     output_dir = Path(args.output_dir)
 
     try:
-        family, paths = _resolve_sources(
+        family, entries = _resolve_sources(
             args.venue, args.year, local_dir, args.local_file)
     except ValueError as e:
         logger.error(str(e))
@@ -235,7 +266,7 @@ async def async_main(args: argparse.Namespace) -> int:
     is_pdf = family in _PDF_FAMILIES
 
     rows: List[Dict[str, str]] = []
-    for path in paths:
+    for path, source_ref in entries:
         if not path.exists():
             logger.error(f"Source file not found: {path}")
             return 1
@@ -251,7 +282,7 @@ async def async_main(args: argparse.Namespace) -> int:
             posters = parser_func(BeautifulSoup(path.read_bytes(), 'html.parser'))
         logger.info(f"  -> {len(posters)} posters")
         for p in posters:
-            rows.append(_build_row(args.venue, args.year, p, source=str(path)))
+            rows.append(_build_row(args.venue, args.year, p, source=source_ref))
 
     if not rows:
         logger.warning("No posters parsed! Check the source page structure / registry.")
