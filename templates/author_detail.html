@@ -31,10 +31,6 @@
     <hr class="venue-rule" style="background: var(--ink); opacity: 0.55;">
 
     <section class="stats-grid">
-        <div class="stat-card clickable" onclick="scrollToHighlight('#talks-section', 'all')">
-            <div class="stat-value">{{ talks.len() }}</div>
-            <span class="stat-label">talks</span>
-        </div>
         {% if !posters.is_empty() %}
         <div class="stat-card clickable" onclick="scrollToHighlight('#posters-section', 'all')">
             <div class="stat-value">{{ posters.len() }}</div>
