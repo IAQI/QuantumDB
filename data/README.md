@@ -6,6 +6,10 @@ and then imported into the database. **If you spot a wrong author, missing
 affiliation, or other data error, edit the CSV here and open a PR** — that is
 the supported way to contribute corrections.
 
+> [!IMPORTANT]
+> We are particularly looking for the business-meeting slide decks — the annual reports presented by the local organizers and the PC chair at each conference's business meeting. These record participant counts, submission and acceptance numbers, and other figures we attach to each conference. If you have (or can point us to) any of these decks, please send them to quantumdb@iaqi.org — or open a pull request against the data directory.
+>
+
 ## Layout
 
 ```
