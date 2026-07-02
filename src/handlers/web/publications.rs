@@ -21,11 +21,21 @@ struct PublicationsTablePartialTemplate {
 
 struct PublicationListItem {
     title: String,
-    authors: String,
     conference_venue: String,
     conference_year: i32,
     conference_slug: String,
     paper_type: String,
+    authors: Vec<AuthorRef>,
+    arxiv_ids: Vec<String>,
+    abstract_text: String,
+    video_url: String,
+    award: String,
+}
+
+struct AuthorRef {
+    slug: String,
+    name: String,
+    is_speaker: bool,
 }
 
 #[derive(Deserialize)]
@@ -54,13 +64,22 @@ pub async fn publications_list(
             LOWER(c.venue) || '-' || c.year::text as "conference_slug!",
             p.paper_type::text as "paper_type!",
             COALESCE(
-                array_to_string(
-                    array_agg(a.full_name ORDER BY au.author_position)
-                        FILTER (WHERE a.id IS NOT NULL),
-                    ', '
-                ),
-                ''
-            ) as "authors!"
+                array_agg(a.slug ORDER BY au.author_position) FILTER (WHERE a.id IS NOT NULL),
+                ARRAY[]::text[]
+            ) as "author_slugs!",
+            COALESCE(
+                array_agg(a.full_name ORDER BY au.author_position) FILTER (WHERE a.id IS NOT NULL),
+                ARRAY[]::text[]
+            ) as "author_names!",
+            COALESCE(
+                array_agg(COALESCE(a.id = p.presenter_author_id, false) ORDER BY au.author_position)
+                    FILTER (WHERE a.id IS NOT NULL),
+                ARRAY[]::boolean[]
+            ) as "author_is_speaker!",
+            COALESCE(p.arxiv_ids, ARRAY[]::text[]) as "arxiv_ids!",
+            COALESCE(p.abstract, '') as "abstract_text!",
+            COALESCE(p.video_url, '') as "video_url!",
+            COALESCE(p.award, '') as "award!"
         FROM publications p
         JOIN conferences c ON c.id = p.conference_id
         LEFT JOIN authorships au ON au.publication_id = p.id
@@ -68,7 +87,7 @@ pub async fn publications_list(
         WHERE $1 = ''
            OR p.search_vector @@ plainto_tsquery('english', $1)
            OR p.search_vector @@ plainto_tsquery('simple', $1)
-        GROUP BY p.id, p.title, c.venue, c.year, p.paper_type
+        GROUP BY p.id, p.title, c.venue, c.year, p.paper_type, p.arxiv_ids, p.abstract, p.video_url, p.award
         ORDER BY
             ts_rank(p.search_vector, plainto_tsquery('english', $1))
               + ts_rank(p.search_vector, plainto_tsquery('simple', $1)) DESC,
@@ -85,13 +104,30 @@ pub async fn publications_list(
         StatusCode::INTERNAL_SERVER_ERROR
     })?
     .into_iter()
-    .map(|row| PublicationListItem {
-        title: row.title,
-        authors: row.authors,
-        conference_venue: row.venue,
-        conference_year: row.year,
-        conference_slug: row.conference_slug,
-        paper_type: row.paper_type,
+    .map(|row| {
+        let authors: Vec<AuthorRef> = row
+            .author_slugs
+            .into_iter()
+            .zip(row.author_names)
+            .zip(row.author_is_speaker)
+            .map(|((slug, name), is_speaker)| AuthorRef {
+                slug,
+                name,
+                is_speaker,
+            })
+            .collect();
+        PublicationListItem {
+            title: row.title,
+            conference_venue: row.venue,
+            conference_year: row.year,
+            conference_slug: row.conference_slug,
+            paper_type: row.paper_type,
+            authors,
+            arxiv_ids: row.arxiv_ids,
+            abstract_text: row.abstract_text,
+            video_url: row.video_url,
+            award: row.award,
+        }
     })
     .collect();
 

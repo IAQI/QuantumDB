@@ -5,21 +5,50 @@
     <thead>
         <tr>
             <th data-sort="title">Title</th>
-            <th data-sort="authors">Authors</th>
             <th data-sort="conference">Conference</th>
-            <th data-sort="year">Year</th>
             <th data-sort="type">Type</th>
+            <th data-sort="authors">Authors</th>
         </tr>
     </thead>
     <tbody>
         {% for pub in publications %}
-        <tr>
-            <td data-value="title">{{ pub.title }}</td>
-            <td data-value="authors">{% if !pub.authors.is_empty() %}{{ pub.authors }}{% else %}-{% endif %}</td>
-            <td data-value="conference"><a href="/conferences/{{ pub.conference_slug }}">{{ pub.conference_venue }}</a></td>
-            <td data-value="year">{{ pub.conference_year }}</td>
-            <td data-value="type">{{ pub.paper_type }}</td>
+        <tr id="pub-{{ loop.index0 }}" data-venue="{{ pub.conference_venue }}">
+            <td data-value="title">
+                {% if !pub.arxiv_ids.is_empty() %}
+                    {% for arxiv_id in pub.arxiv_ids %}
+                        {% if loop.first %}
+                            <a href="https://arxiv.org/abs/{{ arxiv_id }}" target="_blank" rel="noopener noreferrer">{{ pub.title }} ↗</a>
+                        {% endif %}
+                    {% endfor %}
+                    <div class="cell-mono arxiv-extra">
+                    {% for arxiv_id in pub.arxiv_ids %}
+                        {% if loop.index0 > 0 %}
+                            <a href="https://arxiv.org/abs/{{ arxiv_id }}" target="_blank" rel="noopener noreferrer">arXiv:{{ arxiv_id }} ↗</a>{% if !loop.last %}, {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                    </div>
+                {% else %}
+                    {{ pub.title }}
+                {% endif %}
+                {% if !pub.award.is_empty() %}<div><span class="award-badge">{{ pub.award }}</span></div>{% endif %}
+                {% if !pub.abstract_text.is_empty() || !pub.video_url.is_empty() %}
+                <div class="talk-meta">
+                    {% if !pub.abstract_text.is_empty() %}<span class="abstract-toggle" tabindex="0" aria-expanded="false">abstract</span>{% endif %}
+                    {% if !pub.video_url.is_empty() %}<a href="{{ pub.video_url }}" target="_blank" rel="noopener">video ↗</a>{% endif %}
+                </div>
+                {% endif %}
+            </td>
+            <td data-value="conference"><a href="/conferences/{{ pub.conference_slug }}" class="conference-link">{{ pub.conference_venue }} {{ pub.conference_year }}</a></td>
+            <td data-value="type" data-filter="type">
+                <span class="ptype ptype--{{ pub.paper_type }}">{{ pub.paper_type }}</span>
+            </td>
+            <td data-value="authors">{% if !pub.authors.is_empty() %}{% for a in pub.authors %}{% if a.is_speaker %}<span class="speaker-mark" title="presenter">▸</span>{% endif %}<a href="/authors/{{ a.slug }}" class="author-link">{{ a.name }}</a>{% if !loop.last %}, {% endif %}{% endfor %}{% else %}<span style="color: var(--muted);">—</span>{% endif %}</td>
         </tr>
+        {% if !pub.abstract_text.is_empty() %}
+        <tr class="abstract-row" hidden>
+            <td colspan="4"><div class="abstract-panel">{{ pub.abstract_text }}</div></td>
+        </tr>
+        {% endif %}
         {% endfor %}
     </tbody>
 </table>
