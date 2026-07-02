@@ -14,9 +14,9 @@ For each year this script:
 1. Enriches matching contributed-talk rows with the abstract (and the aligned
    authors/affiliations) from the accepted-papers file, only filling fields the
    CSV left blank — curated values are never overwritten.
-2. Regenerates every ``paper_type=poster`` row from the posters file. Existing
-   poster rows (including bare "Poster Session" schedule placeholders) are
-   dropped first, so the script is idempotent.
+2. Regenerates the conference's ``posters.csv`` wholesale from the posters file
+   (any ``paper_type=poster`` rows still in ``talks.csv`` are stripped out), so
+   the script is idempotent and posters live in exactly one file.
 
 Usage: python3 tools/scrapers/talks/qcrypt_json_to_csv.py
 """
@@ -105,15 +105,22 @@ def process(conf_dir: str, accepted_file: str, posters_file: str):
         )
         poster_rows.append(row)
 
-    out = kept + poster_rows
+    # talks.csv keeps only non-poster rows (posters live in posters.csv now)
     with csv_path.open("w", newline="") as fh:
         writer = csv.DictWriter(fh, fieldnames=fields)
         writer.writeheader()
-        writer.writerows(out)
+        writer.writerows(kept)
+
+    # posters.csv is regenerated wholesale from the posters JSON (idempotent)
+    posters_path = d / "posters.csv"
+    with posters_path.open("w", newline="") as fh:
+        writer = csv.DictWriter(fh, fieldnames=fields)
+        writer.writeheader()
+        writer.writerows(poster_rows)
 
     print(
-        f"{conf_dir}: {len(kept)} talks ({enriched} enriched), "
-        f"{len(poster_rows)} posters -> {len(out)} rows"
+        f"{conf_dir}: {len(kept)} talks ({enriched} enriched) -> talks.csv, "
+        f"{len(poster_rows)} posters -> posters.csv"
     )
 
 

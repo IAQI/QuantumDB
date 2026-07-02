@@ -1,0 +1,610 @@
+"""Per-format-family parsers for accepted-poster / poster-session pages.
+
+Each parser takes a parsed ``BeautifulSoup`` document (one source page) and
+returns a list of poster dicts with the contract::
+
+    {
+        'title': str,
+        'authors': list[str],        # ordered
+        'affiliations': list[str],   # parallel to authors, '' where unknown
+        'abstract': str | None,
+        'session_name': str | None,  # where the source groups posters
+    }
+
+``speakers`` is deliberately absent — posters have no distinct presenter, so the
+importer resolves ``presenter_author_id`` to NULL. ``scheduled_time`` /
+``duration_minutes`` are absent too (posters legitimately lack them). The runner
+stamps ``venue``/``year``/``notes`` (source path) onto each row afterwards.
+
+One parser per FORMAT FAMILY (not per year); the year→family+paths mapping lives
+in ``runner.POSTER_SOURCES``.
+"""
+import re
+from typing import Any, Dict, List, Optional, Tuple
+
+from bs4 import BeautifulSoup, NavigableString, Tag
+
+# Leading label some abstract blocks carry, e.g. "Abstract: ...".
+_ABSTRACT_PREFIX_RE = re.compile(r'^\s*abstract\s*[:.\-]?\s*', re.IGNORECASE)
+
+
+def _collapse(text: str) -> str:
+    """Collapse whitespace runs (incl. newlines) to single spaces and trim."""
+    return re.sub(r'\s+', ' ', text).strip()
+
+
+def split_authors(cell: str) -> Tuple[List[str], List[str]]:
+    """Split an author cell into parallel (names, affiliations) lists.
+
+    Splits on ``;`` when present (Hugo poster pages use it), otherwise on
+    `` and `` / ``,`` (QIP/TQC prose lists). A trailing ``(parenthetical)`` on a
+    name is pulled into the parallel affiliation slot; the affiliation is ``''``
+    when absent, so ``names`` and ``affiliations`` stay index-aligned.
+
+    HTML entities are left intact for the importer's ``clean_field`` to unescape
+    (it must run before any further ``;``-split, or an entity like ``&eacute;``
+    would shatter a name).
+    """
+    cell = cell.strip()
+    if not cell:
+        return [], []
+
+    if ';' in cell:
+        # ';' separates authors, but an affiliation parenthetical may itself
+        # contain ';' (multiple affiliations), so split at top level only.
+        parts = _split_top_level(cell, ';')
+    else:
+        # Normalise " and " / " & " to a comma, then split on top-level commas
+        # (commas inside affiliation parentheticals are protected).
+        normalised = re.sub(r'\s+(?:and|&)\s+', ',', cell)
+        parts = _split_top_level(normalised, ',')
+
+    names: List[str] = []
+    affs: List[str] = []
+    for part in parts:
+        name = _collapse(part)
+        if not name:
+            continue
+        aff = ''
+        m = re.search(r'\(([^()]*)\)\s*$', name)
+        if m:
+            # Internal ';' would corrupt the downstream ';'-joined affiliation
+            # cell (positional, one entry per author) — fold it to a comma.
+            aff = _collapse(m.group(1)).replace(';', ',')
+            name = _collapse(name[:m.start()])
+        if not name:
+            continue
+        names.append(name)
+        affs.append(aff)
+    return names, affs
+
+
+def _split_top_level(text: str, sep: str) -> List[str]:
+    """Split on ``sep`` only where not nested inside parentheses."""
+    parts: List[str] = []
+    depth = 0
+    buf: List[str] = []
+    for ch in text:
+        if ch == '(':
+            depth += 1
+        elif ch == ')':
+            depth = max(0, depth - 1)
+        if ch == sep and depth == 0:
+            parts.append(''.join(buf))
+            buf = []
+        else:
+            buf.append(ch)
+    parts.append(''.join(buf))
+    return parts
+
+
+def _clean_abstract(text: Optional[str]) -> Optional[str]:
+    if not text:
+        return None
+    text = _ABSTRACT_PREFIX_RE.sub('', _collapse(text))
+    return text or None
+
+
+# ---------------------------------------------------------------------------
+# Family A — QCrypt Hugo per-session pages (2020, 2021, 2022)
+# ---------------------------------------------------------------------------
+def parse_hugo_session(soup: BeautifulSoup) -> List[Dict[str, Any]]:
+    """Parse a QCrypt Hugo ``sessions/poster*.html`` page.
+
+    Each poster is a ``div.paper-single`` with ``div.paper-title``,
+    ``div.paper-authors`` (``;``-separated, affiliation in trailing parens) and
+    an optional ``div.paper-abstract-full``. The page ``<h1>`` is the session
+    name (e.g. "Poster Session 1").
+    """
+    h1 = soup.find('h1')
+    session_name = _collapse(h1.get_text(' ', strip=True)) if h1 else None
+
+    posters: List[Dict[str, Any]] = []
+    for single in soup.find_all('div', class_='paper-single'):
+        title_div = single.find('div', class_='paper-title')
+        if not title_div:
+            continue
+        title = _collapse(title_div.get_text(' ', strip=True))
+        if not title:
+            continue
+
+        authors_div = single.find('div', class_='paper-authors')
+        authors, affiliations = ([], [])
+        if authors_div:
+            authors, affiliations = split_authors(authors_div.get_text(' ', strip=True))
+
+        abstract_div = single.find('div', class_='paper-abstract-full')
+        abstract = _clean_abstract(abstract_div.get_text(' ', strip=True)) if abstract_div else None
+
+        posters.append({
+            'title': title,
+            'authors': authors,
+            'affiliations': affiliations,
+            'abstract': abstract,
+            'session_name': session_name,
+        })
+    return posters
+
+
+def _poster(title: str, authors_cell: str, abstract: Optional[str] = None,
+            session_name: Optional[str] = None) -> Optional[Dict[str, Any]]:
+    """Assemble a poster dict from a raw title + author cell. None if no title."""
+    title = _collapse(title)
+    if not title:
+        return None
+    authors, affiliations = split_authors(authors_cell)
+    return {
+        'title': title,
+        'authors': authors,
+        'affiliations': affiliations,
+        'abstract': _clean_abstract(abstract),
+        'session_name': session_name,
+    }
+
+
+def _largest_table(soup: BeautifulSoup):
+    tables = soup.find_all('table')
+    return max(tables, key=lambda t: len(t.find_all('tr'))) if tables else None
+
+
+# ---------------------------------------------------------------------------
+# Family B — QCrypt older list pages (one small parser per page structure)
+# ---------------------------------------------------------------------------
+def parse_qcrypt_2011(soup: BeautifulSoup) -> List[Dict[str, Any]]:
+    """QCrypt 2011: table rows of ``<td>Authors<br><em>Title</em></td>``."""
+    table = _largest_table(soup)
+    posters: List[Dict[str, Any]] = []
+    if not table:
+        return posters
+    for tr in table.find_all('tr'):
+        em = tr.find('em')
+        if not em:
+            continue
+        title = em.get_text(' ', strip=True)
+        # Authors are the text node(s) before the <em> in the same cell.
+        cell = em.find_parent(['td', 'th']) or tr
+        authors_parts = []
+        for node in cell.children:
+            if node is em or (getattr(node, 'find', None) and node.find('em') is em):
+                break
+            if isinstance(node, NavigableString):
+                authors_parts.append(str(node))
+            elif getattr(node, 'get_text', None):
+                authors_parts.append(node.get_text(' ', strip=True))
+        p = _poster(title, ' '.join(authors_parts))
+        if p:
+            posters.append(p)
+    return posters
+
+
+def parse_qcrypt_2013(soup: BeautifulSoup) -> List[Dict[str, Any]]:
+    """QCrypt 2013: ``<td><span class="title">T</span><br>Authors<br>…
+    <div class="abstract">A</div></td>``."""
+    table = _largest_table(soup)
+    posters: List[Dict[str, Any]] = []
+    if not table:
+        return posters
+    for tr in table.find_all('tr'):
+        cell = tr.find('td')
+        if not cell:
+            continue
+        title_span = cell.find('span', class_='title')
+        if not title_span:
+            continue
+        title = title_span.get_text(' ', strip=True)
+        abstract_div = cell.find('div', class_='abstract')
+        abstract = abstract_div.get_text(' ', strip=True) if abstract_div else None
+        # Authors: everything between the title span and the first anchor
+        # (Abstract/Poster links). This spans text nodes and inline <span>s —
+        # some rows split an author list across both — and naturally excludes
+        # any prize-note spans, which precede the title span.
+        authors_parts = []
+        for node in title_span.next_siblings:
+            if isinstance(node, Tag):
+                if node.name == 'a' or (node.name == 'div' and 'abstract' in (node.get('class') or [])):
+                    break
+                if node.name == 'br':
+                    continue
+                authors_parts.append(node.get_text(' ', strip=True))
+            elif isinstance(node, NavigableString):
+                authors_parts.append(str(node))
+        authors = _collapse(' '.join(authors_parts))
+        p = _poster(title, authors, abstract=abstract)
+        if p:
+            posters.append(p)
+    return posters
+
+
+# Curly or straight quotes around a title.
+_QUOTED_TITLE_RE = re.compile(r'[“"”]([^“"”]+)[“"”]\s*by\s+(.*)', re.IGNORECASE)
+# Trailing poster-session weekday marker (2016 appends Tuesday/Thursday/etc.).
+_TRAILING_DAY_RE = re.compile(
+    r'\s*(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\s*$',
+    re.IGNORECASE)
+
+
+def parse_qcrypt_2016(soup: BeautifulSoup) -> List[Dict[str, Any]]:
+    """QCrypt 2016: ``<p><strong>"Title" by Authors <Day></strong></p>`` where
+    the trailing weekday names the poster session."""
+    ec = soup.find(class_='entry-content') or soup
+    posters: List[Dict[str, Any]] = []
+    for p in ec.find_all(['p', 'li']):
+        text = p.get_text(' ', strip=True)
+        m = _QUOTED_TITLE_RE.search(text)
+        if not m:
+            continue
+        title = m.group(1)
+        rest = m.group(2)
+        session = None
+        day = _TRAILING_DAY_RE.search(rest)
+        if day:
+            session = f"Poster Session ({day.group(1).capitalize()})"
+            rest = _TRAILING_DAY_RE.sub('', rest)
+        poster = _poster(title, rest, session_name=session)
+        if poster:
+            posters.append(poster)
+    return posters
+
+
+def parse_qcrypt_2018(soup: BeautifulSoup) -> List[Dict[str, Any]]:
+    """QCrypt 2018: ``<li><em>Authors. Title</em></li>`` — the author list ends
+    with a period, then the title. Split on the sentence period, protecting
+    single-initial ``X.`` inside names."""
+    ec = soup.find(class_='entry-content') or soup
+    posters: List[Dict[str, Any]] = []
+    for li in ec.find_all('li'):
+        text = _collapse(li.get_text(' ', strip=True))
+        if not text:
+            continue
+        authors, title = _split_authors_dot_title(text)
+        if not title:
+            continue
+        poster = _poster(title, authors)
+        if poster:
+            posters.append(poster)
+    return posters
+
+
+def _split_authors_dot_title(text: str) -> Tuple[str, str]:
+    """Split "Authors. Title" on the period ending the author list.
+
+    Skips a period that follows a single-capital initial (``R.``), so names like
+    "Alexander R. Dixon" are not mistaken for the boundary.
+    """
+    m = re.search(r'(?<![A-Z])\.\s+', text)
+    if not m:
+        return '', ''
+    return text[:m.start()], text[m.end():]
+
+
+def _clean_authors_prefix(s: str) -> str:
+    """Strip a leading list number / bullet and trailing punctuation from an
+    author run captured as free text (e.g. "12. Alice and Bob." -> "Alice and Bob")."""
+    s = _collapse(s)
+    s = re.sub(r'^\s*\d+\s*[.)]\s*', '', s)   # "12. " / "12) "
+    s = re.sub(r'^[-–—•]\s*', '', s)          # bullet / dash
+    s = re.sub(r'[.,;:]\s*$', '', s).strip()  # trailing separator
+    return s
+
+
+def _emphasis_title(container) -> Optional[Tag]:
+    """First <em>/<i> descendant of ``container`` (titles are emphasised)."""
+    return container.find(['em', 'i'])
+
+
+def _poster_from_emphasis(container, session_name: Optional[str] = None) -> Optional[Dict[str, Any]]:
+    """Build a poster from a container of the form "Authors <em>Title</em>".
+
+    ``authors`` is whatever text precedes the emphasised title. Returns None if
+    there is no emphasised title.
+    """
+    tag = _emphasis_title(container)
+    if not tag:
+        return None
+    title = _collapse(tag.get_text(' ', strip=True))
+    full = _collapse(container.get_text(' ', strip=True))
+    authors = full.split(title, 1)[0] if title and title in full else ''
+    return _poster(title, _clean_authors_prefix(authors), session_name=session_name)
+
+
+# ---------------------------------------------------------------------------
+# Family C — QIP accepted-poster pages (per-year structure)
+# ---------------------------------------------------------------------------
+def parse_qip_2006(soup: BeautifulSoup) -> List[Dict[str, Any]]:
+    """QIP 2006: plain-text pairs of "Title" then "by Authors (Affiliation)"."""
+    lines = [l for l in soup.get_text('\n', strip=True).splitlines() if l.strip()]
+    posters: List[Dict[str, Any]] = []
+    for i in range(len(lines) - 1):
+        nxt = lines[i + 1]
+        if nxt.lower().startswith('by '):
+            p = _poster(lines[i], nxt[3:])
+            if p:
+                posters.append(p)
+    return posters
+
+
+def parse_qip_2009(soup: BeautifulSoup) -> List[Dict[str, Any]]:
+    """QIP 2009: ``<li>Authors. <em>Title</em></li>`` (authors may be <a> links)."""
+    posters: List[Dict[str, Any]] = []
+    for li in soup.find_all('li'):
+        if not _emphasis_title(li):
+            continue
+        p = _poster_from_emphasis(li)
+        if p:
+            posters.append(p)
+    return posters
+
+
+_SESSION_HEADER_RE = re.compile(r'session\s+\d', re.IGNORECASE)
+
+
+def parse_qip_2010(soup: BeautifulSoup) -> List[Dict[str, Any]]:
+    """QIP 2010: poster tables whose data cells are "Authors <em>Title</em>";
+    header rows ("Session 1: Monday …") name the session."""
+    posters: List[Dict[str, Any]] = []
+    session = None
+    for table in soup.find_all('table'):
+        rows = table.find_all('tr')
+        if len(rows) < 20:
+            continue
+        for tr in rows:
+            cells = tr.find_all(['td', 'th'])
+            row_text = _collapse(tr.get_text(' ', strip=True))
+            if _emphasis_title(tr):
+                p = _poster_from_emphasis(cells[-1] if cells else tr, session_name=session)
+                if p:
+                    posters.append(p)
+            elif _SESSION_HEADER_RE.search(row_text):
+                session = row_text
+    return posters
+
+
+def parse_qip_span_poster(soup: BeautifulSoup) -> List[Dict[str, Any]]:
+    """QIP 2011/2012: ``<div class="poster"><span class="authors">Authors:</span>
+    <span class="title">Title</span></div>``, with an optional
+    ``<li>Authors. <i>Title</i></li>`` fallback (2012)."""
+    posters: List[Dict[str, Any]] = []
+    seen_span = False
+    for div in soup.find_all('div', class_='poster'):
+        title_span = div.find('span', class_='title')
+        authors_span = div.find('span', class_='authors')
+        if not title_span:
+            continue
+        seen_span = True
+        authors = authors_span.get_text(' ', strip=True) if authors_span else ''
+        authors = re.sub(r'[.:;,]\s*$', '', authors)  # trailing "…:" / "…." only
+        p = _poster(title_span.get_text(' ', strip=True), authors)
+        if p:
+            posters.append(p)
+    # 2012 also has plain "- Authors. <i>Title</i>" list items outside div.poster.
+    for li in soup.find_all('li'):
+        if li.find('div', class_='poster'):
+            continue
+        if _emphasis_title(li):
+            p = _poster_from_emphasis(li)
+            if p:
+                posters.append(p)
+    return posters
+
+
+def parse_qip_2015(soup: BeautifulSoup) -> List[Dict[str, Any]]:
+    """QIP 2015: a ``<br>``-separated flow of "N. Authors. <em>Title</em>
+    (EasyChair …)". Titles are the only <em> tags."""
+    posters: List[Dict[str, Any]] = []
+    for em in soup.find_all('em'):
+        title = _collapse(em.get_text(' ', strip=True))
+        if not title:
+            continue
+        prev = em.previous_sibling
+        authors = str(prev) if isinstance(prev, NavigableString) else ''
+        authors = _clean_authors_prefix(authors)
+        if not authors:
+            continue
+        p = _poster(title, authors)
+        if p:
+            posters.append(p)
+    return posters
+
+
+def parse_qip_2016(soup: BeautifulSoup) -> List[Dict[str, Any]]:
+    """QIP 2016: ``<li><p>Authors. Title</p></li>`` — no emphasis markup, so the
+    author list is delimited from the title by the sentence period."""
+    posters: List[Dict[str, Any]] = []
+    for li in soup.find_all('li'):
+        p_tag = li.find('p')
+        text = _collapse((p_tag or li).get_text(' ', strip=True))
+        if not text:
+            continue
+        authors, title = _split_authors_dot_title(text)
+        if not title:
+            continue
+        poster = _poster(title, authors)
+        if poster:
+            posters.append(poster)
+    return posters
+
+
+# ---------------------------------------------------------------------------
+# Families D/E — TQC accepted-poster pages + the teachpress BibTeX export
+# ---------------------------------------------------------------------------
+def parse_tqc_2019(soup: BeautifulSoup) -> List[Dict[str, Any]]:
+    """TQC 2019: a numbered text flow of "N" / "Authors:" / "Title." lines."""
+    ec = soup.find(class_='entry-content') or soup
+    lines = [_collapse(l) for l in ec.get_text('\n', strip=True).splitlines() if l.strip()]
+    posters: List[Dict[str, Any]] = []
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+        if line.endswith(':') and i + 1 < len(lines):
+            authors = line[:-1]
+            title = re.sub(r'\.\s*$', '', lines[i + 1])
+            p = _poster(title, authors)
+            if p:
+                posters.append(p)
+            i += 2
+        else:
+            i += 1
+    return posters
+
+
+def parse_tqc_2020(soup: BeautifulSoup) -> List[Dict[str, Any]]:
+    """TQC 2020: one poster per ``<p>`` as "Authors. Title"."""
+    ec = soup.find(class_='entry-content') or soup
+    posters: List[Dict[str, Any]] = []
+    for p_tag in ec.find_all('p'):
+        text = _collapse(p_tag.get_text(' ', strip=True))
+        authors, title = _split_authors_dot_title(text)
+        if not title:
+            continue
+        poster = _poster(title, authors)
+        if poster:
+            posters.append(poster)
+    return posters
+
+
+def parse_tqc_2021(soup: BeautifulSoup) -> List[Dict[str, Any]]:
+    """TQC 2021: a table with columns "Title | Authors | # | Table String"."""
+    table = _largest_table(soup)
+    posters: List[Dict[str, Any]] = []
+    if not table:
+        return posters
+    rows = table.find_all('tr')
+    header = [c.get_text(' ', strip=True).lower() for c in rows[0].find_all(['td', 'th'])]
+    try:
+        ti = header.index('title')
+        ai = header.index('authors')
+    except ValueError:
+        ti, ai = 0, 1
+    for tr in rows[1:]:
+        cells = tr.find_all(['td', 'th'])
+        if len(cells) <= max(ti, ai):
+            continue
+        p = _poster(cells[ti].get_text(' ', strip=True),
+                    cells[ai].get_text(' ', strip=True))
+        if p:
+            posters.append(p)
+    return posters
+
+
+def parse_tqc_2025(soup: BeautifulSoup) -> List[Dict[str, Any]]:
+    """TQC 2025: ``<li><strong>Title</strong><ul><li><em>Authors …</em></li></ul></li>``
+    where authors are comma-separated with parenthetical affiliations."""
+    posters: List[Dict[str, Any]] = []
+    for li in soup.find_all('li'):
+        strong = li.find('strong')
+        if not strong:
+            continue
+        title = strong.get_text(' ', strip=True)
+        em = li.find('em')
+        authors_cell = em.get_text(' ', strip=True) if em else ''
+        p = _poster(title, authors_cell)
+        if p:
+            posters.append(p)
+    return posters
+
+
+# BibTeX @Poster{...} block and its title/author/year fields (teachpress export).
+_BIB_ENTRY_RE = re.compile(r'@Poster\s*\{(.*?)\n\}', re.IGNORECASE | re.DOTALL)
+_BIB_FIELD_RE = lambda f: re.compile(
+    r'\b' + f + r'\s*=\s*\{(.*?)\}\s*,?\s*$', re.IGNORECASE | re.MULTILINE)
+_BIB_TITLE_RE = _BIB_FIELD_RE('title')
+_BIB_AUTHOR_RE = _BIB_FIELD_RE('author')
+_BIB_YEAR_RE = _BIB_FIELD_RE('year')
+_BIB_KEYWORDS_RE = _BIB_FIELD_RE('keywords')
+
+
+def _bib_authors(raw: str) -> List[str]:
+    """BibTeX ``author`` field -> ordered display names. Handles both
+    "First Last and A B" and "Last, First and ..." forms."""
+    names = []
+    for part in re.split(r'\s+and\s+', raw):
+        part = _collapse(part.replace('{', '').replace('}', ''))
+        if not part:
+            continue
+        if ',' in part:
+            last, first = [x.strip() for x in part.split(',', 1)]
+            part = f"{first} {last}".strip()
+        names.append(part)
+    return names
+
+
+_PDF_ROW_RE = re.compile(r'^\s*(\d+)?\s{1,}(.*?)\s{2,}(.*\S)\s*$')
+
+
+def parse_qip_pdf_2col(text: str, year: int = 0) -> List[Dict[str, Any]]:
+    """Parse a ``pdftotext -layout`` dump of a two-column poster list where each
+    poster is "N  Authors    Title" (QIP 2019). A leading number starts a new
+    poster; unnumbered lines continue the previous poster's wrapped author/title
+    columns. ``year`` is unused (kept for the text-family call signature)."""
+    posters: List[Dict[str, Any]] = []
+    cur: Optional[Dict[str, str]] = None
+    for line in text.splitlines():
+        if not line.strip() or 'list of presented posters' in line.lower():
+            continue
+        m = _PDF_ROW_RE.match(line)
+        if m and (m.group(1) or m.group(2) or m.group(3)):
+            num, authors, title = m.group(1), m.group(2).strip(), m.group(3).strip()
+            if num:
+                if cur:
+                    posters.append(_poster(cur['title'], cur['authors']))
+                cur = {'authors': authors, 'title': title}
+            elif cur:
+                if authors:
+                    cur['authors'] += ' ' + authors
+                if title:
+                    cur['title'] += ' ' + title
+        elif cur:
+            cur['title'] += ' ' + line.strip()
+    if cur:
+        posters.append(_poster(cur['title'], cur['authors']))
+    return [p for p in posters if p]
+
+
+def parse_tqc_bibtex(text: str, year: int) -> List[Dict[str, Any]]:
+    """Parse the teachpress ``@Poster{...}`` export, keeping entries for ``year``.
+
+    Titles/authors are clean and structured; ``keywords`` names the poster
+    session. This is the complete source for TQC 2023/2024 (the mirrored web
+    pages are JS-paginated and truncated)."""
+    posters: List[Dict[str, Any]] = []
+    for m in _BIB_ENTRY_RE.finditer(text):
+        body = m.group(1)
+        ym = _BIB_YEAR_RE.search(body)
+        if not ym or ym.group(1).strip() != str(year):
+            continue
+        tm = _BIB_TITLE_RE.search(body)
+        am = _BIB_AUTHOR_RE.search(body)
+        if not tm:
+            continue
+        title = _collapse(tm.group(1).replace('{', '').replace('}', ''))
+        authors = _bib_authors(am.group(1)) if am else []
+        km = _BIB_KEYWORDS_RE.search(body)
+        session = _collapse(km.group(1)) if km else None
+        posters.append({
+            'title': title,
+            'authors': authors,
+            'affiliations': ['' for _ in authors],
+            'abstract': None,
+            'session_name': session,
+        })
+    return posters

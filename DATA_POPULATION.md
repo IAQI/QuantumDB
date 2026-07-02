@@ -34,16 +34,23 @@ QuantumDB uses a **CSV-as-source-of-truth** model:
 data/conferences/
 ├── qip_2024/
 │   ├── committees.csv      # committee membership
-│   └── talks.csv           # talks / papers
+│   ├── talks.csv           # talks / papers
+│   └── posters.csv         # accepted posters (paper_type=poster)
 ├── tqc_2023/
 │   ├── committees.csv
 │   ├── proceedings.csv     # TQC only — formal LIPIcs proceedings track
-│   └── workshop.csv        # TQC only — workshop track
+│   ├── workshop.csv        # TQC only — workshop track
+│   └── posters.csv         # accepted posters
 └── ...
 ```
 
-- QIP / QCrypt use `committees.csv` + `talks.csv`.
-- TQC uses `committees.csv` + `proceedings.csv` + `workshop.csv` (no `talks.csv`).
+- QIP / QCrypt use `committees.csv` + `talks.csv` (+ `posters.csv` where posters exist).
+- TQC uses `committees.csv` + `proceedings.csv` + `workshop.csv` (no `talks.csv`), + `posters.csv`.
+- **`posters.csv`** shares the exact talks-CSV schema (all rows `paper_type=poster`) and imports
+  through the same `import_from_csv.py talks` path. Posters live here rather than in `talks.csv`
+  because they typically outnumber talks several-fold; keeping the two apart keeps `talks.csv`
+  reviewable. It is scraper-owned and overwritten wholesale, so do not hand-edit it — fix the
+  parser or source instead.
 - Full column schemas for each CSV type are in [`data/README.md`](data/README.md).
 
 ## Tooling
@@ -92,6 +99,10 @@ cd tools/scrapers
 # Scrape talks
 ./scrape_to_csv.py talks --venue QCRYPT --year 2023 --local
 
+# Scrape accepted posters -> posters.csv (registered years only; see below)
+./scrape_to_csv.py posters --venue QCRYPT --year 2020 --local
+./scrape_to_csv.py posters --venue TQC --year 2024 --local --dry-run   # preview first
+
 # Fetch from the live web instead of a local mirror (omit --local)
 ./scrape_to_csv.py committees --venue QCRYPT --year 2024
 
@@ -99,8 +110,22 @@ cd tools/scrapers
 ./scrape_to_csv.py talks --venue QIP --year 2024 --local-file ~/Web/qip.iaqi.org/2024/program.html
 ```
 
-Output is written to `data/conferences/<venue>_<year>/<committees|talks>.csv`.
+Output is written to `data/conferences/<venue>_<year>/<committees|talks|posters>.csv`.
 Use `--force` to overwrite an existing file.
+
+### Poster scraping (`posters` subcommand)
+
+Accepted-poster pages differ wildly per year, so the poster scraper maps each `(venue, year)` to a
+format-family parser and its local source page(s) in `POSTER_SOURCES`
+(`tools/scrapers/posters/runner.py`). To add a year, inspect its page, add/reuse a parser in
+`parsers.py`, and register it. Sources may be HTML pages, a teachpress `.bib` export
+(TQC 2023/2024), or a PDF (`pdftotext -layout` — needs poppler). Parser unit tests:
+`python3 tools/scrapers/posters/test_parsers.py`.
+
+Currently registered: QCrypt 2011/2013/2016/2018/2020/2021/2022 (2017/2023/2024/2025 come from JSON
+via `talks/qcrypt_json_to_csv.py`); QIP 2006/2009/2010/2011/2012/2015/2016/2019;
+TQC 2019/2020/2021/2023/2024/2025. **Not yet done** (unstructured prose or PDFs needing manual
+entry): QIP 2002/2005/2013/2023, QCrypt 2019, QCrypt 2014 (never published).
 
 **Scraper coverage is uneven** — the QCrypt scrapers are year-aware and cover
 all years; the QIP talk scraper is currently tailored to recent years. For
@@ -123,7 +148,10 @@ cd tools/scrapers
 # Talks
 ./import_from_csv.py talks ../../data/conferences/qcrypt_2023/talks.csv
 
-# Multiple files at once
+# Posters (same schema/importer as talks)
+./import_from_csv.py talks ../../data/conferences/qcrypt_2023/posters.csv
+
+# Multiple files at once (picks up talks.csv, posters.csv, proceedings.csv, …)
 ./import_from_csv.py talks ../../data/conferences/tqc_2023/*.csv
 
 # Business-meeting stats (tall CSV: one row per announced fact)
