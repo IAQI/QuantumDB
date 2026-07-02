@@ -103,7 +103,9 @@ pub async fn list_publications(
                 created_at, updated_at
             FROM publications
             WHERE search_vector @@ plainto_tsquery('english', $1)
-            ORDER BY ts_rank(search_vector, plainto_tsquery('english', $1)) DESC
+               OR search_vector @@ plainto_tsquery('simple', $1)
+            ORDER BY ts_rank(search_vector, plainto_tsquery('english', $1))
+                   + ts_rank(search_vector, plainto_tsquery('simple', $1)) DESC
             LIMIT $2 OFFSET $3
             "#,
             search,

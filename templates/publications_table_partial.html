@@ -1,0 +1,30 @@
+{% if publications.is_empty() %}
+<p>{% if search_term.is_empty() %}No publications found.{% else %}No publications matching "{{ search_term }}".{% endif %}</p>
+{% else %}
+<table id="publications-list-table" class="sortable-table">
+    <thead>
+        <tr>
+            <th data-sort="title">Title</th>
+            <th data-sort="authors">Authors</th>
+            <th data-sort="conference">Conference</th>
+            <th data-sort="year">Year</th>
+            <th data-sort="type">Type</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for pub in publications %}
+        <tr>
+            <td data-value="title">{{ pub.title }}</td>
+            <td data-value="authors">{% if !pub.authors.is_empty() %}{{ pub.authors }}{% else %}-{% endif %}</td>
+            <td data-value="conference"><a href="/conferences/{{ pub.conference_slug }}">{{ pub.conference_venue }}</a></td>
+            <td data-value="year">{{ pub.conference_year }}</td>
+            <td data-value="type">{{ pub.paper_type }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if publications.len() >= 100 %}
+<p><em>Showing first 100 results. Refine your search to narrow down.</em></p>
+{% endif %}
+{% endif %}
