@@ -664,6 +664,103 @@ async fn test_publication_search_authorship_removal() {
 }
 
 #[tokio::test]
+#[serial]
+async fn test_authorship_removal_clears_presenter() {
+    let server = setup().await;
+    let unique_suffix = Uuid::new_v4().simple().to_string();
+
+    // Regression test for the presenter/authorship consistency invariant.
+    //
+    // Rewriting a talk's authorships (delete + re-insert, as the CSV importer
+    // does) used to fail when the deleted authorship was the presenter's: the
+    // authorships DELETE fires trg_authorships_sync_author_names, whose
+    // `UPDATE publications SET author_names_text = ...` re-ran
+    // ensure_presenter_is_author mid-delete and raised
+    // "presenter_author_id must be one of the publication authors".
+    //
+    // trg_clear_presenter_on_authorship_delete (BEFORE DELETE on authorships)
+    // now clears the presenter first, so removing the presenter's authorship
+    // must (1) succeed and (2) leave presenter_author_id NULL.
+    let author_token = format!("zzqpresenter{}", unique_suffix);
+    let author_body = json!({
+        "full_name": format!("Presenter {}", author_token),
+        "family_name": author_token,
+        "given_name": "Presenter",
+        "creator": "test_user",
+        "modifier": "test_user"
+    });
+    let response = server.post("/authors").json(&author_body).await;
+    let author: serde_json::Value = response.json();
+    let author_id = author["id"].as_str().unwrap();
+
+    let response = server.get("/conferences").await;
+    let conferences: Vec<serde_json::Value> = response.json();
+    let conference_id = conferences[0]["id"].as_str().unwrap();
+
+    let pub_body = json!({
+        "conference_id": conference_id,
+        "canonical_key": format!("presenter-clear-{}", unique_suffix),
+        "title": "Publication whose presenter's authorship will be removed",
+        "creator": "test_user",
+        "modifier": "test_user"
+    });
+    let response = server.post("/publications").json(&pub_body).await;
+    let publication: serde_json::Value = response.json();
+    let publication_id = publication["id"].as_str().unwrap();
+
+    // Link the author, then make that author the talk's presenter.
+    let authorship_body = json!({
+        "publication_id": publication_id,
+        "author_id": author_id,
+        "author_position": 1,
+        "published_as_name": format!("Presenter {}", author_token),
+        "creator": "test_user",
+        "modifier": "test_user"
+    });
+    let response = server.post("/authorships").json(&authorship_body).await;
+    let authorship: serde_json::Value = response.json();
+    let authorship_id = authorship["id"].as_str().unwrap();
+
+    let response = server
+        .put(&format!("/publications/{}", publication_id))
+        .json(&json!({ "presenter_author_id": author_id, "modifier": "test_user" }))
+        .await;
+    response.assert_status_ok();
+    let updated: serde_json::Value = response.json();
+    assert_eq!(
+        updated["presenter_author_id"].as_str(),
+        Some(author_id),
+        "Presenter should be set before its authorship is removed"
+    );
+
+    // Removing the presenter's authorship must succeed (204), not 500 from the
+    // presenter-validation trigger firing mid-delete.
+    let response = server
+        .delete(&format!("/authorships/{}", authorship_id))
+        .await;
+    assert_eq!(
+        response.status_code().as_u16(),
+        204,
+        "Deleting the presenter's authorship must succeed; got {}",
+        response.status_code()
+    );
+
+    // ...and the presenter must have been cleared to NULL.
+    let response = server.get(&format!("/publications/{}", publication_id)).await;
+    response.assert_status_ok();
+    let after: serde_json::Value = response.json();
+    assert!(
+        after["presenter_author_id"].is_null(),
+        "presenter_author_id must be cleared after its authorship is removed, got {:?}",
+        after["presenter_author_id"]
+    );
+
+    // Cleanup
+    server.delete(&format!("/publications/{}", publication_id)).await;
+    server.delete(&format!("/authors/{}", author_id)).await;
+}
+
+#[tokio::test]
 async fn test_publication_filter_by_conference() {
     let server = setup().await;
 
