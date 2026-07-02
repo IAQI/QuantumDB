@@ -1,4 +1,5 @@
 """Shared helpers for the scrape and import CLIs."""
+import html
 import logging
 import os
 import re
@@ -29,6 +30,32 @@ _SPECIAL_CHAR_MAP = str.maketrans({
     'Ğ': 'G', 'ğ': 'g',
     'Ş': 'S', 'ş': 's',
 })
+
+
+# Whitespace characters that should collapse to a normal space.
+_WS_TRANSLATE = str.maketrans({
+    ' ': ' ',   # non-breaking space (seen as "Michał Horodecki")
+    ' ': ' ',   # figure space
+    ' ': ' ',   # narrow no-break space
+    '​': '',    # zero-width space
+})
+
+
+def clean_field(value: Optional[str]) -> str:
+    """Normalise a raw CSV text field before it is used or split.
+
+    Critically this HTML-unescapes entities (``&eacute;`` → ``é``) **before**
+    any ``;``-splitting downstream: author lists are semicolon-delimited and an
+    entity like ``&eacute;`` contains a ``;`` that would otherwise shatter a
+    name (e.g. ``Claude Cr&eacute;peau`` → ``Claude Cr`` + ``peau``). It also
+    folds non-breaking/zero-width spaces, trims, and collapses runs of
+    whitespace. Do **not** apply this to URL fields (it would mangle paths).
+    """
+    if not value:
+        return ''
+    value = html.unescape(value)
+    value = value.translate(_WS_TRANSLATE)
+    return re.sub(r'\s+', ' ', value).strip()
 
 
 def normalize_name(name: str) -> str:

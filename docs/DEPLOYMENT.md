@@ -184,6 +184,44 @@ docker compose -f docker-compose.prod.yml up -d --force-recreate db   # back to 
 After bulk data changes, materialized views must be refreshed (`dedup_authors.py --commit` does
 this; otherwise `REFRESH MATERIALIZED VIEW CONCURRENTLY author_stats, conference_stats, coauthor_pairs`).
 
+**Full from-scratch re-init** (wipe + rebuild the DB from the CSVs). The importers above are
+*incremental* (find-or-update by `canonical_key` / normalized name), so they **cannot** undo a
+structural CSV change — a removed talk row, a renamed/merged author, a stripped nickname — because
+the old author/publication row simply keeps existing. Those changes only take effect on a clean
+rebuild. This is the intended path whenever the source CSVs are the truth and the DB should be a
+pure function of them (e.g. the author-anomaly cleanup + fuzzy-merge aliases).
+
+> ⚠️ **Destructive + downtime.** `down -v` deletes the `postgres_data` volume. Only safe because the
+> DB is a pure function of the CSVs — confirm nothing was entered via the API on prod that isn't in
+> the CSVs. **Back up first** (see below) so you can roll back.
+
+```bash
+# 0. Back up the current volume first (see Backups) — keep the dump until the reload is verified.
+docker compose -f docker-compose.prod.yml exec -T db pg_dump -U quantumdb quantumdb | gzip > ~/pre-reinit-$(date +%F).sql.gz
+
+# 1. Wipe and re-create the DB (fresh volume auto-runs migrations + seeds = conferences only).
+docker compose -f docker-compose.prod.yml down -v
+printf 'services:\n  db:\n    ports:\n      - "127.0.0.1:5432:5432"\n' > docker-compose.import.yml
+docker compose -f docker-compose.prod.yml -f docker-compose.import.yml up -d db
+until docker compose -f docker-compose.prod.yml exec -T db pg_isready -U quantumdb -q; do sleep 1; done
+
+# 2. Import every CSV (proceedings/workshop are TQC-only), then apply curated dedup + aliases.
+source .env; export DATABASE_URL="postgres://quantumdb:${POSTGRES_PASSWORD}@127.0.0.1:5432/quantumdb"
+~/venv/bin/python tools/scrapers/import_from_csv.py committees data/conferences/*/committees.csv
+~/venv/bin/python tools/scrapers/import_from_csv.py talks data/conferences/*/talks.csv data/conferences/tqc_*/proceedings.csv data/conferences/tqc_*/workshop.csv
+~/venv/bin/python tools/scrapers/import_from_csv.py business-meetings data/conferences/*/business_meeting.csv
+~/venv/bin/python tools/dedup_authors.py --commit          # Phase A applies data/author_aliases.csv, then refreshes the views
+
+# 3. Back to internal-only + bring the app up.
+rm docker-compose.import.yml
+docker compose -f docker-compose.prod.yml up -d --force-recreate db
+docker compose -f docker-compose.prod.yml up -d app
+```
+The `talks` import prints a handful of "conference not found or no authors" warnings — these are
+junk schedule rows and rows with empty author+speaker columns, correctly skipped (they create no
+authors). Sanity-check afterward: `SELECT count(*) FROM authors` and
+`SELECT full_name FROM authors WHERE full_name LIKE '%(%'` (should be empty).
+
 **Backups:** the only state is the `postgres_data` Docker volume. To dump:
 `docker compose -f docker-compose.prod.yml exec -T db pg_dump -U quantumdb quantumdb | gzip > backup.sql.gz`.
 
