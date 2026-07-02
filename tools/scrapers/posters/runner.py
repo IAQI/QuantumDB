@@ -1,0 +1,303 @@
+"""CLI body for ``scrape_to_csv.py posters`` — scrape accepted-poster pages.
+
+Posters are written to a dedicated ``<output_dir>/<venue>_<year>/posters.csv``
+(same 18-column schema as ``talks.csv``), separate from the hand-curated talks.
+The file is overwritten wholesale each run (with a ``--force`` guard), so the
+scrape is idempotent — no drop-and-regenerate merge is needed. Import with
+``import_from_csv.py talks <dir>/posters.csv`` (the importer is schema-driven).
+"""
+import argparse
+import csv
+import logging
+import re
+import subprocess
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+
+from bs4 import BeautifulSoup
+
+from . import parsers
+
+logger = logging.getLogger(__name__)
+
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+DEFAULT_OUTPUT_DIR = REPO_ROOT / "data" / "conferences"
+
+# Same 18 columns as talks.csv, so posters.csv imports through the talks path.
+FIELDNAMES = [
+    'venue', 'year', 'paper_type', 'title', 'speakers', 'authors',
+    'affiliations', 'abstract', 'arxiv_ids', 'presentation_url',
+    'video_url', 'youtube_id', 'session_name', 'award', 'notes',
+    'scheduled_date', 'scheduled_time', 'duration_minutes',
+]
+
+# Local-mirror domain per venue (under --local-dir).
+_DOMAINS = {
+    'QCRYPT': 'qcrypt.iaqi.org',
+    'QIP': 'qip.iaqi.org',
+    'TQC': 'tqc.iaqi.org',
+}
+
+# Format families -> parser functions.
+_PARSERS = {
+    'hugo_session': parsers.parse_hugo_session,
+    'qcrypt_2011': parsers.parse_qcrypt_2011,
+    'qcrypt_2013': parsers.parse_qcrypt_2013,
+    'qcrypt_2016': parsers.parse_qcrypt_2016,
+    'qcrypt_2018': parsers.parse_qcrypt_2018,
+    'qip_2006': parsers.parse_qip_2006,
+    'qip_2009': parsers.parse_qip_2009,
+    'qip_2010': parsers.parse_qip_2010,
+    'qip_span_poster': parsers.parse_qip_span_poster,
+    'qip_2015': parsers.parse_qip_2015,
+    'qip_2016': parsers.parse_qip_2016,
+    'tqc_2019': parsers.parse_tqc_2019,
+    'tqc_2020': parsers.parse_tqc_2020,
+    'tqc_2021': parsers.parse_tqc_2021,
+    'tqc_2025': parsers.parse_tqc_2025,
+    'tqc_bibtex': parsers.parse_tqc_bibtex,  # signature (text, year), not (soup)
+    'qip_pdf_2col': parsers.parse_qip_pdf_2col,
+}
+
+# Families whose parser takes raw text + year (not a BeautifulSoup). PDF sources
+# are extracted to text via `pdftotext -layout` first.
+_TEXT_FAMILIES = {'tqc_bibtex', 'qip_pdf_2col'}
+_PDF_FAMILIES = {'qip_pdf_2col'}
+
+# (venue, year) -> (family, [relative paths under the venue domain]).
+# Paths/formats are per-year, so encode them explicitly rather than deriving.
+# QCrypt 2023/2024/2025 are intentionally absent — they are JSON-sourced via
+# talks/qcrypt_json_to_csv.py, which writes their posters.csv directly.
+POSTER_SOURCES: Dict[tuple, tuple] = {
+    ('QCRYPT', 2020): ('hugo_session', [
+        '2020/sessions/poster1.html',
+        '2020/sessions/poster2.html',
+    ]),
+    ('QCRYPT', 2021): ('hugo_session', [
+        '2021/sessions/poster1/index.html',
+        '2021/sessions/poster2/index.html',
+    ]),
+    ('QCRYPT', 2022): ('hugo_session', [
+        '2022/sessions/poster1/index.html',
+        '2022/sessions/poster2/index.html',
+        '2022/sessions/poster3/index.html',
+    ]),
+    ('QCRYPT', 2011): ('qcrypt_2011', ['2011/programme/posters/index.html']),
+    ('QCRYPT', 2013): ('qcrypt_2013', ['2013/posters/index.html']),
+    ('QCRYPT', 2016): ('qcrypt_2016', ['2016/posters/index.html']),
+    ('QCRYPT', 2018): ('qcrypt_2018', ['2018/others/accepted-posters/index.html']),
+    # QCrypt 2014 poster list was never published ("To be announced").
+    # QCrypt 2019 accepted posters are a PDF embed — handled in the PDF pass.
+    ('QIP', 2006): ('qip_2006', ['2006/accepted_posters.html']),
+    ('QIP', 2009): ('qip_2009', ['2009/posters.html']),
+    ('QIP', 2010): ('qip_2010', ['2010/postersession.html']),
+    ('QIP', 2011): ('qip_span_poster', ['2011/scientificprogramme/postersession.php.html']),
+    ('QIP', 2012): ('qip_span_poster', ['2012/posters_e.php.html']),
+    ('QIP', 2015): ('qip_2015', ['2015/AcceptedPosters.php.html']),
+    ('QIP', 2016): ('qip_2016', ['2016/accepted-posters.html']),
+    ('QIP', 2019): ('qip_pdf_2col', ['2019/qip2019_accepted_posters.pdf']),
+    # QIP 2002 poster page is unstructured prose (presenter/affiliation/abstract)
+    # with no title markup — not reliably parseable; left for manual entry.
+    # QIP 2005/2013 (per-poster PDFs) and 2023 (a column-wrapped PDF that
+    # pdftotext cannot cleanly delimit) are left for manual entry — their source
+    # files are noted in data/SOURCES.md.
+    ('TQC', 2019): ('tqc_2019', ['2019/accepted-posters/index.html']),
+    ('TQC', 2020): ('tqc_2020', ['2020/accepted-posters/index.html']),
+    ('TQC', 2021): ('tqc_2021', ['2021/program/accepted-posters/index.html']),
+    ('TQC', 2025): ('tqc_2025', ['2025/accepted-posters/index.html']),
+    # TQC 2023/2024: parse the complete teachpress BibTeX export (the mirrored
+    # web pages are JS-paginated and truncated to 100 of ~429). The .bib lives
+    # under the conference data dir, not the web mirror.
+    ('TQC', 2023): ('tqc_bibtex', ['@data/conferences/tqc_2024/raw/tqc-publications-23-24.bib']),
+    ('TQC', 2024): ('tqc_bibtex', ['@data/conferences/tqc_2024/raw/tqc-publications-23-24.bib']),
+}
+
+
+def _build_row(venue: str, year: int, poster: Dict[str, Any],
+               source: Optional[str]) -> Dict[str, str]:
+    """Turn a parser poster dict into a full 18-column CSV row."""
+    authors = poster.get('authors') or []
+    affiliations = poster.get('affiliations') or []
+    aff_cell = ';'.join(affiliations) if any(a for a in affiliations) else ''
+    row = {c: '' for c in FIELDNAMES}
+    row.update(
+        venue=venue.upper(),
+        year=str(year),
+        paper_type='poster',
+        title=(poster.get('title') or '').strip(),
+        authors=';'.join(authors),
+        affiliations=aff_cell,
+        abstract=(poster.get('abstract') or '').strip(),
+        session_name=(poster.get('session_name') or ''),
+        notes=(f"Source: {source}" if source else ''),
+    )
+    return row
+
+
+def save_posters(venue: str, year: int, rows: List[Dict[str, str]],
+                 output_dir: Path, force: bool = False) -> Optional[Path]:
+    """Write poster rows to ``<output_dir>/<venue>_<year>/posters.csv``."""
+    conference_dir = output_dir / f"{venue.lower()}_{year}"
+    conference_dir.mkdir(parents=True, exist_ok=True)
+    output_file = conference_dir / "posters.csv"
+
+    if output_file.exists() and not force:
+        logger.warning(f"Output file already exists: {output_file}")
+        logger.warning("Use --force to overwrite")
+        return None
+
+    with open(output_file, 'w', encoding='utf-8', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=FIELDNAMES, extrasaction='ignore')
+        writer.writeheader()
+        writer.writerows(rows)
+
+    logger.info(f"Saved {len(rows)} posters to {output_file}")
+    return output_file
+
+
+def add_arguments(parser: argparse.ArgumentParser) -> None:
+    """Wire CLI flags onto ``parser``. Used by the unified entry point."""
+    parser.add_argument('--venue', required=True, choices=list(_DOMAINS.keys()),
+                        help='Conference venue')
+    parser.add_argument('--year', type=int, required=True,
+                        help='Conference year')
+    parser.add_argument('--local', action='store_true',
+                        help='Read from the local website mirror (default source)')
+    parser.add_argument('--local-file', type=str, action='append',
+                        help='Explicit local HTML file(s); repeatable. Overrides the registry.')
+    parser.add_argument('--local-dir', type=str, default='~/Web',
+                        help='Base directory for the local mirror (default: ~/Web)')
+    parser.add_argument('--output-dir', type=str, default=str(DEFAULT_OUTPUT_DIR),
+                        help=f'Output dir; CSV -> <output-dir>/<venue>_<year>/posters.csv (default: {DEFAULT_OUTPUT_DIR})')
+    parser.add_argument('--dry-run', action='store_true',
+                        help='Parse and print poster rows without writing the CSV')
+    parser.add_argument('--force', action='store_true',
+                        help='Overwrite existing posters.csv')
+
+
+def _pdf_to_text(path: Path) -> Optional[str]:
+    """Extract text from a PDF via ``pdftotext -layout`` (preserves columns)."""
+    try:
+        out = subprocess.run(
+            ['pdftotext', '-layout', str(path), '-'],
+            capture_output=True, check=True)
+        return out.stdout.decode('utf-8', errors='replace')
+    except FileNotFoundError:
+        logger.error("pdftotext not found — install poppler (e.g. `brew install poppler`).")
+    except subprocess.CalledProcessError as e:
+        logger.error(f"pdftotext failed on {path}: {e}")
+    return None
+
+
+def _resolve_path(rel: str, venue: str, local_dir: Path) -> Path:
+    """Map a registry path to a file. ``@foo`` is repo-relative (e.g. a raw
+    data-dir source); otherwise it is under the venue's mirror domain."""
+    if rel.startswith('@'):
+        return REPO_ROOT / rel[1:]
+    domain = _DOMAINS[venue.upper()]
+    base = local_dir if local_dir.name == domain else local_dir / domain
+    return base / rel
+
+
+def _source_ref(rel: str, venue: str) -> str:
+    """A provenance string for the ``notes`` column that never leaks a local
+    filesystem path: the public site URL for a mirror page, or the repo-relative
+    path for an ``@`` data-dir source (e.g. a raw ``.bib``)."""
+    if rel.startswith('@'):
+        return rel[1:]
+    domain = _DOMAINS[venue.upper()]
+    url = f"https://{domain}/{rel.lstrip('/')}"
+    return re.sub(r'/index\.html$', '/', url)
+
+
+def _resolve_sources(venue: str, year: int, local_dir: Path,
+                     local_files: Optional[List[str]]) -> tuple:
+    """Return (family, [(Path, source_ref)]) for the given venue/year."""
+    key = (venue.upper(), year)
+    if local_files:
+        family = POSTER_SOURCES.get(key, (None, None))[0]
+        if not family:
+            raise ValueError(
+                f"No format family registered for {venue} {year}; cannot parse "
+                f"--local-file without one. Add it to POSTER_SOURCES.")
+        # Manual override: reconstruct the public URL from the mirror-relative
+        # tail if possible, else fall back to the given name (no local path).
+        entries = []
+        for f in local_files:
+            p = Path(f).expanduser()
+            entries.append((p, _url_from_local(p)))
+        return family, entries
+
+    if key not in POSTER_SOURCES:
+        raise ValueError(
+            f"No poster sources registered for {venue} {year}. "
+            f"Add an entry to POSTER_SOURCES, or pass --local-file.")
+    family, rel_paths = POSTER_SOURCES[key]
+    return family, [(_resolve_path(rel, venue, local_dir), _source_ref(rel, venue))
+                    for rel in rel_paths]
+
+
+def _url_from_local(path: Path) -> str:
+    """Best-effort public URL for an explicit local file: the tail from the
+    ``<domain>.iaqi.org`` component onward, else just the file name (never an
+    absolute local path)."""
+    parts = path.parts
+    for i, seg in enumerate(parts):
+        if seg in _DOMAINS.values():
+            url = f"https://{seg}/" + '/'.join(parts[i + 1:])
+            return re.sub(r'/index\.html$', '/', url)
+    return path.name
+
+
+async def async_main(args: argparse.Namespace) -> int:
+    """Run the poster scrape end-to-end. Returns shell exit code."""
+    local_dir = Path(args.local_dir).expanduser()
+    output_dir = Path(args.output_dir)
+
+    try:
+        family, entries = _resolve_sources(
+            args.venue, args.year, local_dir, args.local_file)
+    except ValueError as e:
+        logger.error(str(e))
+        return 1
+
+    parser_func = _PARSERS[family]
+    is_text = family in _TEXT_FAMILIES
+    is_pdf = family in _PDF_FAMILIES
+
+    rows: List[Dict[str, str]] = []
+    for path, source_ref in entries:
+        if not path.exists():
+            logger.error(f"Source file not found: {path}")
+            return 1
+        logger.info(f"Parsing {path}")
+        if is_pdf:
+            text = _pdf_to_text(path)
+            if text is None:
+                return 1
+            posters = parser_func(text, args.year)
+        elif is_text:
+            posters = parser_func(path.read_text(encoding='utf-8', errors='replace'), args.year)
+        else:
+            posters = parser_func(BeautifulSoup(path.read_bytes(), 'html.parser'))
+        logger.info(f"  -> {len(posters)} posters")
+        for p in posters:
+            rows.append(_build_row(args.venue, args.year, p, source=source_ref))
+
+    if not rows:
+        logger.warning("No posters parsed! Check the source page structure / registry.")
+        return 1
+
+    if args.dry_run:
+        logger.info(f"\n[dry-run] {len(rows)} poster rows for {args.venue} {args.year}:")
+        for r in rows:
+            logger.info(f"  {r['title'][:70]} | {r['authors'][:80]}")
+        return 0
+
+    output_file = save_posters(args.venue, args.year, rows, output_dir, force=args.force)
+    if output_file:
+        logger.info(f"\n✓ Saved {len(rows)} posters to: {output_file}")
+        logger.info("\nNext steps:")
+        logger.info(f"  1. Review: {output_file}")
+        logger.info(f"  2. Import: ./import_from_csv.py talks {output_file}")
+    return 0
