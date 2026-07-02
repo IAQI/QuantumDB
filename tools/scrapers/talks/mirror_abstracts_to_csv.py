@@ -62,11 +62,10 @@ _TRAILING_ABSTRACT = re.compile(r"\s*abstract$")
 def match_key(title: str) -> str:
     """Normalised match key, tolerant of a spurious trailing ``Abstract`` token.
 
-    Some CSVs (e.g. qcrypt_2019) have titles that accidentally captured the
-    "Abstract" toggle-link text from the schedule page, so their titles end in
-    "… Abstract".  No genuine talk title ends in the bare word "abstract", so
-    stripping it from the key is safe and lets these rows match exactly instead
-    of relying on the fuzzy fallback.
+    Some schedule-page scrapes accidentally capture the "Abstract" toggle-link
+    text into the title, so a title can end in "… Abstract".  No genuine talk
+    title ends in the bare word "abstract", so stripping it from the key is safe
+    and defends matching against that class of artifact.
     """
     return _TRAILING_ABSTRACT.sub("", norm_title(title))
 
