@@ -197,6 +197,7 @@ async fn main() -> Result<(), sqlx::Error> {
         .route("/authors/{id}", get(handlers::web::author_detail))
         .route("/conferences", get(handlers::web::conferences_list))
         .route("/conferences/{slug}", get(handlers::web::conference_detail))
+        .route("/publications", get(handlers::web::publications_list))
         .route("/about", get(handlers::web::about))
         .route("/health", get(health));
 

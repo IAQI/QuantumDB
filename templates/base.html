@@ -914,6 +914,7 @@
             <li><a href="/">home</a></li>
             <li><a href="/authors">authors</a></li>
             <li><a href="/conferences">conferences</a></li>
+            <li><a href="/publications">publications</a></li>
             <li><a href="/about">about</a></li>
             <li><a href="/api/v1/swagger-ui/">api</a></li>
         </ul>
@@ -1003,9 +1004,11 @@
 
                 if (!cellA || !cellB) return 0;
 
-                // Use textContent for the actual value to sort
-                let valueA = cellA.textContent.trim();
-                let valueB = cellB.textContent.trim();
+                // Prefer an explicit data-sort-value (e.g. a year-first key on the
+                // conference column) over the visible text, so display order and
+                // sort order can differ. Falls back to textContent.
+                let valueA = cellA.dataset.sortValue !== undefined ? cellA.dataset.sortValue.trim() : cellA.textContent.trim();
+                let valueB = cellB.dataset.sortValue !== undefined ? cellB.dataset.sortValue.trim() : cellB.textContent.trim();
 
                 // Empty / "-" values always sink to the bottom, in both directions
                 const emptyA = !valueA || valueA === '-';

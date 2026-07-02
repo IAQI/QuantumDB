@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Publications - QuantumDB{% endblock %}
+
+{% block content %}
+<article>
+    <header>
+        <h1>Publications</h1>
+        <p>Search talks and papers by title, abstract, or author name</p>
+    </header>
+
+    <section class="search-box">
+        <form>
+            <input
+                type="search"
+                name="search"
+                placeholder="Search by title, abstract, or author..."
+                value="{{ search_term }}"
+                hx-get="/publications"
+                hx-trigger="input changed delay:300ms, search"
+                hx-target="#publications-table"
+                hx-indicator="#search-indicator"
+                autofocus
+            >
+            <span id="search-indicator" class="htmx-indicator">Searching...</span>
+        </form>
+    </section>
+
+    <section id="publications-table">
+        {% include "publications_table_partial.html" %}
+    </section>
+</article>
+{% endblock %}

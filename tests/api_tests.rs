@@ -409,6 +409,261 @@ async fn test_publication_full_text_search() {
 }
 
 #[tokio::test]
+#[serial]
+async fn test_publication_search_by_abstract() {
+    let server = setup().await;
+
+    let response = server.get("/conferences").await;
+    let conferences: Vec<serde_json::Value> = response.json();
+    let conference_id = conferences[0]["id"].as_str().unwrap();
+
+    // Unique term lives ONLY in the abstract (not the title), so a match proves
+    // the abstract (weight B) portion of search_vector is exercised.
+    let unique_term = format!("quantumdecoherence{}", Uuid::new_v4().simple());
+    let create_body = json!({
+        "conference_id": conference_id,
+        "canonical_key": format!("abstract-search-{}", Uuid::new_v4()),
+        "title": "A Generic Publication Title",
+        "abstract": format!("This work investigates {} at scale.", unique_term),
+        "creator": "test_user",
+        "modifier": "test_user"
+    });
+    let response = server.post("/publications").json(&create_body).await;
+    if !response.status_code().is_success() {
+        let body = response.text();
+        panic!("Failed to create publication: {} - {}", response.status_code(), body);
+    }
+    let created: serde_json::Value = response.json();
+    let pub_id = created["id"].as_str().unwrap();
+
+    let response = server
+        .get(&format!("/publications?search={}", unique_term))
+        .await;
+    response.assert_status_ok();
+    let results: Vec<serde_json::Value> = response.json();
+    assert!(
+        results.iter().any(|p| p["id"].as_str() == Some(pub_id)),
+        "Should find the publication by a term in its abstract"
+    );
+
+    // Cleanup
+    server.delete(&format!("/publications/{}", pub_id)).await;
+}
+
+#[tokio::test]
+#[serial]
+async fn test_publication_search_by_author_name() {
+    let server = setup().await;
+    let unique_suffix = Uuid::new_v4().simple().to_string();
+
+    // Unique author token lives ONLY in the author name — not the title or
+    // abstract — so a match proves author names (weight C, trigger-maintained
+    // author_names_text) are folded into the publication search_vector.
+    let author_token = format!("zzqauthor{}", unique_suffix);
+    let author_body = json!({
+        "full_name": format!("Testy {}", author_token),
+        "family_name": author_token,
+        "given_name": "Testy",
+        "creator": "test_user",
+        "modifier": "test_user"
+    });
+    let response = server.post("/authors").json(&author_body).await;
+    if !response.status_code().is_success() {
+        let body = response.text();
+        panic!("Failed to create author: {} - {}", response.status_code(), body);
+    }
+    let author: serde_json::Value = response.json();
+    let author_id = author["id"].as_str().unwrap();
+
+    let response = server.get("/conferences").await;
+    let conferences: Vec<serde_json::Value> = response.json();
+    let conference_id = conferences[0]["id"].as_str().unwrap();
+
+    let pub_body = json!({
+        "conference_id": conference_id,
+        "canonical_key": format!("author-search-{}", unique_suffix),
+        "title": "Publication with no searchable token in title or abstract",
+        "creator": "test_user",
+        "modifier": "test_user"
+    });
+    let response = server.post("/publications").json(&pub_body).await;
+    let publication: serde_json::Value = response.json();
+    let publication_id = publication["id"].as_str().unwrap();
+
+    let authorship_body = json!({
+        "publication_id": publication_id,
+        "author_id": author_id,
+        "author_position": 1,
+        "published_as_name": format!("Testy {}", author_token),
+        "creator": "test_user",
+        "modifier": "test_user"
+    });
+    let response = server.post("/authorships").json(&authorship_body).await;
+    if !response.status_code().is_success() {
+        let body = response.text();
+        panic!("Failed to create authorship: {} - {}", response.status_code(), body);
+    }
+    let authorship: serde_json::Value = response.json();
+    let authorship_id = authorship["id"].as_str().unwrap();
+
+    // Search by the author's name — the publication should be found.
+    let response = server
+        .get(&format!("/publications?search={}", author_token))
+        .await;
+    response.assert_status_ok();
+    let results: Vec<serde_json::Value> = response.json();
+    assert!(
+        results.iter().any(|p| p["id"].as_str() == Some(publication_id)),
+        "Should find the publication by its author's name"
+    );
+
+    // Cleanup: authorship -> publication -> author
+    server.delete(&format!("/authorships/{}", authorship_id)).await;
+    server.delete(&format!("/publications/{}", publication_id)).await;
+    server.delete(&format!("/authors/{}", author_id)).await;
+}
+
+#[tokio::test]
+#[serial]
+async fn test_publication_search_author_stemmable_surname() {
+    let server = setup().await;
+    let unique_suffix = Uuid::new_v4().simple().to_string();
+
+    // "Childs" is stemmed by the english config to "child" but kept intact by
+    // the simple config. Author names are stored 'simple', so a search for
+    // "Childs" only matches via the OR-ed simple tsquery in the handler — this
+    // test guards that branch against regressions.
+    let author_body = json!({
+        "full_name": format!("Stem Test {} Childs", unique_suffix),
+        "family_name": "Childs",
+        "given_name": format!("Stem Test {}", unique_suffix),
+        "creator": "test_user",
+        "modifier": "test_user"
+    });
+    let response = server.post("/authors").json(&author_body).await;
+    let author: serde_json::Value = response.json();
+    let author_id = author["id"].as_str().unwrap();
+
+    let response = server.get("/conferences").await;
+    let conferences: Vec<serde_json::Value> = response.json();
+    let conference_id = conferences[0]["id"].as_str().unwrap();
+
+    let pub_body = json!({
+        "conference_id": conference_id,
+        "canonical_key": format!("stem-search-{}", unique_suffix),
+        "title": "Publication authored by a stemmable surname",
+        "creator": "test_user",
+        "modifier": "test_user"
+    });
+    let response = server.post("/publications").json(&pub_body).await;
+    let publication: serde_json::Value = response.json();
+    let publication_id = publication["id"].as_str().unwrap();
+
+    let authorship_body = json!({
+        "publication_id": publication_id,
+        "author_id": author_id,
+        "author_position": 1,
+        "published_as_name": format!("S. T. Childs {}", unique_suffix),
+        "creator": "test_user",
+        "modifier": "test_user"
+    });
+    let response = server.post("/authorships").json(&authorship_body).await;
+    let authorship: serde_json::Value = response.json();
+    let authorship_id = authorship["id"].as_str().unwrap();
+
+    // Searching the stemmable surname must still find the publication.
+    let response = server.get("/publications?search=Childs").await;
+    response.assert_status_ok();
+    let results: Vec<serde_json::Value> = response.json();
+    assert!(
+        results.iter().any(|p| p["id"].as_str() == Some(publication_id)),
+        "Should find the publication by a stemmable author surname via the simple tsquery"
+    );
+
+    // Cleanup: authorship -> publication -> author
+    server.delete(&format!("/authorships/{}", authorship_id)).await;
+    server.delete(&format!("/publications/{}", publication_id)).await;
+    server.delete(&format!("/authors/{}", author_id)).await;
+}
+
+#[tokio::test]
+#[serial]
+async fn test_publication_search_authorship_removal() {
+    let server = setup().await;
+    let unique_suffix = Uuid::new_v4().simple().to_string();
+
+    // Verifies the authorships DELETE trigger recomputes author_names_text:
+    // after unlinking the author, the publication must no longer match the
+    // author's name.
+    let author_token = format!("zzqremoval{}", unique_suffix);
+    let author_body = json!({
+        "full_name": format!("Removed {}", author_token),
+        "family_name": author_token,
+        "given_name": "Removed",
+        "creator": "test_user",
+        "modifier": "test_user"
+    });
+    let response = server.post("/authors").json(&author_body).await;
+    let author: serde_json::Value = response.json();
+    let author_id = author["id"].as_str().unwrap();
+
+    let response = server.get("/conferences").await;
+    let conferences: Vec<serde_json::Value> = response.json();
+    let conference_id = conferences[0]["id"].as_str().unwrap();
+
+    let pub_body = json!({
+        "conference_id": conference_id,
+        "canonical_key": format!("removal-search-{}", unique_suffix),
+        "title": "Publication whose author link will be removed",
+        "creator": "test_user",
+        "modifier": "test_user"
+    });
+    let response = server.post("/publications").json(&pub_body).await;
+    let publication: serde_json::Value = response.json();
+    let publication_id = publication["id"].as_str().unwrap();
+
+    let authorship_body = json!({
+        "publication_id": publication_id,
+        "author_id": author_id,
+        "author_position": 1,
+        "published_as_name": format!("Removed {}", author_token),
+        "creator": "test_user",
+        "modifier": "test_user"
+    });
+    let response = server.post("/authorships").json(&authorship_body).await;
+    let authorship: serde_json::Value = response.json();
+    let authorship_id = authorship["id"].as_str().unwrap();
+
+    // Before removal: the author name matches.
+    let response = server
+        .get(&format!("/publications?search={}", author_token))
+        .await;
+    let results: Vec<serde_json::Value> = response.json();
+    assert!(
+        results.iter().any(|p| p["id"].as_str() == Some(publication_id)),
+        "Publication should match the author's name while the authorship exists"
+    );
+
+    // Remove the authorship — the DELETE trigger should clear author_names_text.
+    server.delete(&format!("/authorships/{}", authorship_id)).await;
+
+    // After removal: the author name no longer matches this publication.
+    let response = server
+        .get(&format!("/publications?search={}", author_token))
+        .await;
+    response.assert_status_ok();
+    let results: Vec<serde_json::Value> = response.json();
+    assert!(
+        !results.iter().any(|p| p["id"].as_str() == Some(publication_id)),
+        "Publication should no longer match the author's name after the authorship is removed"
+    );
+
+    // Cleanup
+    server.delete(&format!("/publications/{}", publication_id)).await;
+    server.delete(&format!("/authors/{}", author_id)).await;
+}
+
+#[tokio::test]
 async fn test_publication_filter_by_conference() {
     let server = setup().await;
 

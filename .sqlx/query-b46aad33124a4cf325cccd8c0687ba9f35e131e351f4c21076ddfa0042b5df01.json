@@ -1,0 +1,88 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT\n            p.title,\n            c.venue as \"venue!\",\n            c.year  as \"year!\",\n            LOWER(c.venue) || '-' || c.year::text as \"conference_slug!\",\n            p.paper_type::text as \"paper_type!\",\n            COALESCE(\n                array_agg(a.slug ORDER BY au.author_position) FILTER (WHERE a.id IS NOT NULL),\n                ARRAY[]::text[]\n            ) as \"author_slugs!\",\n            COALESCE(\n                array_agg(a.full_name ORDER BY au.author_position) FILTER (WHERE a.id IS NOT NULL),\n                ARRAY[]::text[]\n            ) as \"author_names!\",\n            COALESCE(\n                array_agg(COALESCE(a.id = p.presenter_author_id, false) ORDER BY au.author_position)\n                    FILTER (WHERE a.id IS NOT NULL),\n                ARRAY[]::boolean[]\n            ) as \"author_is_speaker!\",\n            COALESCE(p.arxiv_ids, ARRAY[]::text[]) as \"arxiv_ids!\",\n            COALESCE(p.abstract, '') as \"abstract_text!\",\n            COALESCE(p.video_url, '') as \"video_url!\",\n            COALESCE(p.award, '') as \"award!\"\n        FROM publications p\n        JOIN conferences c ON c.id = p.conference_id\n        LEFT JOIN authorships au ON au.publication_id = p.id\n        LEFT JOIN authors a ON a.id = au.author_id\n        WHERE $1 = ''\n           OR p.search_vector @@ plainto_tsquery('english', $1)\n           OR p.search_vector @@ plainto_tsquery('simple', $1)\n        GROUP BY p.id, p.title, c.venue, c.year, p.paper_type, p.arxiv_ids, p.abstract, p.video_url, p.award\n        ORDER BY\n            ts_rank(p.search_vector, plainto_tsquery('english', $1))\n              + ts_rank(p.search_vector, plainto_tsquery('simple', $1)) DESC,\n            c.year DESC,\n            p.title\n        LIMIT 100\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "title",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "venue!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "year!",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "conference_slug!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "paper_type!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "author_slugs!",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 6,
+        "name": "author_names!",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 7,
+        "name": "author_is_speaker!",
+        "type_info": "BoolArray"
+      },
+      {
+        "ordinal": 8,
+        "name": "arxiv_ids!",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 9,
+        "name": "abstract_text!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 10,
+        "name": "video_url!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 11,
+        "name": "award!",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "b46aad33124a4cf325cccd8c0687ba9f35e131e351f4c21076ddfa0042b5df01"
+}
