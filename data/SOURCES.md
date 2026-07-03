@@ -315,7 +315,23 @@ No committee page identified in the local archive. No CSV produced from archive.
 
 ## 2003 — Berkeley (MSRI)
 
-No local archive available.
+Held **December 13–17, 2002** (the 6th QIP, then called Quantum Information
+Processing), as part of the MSRI *Quantum Computation* program.
+
+| Committee / Programme | Archive URL |
+|-----------------------|-------------|
+| Steering Committee | `2003/index.html` |
+| Detailed programme (talks, slides, videos) | `2003/talks.html` |
+| Timetable | `2003/schedule.html` |
+
+Steering Committee only (Dorit Aharonov, Charles Bennett, Harry Buhrman, Isaac
+Chuang, Michele Mosca, Umesh Vazirani, John Watrous — from the index page's
+"Organized by" line); MSRI staff ran local logistics, so no OC/PC pages exist.
+The IAQI mirror (`https://qip.iaqi.org/2003/`) is a static reconstruction of the
+SLMath (MSRI) workshop 204 record: 27 invited talks + 9 rump-session
+contributions, 24 with slide PDFs (mirrored under `2003/slides/`) and videos on
+SLMath/Vimeo. No abstracts existed on the original site. Harvested directly into
+`data/conferences/qip_2003/{committees,talks}.csv`.
 
 ---
 
@@ -378,7 +394,8 @@ Scraper: `scrape_qip_historical.py` (no `parse_1998` function; data collected se
 
 - **Combined pages**: Years 2006–2018 (except 2019) use a single committee page for OC/PC/SC; all three `archive_*_url` fields in the database point to the same URL.
 - **2022, 2020**: No usable local archive. Data was collected from external sources and entered manually.
-- **2005, 2004, 2003**: No committee data available in the local archive.
+- **2005, 2004**: No committee data available in the local archive.
+- **2003**: Steering Committee + full programme (talks/slides/videos) harvested from the IAQI mirror (`qip.iaqi.org/2003/`); held December 2002.
 - **Encoding quirks**: 2008 archive uses latin-1 encoding. 2013 uses PHP query params encoded as `@p=N` in filenames.
 
 ---
