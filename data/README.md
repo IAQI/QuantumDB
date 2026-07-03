@@ -56,10 +56,10 @@ Order in `affiliations` must match the order in `authors`.
 | `venue`         | `QIP`, `QCRYPT`, or `TQC` (upper-case)                                                   |
 | `year`          | Conference year                                                                          |
 | `committee_type`| `program`, `steering`, or `organizing` (legacy `local_organizing` still imports, mapped to `organizing`) |
-| `position`      | `chair`, `co_chair`, or `member`                                                          |
+| `position`      | `chair`, `co_chair`, `area_chair`, or `member`                                           |
 | `full_name`     | Member's full name                                                                       |
 | `affiliation`   | Affiliation at time of service (optional)                                                |
-| `role_title`    | Free-text label such as `General Chair`, `Program Chair`, `Publicity Chair` (optional)    |
+| `role_title`    | Optional free-text label, **only when it adds detail beyond `committee_type` + `position`** (e.g. `Publicity Chair`, `Rump Session Organizer`, `Local Service`). Do **not** restate the position — labels that merely echo the committee/position (`Chair`, `Co-Chair`, `PC Member`, `LO Chair`, `Program Chair`, …) are dropped on import. |
 
 ### `talks.csv` (and `proceedings.csv` / `workshop.csv` for TQC, and `posters.csv`)
 
