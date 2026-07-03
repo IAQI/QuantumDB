@@ -23,7 +23,13 @@ Usage: python3 tools/scrapers/talks/qcrypt_json_to_csv.py
 import csv
 import json
 import re
+import sys
 from pathlib import Path
+
+# Run as a script (`python3 .../qcrypt_json_to_csv.py`), so put the scrapers
+# package parent on the path to reuse the shared name cleaner.
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from scrapers._lib import clean_display_name  # noqa: E402
 
 CONF_ROOT = Path(__file__).resolve().parents[3] / "data" / "conferences"
 
@@ -48,7 +54,7 @@ def author_strings(authors):
     names, affs = [], []
     for a in authors:
         name = " ".join(p for p in (a.get("first"), a.get("last")) if p).strip()
-        names.append(name)
+        names.append(clean_display_name(name))
         affs.append((a.get("affiliation") or "").strip())
     aff_cell = ";".join(affs) if any(affs) else ""
     return ";".join(names), aff_cell

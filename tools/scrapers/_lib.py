@@ -81,6 +81,59 @@ def normalize_name(name: str) -> str:
     return ' '.join(tokens)
 
 
+# Leading honorifics stripped from a scraped *display* name (case-insensitive).
+_HONORIFIC_RE = re.compile(r'^(?:Dr|Prof|Professor|Mr|Mrs|Ms|Mx)\.?\s+', re.IGNORECASE)
+
+# Name particles that stay lower-case when re-casing an ALL-CAPS name (unless
+# they lead the name). Keeps "van der Waals", "de Broglie" etc. natural.
+_NAME_PARTICLES = frozenset({
+    'van', 'von', 'de', 'der', 'den', 'del', 'della', 'di', 'da', 'du',
+    'la', 'le', 'los', 'las', 'bin', 'ibn', 'al', 'el', 'ter', 'ten',
+})
+
+
+def _titlecase_word(word: str) -> str:
+    """Title-case one whitespace-free token, capitalising each hyphen/apostrophe
+    sub-part so "JOCHYM-O'CONNOR" → "Jochym-O'Connor" and initials stay upper."""
+    def cap(piece: str) -> str:
+        return piece[:1].upper() + piece[1:].lower() if piece else piece
+    return ''.join(p if p in "-'’" else cap(p) for p in re.split(r"([-'’])", word))
+
+
+def clean_display_name(name: str) -> str:
+    """Tidy a scraped *display* name (case preserved, unlike ``normalize_name``).
+
+    1. Strip a leading honorific ("Dr.", "Prof.", …).
+    2. If the name is a single case throughout — a "shouted" ALL-CAPS scrape
+       ("YANGYANG FEI", "N C RANDEEP") or an all-lower-case one ("yicheng shi") —
+       re-case it to title case, keeping single-letter initials upper and name
+       particles (van, de, …) lower.
+
+    A mixed-case name (the common case) is returned unchanged apart from the
+    honorific strip, so this is safe to run over every parsed author.
+    """
+    if not name:
+        return name
+    name = _HONORIFIC_RE.sub('', name).strip()
+    letters = [c for c in name if c.isalpha()]
+    if letters and (all(c.isupper() for c in letters) or all(c.islower() for c in letters)):
+        recased = []
+        for i, word in enumerate(name.split()):
+            if i and word.lower() in _NAME_PARTICLES:
+                recased.append(word.lower())
+            else:
+                recased.append(_titlecase_word(word))
+        name = ' '.join(recased)
+    # A leading all-lower-case word in an otherwise mixed-case name is a scrape
+    # typo (a first name is never legitimately lower-case), e.g. "jonathan
+    # Oppenheim". Capitalise it — but leave a leading particle ("van …") alone.
+    words = name.split()
+    if words and words[0].islower() and words[0] not in _NAME_PARTICLES:
+        words[0] = _titlecase_word(words[0])
+        name = ' '.join(words)
+    return name
+
+
 def split_name(full_name: str) -> tuple[str, str]:
     """Split a (normalized) full name into (family_name, given_name)."""
     normalized = normalize_name(full_name)

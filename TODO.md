@@ -8,6 +8,31 @@ Quick scratchpad of pending work. Add items freely; move done items out.
   done in the author-anomaly cleanup pass, along with 55 other fuzzy-duplicate
   groups (full middle name / initial / name-particle variants) via
   `tools/one_off/merge_fuzzy_authors.py`.
+- [x] **Re-run author-anomaly check after the big author influx (~8.6k authors)**
+  (2026-07-02). `merge_fuzzy_authors.py` surfaced 53 new groups: 47 clean fuzzy
+  merges appended to `data/author_aliases.csv`; 5 doubled-name scraping artifacts
+  (`Cecilia Lancien Lancien`, `Myungshik Kim Kim`, `Nike Dattani Dattani`,
+  `Mizanur Mizanur Rahaman`, `Subhendu Bikash Ghosh ×2`) + the `Marco Tlúio`→`Túlio`
+  typo fixed at source in the poster CSVs; `Subhendu B. Ghosh`→`Subhendu Bikash Ghosh`
+  added as the residual alias. Left un-merged for a human call: `Francesco/Antonio
+  Anna Mele` (suspicious "Anna" expansion), `Adnan A.E./Adil Hajomer`, and the
+  `Luis Felipe/Paulo/Luís Santos` group (likely ≥2 distinct people).
+- [x] **Fix ALL-CAPS / affiliation-in-name poster authors** (2026-07-03). The
+  poster scrapers leaked affiliations into author names (`Xin Wang (The Hong Kong
+  University of Science and Technology (Guangzhou)`) and passed through shouted
+  ALL-CAPS / all-lower-case names (`YANGYANG FEI`, `yicheng shi`). Fixed in the
+  parsers, not by hand-editing the (overwrite-wholesale) poster CSVs: added
+  `clean_display_name()` in `_lib.py` (honorific strip + smart re-casing, keeping
+  initials/particles) used by `posters/parsers.py` and `qcrypt_json_to_csv.py`;
+  made `_strip_trailing_paren` nested/unbalanced-paren aware; added top-level-only
+  author splitting (so an affiliation's own " and "/"," no longer shatters it);
+  added source-doubled-name collapse (`Nike Dattani Dattani`→`Nike Dattani`);
+  rewrote `parse_qip_2016` to anchor author+title on the paper `<a>`. Re-scraped
+  the affected poster CSVs from the local `~/Web` mirrors + repaired 2 corrupt
+  records in `qcrypt_2024/raw/posters-2024.json` and 1 `workshop.csv` speaker.
+  99 corrupt author rows → 0 (one residual left: qip_2015 `M`, the ambiguous
+  `M & P Horodecki` sibling shorthand). Live DB reflects this on the next
+  reload-from-CSVs.
 - [ ] **Improve author dedup matching for full-middle-name vs initial** — the
   one-off merge above cleaned existing rows, but the *importers* still match only
   on exact `normalized_name` (`tools/scrapers/.../get_or_create_author`), so new
