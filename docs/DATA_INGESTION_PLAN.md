@@ -198,7 +198,7 @@ Committees count is row count.
 | 2000 |  2 | 28 (28/28/0/0) | committees thin |
 | 2001 |  3 | 28 (28/28/0/0) | committees thin |
 | 2002 |  2 | 35 (20/20/0/0) | committees thin |
-| 2003 |  – | – | not seeded? archive missing |
+| 2003 |  7 | 36 (36/27/35/0) | ✓ harvested from IAQI mirror (27 invited + 9 rump); held Dec 2002; no abstracts |
 | 2004 | 27 | 34 (0/34/0/0) | ✓ row count correct (471 was `wc -l` artifact); no abstracts |
 | 2005 |  3 | 33 (33/33/0/0) | committees thin |
 | 2006 | 27 | 40 (40/40/0/0) | ✓ |
@@ -319,7 +319,7 @@ source and writes CSV with the verification protocol (rows tagged
 
 | Year | Gap | Method | Notes |
 |------|-----|--------|-------|
-| 2003 | not seeded | defer | no archive |
+| 2003 | done (committees.csv 7 + talks.csv 36) | claude-direct from IAQI mirror | steering committee + full programme (slides/videos) from `qip.iaqi.org/2003/{index,talks}.html`; no abstracts on source |
 | 2004 | talks.csv ✓ (34 rows); abstracts mostly empty + a few title/abstract concatenations | claude-direct cleanup later | parser bug in `_parse_2004_abstracts_section` left some rows with merged title+abstract (e.g. rows 13, 14, 28); low priority |
 | 2008 | done (78 rows: 42 scheduled talks + 36 posters) | claude-direct from QIP2008_files/Program.pdf | invited titles filled, +2 tutorials added; posters left unscheduled per convention |
 | 2009 | no schedule (65 talks) | claude-direct | small batch, one-off |

@@ -169,10 +169,10 @@ NULL, NULL, NULL,
     NULL, NULL, NULL,
     'https://qip.iaqi.org/2004/schedule.html',
     'system', 'system'),
--- 2003: No committee page in archive
+-- held Dec 2002; Steering Committee on index.html, programme on talks.html (IAQI mirror)
 ('QIP', 2003, DATE '2002-12-13', DATE '2002-12-17', 'Berkeley', 'United States', 'US', false, false, 'MSRI', 'https://www.slmath.org/workshops/204',
     'https://qip.iaqi.org/2003/',
-    NULL, NULL, NULL, NULL,
+    NULL, NULL, 'https://qip.iaqi.org/2003/index.html', 'https://qip.iaqi.org/2003/talks.html',
     'system', 'system'),
 -- 2002: OC only (organizers hardcoded from index.html); no PC/SC page archived
 ('QIP', 2002, DATE '2002-01-14', DATE '2002-01-17', 'Yorktown Heights', 'United States', 'US', false, false, 'IBM', 'https://web.archive.org/web/20110604210434/http://www.research.ibm.com/quantuminfo/qip2002/',
