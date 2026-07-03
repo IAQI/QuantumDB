@@ -20,8 +20,8 @@ Dax Koh,Dax Enshan Koh,alternate_spelling,"fuzzy-merge: same first+last, fuller 
 Emma Medlock,Emma Tien Hwai Medlock,alternate_spelling,"fuzzy-merge: same first+last, fuller middle name/initial/particle"
 Ernest Y.-Z. Tan,Ernest Y. -Z. Tan,alternate_spelling,"fuzzy-merge: same first+last, fuller middle name/initial/particle"
 Ernest Tan,Ernest Y. -Z. Tan,alternate_spelling,"fuzzy-merge: same first+last, fuller middle name/initial/particle"
-Fernando G.S.L. Brandao,Fernando G.S L. Brandão,alternate_spelling,"fuzzy-merge: same first+last, fuller middle name/initial/particle"
-Fernando Brandao,Fernando G.S L. Brandão,alternate_spelling,"fuzzy-merge: same first+last, fuller middle name/initial/particle"
+Fernando G.S.L. Brandao,Fernando G. S. L. Brandão,alternate_spelling,"fuzzy-merge: same first+last, fuller middle name/initial/particle"
+Fernando Brandao,Fernando G. S. L. Brandão,alternate_spelling,"fuzzy-merge: same first+last, fuller middle name/initial/particle"
 Fernando Jeronimo,Fernando Granha Jeronimo,alternate_spelling,"fuzzy-merge: same first+last, fuller middle name/initial/particle"
 Florian Curchod,Florian John Curchod,alternate_spelling,"fuzzy-merge: same first+last, fuller middle name/initial/particle"
 Francesco A. Mele,Francesco Anna Mele,alternate_spelling,"fuzzy-merge: same first+last, fuller middle name/initial/particle"
@@ -119,3 +119,149 @@ Thinh Le,Thinh Phuc Le,alternate_spelling,"fuzzy-merge: same first+last, fuller 
 Zhe Koong,Zhe Xian Koong,alternate_spelling,"fuzzy-merge: same first+last, fuller middle name/initial/particle"
 Álvaro G. Iñesta,Álvaro Gómez Iñesta,alternate_spelling,"fuzzy-merge: same first+last, fuller middle name/initial/particle"
 Subhendu B. Ghosh,Subhendu Bikash Ghosh,alternate_spelling,"fuzzy-merge: same first+last, fuller middle name/initial/particle"
+Robert Koenig,Robert König,alternate_spelling,Same person; oe-transliteration not folded by normalize_name
+Robert Konig,Robert König,alternate_spelling,Same person; pin umlaut display spelling regardless of import order
+Andreas Huelsing,Andreas Hülsing,alternate_spelling,Same person; ue-transliteration split
+Bernhard Oemer,Bernhard Ömer,alternate_spelling,Same person; oe-transliteration split
+Dagmar Bruss,Dagmar Bruß,alternate_spelling,Same person; ss/ß-transliteration split
+Esther Haenggi,Esther Hänggi,alternate_spelling,Same person; ae-transliteration split
+Gereon Kossmann,Gereon Koßmann,alternate_spelling,Same person; ss/ß-transliteration split
+Hannes Huebel,Hannes Hübel,alternate_spelling,Same person; ue-transliteration split
+Juerg Wullschleger,Jürg Wullschleger,alternate_spelling,Same person; ue-transliteration split
+Martin Roetteler,Martin Rötteler,alternate_spelling,Same person; oe-transliteration split
+Martin Rotteler,Martin Rötteler,alternate_spelling,Same person; pin umlaut display spelling regardless of import order
+Otfried Guehne,Otfried Gühne,alternate_spelling,Same person; ue-transliteration split
+Philipp Kleinpass,Philipp Kleinpaß,alternate_spelling,Same person; ss/ß-transliteration split
+Stefan Baeuml,Stefan Bäuml,alternate_spelling,Same person; ae-transliteration split
+Stefan Woerner,Stefan Wörner,alternate_spelling,Same person; oe-transliteration split
+Tino Roehlicke,Tino Röhlicke,alternate_spelling,Same person; oe-transliteration split
+Markus Mueller,Markus Müller,alternate_spelling,Same person; ue-transliteration split (common name; verify by affiliation if a distinct Markus Mueller surfaces)
+A. Abidin,Aysajan Abidin,alternate_spelling,abbreviated first name; same person (distinctive surname)
+M. Al-Amri,Mohammad Al-Amri,alternate_spelling,abbreviated first name; same person (distinctive surname)
+V. Bergholm,Ville Bergholm,alternate_spelling,abbreviated first name; same person (distinctive surname)
+J. D. Biamonte,Jacob Biamonte,alternate_spelling,abbreviated first name; same person (distinctive surname)
+S. Bratzik,Sylvia Bratzik,alternate_spelling,abbreviated first name; same person (distinctive surname)
+D. Bruß,Dagmar Bruß,alternate_spelling,abbreviated first name; same person (distinctive surname)
+H Buhrman,Harry Buhrman,alternate_spelling,abbreviated first name; same person (distinctive surname)
+F. Buscemi,Francesco Buscemi,alternate_spelling,abbreviated first name; same person (distinctive surname)
+M Cerezo,Marco Cerezo,alternate_spelling,abbreviated first name; same person (distinctive surname)
+N. J. Cerf,Nicolas Cerf,alternate_spelling,abbreviated first name; same person (distinctive surname)
+H. F. Chau,Hoi-Fung Chau,alternate_spelling,abbreviated first name; same person (distinctive surname)
+D. G. Cory,David Cory,alternate_spelling,abbreviated first name; same person (distinctive surname)
+M. Cramer,Marcus Cramer,alternate_spelling,abbreviated first name; same person (distinctive surname)
+T. F. Demarie,Tommaso Demarie,alternate_spelling,abbreviated first name; same person (distinctive surname)
+W. Donderowicz,Wojciech Donderowicz,alternate_spelling,abbreviated first name; same person (distinctive surname)
+J. Duhme,Jörg Duhme,alternate_spelling,abbreviated first name; same person (distinctive surname)
+T. Eberle,Tobias Gehring,alternate_spelling,abbreviated first name; same person (distinctive surname)
+J. Eisert,Jens Eisert,alternate_spelling,abbreviated first name; same person (distinctive surname)
+R. Filip,Radim Filip,alternate_spelling,abbreviated first name; same person (distinctive surname)
+T. Franz,Torsten Franz,alternate_spelling,abbreviated first name; same person (distinctive surname)
+R. Frappier,Romain Frappier,alternate_spelling,abbreviated first name; same person (distinctive surname)
+R. Gallego,Rodrigo Gallego,alternate_spelling,abbreviated first name; same person (distinctive surname)
+R. Garcia-Patron,Raul Garcia-Patron,alternate_spelling,abbreviated first name; same person (distinctive surname)
+S. M. Girvin,Steven M. Girvin,alternate_spelling,abbreviated first name; same person (distinctive surname)
+S. Glancy,Scott Charles Glancy,alternate_spelling,abbreviated first name; same person (distinctive surname)
+J. Gruber,Jacek Gruber,alternate_spelling,abbreviated first name; same person (distinctive surname)
+A Grudka,Andrzej Grudka,alternate_spelling,abbreviated first name; same person (distinctive surname)
+A. Grudka,Andrzej Grudka,alternate_spelling,abbreviated first name; same person (distinctive surname)
+V. Händchen,Vitus Händchen,alternate_spelling,abbreviated first name; same person (distinctive surname)
+A. Janutka,Andrzej Janutka,alternate_spelling,abbreviated first name; same person (distinctive surname)
+S. Jordan,Stephen Jordan,alternate_spelling,abbreviated first name; same person (distinctive surname)
+W. O. Krawec,Walter Krawec,alternate_spelling,abbreviated first name; same person (distinctive surname)
+C. Kurtsiefer,Christian Kurtsiefer,alternate_spelling,abbreviated first name; same person (distinctive surname)
+R. Laflamme,Raymond Laflamme,alternate_spelling,abbreviated first name; same person (distinctive surname)
+T. Lorünser,Thomas Lorünser,alternate_spelling,abbreviated first name; same person (distinctive surname)
+M. Lucamarini,Marco Lucamarini,alternate_spelling,abbreviated first name; same person (distinctive surname)
+M Markiewicz,Marcin Markiewicz,alternate_spelling,abbreviated first name; same person (distinctive surname)
+F. L. Marquezino,Franklin De Lima Marquezino,alternate_spelling,abbreviated first name; same person (distinctive surname)
+F. Marsili,Francesco Marsili,alternate_spelling,abbreviated first name; same person (distinctive surname)
+P. Mateus,Paulo Mateus,alternate_spelling,abbreviated first name; same person (distinctive surname)
+A. Mink,Alan Mink,alternate_spelling,abbreviated first name; same person (distinctive surname)
+L. Mista,Ladislav Mišta,alternate_spelling,abbreviated first name; same person (distinctive surname)
+R. Murthy,Ramana Murthy,alternate_spelling,abbreviated first name; same person (distinctive surname)
+D. Oblak,Daniel Oblak,alternate_spelling,abbreviated first name; same person (distinctive surname)
+Y. Omar,Yasser Omar,alternate_spelling,abbreviated first name; same person (distinctive surname)
+C. Pacher,Christoph Pacher,alternate_spelling,abbreviated first name; same person (distinctive surname)
+N. Paunkovic,Nikola Paunkovic,alternate_spelling,abbreviated first name; same person (distinctive surname)
+P. W. H. Pinkse,P.W.H. Pinkse,alternate_spelling,abbreviated first name; same person (distinctive surname)
+R. Portugal,Renato Portugal,alternate_spelling,abbreviated first name; same person (distinctive surname)
+E. Saglamyurek,Erhan Saglamyurek,alternate_spelling,abbreviated first name; same person (distinctive surname)
+S. Sarda,Sanat Sarda,alternate_spelling,abbreviated first name; same person (distinctive surname)
+R. Schnabel,Roman Schnabel,alternate_spelling,abbreviated first name; same person (distinctive surname)
+B. Sikdar,Biplab Sikdar,alternate_spelling,abbreviated first name; same person (distinctive surname)
+J. A. Smolin,John Smolin,alternate_spelling,abbreviated first name; same person (distinctive surname)
+F Speelman,Florian Speelman,alternate_spelling,abbreviated first name; same person (distinctive surname)
+S Strelchuk,Sergii Strelchuk,alternate_spelling,abbreviated first name; same person (distinctive surname)
+S. Strelchuk,Sergii Strelchuk,alternate_spelling,abbreviated first name; same person (distinctive surname)
+G. P. Temporão,Guilherme Temporao,alternate_spelling,abbreviated first name; same person (distinctive surname)
+B. M. Terhal,Barbara Maria Terhal,alternate_spelling,abbreviated first name; same person (distinctive surname)
+W. Tittel,Wolfgang Tittel,alternate_spelling,abbreviated first name; same person (distinctive surname)
+R. Ursin,Rupert Ursin,alternate_spelling,abbreviated first name; same person (distinctive surname)
+P. Walther,Philip Walther,alternate_spelling,abbreviated first name; same person (distinctive surname)
+M. Wee,Matthew Wee,alternate_spelling,abbreviated first name; same person (distinctive surname)
+J. D. Whitfield,James Whitfield,alternate_spelling,abbreviated first name; same person (distinctive surname)
+H. Wilming,Henrik Wilming,alternate_spelling,abbreviated first name; same person (distinctive surname)
+H. Wojewodka,Hanna Wojewódka,alternate_spelling,abbreviated first name; same person (distinctive surname)
+G. B. Xavier,Guilherme B. Xavier,alternate_spelling,abbreviated first name; same person (distinctive surname)
+A. Zeilinger,Anton Zeilinger,alternate_spelling,abbreviated first name; same person (distinctive surname)
+J. Pablo Bonilla Ataides,Juan Pablo Bonilla Ataides,alternate_spelling,abbreviated first name; same person (initial disambiguates)
+C. H. Bennett,Charles H. Bennett,alternate_spelling,abbreviated first name; same person (initial disambiguates)
+B. Christensen,Bradley Christensen,alternate_spelling,abbreviated first name; same person (initial disambiguates)
+N. Datta,Nilanjana Datta,alternate_spelling,abbreviated first name; same person (initial disambiguates)
+X. Duan,Xiao Duan,alternate_spelling,abbreviated first name; same person (initial disambiguates)
+K. Horodecki,Karol Horodecki,alternate_spelling,abbreviated first name; same person (initial disambiguates)
+M. Jacak,Monika Jacak,alternate_spelling,abbreviated first name; same person (initial disambiguates)
+W. Jacak,Witold A. Jacak,alternate_spelling,abbreviated first name; same person (initial disambiguates)
+I. Jóźwiak,Ireneusz Józwiak,alternate_spelling,abbreviated first name; same person (initial disambiguates)
+M. Kasper,Michael Kasper,alternate_spelling,abbreviated first name; same person (initial disambiguates)
+E. Knill,Emanuel Knill,alternate_spelling,abbreviated first name; same person (initial disambiguates)
+C. Liang,Cassey C. Liang,alternate_spelling,abbreviated first name; same person (initial disambiguates)
+A. Ling,Alexander Ling,alternate_spelling,abbreviated first name; same person (initial disambiguates)
+M. Mertz,Markus Mertz,alternate_spelling,abbreviated first name; same person (initial disambiguates)
+S. W. Nam,Sae Woo Nam,alternate_spelling,abbreviated first name; same person (initial disambiguates)
+M. Pawlowski,Marcin Pawlowski,alternate_spelling,abbreviated first name; same person (initial disambiguates)
+M. Peev,Momtchil Peev,alternate_spelling,abbreviated first name; same person (initial disambiguates)
+L. K. Shalm,Lynden K. Shalm,alternate_spelling,abbreviated first name; same person (initial disambiguates)
+M. D. Shaw,Matthew D. Shaw,alternate_spelling,abbreviated first name; same person (initial disambiguates)
+L. Sheridan,Lana Sheridan,alternate_spelling,abbreviated first name; same person (initial disambiguates)
+K. Tamaki,Kiyoshi Tamaki,alternate_spelling,abbreviated first name; same person (initial disambiguates)
+R. F. Werner,Reinhard F. Werner,alternate_spelling,abbreviated first name; same person (initial disambiguates)
+R. Teal Witter,Raylen Witter,alternate_spelling,abbreviated first name; same person (initial disambiguates)
+Al´an Aspuru-Guzik,Alán Aspuru-Guzik,alternate_spelling,typo/nickname/encoding variant; same person
+Le­andro Aolita,Leandro Aolita,alternate_spelling,typo/nickname/encoding variant; same person
+Razeih Annabestani,Razieh Annabestani,alternate_spelling,typo/nickname/encoding variant; same person
+Dave Bacon,David Bacon,alternate_spelling,typo/nickname/encoding variant; same person
+Emili Bagan,Emilio Bagan,alternate_spelling,typo/nickname/encoding variant; same person
+Juani Bermejo-Vega,Juan Bermejo-Vega,alternate_spelling,typo/nickname/encoding variant; same person
+C´edric Bruynsteen,Cédric Bruynsteen,alternate_spelling,typo/nickname/encoding variant; same person
+Igacio Cirac,Ignacio Cirac,alternate_spelling,typo/nickname/encoding variant; same person
+Maksim Fadeev,Maxim Fadeev,alternate_spelling,typo/nickname/encoding variant; same person
+Steve Flammia,Steven T. Flammia,alternate_spelling,typo/nickname/encoding variant; same person
+Kesuke Fujii,Keisuke Fujii,alternate_spelling,typo/nickname/encoding variant; same person
+Arthur Gleim,Artur Gleim,alternate_spelling,typo/nickname/encoding variant; same person
+Ga?tan Gras,Gaëtan Gras,alternate_spelling,typo/nickname/encoding variant; same person
+G’abor Ivanyos,Gábor Ivanyos,alternate_spelling,typo/nickname/encoding variant; same person
+Herrmann Kampermann,Hermann Kampermann,alternate_spelling,typo/nickname/encoding variant; same person
+Martinis Kokainis,Mārtiņš Kokainis,alternate_spelling,typo/nickname/encoding variant; same person
+Akihito Mizutani,Akihiro Mizutani,alternate_spelling,typo/nickname/encoding variant; same person
+Slock A. Nahar,Shlok Ashok Nahar,alternate_spelling,typo/nickname/encoding variant; same person
+Shlok A. Nahar,Shlok Ashok Nahar,alternate_spelling,typo/nickname/encoding variant; same person
+Anastasia Nikolaeva,Anastasiia Nikolaeva,alternate_spelling,typo/nickname/encoding variant; same person
+Savatore F.E. Oliviero,Salvatore Francesco Emanuele Oliviero,alternate_spelling,typo/nickname/encoding variant; same person
+Leif K. Oxenlowe,Leif Katsuo Oxenløwe,alternate_spelling,typo/nickname/encoding variant; same person
+Leif. K. Oxenlowe,Leif Katsuo Oxenløwe,alternate_spelling,typo/nickname/encoding variant; same person
+Nicolo’ Lo Piparo,Nicolò Lo Piparo,alternate_spelling,typo/nickname/encoding variant; same person
+Anastasia Ponosova,Anastasiya Ponosova,alternate_spelling,typo/nickname/encoding variant; same person
+Junekoo Rhee,June-Koo Kevin Rhee,alternate_spelling,typo/nickname/encoding variant; same person
+Lí­dia Del Rio,Lídia del Rio,alternate_spelling,typo/nickname/encoding variant; same person
+Dave Touchette,David Touchette,alternate_spelling,typo/nickname/encoding variant; same person
+Vasiliy Ustimchik,Vasily Ustimchik,alternate_spelling,typo/nickname/encoding variant; same person
+Franck Verstraete,Frank Verstraete,alternate_spelling,typo/nickname/encoding variant; same person
+Naqueeb Warsi,Naqueeb Ahmad Warsi,alternate_spelling,typo/nickname/encoding variant; same person
+Naqueb Ahmad Warsi,Naqueeb Ahmad Warsi,alternate_spelling,typo/nickname/encoding variant; same person
+Yizheng Zhen,Yi-Zheng Zhen,alternate_spelling,typo/nickname/encoding variant; same person
+Fernando Brandão,Fernando G. S. L. Brandão,alternate_spelling,Fernando Brandão spelling variant; same person
+Fernando G.S L. Brandão,Fernando G. S. L. Brandão,alternate_spelling,Fernando Brandão spelling variant; same person
+Fernando G. S. L. Brandao,Fernando G. S. L. Brandão,alternate_spelling,Fernando Brandão spelling variant; same person
+F. Brandao,Fernando G. S. L. Brandão,alternate_spelling,Fernando Brandão spelling variant; same person
+Fernandao Brandão,Fernando G. S. L. Brandão,alternate_spelling,Fernando Brandão spelling variant; same person
