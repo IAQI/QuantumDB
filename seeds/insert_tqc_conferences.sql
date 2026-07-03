@@ -8,7 +8,7 @@
 INSERT INTO conferences (venue, year, start_date, end_date, city, country, country_code, is_virtual, is_hybrid, venue_name, website_url, proceedings_url,
     archive_url, archive_organizers_url, archive_pc_url, archive_steering_url, archive_program_url,
     creator, modifier) VALUES
-('TQC', 2026, DATE '2026-08-31', DATE '2026-09-04', 'Sherbrooke', 'Canada', 'CA', false, false, 'Université de Sherbrooke', 'https://tqc-conference.org/', NULL,
+('TQC', 2026, DATE '2026-08-31', DATE '2026-09-04', 'Sherbrooke', 'Canada', 'CA', false, false, 'Université de Sherbrooke', 'https://tqc-conference.org/2026/', NULL,
     NULL,
     NULL, NULL, NULL, NULL,
     'system', 'system'),

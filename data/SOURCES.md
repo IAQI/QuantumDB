@@ -5,7 +5,10 @@ file under `data/conferences/`. Local archive paths for QIP are relative to
 `~/Web/qip.iaqi.org/`; for TQC they are relative to `~/Web/tqc.iaqi.org/`.
 
 QCrypt committee provenance is not yet captured here; see
-`tools/scrapers/committees/qcrypt.py` for the current source URLs.
+`tools/scrapers/committees/qcrypt.py` for the current source URLs. Exception:
+**QCrypt 2026** (Ottawa; Aug 24–28, 2026) committees were taken from the live
+site <https://qcrypt.net/2026/team/> (not yet on the `qcrypt.iaqi.org` archive
+mirror).
 
 > **QCrypt student paper prizes** (the `Best Student Paper Award …` values in
 > the `award` column of each `qcrypt_<year>/talks.csv`) come from the official
@@ -410,6 +413,19 @@ Scraper: `tools/one_off/historical/scrape_tqc_historical.py` (archived;
 data already populated). The modular replacement is
 `tools/scrapers/committees/tqc.py`.
 All local archive paths are relative to `~/Web/tqc.iaqi.org/`.
+
+## 2026 — Sherbrooke (Université de Sherbrooke)
+
+| Committee | Source URL |
+|-----------|-------------|
+| All (combined) | <https://tqc-conference.org/2026/team/> |
+
+Live conference site (Aug 31 – Sep 4, 2026; not yet on the `tqc.iaqi.org`
+archive mirror). One page labelling the three committees "Local Organizing
+Committee", "Steering Committee", and "Program Committee" (PC split into Chairs
+and Members). Collected by hand — no year-specific parser in
+`scrapers/committees/tqc.py` yet. Note: the page lists both "Joe Renes" and
+"Joseph M. Renes" (both ETH Zurich) — the same person, collapsed to one row.
 
 ## 2025 — Bengaluru (IISc)
 
