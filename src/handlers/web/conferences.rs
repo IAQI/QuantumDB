@@ -123,9 +123,19 @@ struct AuthorInfo {
     is_speaker: bool,
 }
 
+/// Spell out the compact committee-type enum for display headings.
+fn committee_full_label(c: &str) -> &str {
+    match c {
+        "PC" => "Program Committee",
+        "SC" => "Steering Committee",
+        "OC" => "Organizing Committee",
+        x => x,
+    }
+}
+
 #[derive(Clone)]
 struct CommitteeSection {
-    committee_type: String,
+    committee_label: String,
     members: Vec<CommitteeMember>,
 }
 
@@ -441,7 +451,7 @@ pub async fn conference_detail(
         if current_type.as_ref() != Some(&row.committee_type) {
             if let Some(ctype) = current_type {
                 committee_by_type.push(CommitteeSection {
-                    committee_type: ctype,
+                    committee_label: committee_full_label(&ctype).to_string(),
                     members: current_members.clone(),
                 });
                 current_members.clear();
@@ -461,7 +471,7 @@ pub async fn conference_detail(
     // Add the last group
     if let Some(ctype) = current_type {
         committee_by_type.push(CommitteeSection {
-            committee_type: ctype,
+            committee_label: committee_full_label(&ctype).to_string(),
             members: current_members,
         });
     }
