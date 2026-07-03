@@ -53,19 +53,21 @@ Quick scratchpad of pending work. Add items freely; move done items out.
 
 ## Schema / data model
 
-- [ ] **Consider merging `local_organizing` and `organizing` committee types** —
-  review how the two are actually used across conferences first (many years
-  only use one; the distinction is often blurry). If merging: touch the
-  `committee` enum / CHECK constraint via a migration, the importer mapping in
-  `tools/scrapers/committees/importer.py` (`map_committee_type`), and the
-  committee-type rendering in the templates + `committee_full_name()` /
-  `committee_order()` in `src/handlers/web/authors.rs`.
+- [x] **Merge `local_organizing` and `organizing` committee types** — done.
+  Collapsed everything to `organizing` (CSV) → `OC` (enum); local/national/
+  international nuance preserved per-row in `role_title`. All `committees.csv`
+  merged, importer `map_committee_type` keeps `local_organizing` as a legacy
+  alias → `OC`, and the `Local` rendering path was dropped from the templates +
+  `committee_full_name()`/`committee_order()`/`glyph_points()` in
+  `src/handlers/web/authors.rs`. The `Local` enum value is left dormant in the
+  DB type (no migration); a follow-up could drop it by recreating the enum.
 
 ## Frontend
 
-- [ ] **Co-chairs should render as chairs (filled) in the contribution graph** —
-  `is_leadership()` in `src/handlers/web/authors.rs` already includes
-  `co_chair`, so the likely culprit is the data: check whether co-chair rows
-  are stored as `member`. Suspect `map_position()` in the committees importer —
-  it maps `'co-chair'` (hyphen) but not `'co_chair'` (underscore), so any CSV
-  using the underscore form silently falls through to `member`.
+- [x] **Co-chairs should render as chairs (filled) in the contribution graph** —
+  fixed. Root cause confirmed: `map_position()` in the committees importer only
+  keyed `'co-chair'` (hyphen), so the documented `'co_chair'` (underscore) form
+  fell through to `member` — 33 co-chair rows were mis-stored (e.g. Eleni
+  Diamanti, QCrypt 2025). `map_position()` now normalises `-`→`_` before mapping,
+  the 14 stray hyphen rows in the CSVs were normalised to `co_chair`, and a
+  committee re-import corrected the DB (co_chair 14 → 47).

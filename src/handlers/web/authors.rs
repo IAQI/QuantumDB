@@ -38,6 +38,9 @@ struct AuthorDetailTemplate {
     talks: Vec<PublicationItem>,
     posters: Vec<PublicationItem>,
     committee_roles: Vec<CommitteeRoleItem>,
+    pc_count: usize,
+    sc_count: usize,
+    oc_count: usize,
     coauthors: Vec<CoauthorItem>,
     contribution: ContributionGraph,
 }
@@ -123,7 +126,6 @@ fn committee_order(c: &str) -> u8 {
         "PC" => 0,
         "SC" => 1,
         "OC" => 2,
-        "Local" => 3,
         _ => 4,
     }
 }
@@ -145,7 +147,6 @@ fn committee_full_name(c: &str) -> &str {
         "PC" => "program",
         "SC" => "steering",
         "OC" => "organising",
-        "Local" => "local organising",
         x => x,
     }
 }
@@ -177,7 +178,7 @@ fn glyph_points(committee_type: &str, cx: i32, cy: i32) -> (&'static str, String
         ),
         // Circle (OC) — points unused; template emits <circle>
         "OC" => ("circle", String::new()),
-        // Square (Local) — polygon with 4 corners
+        // Square — fallback for any unknown committee type
         _ => (
             "polygon",
             format!(
@@ -363,7 +364,6 @@ struct AuthorDetail {
     homepage_url: String,
     google_scholar_id: String,
     publication_count: i64,
-    committee_role_count: i64,
     leadership_count: i64,
     venues: String,
     first_year: String,
@@ -527,7 +527,6 @@ pub async fn author_detail(
             COALESCE(a.homepage_url, '') as "homepage_url!",
             COALESCE(a.google_scholar_id, '') as "google_scholar_id!",
             COALESCE(ast.publication_count, 0) as "publication_count!",
-            COALESCE(ast.committee_role_count, 0) as "committee_role_count!",
             COALESCE(ast.leadership_count, 0) as "leadership_count!",
             COALESCE(array_to_string(ast.venues, ', '), '') as "venues!",
             COALESCE(ast.first_year::text, '') as "first_year!",
@@ -696,6 +695,20 @@ pub async fn author_detail(
 
     let initials = compute_initials(&author.full_name);
 
+    // Committee-service counts by type for the stat tiles.
+    let pc_count = committee_roles
+        .iter()
+        .filter(|r| r.committee_type == "PC")
+        .count();
+    let sc_count = committee_roles
+        .iter()
+        .filter(|r| r.committee_type == "SC")
+        .count();
+    let oc_count = committee_roles
+        .iter()
+        .filter(|r| r.committee_type == "OC")
+        .count();
+
     let template = AuthorDetailTemplate {
         author: AuthorDetail {
             slug: author.slug,
@@ -708,7 +721,6 @@ pub async fn author_detail(
             homepage_url: author.homepage_url,
             google_scholar_id: author.google_scholar_id,
             publication_count: author.publication_count,
-            committee_role_count: author.committee_role_count,
             leadership_count: author.leadership_count,
             venues: author.venues,
             first_year: author.first_year,
@@ -717,6 +729,9 @@ pub async fn author_detail(
         talks,
         posters,
         committee_roles,
+        pc_count,
+        sc_count,
+        oc_count,
         coauthors,
         contribution,
     };

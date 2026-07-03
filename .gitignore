@@ -38,3 +38,7 @@ __pycache__/
 # Claude Code local state
 .claude/worktrees/
 tools/.claude/
+
+# Business-meeting outreach — contains personal emails, keep local only (never commit)
+docs/business_meeting_outreach.md
+docs/business_meeting_contacts.csv

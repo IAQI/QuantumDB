@@ -1,11 +1,11 @@
 venue,year,committee_type,position,full_name,affiliation,role_title
-QCRYPT,2025,local_organizing,chair,Jian-Wei Pan,University of Science and Technology of China,Honorary Chair
-QCRYPT,2025,local_organizing,member,Cheng-Lin Li,University of Science and Technology of China,LO Member
-QCRYPT,2025,local_organizing,co_chair,Feihu Xu,University of Science and Technology of China,LO Co-Chair
-QCRYPT,2025,local_organizing,co_chair,Qiang Zhang,University of Science and Technology of China,LO Co-Chair
-QCRYPT,2025,local_organizing,chair,Sheng-Kai Liao,University of Science and Technology of China,LO Chair
-QCRYPT,2025,local_organizing,co_chair,Yuan Cao,University of Science and Technology of China,LO Co-Chair
-QCRYPT,2025,local_organizing,member,Yu-Huai Li,University of Science and Technology of China,LO Member
+QCRYPT,2025,organizing,chair,Jian-Wei Pan,University of Science and Technology of China,Honorary Chair
+QCRYPT,2025,organizing,member,Cheng-Lin Li,University of Science and Technology of China,LO Member
+QCRYPT,2025,organizing,co_chair,Feihu Xu,University of Science and Technology of China,LO Co-Chair
+QCRYPT,2025,organizing,co_chair,Qiang Zhang,University of Science and Technology of China,LO Co-Chair
+QCRYPT,2025,organizing,chair,Sheng-Kai Liao,University of Science and Technology of China,LO Chair
+QCRYPT,2025,organizing,co_chair,Yuan Cao,University of Science and Technology of China,LO Co-Chair
+QCRYPT,2025,organizing,member,Yu-Huai Li,University of Science and Technology of China,LO Member
 QCRYPT,2025,steering,member,Charles Lim,National University of Singapore,SC Member
 QCRYPT,2025,steering,member,Dakshita Khurana,University of Illinois Urbana-Champaign,SC Member
 QCRYPT,2025,steering,member,Davide Bacco,University of Florence,SC Member

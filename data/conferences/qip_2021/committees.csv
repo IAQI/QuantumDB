@@ -1,6 +1,6 @@
 venue,year,committee_type,position,full_name,affiliation,role_title
-QIP,2021,local_organizing,chair,Robert König,Technical University of Munich,
-QIP,2021,local_organizing,co_chair,Michael Wolf,TUM & MCQST,
+QIP,2021,organizing,chair,Robert König,Technical University of Munich,
+QIP,2021,organizing,co_chair,Michael Wolf,TUM & MCQST,
 QIP,2021,program,member,Ryan Babbush,Google Research,
 QIP,2021,program,member,Alexander Belov,University of Latvia,
 QIP,2021,program,member,Sergey Bravyi,IBM's Watson Research Center,

@@ -26,8 +26,8 @@ def map_committee_type(committee_type: str) -> str:
     mapping = {
         'program': 'PC',
         'steering': 'SC',
-        'local_organizing': 'Local',
-        'organizing': 'OC'
+        'organizing': 'OC',
+        'local_organizing': 'OC',  # legacy alias — merged into organizing
     }
     return mapping.get(committee_type, committee_type)
 
@@ -36,11 +36,14 @@ def map_position(position: str) -> str:
     """Map CSV position to database enum value."""
     if not position:
         return 'member'
-    
-    position = position.lower().strip()
+
+    # Normalise hyphens to underscores so both the documented 'co_chair' and the
+    # stray 'co-chair' spelling map to the co_chair enum (otherwise co_chair rows
+    # silently fell through to 'member').
+    position = position.lower().strip().replace('-', '_')
     mapping = {
         'chair': 'chair',
-        'co-chair': 'co_chair',
+        'co_chair': 'co_chair',
         'area_chair': 'area_chair',
         'member': 'member'
     }
