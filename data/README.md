@@ -55,7 +55,7 @@ Order in `affiliations` must match the order in `authors`.
 |-----------------|------------------------------------------------------------------------------------------|
 | `venue`         | `QIP`, `QCRYPT`, or `TQC` (upper-case)                                                   |
 | `year`          | Conference year                                                                          |
-| `committee_type`| `program`, `steering`, `local_organizing`, or `organizing`                                |
+| `committee_type`| `program`, `steering`, or `organizing` (legacy `local_organizing` still imports, mapped to `organizing`) |
 | `position`      | `chair`, `co_chair`, or `member`                                                          |
 | `full_name`     | Member's full name                                                                       |
 | `affiliation`   | Affiliation at time of service (optional)                                                |

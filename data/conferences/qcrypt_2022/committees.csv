@@ -1,11 +1,11 @@
 venue,year,committee_type,position,full_name,affiliation,role_title
-QCRYPT,2022,local_organizing,chair,Bo-Yin Yang,"IIS, Academia Sinica",General Chair
-QCRYPT,2022,local_organizing,chair,Kai-Min Chung,"IIS, Academia Sinica",General Chair
-QCRYPT,2022,local_organizing,chair,Yeong-Cherng Liang,"Department of Physics, National Cheng Kung University",General Chair
-QCRYPT,2022,local_organizing,member,Chell Chien,"IIS, Academia Sinica",
-QCRYPT,2022,local_organizing,member,Jim Kao,"IIS, Academia Sinica",
-QCRYPT,2022,local_organizing,member,Hsin Man Lin,"IIS, Academia Sinica",
-QCRYPT,2022,local_organizing,member,Seiya Pan,"IIS, Academia Sinica",
+QCRYPT,2022,organizing,chair,Bo-Yin Yang,"IIS, Academia Sinica",General Chair
+QCRYPT,2022,organizing,chair,Kai-Min Chung,"IIS, Academia Sinica",General Chair
+QCRYPT,2022,organizing,chair,Yeong-Cherng Liang,"Department of Physics, National Cheng Kung University",General Chair
+QCRYPT,2022,organizing,member,Chell Chien,"IIS, Academia Sinica",
+QCRYPT,2022,organizing,member,Jim Kao,"IIS, Academia Sinica",
+QCRYPT,2022,organizing,member,Hsin Man Lin,"IIS, Academia Sinica",
+QCRYPT,2022,organizing,member,Seiya Pan,"IIS, Academia Sinica",
 QCRYPT,2022,steering,chair,Gorjan Alagic,University of Maryland,
 QCRYPT,2022,steering,member,Kai-Min Chung,"IIS, Academia Sinica",
 QCRYPT,2022,steering,member,Serge Fehr,"CWI Cryptology group, Leiden University",

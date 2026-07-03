@@ -1,17 +1,17 @@
 venue,year,committee_type,position,full_name,affiliation,role_title
-QCRYPT,2023,local_organizing,chair,Gorjan Alagic,University of Maryland & NIST,General Chair
-QCRYPT,2023,local_organizing,chair,Oliver Slattery,NIST,General Chair
-QCRYPT,2023,local_organizing,member,Maria Herd,University of Maryland,
-QCRYPT,2023,local_organizing,member,Nijil Lal,NIST,
-QCRYPT,2023,local_organizing,member,Lijun Ma,NIST,
-QCRYPT,2023,local_organizing,member,Tom Ventsias,University of Maryland,
-QCRYPT,2023,local_organizing,member,Chen Bai,,
-QCRYPT,2023,local_organizing,member,Mel Coles,,
-QCRYPT,2023,local_organizing,member,Daniele Degrandchamp,,
-QCRYPT,2023,local_organizing,member,Kelly Hedgepeth,,
-QCRYPT,2023,local_organizing,member,Lisa Press,,
-QCRYPT,2023,local_organizing,member,Manasi Mangesh Shingane,,
-QCRYPT,2023,local_organizing,member,Andrea Svejda,,
+QCRYPT,2023,organizing,chair,Gorjan Alagic,University of Maryland & NIST,General Chair
+QCRYPT,2023,organizing,chair,Oliver Slattery,NIST,General Chair
+QCRYPT,2023,organizing,member,Maria Herd,University of Maryland,
+QCRYPT,2023,organizing,member,Nijil Lal,NIST,
+QCRYPT,2023,organizing,member,Lijun Ma,NIST,
+QCRYPT,2023,organizing,member,Tom Ventsias,University of Maryland,
+QCRYPT,2023,organizing,member,Chen Bai,,
+QCRYPT,2023,organizing,member,Mel Coles,,
+QCRYPT,2023,organizing,member,Daniele Degrandchamp,,
+QCRYPT,2023,organizing,member,Kelly Hedgepeth,,
+QCRYPT,2023,organizing,member,Lisa Press,,
+QCRYPT,2023,organizing,member,Manasi Mangesh Shingane,,
+QCRYPT,2023,organizing,member,Andrea Svejda,,
 QCRYPT,2023,steering,chair,Serge Fehr,"CWI Cryptology group, Leiden University",
 QCRYPT,2023,steering,member,Gorjan Alagic,University of Maryland,
 QCRYPT,2023,steering,member,Rotem Arnon-Friedman,Weizmann Institute of Science,

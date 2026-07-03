@@ -1,16 +1,16 @@
 venue,year,committee_type,position,full_name,affiliation,role_title
-QCRYPT,2020,local_organizing,co-chair,Serge Fehr,"CWI Cryptology group, Leiden University",General Chair
-QCRYPT,2020,local_organizing,chair,Christian Schaffner,"University of Amsterdam ILLC, QuSoft",General Chair
-QCRYPT,2020,local_organizing,member,Jan Czajkowski,University of Amsterdam,
-QCRYPT,2020,local_organizing,member,Susanne van Dam,CWI,
-QCRYPT,2020,local_organizing,member,Jelle Don,CWI Cryptology Group,
-QCRYPT,2020,local_organizing,member,Alex Grilo,"CWI, QuSoft",
-QCRYPT,2020,local_organizing,member,Melanie Haije,University of Amsterdam,
-QCRYPT,2020,local_organizing,member,Brenda Klappe,University of Amsterdam,
-QCRYPT,2020,local_organizing,member,Esteban Landerreche,CWI Cryptology Group,
-QCRYPT,2020,local_organizing,member,Jana Sotáková,"University of Amsterdam, QuSoft",
-QCRYPT,2020,local_organizing,member,Mehrdad Tahmasbi,"University of Amsterdam, QuSoft",
-QCRYPT,2020,local_organizing,member,Martine de Wit,University of Amsterdam,
+QCRYPT,2020,organizing,co-chair,Serge Fehr,"CWI Cryptology group, Leiden University",General Chair
+QCRYPT,2020,organizing,chair,Christian Schaffner,"University of Amsterdam ILLC, QuSoft",General Chair
+QCRYPT,2020,organizing,member,Jan Czajkowski,University of Amsterdam,
+QCRYPT,2020,organizing,member,Susanne van Dam,CWI,
+QCRYPT,2020,organizing,member,Jelle Don,CWI Cryptology Group,
+QCRYPT,2020,organizing,member,Alex Grilo,"CWI, QuSoft",
+QCRYPT,2020,organizing,member,Melanie Haije,University of Amsterdam,
+QCRYPT,2020,organizing,member,Brenda Klappe,University of Amsterdam,
+QCRYPT,2020,organizing,member,Esteban Landerreche,CWI Cryptology Group,
+QCRYPT,2020,organizing,member,Jana Sotáková,"University of Amsterdam, QuSoft",
+QCRYPT,2020,organizing,member,Mehrdad Tahmasbi,"University of Amsterdam, QuSoft",
+QCRYPT,2020,organizing,member,Martine de Wit,University of Amsterdam,
 QCRYPT,2020,steering,member,Gorjan Alagic,University of Maryland,
 QCRYPT,2020,steering,member,Marcos Curty,University of Vigo,
 QCRYPT,2020,steering,co-chair,Serge Fehr,"CWI Cryptology group, Leiden University",

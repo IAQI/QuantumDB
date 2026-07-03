@@ -194,7 +194,7 @@ src/
 - **author_name_variants** - Track name changes, transliterations, abbreviations
 - **publications** - Papers/talks with arxiv_ids (array), paper_type enum, full-text search
 - **authorships** - Links authors to publications with position, point-in-time affiliation, **JSONB metadata field** for source tracking
-- **committee_roles** - Committee membership (OC/PC/SC/Local) with position (chair/co_chair/area_chair/member), **affiliation field**, **JSONB metadata field** for source tracking
+- **committee_roles** - Committee membership (OC/PC/SC; `Local` enum value is deprecated/dormant — local organizers are now recorded as `OC` with a `role_title` note) with position (chair/co_chair/area_chair/member), **affiliation field**, **JSONB metadata field** for source tracking
 
 **Source Tracking Pattern** (migration 20251230100001):
 - Two-tier tracking: table-level comments store primary source, row-level metadata JSONB stores detailed source info

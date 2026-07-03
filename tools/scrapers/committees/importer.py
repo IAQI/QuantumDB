@@ -26,8 +26,8 @@ def map_committee_type(committee_type: str) -> str:
     mapping = {
         'program': 'PC',
         'steering': 'SC',
-        'local_organizing': 'Local',
-        'organizing': 'OC'
+        'organizing': 'OC',
+        'local_organizing': 'OC',  # legacy alias — merged into organizing
     }
     return mapping.get(committee_type, committee_type)
 

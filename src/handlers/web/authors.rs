@@ -40,7 +40,7 @@ struct AuthorDetailTemplate {
     committee_roles: Vec<CommitteeRoleItem>,
     pc_count: usize,
     sc_count: usize,
-    local_count: usize,
+    oc_count: usize,
     coauthors: Vec<CoauthorItem>,
     contribution: ContributionGraph,
 }
@@ -126,7 +126,6 @@ fn committee_order(c: &str) -> u8 {
         "PC" => 0,
         "SC" => 1,
         "OC" => 2,
-        "Local" => 3,
         _ => 4,
     }
 }
@@ -148,7 +147,6 @@ fn committee_full_name(c: &str) -> &str {
         "PC" => "program",
         "SC" => "steering",
         "OC" => "organising",
-        "Local" => "local organising",
         x => x,
     }
 }
@@ -180,7 +178,7 @@ fn glyph_points(committee_type: &str, cx: i32, cy: i32) -> (&'static str, String
         ),
         // Circle (OC) — points unused; template emits <circle>
         "OC" => ("circle", String::new()),
-        // Square (Local) — polygon with 4 corners
+        // Square — fallback for any unknown committee type
         _ => (
             "polygon",
             format!(
@@ -697,7 +695,7 @@ pub async fn author_detail(
 
     let initials = compute_initials(&author.full_name);
 
-    // Committee-service counts by type for the stat tiles (OC excluded).
+    // Committee-service counts by type for the stat tiles.
     let pc_count = committee_roles
         .iter()
         .filter(|r| r.committee_type == "PC")
@@ -706,9 +704,9 @@ pub async fn author_detail(
         .iter()
         .filter(|r| r.committee_type == "SC")
         .count();
-    let local_count = committee_roles
+    let oc_count = committee_roles
         .iter()
-        .filter(|r| r.committee_type == "Local")
+        .filter(|r| r.committee_type == "OC")
         .count();
 
     let template = AuthorDetailTemplate {
@@ -733,7 +731,7 @@ pub async fn author_detail(
         committee_roles,
         pc_count,
         sc_count,
-        local_count,
+        oc_count,
         coauthors,
         contribution,
     };

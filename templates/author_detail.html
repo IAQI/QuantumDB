@@ -43,10 +43,10 @@
             <span class="stat-label">SC roles</span>
         </div>
         {% endif %}
-        {% if local_count > 0 %}
-        <div class="stat-card clickable" onclick="scrollToHighlight('#committee-section', 'Local')">
-            <div class="stat-value">{{ local_count }}</div>
-            <span class="stat-label">Local roles</span>
+        {% if oc_count > 0 %}
+        <div class="stat-card clickable" onclick="scrollToHighlight('#committee-section', 'OC')">
+            <div class="stat-value">{{ oc_count }}</div>
+            <span class="stat-label">Organising roles</span>
         </div>
         {% endif %}
         <div class="stat-card clickable" onclick="scrollToHighlight('#committee-section', 'leadership')">
@@ -99,7 +99,6 @@
             <span class="legend-glyph">△</span>program
             &nbsp;<span class="legend-glyph">◇</span>steering
             &nbsp;<span class="legend-glyph">○</span>organising
-            &nbsp;<span class="legend-glyph">□</span>local
             &nbsp;·&nbsp; filled = chair
         </p>
     </section>

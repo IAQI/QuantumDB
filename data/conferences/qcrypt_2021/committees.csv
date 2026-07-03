@@ -1,15 +1,15 @@
 venue,year,committee_type,position,full_name,affiliation,role_title
-QCRYPT,2021,local_organizing,chair,Serge Fehr,"CWI Cryptology group, Leiden University",General Chair
-QCRYPT,2021,local_organizing,chair,Christian Schaffner,"University of Amsterdam ILLC, QuSoft",General Chair
-QCRYPT,2021,local_organizing,member,Caitlin Boonstra,"ILLC, University of Amsterdam",
-QCRYPT,2021,local_organizing,member,Jelle Don,CWI Cryptology Group,
-QCRYPT,2021,local_organizing,member,Yfke Dulek,"CWI, QuSoft",
-QCRYPT,2021,local_organizing,member,Alex Grilo,CNRS/Sorbonne Université,
-QCRYPT,2021,local_organizing,member,Melanie Haije,University of Amsterdam,
-QCRYPT,2021,local_organizing,member,Esteban Landerreche,design,
-QCRYPT,2021,local_organizing,member,Mehrdad Tahmasbi,"CWI, QuSoft",
-QCRYPT,2021,local_organizing,member,Peter van Ormondt,"ILLC, University of Amsterdam",
-QCRYPT,2021,local_organizing,member,Wessel van Woerden,CWI Cryptology Group,
+QCRYPT,2021,organizing,chair,Serge Fehr,"CWI Cryptology group, Leiden University",General Chair
+QCRYPT,2021,organizing,chair,Christian Schaffner,"University of Amsterdam ILLC, QuSoft",General Chair
+QCRYPT,2021,organizing,member,Caitlin Boonstra,"ILLC, University of Amsterdam",
+QCRYPT,2021,organizing,member,Jelle Don,CWI Cryptology Group,
+QCRYPT,2021,organizing,member,Yfke Dulek,"CWI, QuSoft",
+QCRYPT,2021,organizing,member,Alex Grilo,CNRS/Sorbonne Université,
+QCRYPT,2021,organizing,member,Melanie Haije,University of Amsterdam,
+QCRYPT,2021,organizing,member,Esteban Landerreche,design,
+QCRYPT,2021,organizing,member,Mehrdad Tahmasbi,"CWI, QuSoft",
+QCRYPT,2021,organizing,member,Peter van Ormondt,"ILLC, University of Amsterdam",
+QCRYPT,2021,organizing,member,Wessel van Woerden,CWI Cryptology Group,
 QCRYPT,2021,steering,co-chair,Gorjan Alagic,University of Maryland,
 QCRYPT,2021,steering,member,Serge Fehr,"CWI Cryptology group, Leiden University",
 QCRYPT,2021,steering,member,Stacey Jeffery,CWI,

@@ -28,13 +28,14 @@ Quick scratchpad of pending work. Add items freely; move done items out.
 
 ## Schema / data model
 
-- [ ] **Consider merging `local_organizing` and `organizing` committee types** —
-  review how the two are actually used across conferences first (many years
-  only use one; the distinction is often blurry). If merging: touch the
-  `committee` enum / CHECK constraint via a migration, the importer mapping in
-  `tools/scrapers/committees/importer.py` (`map_committee_type`), and the
-  committee-type rendering in the templates + `committee_full_name()` /
-  `committee_order()` in `src/handlers/web/authors.rs`.
+- [x] **Merge `local_organizing` and `organizing` committee types** — done.
+  Collapsed everything to `organizing` (CSV) → `OC` (enum); local/national/
+  international nuance preserved per-row in `role_title`. All `committees.csv`
+  merged, importer `map_committee_type` keeps `local_organizing` as a legacy
+  alias → `OC`, and the `Local` rendering path was dropped from the templates +
+  `committee_full_name()`/`committee_order()`/`glyph_points()` in
+  `src/handlers/web/authors.rs`. The `Local` enum value is left dormant in the
+  DB type (no migration); a follow-up could drop it by recreating the enum.
 
 ## Frontend
 
