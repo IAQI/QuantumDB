@@ -194,7 +194,7 @@ src/
 - **author_name_variants** - Track name changes, transliterations, abbreviations
 - **publications** - Papers/talks with arxiv_ids (array), paper_type enum, full-text search
 - **authorships** - Links authors to publications with position, point-in-time affiliation, **JSONB metadata field** for source tracking
-- **committee_roles** - Committee membership (OC/PC/SC/Local) with position (chair/co_chair/area_chair/member), **affiliation field**, **JSONB metadata field** for source tracking
+- **committee_roles** - Committee membership (OC/PC/SC; `Local` enum value is deprecated/dormant — local organizers are now recorded as `OC` with a `role_title` note) with position (chair/co_chair/area_chair/member), **affiliation field**, **JSONB metadata field** for source tracking
 
 **Source Tracking Pattern** (migration 20251230100001):
 - Two-tier tracking: table-level comments store primary source, row-level metadata JSONB stores detailed source info
@@ -387,6 +387,7 @@ All handlers use SQLx query macros (`query!`, `query_as!`) for compile-time veri
   - `20260514000000_author_stats_recent_affiliation.sql` - Rebuilds the `author_stats` view to add `recent_affiliation` (from the author's most recent dated appearance, not the last-write-wins scalar)
   - `20260622000000_create_conference_business_meetings.sql` - Adds the `conference_business_meetings` table (1:1 with a conference): stats **announced** at the annual business meeting (registered participants, submission/acceptance counts), with per-fact provenance in `metadata.sources`. Distinct from the computed `conference_stats`. Populated from a tall `business_meeting.csv` per conference via `import_from_csv.py business-meetings`.
   - `20260623000000_add_business_meeting_slides.sql` - Adds `conference_business_meetings.slides` (JSONB array of `{label, url}`) linking the business-meeting slide decks (PC-chair report, local-organizers report). In the tall CSV these are `slide:<label>` rows.
+  - `20260702180000_authorship_delete_clears_presenter.sql` - Adds a BEFORE DELETE trigger on `authorships` (`clear_presenter_on_authorship_delete`) that NULLs `publications.presenter_author_id` when the presenter's own authorship row is removed. Makes the presenter-must-be-an-author invariant self-maintaining for authorship rewrites (talk-importer delete-then-reinsert, author merges) — previously such a delete either dangled the presenter or, via `trg_authorships_sync_author_names`, re-fired `ensure_presenter_is_author` mid-delete and errored.
 - **seeds/** - Initial data (run manually after migrations)
   - `insert_qip_conferences.sql` - Historical QIP data (1998-2024)
   - `insert_qcrypt_conferences.sql` - Historical QCrypt data

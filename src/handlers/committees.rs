@@ -24,7 +24,7 @@ pub struct CommitteeQuery {
     pub conference: Option<String>,
     /// Filter by author ID
     pub author_id: Option<Uuid>,
-    /// Filter by committee type (OC, PC, SC, Local)
+    /// Filter by committee type (OC, PC, SC)
     pub committee_type: Option<String>,
     /// Filter by position (chair, co_chair, area_chair, member)
     pub position: Option<String>,

@@ -23,13 +23,21 @@ tools/scrapers/
     base.py, qip.py, qcrypt.py, tqc.py
     runner.py
     importer.py
+  posters/                 # accepted-poster scraping (import-reuses talks)
+    runner.py              # `scrape_to_csv.py posters ...` body + POSTER_SOURCES
+    parsers.py             # one parser per page-format family + split_authors()
+    test_parsers.py        # `python3 posters/test_parsers.py`
   business_meetings/       # import-only (no scraper)
     importer.py            # `import_from_csv.py business-meetings ...` body
 ```
 
-The scrape CLI takes a `committees | talks` subcommand; the import CLI also
-supports `business-meetings` (hand-authored CSVs — there is no scraper for it).
-The CSV schemas are documented in [`/data/README.md`](../../data/README.md).
+The scrape CLI takes a `committees | talks | posters` subcommand; the import CLI
+also supports `business-meetings` (hand-authored CSVs — there is no scraper for
+it). Posters are written to a per-conference `posters.csv` (identical schema to
+`talks.csv`, all rows `paper_type=poster`) and imported via the `talks`
+importer. See [`../../DATA_POPULATION.md`](../../DATA_POPULATION.md) for the
+registered years and how to add one. The CSV schemas are documented in
+[`/data/README.md`](../../data/README.md).
 
 ## Quick start
 

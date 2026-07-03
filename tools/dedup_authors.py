@@ -58,6 +58,20 @@ def load_aliases():
 async def merge_author(conn, canon_id, dup_id, variant_name, variant_type, notes, creator):
     """Reassign a duplicate author's links to the canonical row, record a name
     variant, and delete the duplicate. `published_as_name` is left untouched."""
+    # Publications this duplicate presents. We must clear the presenter link
+    # *before* touching its authorship rows and restore it (to the canonical
+    # author) *after*, because `ensure_presenter_is_author` guards both
+    # `publications.presenter_author_id` and `authorships`: setting the presenter
+    # to the canonical row before it is an author would fail, and reassigning the
+    # presenter's authorship while the link still points at the duplicate would
+    # fail too. The canonical row is always an author of these pubs afterwards
+    # (the duplicate's authorship is reassigned to it, or it was already one).
+    presenter_pubs = [r['id'] for r in await conn.fetch(
+        'SELECT id FROM publications WHERE presenter_author_id = $1', dup_id)]
+    if presenter_pubs:
+        await conn.execute(
+            'UPDATE publications SET presenter_author_id = NULL WHERE presenter_author_id = $1',
+            dup_id)
     # Reassign authorships (skip rows that would collide on (publication, author))
     await conn.execute(
         '''UPDATE authorships SET author_id = $1
@@ -67,6 +81,11 @@ async def merge_author(conn, canon_id, dup_id, variant_name, variant_type, notes
                AND au2.author_id = $1)''',
         canon_id, dup_id)
     await conn.execute('DELETE FROM authorships WHERE author_id = $1', dup_id)
+    # Restore the presenter link, now pointing at the canonical (author) row.
+    if presenter_pubs:
+        await conn.execute(
+            'UPDATE publications SET presenter_author_id = $1 WHERE id = ANY($2::uuid[])',
+            canon_id, presenter_pubs)
     # Committee roles (UNIQUE on conference+author+committee+position)
     await conn.execute(
         '''UPDATE committee_roles SET author_id = $1

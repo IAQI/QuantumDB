@@ -287,10 +287,10 @@ CREATE INDEX idx_authorships_publication ON authorships(publication_id);
 ```sql
 -- Committee types
 CREATE TYPE committee_type AS ENUM (
-    'OC',               -- Organizing Committee (General Chair, etc.)
+    'OC',               -- Organizing Committee (General Chair, local organizers, etc.)
     'PC',               -- Program Committee
     'SC',               -- Steering Committee
-    'Local'             -- Local Organizers
+    'Local'             -- DEPRECATED/dormant: merged into 'OC'; local organizers are now 'OC' with a role_title note
 );
 
 -- Position/role within committee
