@@ -38,6 +38,78 @@ def test_split_authors_comma_protected_by_parens():
     assert names == ['Alice Ng', 'Bob Lee'], names
 
 
+def test_split_authors_nested_paren_affiliation():
+    # TQC 2025 regression: affiliation with nested parens + internal commas must
+    # be pulled off whole, not left mangled in the author name.
+    cell = ('Gautam Vemuri (Department of Physics, Indiana University-Purdue '
+            'University Indianapolis (IUPUI) Indianapolis, IN 46202-3273, USA)')
+    names, affs = split_authors(cell)
+    assert names == ['Gautam Vemuri'], names
+    assert affs[0].startswith('Department of Physics'), affs
+    assert affs[0].endswith('USA'), affs
+
+
+def test_split_authors_unbalanced_paren_affiliation():
+    # TQC 2025 regression: the source left the affiliation paren unclosed
+    # ("… (Guangzhou)" with no outer close). Name is the text before the '('.
+    cell = 'Xin Wang (The Hong Kong University of Science and Technology (Guangzhou)'
+    names, affs = split_authors(cell)
+    assert names == ['Xin Wang'], names
+    assert affs[0].startswith('The Hong Kong'), affs
+
+
+def test_split_authors_and_inside_affiliation_not_split():
+    # " and " inside a parenthetical affiliation must not spawn bogus authors,
+    # and must survive in the affiliation text (not be folded to a comma).
+    cell = ('Swati Choudhary (Harish-Chandra Research Institute (India) and '
+            'Center for X (CQST)), Ujjwal Sen (HRI)')
+    names, affs = split_authors(cell)
+    assert names == ['Swati Choudhary', 'Ujjwal Sen'], names
+    assert 'and' in affs[0], affs
+
+
+def test_split_authors_recases_all_caps():
+    names, _ = split_authors('YANGYANG FEI; N C RANDEEP; ZHI MA')
+    assert names == ['Yangyang Fei', 'N C Randeep', 'Zhi Ma'], names
+
+
+def test_split_authors_recases_all_lower():
+    names, _ = split_authors('yicheng shi; juan de dios')
+    assert names == ['Yicheng Shi', 'Juan de Dios'], names
+
+
+def test_split_authors_capitalises_leading_lowercase_first_name():
+    # Mixed-case scrape typo: lowercase first name, correct surname.
+    names, _ = split_authors('jonathan Oppenheim')
+    assert names == ['Jonathan Oppenheim'], names
+
+
+def test_split_authors_preserves_maiden_name_paren():
+    # A non-trailing parenthetical (maiden name) is NOT an affiliation.
+    names, affs = split_authors('Justyna (Pytel) Zwolak')
+    assert names == ['Justyna (Pytel) Zwolak'], names
+    assert affs == [''], affs
+
+
+def test_split_authors_strips_honorific():
+    names, _ = split_authors('Dr. Colin Benjamin')
+    assert names == ['Colin Benjamin'], names
+
+
+def test_split_authors_collapses_source_doubled_names():
+    # Source-level doubling seen in the qip_2016 / tqc_2025 mirrors.
+    assert split_authors('Nike Dattani Dattani')[0] == ['Nike Dattani']
+    assert split_authors('Myungshik Kim Kim')[0] == ['Myungshik Kim']
+    assert split_authors('Mizanur Mizanur Rahaman')[0] == ['Mizanur Rahaman']
+    assert (split_authors('Subhendu Bikash Ghosh Subhendu Bikash Ghosh')[0]
+            == ['Subhendu Bikash Ghosh'])
+
+
+def test_split_authors_keeps_repeated_initials():
+    # Double initials are real names, not doubling artifacts.
+    assert split_authors('Maneesha K K')[0] == ['Maneesha K K']
+
+
 def test_dot_title_protects_initials():
     authors, title = _split_authors_dot_title('Alexander R. Dixon and Zhiliang Yuan. A QKD system')
     assert authors == 'Alexander R. Dixon and Zhiliang Yuan', authors
