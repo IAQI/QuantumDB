@@ -119,3 +119,20 @@ Thinh Le,Thinh Phuc Le,alternate_spelling,"fuzzy-merge: same first+last, fuller 
 Zhe Koong,Zhe Xian Koong,alternate_spelling,"fuzzy-merge: same first+last, fuller middle name/initial/particle"
 Álvaro G. Iñesta,Álvaro Gómez Iñesta,alternate_spelling,"fuzzy-merge: same first+last, fuller middle name/initial/particle"
 Subhendu B. Ghosh,Subhendu Bikash Ghosh,alternate_spelling,"fuzzy-merge: same first+last, fuller middle name/initial/particle"
+Robert Koenig,Robert König,alternate_spelling,Same person; oe-transliteration not folded by normalize_name
+Robert Konig,Robert König,alternate_spelling,Same person; pin umlaut display spelling regardless of import order
+Andreas Huelsing,Andreas Hülsing,alternate_spelling,Same person; ue-transliteration split
+Bernhard Oemer,Bernhard Ömer,alternate_spelling,Same person; oe-transliteration split
+Dagmar Bruss,Dagmar Bruß,alternate_spelling,Same person; ss/ß-transliteration split
+Esther Haenggi,Esther Hänggi,alternate_spelling,Same person; ae-transliteration split
+Gereon Kossmann,Gereon Koßmann,alternate_spelling,Same person; ss/ß-transliteration split
+Hannes Huebel,Hannes Hübel,alternate_spelling,Same person; ue-transliteration split
+Juerg Wullschleger,Jürg Wullschleger,alternate_spelling,Same person; ue-transliteration split
+Martin Roetteler,Martin Rötteler,alternate_spelling,Same person; oe-transliteration split
+Martin Rotteler,Martin Rötteler,alternate_spelling,Same person; pin umlaut display spelling regardless of import order
+Otfried Guehne,Otfried Gühne,alternate_spelling,Same person; ue-transliteration split
+Philipp Kleinpass,Philipp Kleinpaß,alternate_spelling,Same person; ss/ß-transliteration split
+Stefan Baeuml,Stefan Bäuml,alternate_spelling,Same person; ae-transliteration split
+Stefan Woerner,Stefan Wörner,alternate_spelling,Same person; oe-transliteration split
+Tino Roehlicke,Tino Röhlicke,alternate_spelling,Same person; oe-transliteration split
+Markus Mueller,Markus Müller,alternate_spelling,Same person; ue-transliteration split (common name; verify by affiliation if a distinct Markus Mueller surfaces)
