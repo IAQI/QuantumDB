@@ -1,6 +1,6 @@
 venue,year,committee_type,position,full_name,affiliation,role_title
-TQC,2019,program,chair,Laura Mančinska,"QMATH , University of Copenhagen",Chair
-TQC,2019,program,co_chair,Wim van Dam,UC Santa Barbara and QC Ware,Co-Chair
+TQC,2019,program,chair,Laura Mančinska,"QMATH , University of Copenhagen",
+TQC,2019,program,co_chair,Wim van Dam,UC Santa Barbara and QC Ware,
 TQC,2019,program,member,Juan Miguel Arrazola,Xanadu,
 TQC,2019,program,member,Salman Beigi,"IPM, Tehran",
 TQC,2019,program,member,Mario Berta,Imperial College London,
@@ -26,14 +26,14 @@ TQC,2019,program,member,Pranab Sen,Tata Institute of Fundamental Research,
 TQC,2019,program,member,Barbara Terhal,"QuTech, TU Delft",
 TQC,2019,program,member,John Watrous,"IQC, University of Waterloo",
 TQC,2019,program,member,Ronald de Wolf,CWI and University of Amsterdam,
-TQC,2019,organizing,chair,Aarthi Sundaram,,Chair
-TQC,2019,organizing,chair,Gorjan Alagic,,Chair
-TQC,2019,organizing,chair,Alexey Gorshkov,NISQ,Chair
+TQC,2019,organizing,chair,Aarthi Sundaram,,
+TQC,2019,organizing,chair,Gorjan Alagic,,
+TQC,2019,organizing,chair,Alexey Gorshkov,NISQ,
 TQC,2019,organizing,member,Andrew Childs,,
 TQC,2019,organizing,member,Yi-Kai Liu,,
 TQC,2019,organizing,member,Carl Miller,,
 TQC,2019,organizing,member,Jacob Taylor,,
-TQC,2019,steering,chair,Aram Harrow,,Chair
+TQC,2019,steering,chair,Aram Harrow,,
 TQC,2019,steering,member,Yasuhito Kawano,,
 TQC,2019,steering,member,Martin Roetteler,,
 TQC,2019,steering,member,Wim van Dam,,

@@ -1,6 +1,6 @@
 venue,year,committee_type,position,full_name,affiliation,role_title
-TQC,2022,program,chair,François Le Gall,Nagoya University,Chair
-TQC,2022,program,co_chair,Tomoyuki Morimae,Kyoto University,Co-Chair
+TQC,2022,program,chair,François Le Gall,Nagoya University,
+TQC,2022,program,co_chair,Tomoyuki Morimae,Kyoto University,
 TQC,2022,program,member,Dominic Berry,Macquarie University,
 TQC,2022,program,member,Mario Berta,AWS Center for Quantum Computing & Imperial College London,
 TQC,2022,program,member,Dan Browne,University College London,
@@ -36,12 +36,12 @@ TQC,2022,program,member,Norbert Schuch,University of Vienna,
 TQC,2022,program,member,Yuan Su,Google Quantum AI,
 TQC,2022,program,member,Aarthi Sundaram,Microsoft,
 TQC,2022,program,member,Penghui Yao,Nanjing University,
-TQC,2022,organizing,chair,Eric Chitambar,UIUC,Chair
+TQC,2022,organizing,chair,Eric Chitambar,UIUC,
 TQC,2022,organizing,member,Emily Edwards,UIUC,
 TQC,2022,organizing,member,Kim Gudeman,UIUC,
 TQC,2022,organizing,member,Felix Leditzky,UIUC,
 TQC,2022,organizing,member,Hannah Stites,UIUC,
-TQC,2022,steering,chair,Marco Tomamichel,NUS,Chair
+TQC,2022,steering,chair,Marco Tomamichel,NUS,
 TQC,2022,steering,member,Gorjan Alagic,Maryland,
 TQC,2022,steering,member,Andris Ambainis,Latvia,
 TQC,2022,steering,member,Eric Chitambar,UIUC,
