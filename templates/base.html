@@ -522,6 +522,9 @@
             color: var(--accent);
         }
         .speaker-dot { fill: var(--paper); }
+        /* Poster contribution mark: a venue-coloured dot (fill from .fill-* class);
+           a paper-coloured ring lifts it off same-venue talk rects behind it. */
+        .contrib-poster-dot { stroke: var(--paper); stroke-width: 1.5; }
         /* Gold star marking an award/prize; dark outline keeps it legible on any venue colour */
         .award-star {
             fill: #f6c945;
