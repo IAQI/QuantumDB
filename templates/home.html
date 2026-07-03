@@ -14,9 +14,13 @@
             <div class="stat-value">{{ total_authors }}</div>
             <div class="stat-label">Authors</div>
         </div>
-        <div class="stat-card">
-            <div class="stat-value">{{ total_publications }}</div>
+        <div class="stat-card clickable" onclick="window.location.href='/publications'">
+            <div class="stat-value">{{ total_talks }}</div>
             <div class="stat-label">Talks</div>
+        </div>
+        <div class="stat-card clickable" onclick="window.location.href='/publications'">
+            <div class="stat-value">{{ total_posters }}</div>
+            <div class="stat-label">Posters</div>
         </div>
         <div class="stat-card clickable" onclick="window.location.href='/conferences'">
             <div class="stat-value">{{ total_conferences }}</div>

@@ -8,7 +8,8 @@ use sqlx::PgPool;
 #[template(path = "home.html")]
 struct HomeTemplate {
     total_authors: i64,
-    total_publications: i64,
+    total_talks: i64,
+    total_posters: i64,
     total_conferences: i64,
     total_committee_roles: i64,
     recent_conferences: Vec<RecentConference>,
@@ -28,7 +29,8 @@ pub async fn home(State(pool): State<PgPool>) -> Result<Response, StatusCode> {
         r#"
         SELECT 
             (SELECT COUNT(DISTINCT id) FROM author_stats) as "total_authors!",
-            (SELECT COUNT(*) FROM publications) as "total_publications!",
+            (SELECT COUNT(*) FILTER (WHERE paper_type IS DISTINCT FROM 'poster') FROM publications) as "total_talks!",
+            (SELECT COUNT(*) FILTER (WHERE paper_type = 'poster') FROM publications) as "total_posters!",
             (SELECT COUNT(*) FROM conferences) as "total_conferences!",
             (SELECT COUNT(*) FROM committee_roles) as "total_committee_roles!"
         "#
@@ -81,7 +83,8 @@ pub async fn home(State(pool): State<PgPool>) -> Result<Response, StatusCode> {
 
     let template = HomeTemplate {
         total_authors: stats.total_authors,
-        total_publications: stats.total_publications,
+        total_talks: stats.total_talks,
+        total_posters: stats.total_posters,
         total_conferences: stats.total_conferences,
         total_committee_roles: stats.total_committee_roles,
         recent_conferences,

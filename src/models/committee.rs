@@ -39,6 +39,10 @@ pub struct CommitteeRole {
     pub author_id: Uuid,
     pub committee: CommitteeType,
     pub position: CommitteePosition,
+    /// Optional free-text label, set only when it adds detail beyond `committee` +
+    /// `position` (e.g. "Publicity Chair", "Rump Session Organizer"). Labels that merely
+    /// restate the rank/committee ("Chair", "PC Member", …) are dropped by the committees
+    /// importer; see `tools/scrapers/committees/importer.py::REDUNDANT_ROLE_TITLES`.
     pub role_title: Option<String>,
     pub term_start: Option<NaiveDate>,
     pub term_end: Option<NaiveDate>,

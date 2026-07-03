@@ -32,6 +32,32 @@ def map_committee_type(committee_type: str) -> str:
     return mapping.get(committee_type, committee_type)
 
 
+# role_title is a free-text label meant to add detail *beyond* committee+position
+# (e.g. "Publicity Chair", "Rump Session Organizer"). Some scrapes/hand-edits instead
+# wrote the position/committee word back into it ("Chair", "PC Member", "LO Co-Chair"),
+# which is pure noise next to a table already grouped by committee+position. Drop those.
+#
+# This is a denylist of *rank/committee restatement* strings only. It deliberately does
+# NOT touch titles that disagree with the position (e.g. position=member +
+# "Technical Operations Chair") — those carry the real job the enum couldn't express.
+REDUNDANT_ROLE_TITLES = {
+    'chair', 'cochair', 'member', 'areachair',
+    'pcchair', 'pccochair', 'pcmember',
+    'scchair', 'sccochair', 'scmember',
+    'occhair', 'occochair', 'ocmember',
+    'lochair', 'locochair', 'lomember',
+    'programchair', 'steeringchair', 'organizingchair', 'localchair',
+}
+
+
+def _is_redundant_role_title(title: Optional[str]) -> bool:
+    """True if ``title`` merely restates the committee/position (see REDUNDANT_ROLE_TITLES)."""
+    if not title:
+        return False
+    key = re.sub(r'[^a-z]', '', title.lower())
+    return key in REDUNDANT_ROLE_TITLES
+
+
 def map_position(position: str) -> str:
     """Map CSV position to database enum value."""
     if not position:
@@ -81,6 +107,12 @@ async def import_member(
     member['full_name'] = clean_field(member.get('full_name'))
     member['affiliation'] = clean_field(member.get('affiliation')) or None
     member['role_title'] = clean_field(member.get('role_title')) or None
+    if _is_redundant_role_title(member['role_title']):
+        logger.info(
+            f"Dropping redundant role_title '{member['role_title']}' for "
+            f"{member['full_name']} ({venue} {year})"
+        )
+        member['role_title'] = None
 
     # Get or create author
     author_id = await get_or_create_author(
@@ -243,3 +275,20 @@ async def async_main(args) -> int:
     finally:
         if pool is not None:
             await pool.close()
+
+
+def _self_test() -> None:
+    """Sanity-check the redundant-role_title rule. Run: python3 -m scrapers.committees.importer"""
+    blank = ['Chair', 'Co-Chair', 'PC Member', 'SC Member', 'LO Co-Chair',
+             'Program Chair', 'PC Chair', 'member', '  chair  ']
+    keep = ['General Chair', 'Honorary Chair', 'Rump Session Organizer',
+            'Technical Operations Chair', 'Local Service', 'webmaster', None, '']
+    for t in blank:
+        assert _is_redundant_role_title(t), f"expected redundant: {t!r}"
+    for t in keep:
+        assert not _is_redundant_role_title(t), f"expected kept: {t!r}"
+    print(f"OK: {len(blank)} redundant + {len(keep)} kept titles classified correctly")
+
+
+if __name__ == '__main__':
+    _self_test()
