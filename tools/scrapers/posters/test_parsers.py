@@ -172,6 +172,21 @@ def test_qip_2026_posters_with_presenter():
     assert got[2]['speakers'] == ['Eric Culf'], got[2]
 
 
+def test_qip_2026_collapses_presenter_name_variant():
+    # Source artifact: the presenter is repeated as an initials-only variant
+    # ("Sean R. Muleady" ... "Sean Muleady"). Both must collapse to one author,
+    # or the importer's fuzzy match rejects the duplicate authorship.
+    from bs4 import BeautifulSoup
+    html = (
+        '<div class="genericText"><h2>Poster Session 1</h2><ol>'
+        '<li><strong>Sensor networks</strong> Erfan A, <u>Sean Muleady</u>, '
+        'Sean R. Muleady</li></ol></div>'
+    )
+    got = parsers.parse_qip_2026(BeautifulSoup(html, 'html.parser'))
+    assert got[0]['authors'] == ['Erfan A', 'Sean Muleady'], got[0]
+    assert got[0]['speakers'] == ['Sean Muleady'], got[0]
+
+
 def main() -> int:
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     failed = 0

@@ -560,6 +560,16 @@ def parse_qip_2016(soup: BeautifulSoup) -> List[Dict[str, Any]]:
 _QIP_2026_SESSION_DATES = {1: '2026-01-26', 2: '2026-01-27'}
 
 
+def _name_key(name: str) -> str:
+    """A loose identity key for de-duping one poster's author list: the lowercased
+    first and last alphanumeric tokens (middle names/initials ignored), so
+    "Sean R. Muleady" and "Sean Muleady" collapse to the same person."""
+    toks = re.findall(r'\w+', name.lower())
+    if not toks:
+        return ''
+    return f"{toks[0]}|{toks[-1]}" if len(toks) > 1 else toks[0]
+
+
 def parse_qip_2026(soup: BeautifulSoup) -> List[Dict[str, Any]]:
     """QIP 2026: two ``<h2>Poster Session N</h2>`` blocks, each a single ``<ol>``
     of ``<li><strong>Title</strong> Author, <u>Presenter</u>, Author…</li>``.
@@ -594,15 +604,21 @@ def parse_qip_2026(soup: BeautifulSoup) -> List[Dict[str, Any]]:
             poster = _poster(title, authors_cell, session_name=session_name)
             if not poster:
                 continue
-            # Collapse exact-duplicate author names (presenter listed twice),
-            # keeping the parallel affiliation of the first occurrence.
+            # Collapse the presenter-listed-twice artifact, keeping the first
+            # occurrence's affiliation. The repeat is sometimes a name *variant*
+            # ("Sean R. Muleady" then "Sean Muleady"), which the importer's fuzzy
+            # author-matching would otherwise fold into one author and then reject
+            # as a duplicate authorship. Key on (first, last) name token so both
+            # exact repeats and initial-only variants collapse; two genuinely
+            # distinct co-authors sharing first+last on one poster is implausible.
             seen: set = set()
             names: List[str] = []
             affs: List[str] = []
             for name, aff in zip(poster['authors'], poster['affiliations']):
-                if name in seen:
+                if name in seen or _name_key(name) in seen:
                     continue
                 seen.add(name)
+                seen.add(_name_key(name))
                 names.append(name)
                 affs.append(aff)
             poster['authors'], poster['affiliations'] = names, affs
