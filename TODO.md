@@ -39,9 +39,10 @@ Quick scratchpad of pending work. Add items freely; move done items out.
 
 ## Frontend
 
-- [ ] **Co-chairs should render as chairs (filled) in the contribution graph** —
-  `is_leadership()` in `src/handlers/web/authors.rs` already includes
-  `co_chair`, so the likely culprit is the data: check whether co-chair rows
-  are stored as `member`. Suspect `map_position()` in the committees importer —
-  it maps `'co-chair'` (hyphen) but not `'co_chair'` (underscore), so any CSV
-  using the underscore form silently falls through to `member`.
+- [x] **Co-chairs should render as chairs (filled) in the contribution graph** —
+  fixed. Root cause confirmed: `map_position()` in the committees importer only
+  keyed `'co-chair'` (hyphen), so the documented `'co_chair'` (underscore) form
+  fell through to `member` — 33 co-chair rows were mis-stored (e.g. Eleni
+  Diamanti, QCrypt 2025). `map_position()` now normalises `-`→`_` before mapping,
+  the 14 stray hyphen rows in the CSVs were normalised to `co_chair`, and a
+  committee re-import corrected the DB (co_chair 14 → 47).
