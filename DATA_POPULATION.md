@@ -209,17 +209,25 @@ relevant seed file (or insert it via the API) before importing its CSVs.
 ### Name normalization & deduplication
 
 Authors are matched by **normalized name** (`normalize_name()` in
-`src/utils/normalize.rs` — Unicode NFKD, accent stripping, lowercasing; the
-importer mirrors this logic). A new author row is created only when no match
-is found. `tools/dedup_authors.py` then consolidates identities (re-run it,
-with `--commit`, after a bulk import). It does two things:
+`src/utils/normalize.rs` — Unicode NFKD, accent stripping, lowercasing,
+middle-initial folding; the importer mirrors this logic). Before that lookup the
+importer resolves **`data/author_aliases.csv`** (columns
+`former_name,current_name,variant_type,notes`): a former/variant spelling maps
+to its canonical name, so the row is found-or-created under the canonical
+identity — even surname changes ("Tobias Eberle" → "Tobias Gehring") the DB has
+no other signal for. The printed spelling is preserved in each authorship's
+`published_as_name` (and recorded in `author_name_variants`). A new author row is
+created only when no alias/normalized/variant match is found.
 
-- **Curated aliases** (`data/author_aliases.csv`, columns
-  `former_name,current_name,variant_type,notes`) — explicit merges that
-  normalization can't detect, above all **surname changes** (e.g. "Tobias
-  Eberle" → "Tobias Gehring"). Matched by exact `full_name`. This file is the
-  durable home for such merges so they survive a rebuild-from-CSV — the DB has
-  no signal that two different surnames are one person.
+Because aliases are applied **at ingest**, a fresh rebuild-from-CSV yields no
+aliased duplicate rows — `tools/dedup_authors.py` is **not** part of the reload
+path (just refresh the materialized views afterward). It is retained for the
+**incremental** live-DB path, where it consolidates any pre-existing duplicate
+rows and refreshes the views. It does two things:
+
+- **Curated aliases** (`data/author_aliases.csv`) — the same file the importer
+  now reads, applied here to merge any legacy rows created before ingest-time
+  resolution existed. Matched by exact `full_name`.
 - **Normalized-name collapse** — residual duplicates that share a
   `normalized_name` (e.g. "Alex B. Grilo" vs "Alex Bredariol Grilo").
 

@@ -177,12 +177,15 @@ source .env; export DATABASE_URL="postgres://quantumdb:${POSTGRES_PASSWORD}@127.
 ~/venv/bin/python tools/scrapers/import_from_csv.py committees data/conferences/*/committees.csv
 ~/venv/bin/python tools/scrapers/import_from_csv.py talks data/conferences/*/talks.csv data/conferences/*/proceedings.csv data/conferences/*/workshop.csv
 ~/venv/bin/python tools/scrapers/import_from_csv.py business-meetings data/conferences/*/business_meeting.csv
-~/venv/bin/python tools/dedup_authors.py --commit         # also refreshes the materialized views
+~/venv/bin/python tools/dedup_authors.py --commit         # consolidates pre-existing dup rows; also refreshes the views
 rm docker-compose.import.yml
 docker compose -f docker-compose.prod.yml up -d --force-recreate db   # back to internal-only
 ```
-After bulk data changes, materialized views must be refreshed (`dedup_authors.py --commit` does
-this; otherwise `REFRESH MATERIALIZED VIEW CONCURRENTLY author_stats, conference_stats, coauthor_pairs`).
+The importers apply `data/author_aliases.csv` at ingest, so *new* imports don't create aliased
+duplicates. On this **incremental** path `dedup_authors.py --commit` is still run to consolidate any
+**pre-existing** duplicate author rows on the live DB (and, unlike a fresh rebuild, it does real
+work). It also refreshes the materialized views — after bulk data changes those must be refreshed,
+otherwise run `REFRESH MATERIALIZED VIEW CONCURRENTLY author_stats, conference_stats, coauthor_pairs`.
 
 **Full from-scratch re-init** (wipe + rebuild the DB from the CSVs). The importers above are
 *incremental* (find-or-update by `canonical_key` / normalized name), so they **cannot** undo a
@@ -205,14 +208,18 @@ printf 'services:\n  db:\n    ports:\n      - "127.0.0.1:5432:5432"\n' > docker-
 docker compose -f docker-compose.prod.yml -f docker-compose.import.yml up -d db
 until docker compose -f docker-compose.prod.yml exec -T db pg_isready -U quantumdb -q; do sleep 1; done
 
-# 2. Import every CSV, then apply curated dedup + aliases. Note the `*/` glob (not `tqc_*/`):
+# 2. Import every CSV, then refresh the materialized views. The importers resolve
+#    data/author_aliases.csv at ingest (former/variant spellings map to the canonical
+#    author), so on a fresh rebuild there are no duplicate author rows left to merge —
+#    dedup_authors.py is not needed here. Note the `*/` glob (not `tqc_*/`):
 #    proceedings/workshop are TQC-only but some dirs are uppercase (TQC_2006..TQC_2012), which a
 #    lowercase `tqc_*` glob silently skips — dropping those years' papers + authors.
 source .env; export DATABASE_URL="postgres://quantumdb:${POSTGRES_PASSWORD}@127.0.0.1:5432/quantumdb"
 ~/venv/bin/python tools/scrapers/import_from_csv.py committees data/conferences/*/committees.csv
 ~/venv/bin/python tools/scrapers/import_from_csv.py talks data/conferences/*/talks.csv data/conferences/*/proceedings.csv data/conferences/*/workshop.csv
 ~/venv/bin/python tools/scrapers/import_from_csv.py business-meetings data/conferences/*/business_meeting.csv
-~/venv/bin/python tools/dedup_authors.py --commit          # Phase A applies data/author_aliases.csv, then refreshes the views
+docker compose -f docker-compose.prod.yml exec -T db psql -U quantumdb -d quantumdb -c \
+  "REFRESH MATERIALIZED VIEW CONCURRENTLY author_stats; REFRESH MATERIALIZED VIEW CONCURRENTLY conference_stats; REFRESH MATERIALIZED VIEW CONCURRENTLY coauthor_pairs;"
 
 # 3. Back to internal-only + bring the app up.
 rm docker-compose.import.yml

@@ -33,12 +33,17 @@ Quick scratchpad of pending work. Add items freely; move done items out.
   99 corrupt author rows → 0 (one residual left: qip_2015 `M`, the ambiguous
   `M & P Horodecki` sibling shorthand). Live DB reflects this on the next
   reload-from-CSVs.
-- [ ] **Improve author dedup matching for full-middle-name vs initial** — the
-  one-off merge above cleaned existing rows, but the *importers* still match only
-  on exact `normalized_name` (`tools/scrapers/.../get_or_create_author`), so new
-  imports can re-introduce "Jane Q. Doe" vs "Jane Quux Doe" splits. Fold this
-  into the matching query (and/or `src/utils/normalize.rs`) so it's prevented at
-  ingest, then the one-off tool becomes unnecessary.
+- [x] **Apply curated aliases at ingest** — `get_or_create_author` (now shared in
+  `tools/scrapers/_lib.py`) resolves `data/author_aliases.csv` before the
+  normalized-name lookup, so aliased spellings (surname changes, full-middle-name
+  vs initial like "Jane Q. Doe" vs "Jane Quux Doe") no longer split on import.
+  `dedup_authors.py` is therefore no longer needed on a fresh reload.
+- [ ] **Auto-detect full-middle-name vs initial without an alias entry** — ingest
+  resolution above covers pairs already listed in `author_aliases.csv`; a brand-new
+  "Jane Quux Doe" with no alias and no prior "Jane Q. Doe" row still can't be linked
+  by `normalize_name` alone. Optionally teach `normalize_name` / the matching query
+  a middle-name↔initial rule so these collapse automatically (lower priority now
+  that the alias path prevents the common cases).
 
 ## Import pipeline
 
