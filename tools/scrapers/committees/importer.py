@@ -11,7 +11,7 @@ from uuid import UUID
 import asyncpg
 from dotenv import load_dotenv
 
-from scrapers._lib import clean_field, normalize_name, split_name
+from scrapers._lib import clean_field, get_or_create_author
 
 
 logging.basicConfig(
@@ -48,62 +48,6 @@ def map_position(position: str) -> str:
         'member': 'member'
     }
     return mapping.get(position, 'member')
-
-
-async def get_or_create_author(
-    conn: asyncpg.Connection,
-    full_name: str,
-    affiliation: Optional[str]
-) -> UUID:
-    """Get existing author or create new one."""
-    family_name, given_name = split_name(full_name)
-    normalized_full = normalize_name(full_name).lower()
-    
-    # Try to find existing author by normalized_name
-    author_id = await conn.fetchval(
-        """
-        SELECT a.id FROM authors a
-        LEFT JOIN author_name_variants v ON a.id = v.author_id
-        WHERE a.normalized_name = $1
-           OR LOWER(v.variant_name) = $1
-        LIMIT 1
-        """,
-        normalized_full
-    )
-    
-    if author_id:
-        logger.debug(f"Found existing author: {full_name} -> {author_id}")
-        
-        # Update affiliation if provided and different
-        if affiliation:
-            await conn.execute(
-                """
-                UPDATE authors 
-                SET affiliation = $1 
-                WHERE id = $2 AND (affiliation IS NULL OR affiliation != $1)
-                """,
-                affiliation,
-                author_id
-            )
-        
-        return author_id
-    
-    # Create new author
-    author_id = await conn.fetchval(
-        """
-        INSERT INTO authors (full_name, family_name, given_name, normalized_name, affiliation, creator, modifier)
-        VALUES ($1, $2, $3, $4, $5, 'import_from_csv', 'import_from_csv')
-        RETURNING id
-        """,
-        full_name,
-        family_name,
-        given_name,
-        normalized_full,
-        affiliation
-    )
-    
-    logger.info(f"Created new author: {full_name} ({author_id})")
-    return author_id
 
 
 async def get_conference_id(

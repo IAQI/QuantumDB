@@ -1,17 +1,27 @@
 """Shared helpers for the scrape and import CLIs."""
+import csv
 import html
 import logging
 import os
 import re
 import unicodedata
+from functools import lru_cache
 from pathlib import Path
-from typing import List, Optional
+from typing import Dict, List, Optional
+from uuid import UUID
 from urllib.parse import unquote
 
 import asyncpg
 from dotenv import load_dotenv
 
 logger = logging.getLogger(__name__)
+
+# Curated cross-CSV author identity map (surname changes, full-middle-name /
+# particle variants that normalize_name() cannot collapse). Same file that
+# dedup_authors.py Phase A consumes; the importer now applies it at ingest so
+# the DB is a pure function of the CSVs and no author row is ever
+# created-then-deleted (which would silently null publications.presenter_author_id).
+AUTHOR_ALIASES_PATH = Path(__file__).resolve().parents[2] / 'data' / 'author_aliases.csv'
 
 
 # Special characters that don't decompose via Unicode NFD — mapped explicitly.
@@ -141,6 +151,104 @@ def split_name(full_name: str) -> tuple[str, str]:
     if len(parts) == 1:
         return parts[0], ''
     return parts[1], parts[0]
+
+
+@lru_cache(maxsize=1)
+def load_author_aliases() -> Dict[str, str]:
+    """Load ``data/author_aliases.csv`` as ``{former_full_name: current_full_name}``.
+
+    Keyed on ``clean_field(former)`` so it matches author names as they arrive
+    from the CSVs (which pass through ``clean_field`` before reaching
+    ``get_or_create_author``). Both ``variant_type`` values (``former_name`` and
+    ``alternate_spelling``) behave identically here: a printed spelling maps to a
+    canonical identity. Cached so the file is read once per import run.
+    """
+    if not AUTHOR_ALIASES_PATH.exists():
+        return {}
+    aliases: Dict[str, str] = {}
+    with open(AUTHOR_ALIASES_PATH, encoding='utf-8', newline='') as f:
+        for row in csv.DictReader(f):
+            former = clean_field(row.get('former_name') or '')
+            current = clean_field(row.get('current_name') or '')
+            if former and current:
+                aliases[former] = current
+    return aliases
+
+
+async def get_or_create_author(
+    conn: asyncpg.Connection,
+    full_name: str,
+    affiliation: Optional[str],
+) -> UUID:
+    """Resolve ``full_name`` to a canonical author row, creating it if needed.
+
+    Shared by the talks and committees importers. A curated alias
+    (``author_aliases.csv``) maps a former/variant spelling to its canonical name
+    *before* the lookup, so a "former" spelling never creates its own row and the
+    identity is order-independent (the canonical row is created even if the former
+    spelling is imported first). Callers keep passing the *printed* name to
+    ``published_as_name`` / presenter resolution, so papers retain their published
+    spelling.
+    """
+    canonical_name = load_author_aliases().get(full_name, full_name)
+    family_name, given_name = split_name(canonical_name)
+    normalized_full = normalize_name(canonical_name).lower()
+
+    author_id = await conn.fetchval(
+        """
+        SELECT a.id FROM authors a
+        LEFT JOIN author_name_variants v ON a.id = v.author_id
+        WHERE a.normalized_name = $1
+           OR LOWER(v.variant_name) = $1
+        LIMIT 1
+        """,
+        normalized_full,
+    )
+
+    if author_id:
+        logger.debug(f"Found existing author: {full_name} -> {author_id}")
+        if affiliation:
+            await conn.execute(
+                """
+                UPDATE authors
+                SET affiliation = $1
+                WHERE id = $2 AND (affiliation IS NULL OR affiliation != $1)
+                """,
+                affiliation,
+                author_id,
+            )
+    else:
+        author_id = await conn.fetchval(
+            """
+            INSERT INTO authors (full_name, family_name, given_name, normalized_name, affiliation, creator, modifier)
+            VALUES ($1, $2, $3, $4, $5, 'import_from_csv', 'import_from_csv')
+            RETURNING id
+            """,
+            canonical_name,
+            family_name,
+            given_name,
+            normalized_full,
+            affiliation,
+        )
+        logger.info(f"Created new author: {canonical_name} ({author_id})")
+
+    # Record an aliased printed spelling as a name variant (parity with
+    # dedup_authors.py). Cheap and idempotent; keeps a repeat sighting of the
+    # former spelling resolvable via the variant lookup above even without the map.
+    if canonical_name != full_name:
+        await conn.execute(
+            """
+            INSERT INTO author_name_variants
+                (author_id, variant_name, normalized_variant, variant_type, notes, creator)
+            VALUES ($1, $2, $3, 'alternate_spelling', 'alias applied at import', 'import_from_csv')
+            ON CONFLICT DO NOTHING
+            """,
+            author_id,
+            full_name,
+            normalize_name(full_name),
+        )
+
+    return author_id
 
 
 def url_to_local_path(url: str, local_dir: Optional[Path] = None) -> Path:
