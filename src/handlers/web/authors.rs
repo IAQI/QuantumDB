@@ -76,9 +76,10 @@ struct ContribPaperCell {
     y: i32,
     venue_class: &'static str,
     tooltip: String,
-    target_id: String, // anchor of the matching row in the Talks table
+    target_id: String, // anchor of the matching row in the Talks/Posters table
     is_speaker: bool,  // page author was the presenter of this talk
     has_award: bool,   // talk won an award/prize
+    is_poster: bool,   // render as a dot instead of a rect
 }
 
 struct ContribCommitteeCell {
@@ -197,14 +198,37 @@ fn glyph_points(committee_type: &str, cx: i32, cy: i32) -> (&'static str, String
 }
 
 fn build_contribution_graph(
-    pubs: &[PublicationItem],
+    talks: &[PublicationItem],
+    posters: &[PublicationItem],
     roles: &[CommitteeRoleItem],
 ) -> ContributionGraph {
     use std::collections::BTreeMap;
 
+    // Unified paper stream: talks render as rects, posters as dots. Each carries the
+    // anchor id of its own table row (talk-<i> / poster-<i>, matching loop.index0).
+    struct PaperEntry<'a> {
+        p: &'a PublicationItem,
+        is_poster: bool,
+        target_id: String,
+    }
+    let paper_entries: Vec<PaperEntry> = talks
+        .iter()
+        .enumerate()
+        .map(|(idx, p)| PaperEntry {
+            p,
+            is_poster: false,
+            target_id: format!("talk-{}", idx),
+        })
+        .chain(posters.iter().enumerate().map(|(idx, p)| PaperEntry {
+            p,
+            is_poster: true,
+            target_id: format!("poster-{}", idx),
+        }))
+        .collect();
+
     let mut years: std::collections::BTreeSet<i32> = std::collections::BTreeSet::new();
-    for p in pubs {
-        years.insert(p.conference_year);
+    for e in &paper_entries {
+        years.insert(e.p.conference_year);
     }
     for r in roles {
         years.insert(r.conference_year);
@@ -227,17 +251,15 @@ fn build_contribution_graph(
     let last = *years.iter().next_back().unwrap();
     let year_count = (last - first + 1) as usize;
 
-    // Keep each item's original index so chart cells can anchor to the
-    // matching table row (talk-<i> / committee-<i>).
-    let mut by_year_pub: BTreeMap<i32, Vec<(usize, &PublicationItem)>> = BTreeMap::new();
-    for (idx, p) in pubs.iter().enumerate() {
-        by_year_pub
-            .entry(p.conference_year)
-            .or_default()
-            .push((idx, p));
+    // Group papers by year. Within a year, order by venue then talks-before-posters so
+    // posters cluster with their venue's talks. Each entry already carries its table
+    // anchor id (talk-<i> / poster-<i>).
+    let mut by_year_pub: BTreeMap<i32, Vec<&PaperEntry>> = BTreeMap::new();
+    for e in &paper_entries {
+        by_year_pub.entry(e.p.conference_year).or_default().push(e);
     }
     for v in by_year_pub.values_mut() {
-        v.sort_by_key(|(_, p)| venue_order(&p.conference_venue));
+        v.sort_by_key(|e| (venue_order(&e.p.conference_venue), e.is_poster as u8));
     }
 
     let mut by_year_role: BTreeMap<i32, Vec<(usize, &CommitteeRoleItem)>> = BTreeMap::new();
@@ -276,10 +298,11 @@ fn build_contribution_graph(
         .collect();
 
     let mut papers = Vec::new();
-    for (year, ps) in &by_year_pub {
+    for (year, es) in &by_year_pub {
         let year_idx = (*year - first) as usize;
         let cx = col_center(year_idx);
-        for (stack_idx, (orig_idx, p)) in ps.iter().enumerate() {
+        for (stack_idx, e) in es.iter().enumerate() {
+            let p = e.p;
             let title = truncate_chars(&p.title, 80);
             let mut tooltip = format!(
                 "{} {} — {}: {}",
@@ -297,9 +320,11 @@ fn build_contribution_graph(
                 y: axis_y - CONTRIB_PAPER_H - (stack_idx as i32) * CONTRIB_PAPER_STEP,
                 venue_class: paper_fill_class(&p.conference_venue),
                 tooltip,
-                target_id: format!("talk-{}", orig_idx),
-                is_speaker: p.presenter_is_self,
-                has_award: !p.award.is_empty(),
+                target_id: e.target_id.clone(),
+                // Poster marks stay clean — no presenter/award overlays.
+                is_speaker: !e.is_poster && p.presenter_is_self,
+                has_award: !e.is_poster && !p.award.is_empty(),
+                is_poster: e.is_poster,
             });
         }
     }
@@ -693,7 +718,7 @@ pub async fn author_detail(
         .into_iter()
         .partition(|p| p.paper_type != "poster");
 
-    let contribution = build_contribution_graph(&talks, &committee_roles);
+    let contribution = build_contribution_graph(&talks, &posters, &committee_roles);
 
     let initials = compute_initials(&author.full_name);
 

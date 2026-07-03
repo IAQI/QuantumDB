@@ -72,9 +72,13 @@
 
                 {% for p in contribution.papers %}
                 <a href="#{{ p.target_id }}">
+                    {% if p.is_poster %}
+                    <circle cx="{{ p.x + 14 }}" cy="{{ p.y + 11 }}" r="6" class="contrib-poster-dot {{ p.venue_class }}"><title>{{ p.tooltip }}</title></circle>
+                    {% else %}
                     <rect x="{{ p.x }}" y="{{ p.y }}" width="28" height="22" class="{{ p.venue_class }}"><title>{{ p.tooltip }}</title></rect>
                     {% if p.is_speaker %}<circle cx="{{ p.x + 22 }}" cy="{{ p.y + 6 }}" r="3" class="speaker-dot"><title>{{ p.tooltip }}</title></circle>{% endif %}
                     {% if p.has_award %}<text x="{{ p.x + 14 }}" y="{{ p.y + 16 }}" text-anchor="middle" class="award-star">★<title>{{ p.tooltip }}</title></text>{% endif %}
+                    {% endif %}
                 </a>
                 {% endfor %}
 
@@ -93,6 +97,8 @@
             <span class="legend-swatch fill-qip"></span>QIP
             &nbsp;&nbsp;<span class="legend-swatch fill-qcrypt"></span>QCrypt
             &nbsp;&nbsp;<span class="legend-swatch fill-tqc"></span>TQC
+            &nbsp;&nbsp;<svg class="legend-block" width="15" height="13"><rect width="15" height="13" class="fill-ink"></rect></svg>talk
+            &nbsp;&nbsp;<svg class="legend-block" width="15" height="13"><circle cx="7.5" cy="6.5" r="5" class="contrib-poster-dot fill-ink"></circle></svg>poster
             &nbsp;&nbsp;<svg class="legend-block" width="15" height="13"><rect width="15" height="13" class="fill-ink"></rect><circle cx="11" cy="4" r="2.6" class="speaker-dot"></circle></svg>presenter
             &nbsp;&nbsp;<svg class="legend-block" width="15" height="13"><rect width="15" height="13" class="fill-ink"></rect><text x="7.5" y="11" text-anchor="middle" class="award-star" style="font-size:12px">★</text></svg>award
             &nbsp;&nbsp;·&nbsp;&nbsp;
@@ -175,7 +181,7 @@
             </thead>
             <tbody>
                 {% for pub in posters %}
-                <tr data-venue="{{ pub.conference_venue }}">
+                <tr id="poster-{{ loop.index0 }}" data-venue="{{ pub.conference_venue }}">
                     <td data-value="title">
                         {% if !pub.arxiv_ids.is_empty() %}
                             {% for arxiv_id in pub.arxiv_ids %}
