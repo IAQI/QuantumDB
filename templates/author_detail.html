@@ -31,16 +31,24 @@
     <hr class="venue-rule" style="background: var(--ink); opacity: 0.55;">
 
     <section class="stats-grid">
-        {% if !posters.is_empty() %}
-        <div class="stat-card clickable" onclick="scrollToHighlight('#posters-section', 'all')">
-            <div class="stat-value">{{ posters.len() }}</div>
-            <span class="stat-label">posters</span>
+        {% if pc_count > 0 %}
+        <div class="stat-card clickable" onclick="scrollToHighlight('#committee-section', 'PC')">
+            <div class="stat-value">{{ pc_count }}</div>
+            <span class="stat-label">PC roles</span>
         </div>
         {% endif %}
-        <div class="stat-card clickable" onclick="scrollToHighlight('#committee-section', 'all')">
-            <div class="stat-value">{{ author.committee_role_count }}</div>
-            <span class="stat-label">committee roles</span>
+        {% if sc_count > 0 %}
+        <div class="stat-card clickable" onclick="scrollToHighlight('#committee-section', 'SC')">
+            <div class="stat-value">{{ sc_count }}</div>
+            <span class="stat-label">SC roles</span>
         </div>
+        {% endif %}
+        {% if local_count > 0 %}
+        <div class="stat-card clickable" onclick="scrollToHighlight('#committee-section', 'Local')">
+            <div class="stat-value">{{ local_count }}</div>
+            <span class="stat-label">Local roles</span>
+        </div>
+        {% endif %}
         <div class="stat-card clickable" onclick="scrollToHighlight('#committee-section', 'leadership')">
             <div class="stat-value">{{ author.leadership_count }}</div>
             <span class="stat-label">leadership roles</span>
@@ -224,7 +232,7 @@
                 {% for role in committee_roles %}
                 <tr id="committee-{{ loop.index0 }}" data-venue="{{ role.conference_venue }}">
                     <td data-value="conference" data-sort-value="{{ role.conference_year }} {{ role.conference_venue }}"><a href="/conferences/{{ role.conference_slug }}" class="conference-link">{{ role.conference_venue }} {{ role.conference_year }}</a></td>
-                    <td data-value="committee"><span class="ptype">{{ role.committee_type }}</span></td>
+                    <td data-value="committee" data-filter="type"><span class="ptype">{{ role.committee_type }}</span></td>
                     <td data-value="position" data-filter="position" class="cell-mono">{{ role.position }}</td>
                     <td data-value="title">{% if !role.role_title.is_empty() %}{{ role.role_title }}{% else %}<span style="color: var(--muted);">—</span>{% endif %}</td>
                 </tr>
