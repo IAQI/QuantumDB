@@ -51,6 +51,7 @@ _PARSERS = {
     'qip_span_poster': parsers.parse_qip_span_poster,
     'qip_2015': parsers.parse_qip_2015,
     'qip_2016': parsers.parse_qip_2016,
+    'qip_2026': parsers.parse_qip_2026,
     'tqc_2019': parsers.parse_tqc_2019,
     'tqc_2020': parsers.parse_tqc_2020,
     'tqc_2021': parsers.parse_tqc_2021,
@@ -96,6 +97,8 @@ POSTER_SOURCES: Dict[tuple, tuple] = {
     ('QIP', 2015): ('qip_2015', ['2015/AcceptedPosters.php.html']),
     ('QIP', 2016): ('qip_2016', ['2016/accepted-posters.html']),
     ('QIP', 2019): ('qip_pdf_2col', ['2019/qip2019_accepted_posters.pdf']),
+    # QIP 2026 uniquely underlines the presenter -> the parser emits `speakers`.
+    ('QIP', 2026): ('qip_2026', ['2026/programme/poster-sessions/index.html']),
     # QIP 2002 poster page is unstructured prose (presenter/affiliation/abstract)
     # with no title markup — not reliably parseable; left for manual entry.
     # QIP 2005/2013 (per-poster PDFs) and 2023 (a column-wrapped PDF that
@@ -125,11 +128,13 @@ def _build_row(venue: str, year: int, poster: Dict[str, Any],
         year=str(year),
         paper_type='poster',
         title=(poster.get('title') or '').strip(),
+        speakers=';'.join(poster.get('speakers') or []),
         authors=';'.join(authors),
         affiliations=aff_cell,
         abstract=(poster.get('abstract') or '').strip(),
         session_name=(poster.get('session_name') or ''),
         notes=(f"Source: {source}" if source else ''),
+        scheduled_date=(poster.get('scheduled_date') or ''),
     )
     return row
 

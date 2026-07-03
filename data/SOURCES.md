@@ -100,6 +100,10 @@ data already populated). The modular replacement is
 
 Scraper: `scrapers/qip.py` (QIPScraper, fetches programme-committee page)
 
+Posters: `2026/programme/poster-sessions/` (441 posters across two sessions;
+presenter underlined per entry). Scraped via `scrape_to_csv.py posters --venue QIP
+--year 2026` (`parse_qip_2026`) → `data/conferences/qip_2026/posters.csv`.
+
 ---
 
 ## 2024 — Taipei (NTU/CYCU/NCKU/NSYSU/NYCU/NTHU)
