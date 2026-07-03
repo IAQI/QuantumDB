@@ -24,6 +24,8 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from bs4 import BeautifulSoup, NavigableString, Tag
 
+from .._lib import clean_display_name
+
 # Leading label some abstract blocks carry, e.g. "Abstract: ...".
 _ABSTRACT_PREFIX_RE = re.compile(r'^\s*abstract\s*[:.\-]?\s*', re.IGNORECASE)
 
@@ -37,9 +39,14 @@ def split_authors(cell: str) -> Tuple[List[str], List[str]]:
     """Split an author cell into parallel (names, affiliations) lists.
 
     Splits on ``;`` when present (Hugo poster pages use it), otherwise on
-    `` and `` / ``,`` (QIP/TQC prose lists). A trailing ``(parenthetical)`` on a
-    name is pulled into the parallel affiliation slot; the affiliation is ``''``
-    when absent, so ``names`` and ``affiliations`` stay index-aligned.
+    top-level `` and `` / `` & `` / ``,`` (QIP/TQC prose lists). A trailing
+    ``(parenthetical)`` on a name — even one with nested parens or internal
+    commas, e.g. ``"Gautam Vemuri (Dept of Physics, Univ (IUPUI), USA)"`` — is
+    pulled into the parallel affiliation slot; the affiliation is ``''`` when
+    absent, so ``names`` and ``affiliations`` stay index-aligned. A parenthetical
+    that is *not* trailing (a maiden name like ``"Justyna (Pytel) Zwolak"``) is
+    left in the name. Each name is tidied with ``clean_display_name`` (strip a
+    leading honorific; re-case a shouted ALL-CAPS name).
 
     HTML entities are left intact for the importer's ``clean_field`` to unescape
     (it must run before any further ``;``-split, or an entity like ``&eacute;``
@@ -54,10 +61,10 @@ def split_authors(cell: str) -> Tuple[List[str], List[str]]:
         # contain ';' (multiple affiliations), so split at top level only.
         parts = _split_top_level(cell, ';')
     else:
-        # Normalise " and " / " & " to a comma, then split on top-level commas
-        # (commas inside affiliation parentheticals are protected).
-        normalised = re.sub(r'\s+(?:and|&)\s+', ',', cell)
-        parts = _split_top_level(normalised, ',')
+        # Prose list: split on top-level ',' / ' and ' / ' & ' — separators
+        # inside affiliation parentheses are protected (so an affiliation's own
+        # "X and Y" / "City, Country" does not shatter into bogus authors).
+        parts = _split_authors_prose(cell)
 
     names: List[str] = []
     affs: List[str] = []
@@ -65,18 +72,102 @@ def split_authors(cell: str) -> Tuple[List[str], List[str]]:
         name = _collapse(part)
         if not name:
             continue
-        aff = ''
-        m = re.search(r'\(([^()]*)\)\s*$', name)
-        if m:
-            # Internal ';' would corrupt the downstream ';'-joined affiliation
-            # cell (positional, one entry per author) — fold it to a comma.
-            aff = _collapse(m.group(1)).replace(';', ',')
-            name = _collapse(name[:m.start()])
+        name, aff = _strip_trailing_paren(name)
+        name = _collapse_doubled_name(clean_display_name(_collapse(name)))
+        # Internal ';' would corrupt the downstream ';'-joined affiliation cell
+        # (positional, one entry per author) — fold it to a comma.
+        aff = _collapse(aff).replace(';', ',')
         if not name:
             continue
         names.append(name)
         affs.append(aff)
     return names, affs
+
+
+def _strip_trailing_paren(name: str) -> Tuple[str, str]:
+    """Split a trailing ``(affiliation)`` off ``name``, returning ``(name, aff)``.
+
+    Handles three shapes seen in the poster mirrors:
+      * balanced trailing group, incl. nested parens/commas —
+        ``"Gautam Vemuri (Dept, Univ (IUPUI), USA)"``;
+      * an affiliation the source never closed (more ``(`` than ``)``) —
+        ``"Xin Wang (The Hong Kong University … (Guangzhou)"`` — where the name
+        is whatever precedes the first unmatched ``(``;
+      * no trailing parenthetical, or a *non*-trailing one (a maiden name like
+        ``"Justyna (Pytel) Zwolak"``) — returned unchanged, empty affiliation.
+    """
+    name = name.rstrip()
+    # Unclosed affiliation paren: the name ends mid-parenthetical. Cut at the
+    # first '(' — everything after it is affiliation, however malformed.
+    if name.count('(') > name.count(')'):
+        idx = name.find('(')
+        return name[:idx].rstrip(), name[idx + 1:].strip()
+    if not name.endswith(')'):
+        return name, ''
+    depth = 0
+    for i in range(len(name) - 1, -1, -1):
+        ch = name[i]
+        if ch == ')':
+            depth += 1
+        elif ch == '(':
+            depth -= 1
+            if depth == 0:
+                return name[:i].rstrip(), name[i + 1:-1]
+    return name, ''  # unbalanced the other way — leave intact
+
+
+def _collapse_doubled_name(name: str) -> str:
+    """Undo a name the source doubled (a recurring poster-scrape artifact).
+
+    Two patterns, both seen in the accepted-poster mirrors:
+      * whole name repeated — "Subhendu Bikash Ghosh Subhendu Bikash Ghosh";
+      * an adjacent word repeated — "Nike Dattani Dattani", "Myungshik Kim Kim".
+
+    Repeated *single-letter* tokens are preserved, so real double initials like
+    "Maneesha K K" survive.
+    """
+    toks = name.split()
+    if len(toks) >= 4 and len(toks) % 2 == 0:
+        half = len(toks) // 2
+        if toks[:half] == toks[half:] and any(len(t.strip('.')) > 1 for t in toks[:half]):
+            toks = toks[:half]
+    out: List[str] = []
+    for t in toks:
+        if out and t == out[-1] and len(t.strip('.')) > 1:
+            continue
+        out.append(t)
+    return ' '.join(out)
+
+
+def _split_authors_prose(cell: str) -> List[str]:
+    """Split a prose author list on top-level ``,`` / `` and `` / `` & ``,
+    protecting any separator that sits inside (affiliation) parentheses."""
+    parts: List[str] = []
+    depth = 0
+    buf: List[str] = []
+    i, n = 0, len(cell)
+    while i < n:
+        ch = cell[i]
+        if ch == '(':
+            depth += 1
+        elif ch == ')':
+            depth = max(0, depth - 1)
+        if depth == 0:
+            if ch == ',':
+                parts.append(''.join(buf))
+                buf = []
+                i += 1
+                continue
+            m = re.match(r'\s+(?:and|&)\s+', cell[i:])
+            if m:
+                parts.append(''.join(buf))
+                buf = []
+                i += m.end()
+                continue
+        buf.append(ch)
+        i += 1
+    parts.append(''.join(buf))
+    return parts
 
 
 def _split_top_level(text: str, sep: str) -> List[str]:
@@ -427,18 +518,36 @@ def parse_qip_2015(soup: BeautifulSoup) -> List[Dict[str, Any]]:
 
 
 def parse_qip_2016(soup: BeautifulSoup) -> List[Dict[str, Any]]:
-    """QIP 2016: ``<li><p>Authors. Title</p></li>`` — no emphasis markup, so the
-    author list is delimited from the title by the sentence period."""
+    """QIP 2016: the author+title is the paper-link ``<a>`` — as
+    ``<li><p><a>Authors. Title</a></p><p>Abstract</p></li>`` for most entries, or
+    ``<li><a>Authors. Title</a><br><p>Abstract</p></li>`` for a few. Anchoring on
+    the ``<a>`` (not "the first ``<p>``", which is the abstract in the second
+    shape) reads both correctly; the abstract is the ``<p>`` that does not carry
+    the anchor. Entries with no anchor fall back to the first ``<p>`` / li text.
+    The author list is delimited from the title by the sentence period."""
     posters: List[Dict[str, Any]] = []
     for li in soup.find_all('li'):
-        p_tag = li.find('p')
-        text = _collapse((p_tag or li).get_text(' ', strip=True))
-        if not text:
+        anchor = li.find('a')
+        paras = li.find_all('p')
+        abstract = None
+        if anchor:
+            head = _collapse(anchor.get_text(' ', strip=True))
+            for p in paras:
+                if anchor not in p.descendants:
+                    abstract = _clean_abstract(p.get_text(' ', strip=True))
+                    break
+        elif paras:
+            head = _collapse(paras[0].get_text(' ', strip=True))
+            if len(paras) > 1:
+                abstract = _clean_abstract(paras[1].get_text(' ', strip=True))
+        else:
+            head = _collapse(li.get_text(' ', strip=True))
+        if not head:
             continue
-        authors, title = _split_authors_dot_title(text)
+        authors, title = _split_authors_dot_title(head)
         if not title:
             continue
-        poster = _poster(title, authors)
+        poster = _poster(title, authors, abstract=abstract)
         if poster:
             posters.append(poster)
     return posters
