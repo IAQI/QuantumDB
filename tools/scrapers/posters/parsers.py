@@ -11,8 +11,10 @@ returns a list of poster dicts with the contract::
         'session_name': str | None,  # where the source groups posters
     }
 
-``speakers`` is deliberately absent — posters have no distinct presenter, so the
-importer resolves ``presenter_author_id`` to NULL. ``scheduled_time`` /
+``speakers`` is normally absent — most poster pages mark no distinct presenter, so
+the importer resolves ``presenter_author_id`` to NULL. The exception is QIP 2026,
+whose page underlines (``<u>``) the presenter: ``parse_qip_2026`` emits ``speakers``
+(and a ``scheduled_date``) so the importer sets the presenter. ``scheduled_time`` /
 ``duration_minutes`` are absent too (posters legitimately lack them). The runner
 stamps ``venue``/``year``/``notes`` (source path) onto each row afterwards.
 
@@ -549,6 +551,86 @@ def parse_qip_2016(soup: BeautifulSoup) -> List[Dict[str, Any]]:
             continue
         poster = _poster(title, authors, abstract=abstract)
         if poster:
+            posters.append(poster)
+    return posters
+
+
+# QIP 2026 poster sessions are on fixed dates; map the session number (1/2) to
+# the date rather than parse the block's date line (which has a typo, "Jannuary").
+_QIP_2026_SESSION_DATES = {1: '2026-01-26', 2: '2026-01-27'}
+
+
+def _name_key(name: str) -> str:
+    """A loose identity key for de-duping one poster's author list: the lowercased
+    first and last alphanumeric tokens (middle names/initials ignored), so
+    "Sean R. Muleady" and "Sean Muleady" collapse to the same person."""
+    toks = re.findall(r'\w+', name.lower())
+    if not toks:
+        return ''
+    return f"{toks[0]}|{toks[-1]}" if len(toks) > 1 else toks[0]
+
+
+def parse_qip_2026(soup: BeautifulSoup) -> List[Dict[str, Any]]:
+    """QIP 2026: two ``<h2>Poster Session N</h2>`` blocks, each a single ``<ol>``
+    of ``<li><strong>Title</strong> Author, <u>Presenter</u>, Author…</li>``.
+
+    Unlike the other poster pages, this one marks the presenter(s) with ``<u>`` —
+    so this parser (alone) emits ``speakers``. The author cell is the ``<li>`` text
+    after the title; a few entries repeat the presenter's name verbatim at another
+    position (a source artifact), so exact-duplicate names are collapsed. Empty
+    ``<li>`` placeholders are skipped. Session number → ``scheduled_date`` via
+    ``_QIP_2026_SESSION_DATES``."""
+    posters: List[Dict[str, Any]] = []
+    for h2 in soup.find_all('h2'):
+        session_name = _collapse(h2.get_text(' ', strip=True))
+        if 'Poster Session' not in session_name:
+            continue
+        block = h2.find_parent('div', class_='genericText')
+        if block is None:
+            continue
+        m = re.search(r'(\d+)', session_name)
+        scheduled_date = _QIP_2026_SESSION_DATES.get(int(m.group(1))) if m else None
+        for li in block.find_all('li'):
+            strong = li.find('strong')
+            if strong is None:
+                continue
+            title = _collapse(strong.get_text(' ', strip=True))
+            if not title:
+                continue
+            # Author cell = the li's text with the leading <strong> title removed.
+            authors_html = re.sub(r'<strong>.*?</strong>', '',
+                                  li.decode_contents(), count=1, flags=re.S)
+            authors_cell = BeautifulSoup(authors_html, 'html.parser').get_text(' ', strip=True)
+            poster = _poster(title, authors_cell, session_name=session_name)
+            if not poster:
+                continue
+            # Collapse the presenter-listed-twice artifact, keeping the first
+            # occurrence's affiliation. The repeat is sometimes a name *variant*
+            # ("Sean R. Muleady" then "Sean Muleady"), which the importer's fuzzy
+            # author-matching would otherwise fold into one author and then reject
+            # as a duplicate authorship. Key on (first, last) name token so both
+            # exact repeats and initial-only variants collapse; two genuinely
+            # distinct co-authors sharing first+last on one poster is implausible.
+            seen: set = set()
+            names: List[str] = []
+            affs: List[str] = []
+            for name, aff in zip(poster['authors'], poster['affiliations']):
+                if name in seen or _name_key(name) in seen:
+                    continue
+                seen.add(name)
+                seen.add(_name_key(name))
+                names.append(name)
+                affs.append(aff)
+            poster['authors'], poster['affiliations'] = names, affs
+            # Presenter(s): the <u>-wrapped names, de-duplicated in order, cleaned
+            # the same way as authors so import-time normalisation aligns.
+            speakers: List[str] = []
+            for u in li.find_all('u'):
+                sp = clean_display_name(_collapse(u.get_text(' ', strip=True)))
+                if sp and sp not in speakers:
+                    speakers.append(sp)
+            poster['speakers'] = speakers
+            poster['scheduled_date'] = scheduled_date
             posters.append(poster)
     return posters
 

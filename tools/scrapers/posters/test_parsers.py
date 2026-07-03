@@ -142,6 +142,51 @@ def test_pdf_2col_wrapping():
     assert got[1]['authors'] == ['Carol Yu', 'Dan Ho', 'Eve'], got[1]
 
 
+def test_qip_2026_posters_with_presenter():
+    from bs4 import BeautifulSoup
+    html = (
+        '<div class="genericText"><h2>Poster Session 1</h2>'
+        '<p><strong>Monday, January 26 17:30-19:30</strong></p><ol>'
+        # presenter underlined; also repeated at the end (source artifact -> dedup)
+        '<li><strong>Fourier Structure</strong> <u>Zhijian Lai</u>, Jiang Hu, <u>Zhijian Lai</u></li>'
+        # two underlined presenters
+        '<li><strong>Self-testing games</strong> <u>Matthijs Vernooij</u>, <u>Yuming Zhao</u></li>'
+        # empty placeholder li -> skipped
+        '<li> </li>'
+        '</ol></div>'
+        '<div class="genericText"><h2>Poster Session 2</h2>'
+        '<p><strong>Tuesday, Jannuary 27 17:30-19:30</strong></p><ol>'
+        '<li><strong>Uncloneable Encryption</strong> <u>Eric Culf</u></li>'
+        '</ol></div>'
+    )
+    got = parsers.parse_qip_2026(BeautifulSoup(html, 'html.parser'))
+    assert len(got) == 3, got
+    p0 = got[0]
+    assert p0['title'] == 'Fourier Structure', p0
+    assert p0['authors'] == ['Zhijian Lai', 'Jiang Hu'], p0  # doubled presenter collapsed
+    assert p0['speakers'] == ['Zhijian Lai'], p0
+    assert p0['session_name'] == 'Poster Session 1', p0
+    assert p0['scheduled_date'] == '2026-01-26', p0
+    assert got[1]['speakers'] == ['Matthijs Vernooij', 'Yuming Zhao'], got[1]
+    assert got[2]['scheduled_date'] == '2026-01-27', got[2]  # typo'd month still maps
+    assert got[2]['speakers'] == ['Eric Culf'], got[2]
+
+
+def test_qip_2026_collapses_presenter_name_variant():
+    # Source artifact: the presenter is repeated as an initials-only variant
+    # ("Sean R. Muleady" ... "Sean Muleady"). Both must collapse to one author,
+    # or the importer's fuzzy match rejects the duplicate authorship.
+    from bs4 import BeautifulSoup
+    html = (
+        '<div class="genericText"><h2>Poster Session 1</h2><ol>'
+        '<li><strong>Sensor networks</strong> Erfan A, <u>Sean Muleady</u>, '
+        'Sean R. Muleady</li></ol></div>'
+    )
+    got = parsers.parse_qip_2026(BeautifulSoup(html, 'html.parser'))
+    assert got[0]['authors'] == ['Erfan A', 'Sean Muleady'], got[0]
+    assert got[0]['speakers'] == ['Sean Muleady'], got[0]
+
+
 def main() -> int:
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     failed = 0
