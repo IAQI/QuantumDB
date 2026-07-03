@@ -177,7 +177,7 @@
         {% for section in committee_by_type %}
         <details class="committee" open>
             <summary>
-                <span class="committee-title">{{ section.committee_type }}</span>
+                <span class="committee-title">{{ section.committee_label }}</span>
                 <span class="committee-meta"><span>{{ section.members.len() }} members</span></span>
             </summary>
             <div class="committee-body">

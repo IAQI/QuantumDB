@@ -146,7 +146,7 @@ fn committee_full_name(c: &str) -> &str {
     match c {
         "PC" => "program",
         "SC" => "steering",
-        "OC" => "organising",
+        "OC" => "organizing",
         x => x,
     }
 }
@@ -416,6 +416,7 @@ struct CommitteeRoleItem {
     conference_year: i32,
     conference_slug: String,
     committee_type: String,
+    committee_label: String,
     position: String,
     role_title: String,
 }
@@ -647,6 +648,7 @@ pub async fn author_detail(
         conference_venue: row.conference_venue,
         conference_year: row.conference_year,
         conference_slug: row.conference_slug,
+        committee_label: committee_full_name(&row.committee_type).to_string(),
         committee_type: row.committee_type,
         position: row.position,
         role_title: row.role_title,
