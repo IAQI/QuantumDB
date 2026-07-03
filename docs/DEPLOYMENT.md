@@ -175,7 +175,7 @@ docker compose -f docker-compose.prod.yml -f docker-compose.import.yml up -d db
 python3 -m venv ~/venv && ~/venv/bin/pip install -r tools/scrapers/requirements.txt   # once
 source .env; export DATABASE_URL="postgres://quantumdb:${POSTGRES_PASSWORD}@127.0.0.1:5432/quantumdb"
 ~/venv/bin/python tools/scrapers/import_from_csv.py committees data/conferences/*/committees.csv
-~/venv/bin/python tools/scrapers/import_from_csv.py talks data/conferences/*/talks.csv data/conferences/*/proceedings.csv data/conferences/*/workshop.csv
+~/venv/bin/python tools/scrapers/import_from_csv.py talks data/conferences/*/talks.csv data/conferences/*/proceedings.csv data/conferences/*/workshop.csv data/conferences/*/posters.csv
 ~/venv/bin/python tools/scrapers/import_from_csv.py business-meetings data/conferences/*/business_meeting.csv
 ~/venv/bin/python tools/dedup_authors.py --commit         # consolidates pre-existing dup rows; also refreshes the views
 rm docker-compose.import.yml
@@ -214,9 +214,12 @@ until docker compose -f docker-compose.prod.yml exec -T db pg_isready -U quantum
 #    dedup_authors.py is not needed here. Note the `*/` glob (not `tqc_*/`):
 #    proceedings/workshop are TQC-only but some dirs are uppercase (TQC_2006..TQC_2012), which a
 #    lowercase `tqc_*` glob silently skips — dropping those years' papers + authors.
+#    The `talks` importer reads every generic talk-shaped CSV; posters.csv shares that schema and
+#    holds ~4,500 rows (over half the publications), so it MUST be in the glob list — omitting it
+#    silently drops all poster papers + their authors.
 source .env; export DATABASE_URL="postgres://quantumdb:${POSTGRES_PASSWORD}@127.0.0.1:5432/quantumdb"
 ~/venv/bin/python tools/scrapers/import_from_csv.py committees data/conferences/*/committees.csv
-~/venv/bin/python tools/scrapers/import_from_csv.py talks data/conferences/*/talks.csv data/conferences/*/proceedings.csv data/conferences/*/workshop.csv
+~/venv/bin/python tools/scrapers/import_from_csv.py talks data/conferences/*/talks.csv data/conferences/*/proceedings.csv data/conferences/*/workshop.csv data/conferences/*/posters.csv
 ~/venv/bin/python tools/scrapers/import_from_csv.py business-meetings data/conferences/*/business_meeting.csv
 docker compose -f docker-compose.prod.yml exec -T db psql -U quantumdb -d quantumdb -c \
   "REFRESH MATERIALIZED VIEW CONCURRENTLY author_stats; REFRESH MATERIALIZED VIEW CONCURRENTLY conference_stats; REFRESH MATERIALIZED VIEW CONCURRENTLY coauthor_pairs;"
@@ -229,7 +232,10 @@ docker compose -f docker-compose.prod.yml up -d app
 The `talks` import prints a handful of "conference not found or no authors" warnings — these are
 junk schedule rows and rows with empty author+speaker columns, correctly skipped (they create no
 authors). Sanity-check afterward: `SELECT count(*) FROM authors` and
-`SELECT full_name FROM authors WHERE full_name LIKE '%(%'` (should be empty).
+`SELECT full_name FROM authors WHERE full_name LIKE '%(%'` (should return only the two known
+nickname/maiden-name entries "Sungeun (Paul) Oh" and "Justyna (Pytel) Zwolak" — anything else is a
+parse anomaly). Expected magnitudes after a full reload: ~66 conferences · ~8,500 authors ·
+~7,250 publications · ~24,250 authorships · ~2,640 committee roles · 18 business meetings.
 
 **Backups:** the only state is the `postgres_data` Docker volume. To dump:
 `docker compose -f docker-compose.prod.yml exec -T db pg_dump -U quantumdb quantumdb | gzip > backup.sql.gz`.
