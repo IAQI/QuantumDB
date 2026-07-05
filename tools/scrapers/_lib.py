@@ -110,9 +110,32 @@ def _titlecase_word(word: str) -> str:
     return ''.join(p if p in "-'’" else cap(p) for p in re.split(r"([-'’])", word))
 
 
+# Latin typographic ligatures that PDF/HTML sources emit as single codepoints
+# (e.g. "Reﬁk" for "Refik"). Expanded so display names stay searchable.
+_LIGATURES = str.maketrans({
+    'ﬀ': 'ff', 'ﬁ': 'fi', 'ﬂ': 'fl', 'ﬃ': 'ffi', 'ﬄ': 'ffl', 'ﬅ': 'st', 'ﬆ': 'st',
+})
+# LaTeX \'{\i} exports a dotless i (U+0131) followed by a combining accent; the
+# intended letter is a dotted i. Restore it before NFC composes the accent.
+_DOTLESS_I_RE = re.compile('ı(?=[̀-ͯ])')
+
+
+def _normalize_display_unicode(name: str) -> str:
+    """Compose canonical decomposed sequences and expand ligatures / the LaTeX
+    dotless-i artifact, so a display name uses precomposed accented letters
+    ("Gómez", "Víctor") and plain ASCII where a ligature was used ("Refik")."""
+    name = _DOTLESS_I_RE.sub('i', name).translate(_LIGATURES)
+    # LaTeX \'e etc. can export a spacing acute (´) just before the vowel it
+    # accents ("Ass´emat" -> "Assémat"); fold it onto the following letter.
+    name = re.sub(r'´([A-Za-z])', lambda m: m.group(1) + '́', name)
+    return unicodedata.normalize('NFC', name)
+
+
 def clean_display_name(name: str) -> str:
     """Tidy a scraped *display* name (case preserved, unlike ``normalize_name``).
 
+    0. Compose Unicode (NFC) and expand typographic ligatures / the LaTeX
+       dotless-i artifact (``_normalize_display_unicode``).
     1. Strip a leading honorific ("Dr.", "Prof.", …).
     2. If the name is a single case throughout — a "shouted" ALL-CAPS scrape
        ("YANGYANG FEI", "N C RANDEEP") or an all-lower-case one ("yicheng shi") —
@@ -124,6 +147,7 @@ def clean_display_name(name: str) -> str:
     """
     if not name:
         return name
+    name = _normalize_display_unicode(name)
     name = _HONORIFIC_RE.sub('', name).strip()
     letters = [c for c in name if c.isalpha()]
     if letters and (all(c.isupper() for c in letters) or all(c.islower() for c in letters)):
