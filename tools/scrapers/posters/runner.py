@@ -44,6 +44,7 @@ _PARSERS = {
     'qcrypt_2011': parsers.parse_qcrypt_2011,
     'qcrypt_2012': parsers.parse_qcrypt_2012,
     'qcrypt_2013': parsers.parse_qcrypt_2013,
+    'qcrypt_2014': parsers.parse_qcrypt_2014,
     'qcrypt_2015': parsers.parse_qcrypt_2015,
     'qcrypt_2016': parsers.parse_qcrypt_2016,
     'qcrypt_2018': parsers.parse_qcrypt_2018,
@@ -97,6 +98,9 @@ POSTER_SOURCES: Dict[tuple, tuple] = {
     ('QCRYPT', 2011): ('qcrypt_2011', ['2011/programme/posters/index.html']),
     ('QCRYPT', 2012): ('qcrypt_2012', ['2012/program.html']),
     ('QCRYPT', 2013): ('qcrypt_2013', ['2013/posters/index.html']),
+    # 2014's poster list is at the bottom of the program page (the dedicated
+    # posters page is a "To be announced" stub).
+    ('QCRYPT', 2014): ('qcrypt_2014', ['2014/program/index.html']),
     ('QCRYPT', 2015): ('qcrypt_2015', ['2015/index.html?p=25.html']),
     ('QCRYPT', 2016): ('qcrypt_2016', ['2016/posters/index.html']),
     ('QCRYPT', 2018): ('qcrypt_2018', ['2018/others/accepted-posters/index.html']),
@@ -104,8 +108,6 @@ POSTER_SOURCES: Dict[tuple, tuple] = {
         '2019/scientific-program/poster-session-monday-26-august-2019/index.html',
         '2019/scientific-program/poster-session-wednesday-28-august-2019/index.html',
     ]),
-    # QCrypt 2014 poster list was never published on the mirrored site — the
-    # posters page reads only "Poster session — To be announced".
     ('QIP', 2006): ('qip_2006', ['2006/accepted_posters.html']),
     ('QIP', 2009): ('qip_2009', ['2009/posters.html']),
     ('QIP', 2010): ('qip_2010', ['2010/postersession.html']),

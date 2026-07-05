@@ -400,6 +400,41 @@ def parse_qcrypt_2012(soup: BeautifulSoup) -> List[Dict[str, Any]]:
     return posters
 
 
+_QCRYPT_2014_AREA_RE = re.compile(r'^\s*\[Area\s*([^\]]*)\]\s*')
+
+
+def parse_qcrypt_2014(soup: BeautifulSoup) -> List[Dict[str, Any]]:
+    """QCrypt 2014 accepted-poster list (at the bottom of the program page): each
+    poster is ``<li>[Area N] <strong>Title</strong>, Authors</li>``. The "[Area N]"
+    research-area tag becomes the session name; authors are the text after the
+    bold title. Award-winner posters are repeated in a "Best Poster Award" block,
+    so entries are de-duplicated by title."""
+    posters: List[Dict[str, Any]] = []
+    seen: set = set()
+    for li in soup.find_all('li'):
+        m = _QCRYPT_2014_AREA_RE.match(_collapse(li.get_text(' ', strip=True)))
+        if not m:
+            continue
+        strong = li.find('strong')
+        if not strong:
+            continue
+        title = _collapse(strong.get_text(' ', strip=True))
+        if not title or title.lower() in seen:
+            continue
+        seen.add(title.lower())
+        author_parts: List[str] = []
+        for node in strong.next_siblings:
+            if isinstance(node, NavigableString):
+                author_parts.append(str(node))
+            elif getattr(node, 'get_text', None):
+                author_parts.append(node.get_text(' ', strip=True))
+        authors = re.sub(r'^\s*,\s*', '', _collapse(' '.join(author_parts)))
+        poster = _poster(title, authors, session_name=f"Area {m.group(1).strip()}")
+        if poster:
+            posters.append(poster)
+    return posters
+
+
 def parse_qcrypt_2015(soup: BeautifulSoup) -> List[Dict[str, Any]]:
     """QCrypt 2015 "Selected Posters" list (Scientific Program page): each poster
     is ``<p>N. <em><strong>Title</strong></em><br>Authors<img>…</p>``. Title is the

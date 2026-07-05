@@ -45,11 +45,12 @@ Registered in `POSTER_SOURCES` (`tools/scrapers/posters/runner.py`); regenerate 
 `import_from_csv.py talks <dir>/posters.csv`. Earlier years (QCrypt 2011/2013/2016/2018/2020–2025,
 QIP 2006–2016/2019/2026, TQC 2019–2025) are documented in the registry itself.
 
-**Recovered 2026-07** (11 conference-years, 2,358 posters):
+**Recovered 2026-07** (12 conference-years, 2,450 posters):
 
 | Year | Source | Parser | Posters |
 |------|--------|--------|---------|
 | QCrypt 2012 | `2012/program.html` ("Posters" section) | `parse_qcrypt_2012` | 62 |
+| QCrypt 2014 | `2014/program/index.html` (accepted-poster list at the page bottom; "[Area N]" tags) | `parse_qcrypt_2014` | 92 |
 | QCrypt 2015 | `2015/index.html?p=25.html` ("Selected Posters" list) | `parse_qcrypt_2015` | 114 |
 | QCrypt 2019 | `2019/scientific-program/poster-session-{monday,wednesday}-*/index.html` | `parse_qcrypt_2019` | 144 |
 | QIP 2013 | `2013/index.html@p=351.html` (poster schedule) | `parse_qip_2013` | 133 |
@@ -62,8 +63,8 @@ QIP 2006–2016/2019/2026, TQC 2019–2025) are documented in the registry itsel
 | TQC 2022 | `2022/files/2022/07/TQC-2022-Program-FINAL.pdf` ("POSTER SESSION PROGRAM") | `parse_tqc_2022_pdf` | 44 |
 
 Notes:
-- **QCrypt 2014 — not recoverable.** The mirrored posters page (`2014/posters/`) and the
-  live site both read only "Poster session — To be announced"; a poster list was never published.
+- **QCrypt 2014** — the dedicated posters page (`2014/posters/`) is a "To be announced" stub, but the
+  accepted-poster list is at the bottom of the **program** page (`2014/program/index.html`).
 - **QIP 2024** and **QIP 2023** each carry a trailing "Not Presenting" list (accepted-but-absent)
   that is deliberately excluded, matching the presented-posters convention.
 - **Known imperfect rows** (from source-PDF column merges where pdftotext ran two columns

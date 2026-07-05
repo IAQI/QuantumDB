@@ -209,6 +209,24 @@ def test_qcrypt_2012_li_spans():
     assert got[0]['authors'] == ['Frédéric Dupuis', 'Oleg Szehr', 'Marco Tomamichel'], got[0]
 
 
+def test_qcrypt_2014_area_tagged_list():
+    html = (
+        '<ul>'
+        '<li>[Area 4] <strong>Fault-tolerant QKD over a collective-noise channel</strong>, Li Chunyan</li>'
+        '<li>[Area 3] <strong>Direct Counterfactual Communication</strong>, Zhu Cao and Alice Ng</li>'
+        '</ul>'
+        '<p>Best Poster Award (selected by popular vote)</p>'
+        # award winner repeated -> must be de-duplicated by title
+        '<ul><li>[Area 3] <strong>Direct Counterfactual Communication</strong>, Zhu Cao and Alice Ng</li></ul>'
+    )
+    got = parsers.parse_qcrypt_2014(_soup(html))
+    assert len(got) == 2, got  # duplicate award entry collapsed
+    assert got[0]['title'] == 'Fault-tolerant QKD over a collective-noise channel', got[0]
+    assert got[0]['authors'] == ['Li Chunyan'], got[0]
+    assert got[0]['session_name'] == 'Area 4', got[0]
+    assert got[1]['authors'] == ['Zhu Cao', 'Alice Ng'], got[1]
+
+
 def test_qcrypt_2015_emphasis_then_authors():
     html = (
         '<p>1. <em><strong>Long distance MDI-QKD</strong></em><br>'
