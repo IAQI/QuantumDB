@@ -134,20 +134,24 @@ src/
 │   ├── conference.rs    # Conference, CreateConference, UpdateConference
 │   ├── author.rs        # Author, CreateAuthor, UpdateAuthor
 │   ├── publication.rs   # Publication, CreatePublication, UpdatePublication
-│   └── committee.rs     # CommitteeRole, CreateCommitteeRole, UpdateCommitteeRole
+│   ├── committee.rs     # CommitteeRole, CreateCommitteeRole, UpdateCommitteeRole
+│   ├── business_meeting.rs # BusinessMeeting (stats announced at the annual business meeting)
+│   └── stats.rs         # ConferenceStat (per-venue/year stats time series for the API + charts)
 ├── handlers/            # API request handlers (implemented)
 │   ├── mod.rs
 │   ├── conferences.rs   # Full CRUD for conferences
 │   ├── authors.rs       # Full CRUD for authors
-│   ├── publications.rs  # Full CRUD for publications
+│   ├── publications.rs  # Full CRUD for publications (list supports ?search= full-text)
 │   ├── authorships.rs   # Full CRUD for authorships
 │   ├── committees.rs    # Full CRUD for committee roles
+│   ├── stats.rs         # Read-only per-conference stats (GET /api/v1/stats/conferences)
 │   └── web/             # Web interface handlers (implemented)
 │       ├── mod.rs
 │       ├── home.rs      # Homepage
 │       ├── about.rs     # About page with IAQI branding
 │       ├── authors.rs   # Author list and detail pages
 │       ├── conferences.rs # Conference list and detail pages
+│       ├── publications.rs # Publications browser (full-text search page + table partial)
 │       └── admin.rs     # Admin utilities (stats refresh)
 ├── middleware/          # Request middleware (implemented)
 │   ├── mod.rs
@@ -157,7 +161,8 @@ src/
     ├── normalize.rs     # Unicode normalization, name similarity, loose matching
     ├── conference.rs    # Conference slug parsing (e.g., "QIP2024")
     ├── pagination.rs    # clamp_pagination() — bounds limit/offset (default 100, max 1000)
-    └── validation.rs    # URL scheme + length + JSONB metadata validators
+    ├── validation.rs    # URL scheme + length + JSONB metadata validators
+    └── db_error.rs      # map_db_error()/map_delete_error() — SQLSTATE → HTTP status (409/400/500)
 ```
 
 ### Key Utilities
@@ -184,6 +189,10 @@ src/
 - `validate_text_len(s, max)` / `validate_optional_text_len` - Generic per-field length cap. Constants: `MAX_NAME_LEN = 255`, `MAX_TITLE_LEN = 1000`, `MAX_ABSTRACT_LEN = 50_000`.
 - `validate_metadata(opt_value)` - Requires JSONB metadata to be an object (not array/scalar) and ≤ 4 KB serialised.
 - All validators return `Err(StatusCode::BAD_REQUEST)` so handlers can `?`-propagate.
+
+**DB error mapping** (`src/utils/db_error.rs`):
+- `map_db_error(&sqlx::Error)` - Maps PostgreSQL SQLSTATE codes to HTTP status so client-caused DB rejections don't collapse into 500s: unique violation (`23505`) → **409 Conflict**; check / foreign-key / not-null / invalid-text (`23514`/`23503`/`23502`/`22P02`) → **400 Bad Request**; anything else → 500.
+- `map_delete_error(&sqlx::Error)` - For DELETEs: a foreign-key violation means the row is still referenced → **409 Conflict**; else 500.
 
 ### Database Schema
 
@@ -235,11 +244,15 @@ src/
 
 **Committee Roles** (`/api/v1/committees`): full CRUD with auth on writes.
 
+**Stats** (`/api/v1/stats`):
+- `GET /api/v1/stats/conferences` - Public read-only per-conference (venue/year) stats time series, combining `conference_stats` view counts with announced figures from `conference_business_meetings`. Powers the conferences-overview trend charts.
+
 **Web Interface** (HTML pages, server-rendered, unversioned):
 - `GET /` - Homepage
 - `GET /about` - About page (IAQI branding)
 - `GET /authors`, `GET /authors/:id` - Author list / detail
 - `GET /conferences`, `GET /conferences/:slug` - Conference list / detail
+- `GET /publications` - Publications browser (full-text search over title/abstract/author names)
 - `GET /static/*` - Static assets
 - `GET /health` - Health check (used by Dockerfile HEALTHCHECK)
 
@@ -352,7 +365,7 @@ DATABASE_URL=postgres://quantumdb:quantumdb@db:5432/quantumdb
 
 Handlers return `(StatusCode, Json<T>)` tuples:
 - Success → `(StatusCode::OK, Json(data))` or `(StatusCode::CREATED, Json(data))`
-- Database errors → `(StatusCode::INTERNAL_SERVER_ERROR, Json(error_message))`
+- Database errors → routed through `map_db_error()` / `map_delete_error()` (`src/utils/db_error.rs`) so client-caused rejections become 4xx, not 500: unique violation → **409 Conflict**, check/foreign-key/not-null/invalid-text → **400 Bad Request**, a still-referenced row on DELETE → **409 Conflict**, and only genuinely unexpected failures → **500 Internal Server Error**
 - Not found → `(StatusCode::NOT_FOUND, Json(error_message))`
 - Validation errors → `(StatusCode::BAD_REQUEST, Json(error_message))`
 
@@ -364,8 +377,8 @@ All handlers use SQLx query macros (`query!`, `query_as!`) for compile-time veri
 - **src/lib.rs** - Library exports for models, handlers, utils
 - **src/models/** - All database models (Conference, Author, Publication, CommitteeRole, etc.)
 - **src/handlers/** - All API request handlers with full CRUD operations
-- **src/utils/** - Name normalization (~404 lines), conference slug parsing, pagination clamping, input validation
-- **tests/api_tests.rs** - Comprehensive test suite (~1588 lines) covering all CRUD operations
+- **src/utils/** - Name normalization (~404 lines), conference slug parsing, pagination clamping, input validation, DB-error → HTTP-status mapping
+- **tests/api_tests.rs** - Comprehensive test suite (~1940 lines) covering all CRUD operations
 - **migrations/** - Database schema migrations (SQLx format, run in order)
   - `20251228160000_create_conferences_table.sql`
   - `20251228160001_create_authors_table.sql`
@@ -387,6 +400,7 @@ All handlers use SQLx query macros (`query!`, `query_as!`) for compile-time veri
   - `20260514000000_author_stats_recent_affiliation.sql` - Rebuilds the `author_stats` view to add `recent_affiliation` (from the author's most recent dated appearance, not the last-write-wins scalar)
   - `20260622000000_create_conference_business_meetings.sql` - Adds the `conference_business_meetings` table (1:1 with a conference): stats **announced** at the annual business meeting (registered participants, submission/acceptance counts), with per-fact provenance in `metadata.sources`. Distinct from the computed `conference_stats`. Populated from a tall `business_meeting.csv` per conference via `import_from_csv.py business-meetings`.
   - `20260623000000_add_business_meeting_slides.sql` - Adds `conference_business_meetings.slides` (JSONB array of `{label, url}`) linking the business-meeting slide decks (PC-chair report, local-organizers report). In the tall CSV these are `slide:<label>` rows.
+  - `20260702000000_publications_search_authors.sql` - Extends publication full-text search to cover **author names** (weight C) alongside title (A) and abstract (B). Adds a maintained `publications.author_names_text` column (denormalized author `full_name`/`published_as_name`), folds it into the regenerated `search_vector` generated column, and keeps it in sync via triggers on `authorships` (`trg_authorships_sync_author_names`) and on author name changes (`trg_authors_sync_publication_author_names`); backfills existing rows.
   - `20260702180000_authorship_delete_clears_presenter.sql` - Adds a BEFORE DELETE trigger on `authorships` (`clear_presenter_on_authorship_delete`) that NULLs `publications.presenter_author_id` when the presenter's own authorship row is removed. Makes the presenter-must-be-an-author invariant self-maintaining for authorship rewrites (talk-importer delete-then-reinsert, author merges) — previously such a delete either dangled the presenter or, via `trg_authorships_sync_author_names`, re-fired `ensure_presenter_is_author` mid-delete and errored.
 - **seeds/** - Initial data (run manually after migrations)
   - `insert_qip_conferences.sql` - Historical QIP data (1998-2024)
@@ -400,7 +414,7 @@ All handlers use SQLx query macros (`query!`, `query_as!`) for compile-time veri
 - **static/** - Static assets (images, CSS, JS)
 - **data/conferences/** - Source-of-truth CSVs per conference (`<venue>_<year>/{committees,talks,proceedings,workshop}.csv`). Edit these to fix data; importer scripts read from here. See `data/README.md` for schemas.
 - **data/SOURCES.md** - Per-conference provenance (which page each CSV was scraped from).
-- **tools/scrapers/** - Unified scrape + import package; subcommand CLIs `scrape_to_csv.py {committees|talks}` and `import_from_csv.py {committees|talks}`. Venue scrapers under `committees/` and `talks/` subpackages.
+- **tools/scrapers/** - Unified scrape + import package; subcommand CLIs `scrape_to_csv.py {committees|talks|posters}` and `import_from_csv.py {committees|talks|business-meetings}` (note the asymmetry: `posters` is scrape-only, `business-meetings` is import-only). Sub-packages under `committees/`, `talks/`, `posters/`, and `business_meetings/`.
 - **tools/one_off/** - Archived historical/monolithic scrapers and one-off conversion projects (QIP 2026, TQC 2023-24, TQC LIPIcs).
 - **tools/generate_token.sh** - Secure token generation utility
 
@@ -431,7 +445,7 @@ Hybrid: stack runs in Docker, Rust toolchain runs on the host.
 
 ## Current Development Priorities
 
-1. **Data Population**: Populate database with historical conference data, publications, authors, and committee roles. Source-of-truth CSVs live under `data/conferences/<venue>_<year>/`; scrape and import via `tools/scrapers/{scrape_to_csv,import_from_csv}.py` with a `committees | talks` subcommand.
+1. **Data Population**: Populate database with historical conference data, publications, authors, and committee roles. Source-of-truth CSVs live under `data/conferences/<venue>_<year>/`; scrape and import via `tools/scrapers/{scrape_to_csv,import_from_csv}.py` with a `committees | talks | posters | business-meetings` subcommand (see the tools entry above for which CLI supports which).
 2. **Search & Analytics**: Add search endpoints (author search, publication search), implement analytics based on materialized views
 3. **Data Import Tools**: Build tools to scrape/import data from conference websites, DBLP, arXiv
 4. **Export Features**: Add BibTeX, CSV export functionality

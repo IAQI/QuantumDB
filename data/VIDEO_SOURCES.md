@@ -17,7 +17,7 @@ Maintained alongside `tools/video_channels.json` (the machine-readable YouTube s
   harvestable YouTube playlist/channel (would need a different scraper).
 - `pending` — too recent; recordings may still be published.
 
-Last updated: 2026-06-23.
+Last updated: 2026-07-05.
 
 ## QIP
 
@@ -58,6 +58,7 @@ Last updated: 2026-06-23.
 | 2023 | 68% | playlist `PLbY0Lk6JsgBEph5CPYTQZs6cOKBPGSnnI` (UMaryland) | recorded — added 2026-06 |
 | 2024 | 0% | videos on `2024.qcrypt.net` (Vigo) | none — source not on YouTube |
 | 2025 | 98% | (prior enrichment) | recorded |
+| 2026 | — | — | pending (no talk data yet) |
 
 **Note:** the `@qcryptconference239` channel hosts **only 2020/2021/2022** (verified by enumeration).
 
@@ -73,6 +74,7 @@ Last updated: 2026-06-23.
 | 2023 | 92% | `@SquidSchools` (year-filtered) | recorded |
 | 2024 | 89% | `@SquidSchools` (year-filtered) | recorded |
 | 2025 | 80% | `@tqc-conference` (year-filtered) | recorded |
+| 2026 | — | — | pending (no talk data yet) |
 
 ## Worklist (open items)
 - **QCrypt 2024 / 2017**: recordings exist on the conference websites (`2024.qcrypt.net`,
