@@ -57,6 +57,7 @@ _PARSERS = {
     'qip_2014': parsers.parse_qip_2014,
     'qip_2015': parsers.parse_qip_2015,
     'qip_2016': parsers.parse_qip_2016,
+    'qip_2023': parsers.parse_qip_2023,
     'qip_2024': parsers.parse_qip_2024,
     'qip_2026': parsers.parse_qip_2026,
     'tqc_2019': parsers.parse_tqc_2019,
@@ -126,7 +127,14 @@ POSTER_SOURCES: Dict[tuple, tuple] = {
     # QIP 2021 accepted-poster list PDF is not on the mirror — it lived off-site
     # (mcqst.de). Fetched into the conference data dir and referenced by @-path.
     ('QIP', 2021): ('qip_2021_pdf', ['@data/conferences/qip_2021/raw/AllPostersQIP2021.pdf']),
-    ('QIP', 2023): ('qip_2023_pdf', ['2023/event/13076/QIP2023PosterList.pdf']),
+    # Re-derived from the two Indico *session* pages (the "not presenting" page,
+    # .../page/3898-not-presenting.html, is deliberately excluded). Supersedes the
+    # PDF list (parse_qip_2023_pdf), whose text extraction dropped/truncated
+    # leading authors and line-wrapped titles.
+    ('QIP', 2023): ('qip_2023', [
+        '2023/event/13076/page/3896-monday-session.html',
+        '2023/event/13076/page/3897-tuesday-session.html',
+    ]),
     ('QIP', 2024): ('qip_2024', ['2024/site/mypage.aspx?pid=263&lang=en&sid=1522.html']),
     # QIP 2026 uniquely underlines the presenter -> the parser emits `speakers`.
     ('QIP', 2026): ('qip_2026', ['2026/programme/poster-sessions/index.html']),

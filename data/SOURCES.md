@@ -58,7 +58,7 @@ QIP 2006–2016/2019/2026, TQC 2019–2025) are documented in the registry itsel
 | QIP 2017 | `2017/wp-content/uploads/2017/11/QIP-2017-Posters-Day-{1,2}-*.pdf` | `parse_qip_2017_pdf` | 221 |
 | QIP 2018 | `2018/qutech.nl/wp-content/uploads/2018/01/Posters_QIP-2018.pdf` | `parse_qip_pdf_2col` | 261 |
 | QIP 2021 | `AllPostersQIP2021.pdf` *(fetched into `qip_2021/raw/` from mcqst.de; not on mirror)* | `parse_qip_2021_pdf` | 234 |
-| QIP 2023 | `2023/event/13076/QIP2023PosterList.pdf` | `parse_qip_2023_pdf` | 483 |
+| QIP 2023 | `2023/event/13076/page/3896-monday-session.html`, `.../3897-tuesday-session.html` (`.../3898-not-presenting.html` excluded) | `parse_qip_2023` | 483 |
 | QIP 2024 | `2024/site/mypage.aspx?pid=263&lang=en&sid=1522.html` (two presenting-session tables) | `parse_qip_2024` | 403 |
 | TQC 2022 | `2022/files/2022/07/TQC-2022-Program-FINAL.pdf` ("POSTER SESSION PROGRAM") | `parse_tqc_2022_pdf` | 44 |
 
