@@ -18,6 +18,15 @@ mirror).
 > 2013 business-meeting page name Tobias Eberle as the speaker — same paper,
 > unresolved name discrepancy.
 
+> **QCrypt 2016 talk authors** (`qcrypt_2016/talks.csv`): the 2016 schedule is an
+> ad-hoc set of navigation pages the reusable `qcrypt.py` scraper deliberately
+> skips, so the 33 contributed/invited/tutorial rows were originally imported with
+> empty `speakers`/`authors`. Their author lists were backfilled from the local
+> mirror `~/Web/qcrypt.iaqi.org/2016/` (pages `invited-talks.1.html`,
+> `contributed-talks.1.html`, `index.html?p=2459.html`, `index.html?p=2510.html`,
+> `index.html?p=2524.html`), keyed by the `#surname` anchor recorded in each row's
+> `notes`. One-off harvester: `tools/one_off/qcrypt2016_backfill_authors.py`.
+
 > **Business-meeting stats** (`business_meeting.csv`) carry their provenance
 > per-fact, inline in each file's `source_type`/`source_url`/`source_date`
 > columns. The **Business-Meeting Report Sources** catalog below lists the
