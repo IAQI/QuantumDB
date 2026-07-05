@@ -25,6 +25,7 @@ data/
       committees.csv
       talks.csv
       posters.csv
+      business_meeting.csv               # stats announced at the business meeting (tall CSV)
     tqc_2025/
       committees.csv
       proceedings.csv                    # TQC formal proceedings track (LIPIcs)
@@ -70,7 +71,7 @@ Order in `affiliations` must match the order in `authors`.
 |--------------------|------------------------------------------------------------------------------------------|
 | `venue`            | `QIP`, `QCRYPT`, or `TQC` (upper-case)                                                   |
 | `year`             | Conference year                                                                          |
-| `paper_type`       | `regular`, `poster`, `invited`, `tutorial`, `keynote`, `plenary`, `plenary_short`, `plenary_long` |
+| `paper_type`       | `regular`, `poster`, `invited`, `tutorial`, `keynote`, `plenary`, `plenary_short`, `plenary_long`, `industry` |
 | `title`            | Paper / talk title                                                                       |
 | `speakers`         | `;`-separated speaker names (who actually presented)                                     |
 | `authors`          | `;`-separated author names (defaults to `speakers` when empty)                           |
@@ -89,6 +90,11 @@ Order in `affiliations` must match the order in `authors`.
 
 Only `venue`, `year`, `paper_type`, and `title` are required; everything else
 may be empty.
+
+The table above is the **current canonical header**. Two documented deviations exist in real files:
+
+- **`is_proceedings_track`** — TQC's `proceedings.csv`/`workshop.csv` for the newest years (2023–24) carry an extra `is_proceedings_track` column (`TRUE`/`FALSE`) right after `paper_type`, distinguishing the LIPIcs proceedings track from the workshop track. Other files omit it (the importer defaults it per file type).
+- **Legacy variants** — some older, hand-converted QIP files (roughly 1998–2005) use a reduced or reordered header: singular `speaker` instead of `speakers`, `duration` instead of `duration_minutes`, and no `youtube_id`. The importer still reads these. When adding *new* data, use the canonical header above.
 
 ### `business_meeting.csv`
 

@@ -9,7 +9,7 @@ operations for every entity, plus unit tests for the `utils` modules.
 
 | File | Lines | Purpose |
 |------|------:|---------|
-| `tests/api_tests.rs` | ~1,588 | Integration tests — full CRUD lifecycle for every entity, hitting an in-process Axum router |
+| `tests/api_tests.rs` | ~1,940 | Integration tests — full CRUD lifecycle for every entity, hitting an in-process Axum router |
 | `tests/common.rs` | ~39 | Shared helpers: `create_test_pool()` and `create_test_app()` |
 
 Unit tests live next to the code they exercise (`#[cfg(test)] mod tests`),

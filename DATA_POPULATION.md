@@ -59,15 +59,19 @@ The unified scrape + import package lives in `tools/scrapers/`:
 
 ```
 tools/scrapers/
-├── scrape_to_csv.py        # CLI: scrape a conference → CSV
-├── import_from_csv.py      # CLI: import CSV(s) → database
+├── scrape_to_csv.py        # CLI: scrape a conference → CSV  (committees|talks|posters)
+├── import_from_csv.py      # CLI: import CSV(s) → database  (committees|talks|business-meetings)
 ├── committees/             # per-venue committee scrapers + importer
 │   ├── qip.py  qcrypt.py  tqc.py
 │   ├── runner.py           # scrape orchestration
 │   └── importer.py         # DB import logic
-└── talks/                  # per-venue talk scrapers + importer
-    ├── qip.py  qcrypt.py  tqc.py
-    ├── runner.py
+├── talks/                  # per-venue talk scrapers + importer
+│   ├── qip.py  qcrypt.py  tqc.py
+│   ├── runner.py
+│   └── importer.py
+├── posters/                # accepted-poster scrapers (scrape-only; posters.csv)
+│   ├── parsers.py  runner.py
+└── business_meetings/      # business-meeting CSV importer (import-only)
     └── importer.py
 ```
 

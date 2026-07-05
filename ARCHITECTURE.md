@@ -32,30 +32,35 @@ quantumdb/
 │   │   ├── conference.rs    # Conference, CreateConference, UpdateConference
 │   │   ├── publication.rs   # Publication, CreatePublication, UpdatePublication
 │   │   ├── author.rs        # Author, CreateAuthor, UpdateAuthor
-│   │   └── committee.rs     # CommitteeRole, CreateCommitteeRole, UpdateCommitteeRole
+│   │   ├── committee.rs     # CommitteeRole, CreateCommitteeRole, UpdateCommitteeRole
+│   │   ├── business_meeting.rs # BusinessMeeting (stats announced at the business meeting)
+│   │   └── stats.rs         # ConferenceStat (per-venue/year stats time series)
 │   ├── handlers/            # API request handlers (IMPLEMENTED)
 │   │   ├── mod.rs
 │   │   ├── conferences.rs   # Full CRUD operations
-│   │   ├── publications.rs  # Full CRUD operations
+│   │   ├── publications.rs  # Full CRUD operations (list supports ?search= full-text)
 │   │   ├── authors.rs       # Full CRUD operations
 │   │   ├── authorships.rs   # Full CRUD operations
 │   │   ├── committees.rs    # Full CRUD operations
+│   │   ├── stats.rs         # Read-only per-conference stats (GET /api/v1/stats/conferences)
 │   │   └── web/             # Web interface handlers (IMPLEMENTED)
 │   │       ├── mod.rs
 │   │       ├── home.rs      # Homepage
 │   │       ├── about.rs     # About page with IAQI branding
 │   │       ├── authors.rs   # Author list and detail pages
 │   │       ├── conferences.rs # Conference list and detail pages
+│   │       ├── publications.rs # Publications browser (full-text search page)
 │   │       └── admin.rs     # Admin utilities (stats refresh)
 │   ├── middleware/          # Request middleware (IMPLEMENTED)
 │   │   ├── mod.rs
-│   │   └── auth.rs          # JWT-based Bearer token authentication
+│   │   └── auth.rs          # Opaque Bearer-token auth (constant-time comparison, not JWT)
 │   └── utils/              # Shared utilities (IMPLEMENTED)
 │       ├── mod.rs
 │       ├── normalize.rs     # Unicode normalization, name similarity, variants
 │       ├── conference.rs    # Conference slug parsing (e.g., "QIP2024")
 │       ├── pagination.rs    # clamp_pagination() — bounds limit/offset
-│       └── validation.rs    # URL scheme + length + JSONB metadata validators
+│       ├── validation.rs    # URL scheme + length + JSONB metadata validators
+│       └── db_error.rs      # map_db_error()/map_delete_error() — SQLSTATE → HTTP status
 ├── migrations/              # Database migrations (SQLx)
 ├── seeds/                   # Initial/sample data
 ├── templates/               # HTML templates (Askama)
@@ -66,14 +71,16 @@ quantumdb/
 │   ├── author_detail.html  # Individual author page
 │   ├── conferences_list.html # Conference listing
 │   ├── conference_detail.html # Individual conference page
+│   ├── publications_list.html # Publications browser (full-text search)
 │   ├── authors_table_partial.html # HTMX partial for dynamic loading
-│   └── conferences_table_partial.html # HTMX partial for dynamic loading
+│   ├── conferences_table_partial.html # HTMX partial for dynamic loading
+│   └── publications_table_partial.html # HTMX partial for dynamic loading
 ├── static/                  # Static assets
 │   └── images/
 │       ├── favicon.png     # Site favicon
 │       └── iaqi-logo.png   # IAQI branding logo
 └── tests/
-    ├── api_tests.rs         # Comprehensive test suite (~1588 lines)
+    ├── api_tests.rs         # Comprehensive test suite (~1940 lines)
     └── common.rs            # Shared test pool + router setup
 ```
 
@@ -100,6 +107,7 @@ GET    /authors               # Author list (paginated, searchable)
 GET    /authors/:id           # Author detail page
 GET    /conferences           # Conference list (filterable by venue)
 GET    /conferences/:slug     # Conference detail page (e.g., /conferences/qip-2024)
+GET    /publications          # Publications browser (full-text search over title/abstract/authors)
 ```
 
 **Static Assets**:
@@ -164,13 +172,18 @@ PUT    /api/v1/committees/:id        # Update committee role
 DELETE /api/v1/committees/:id        # Delete committee role
 ```
 
+**Stats** (read-only):
+```
+GET    /api/v1/stats/conferences     # Per-conference (venue/year) stats time series
+```
+
 ### Common Features
 
 1. **Error Handling** (implemented)
    - Handlers return `(StatusCode, Json<T>)` tuples
    - Success: `(StatusCode::OK, Json(data))` or `(StatusCode::CREATED, Json(data))`
    - Not found: `(StatusCode::NOT_FOUND, Json(error_message))`
-   - Database errors: `(StatusCode::INTERNAL_SERVER_ERROR, Json(error_message))`
+   - Database errors: mapped by `map_db_error()`/`map_delete_error()` (`src/utils/db_error.rs`) — unique → 409, check/FK/not-null/invalid-text → 400, still-referenced-on-delete → 409, else 500
    - Validation errors: `(StatusCode::BAD_REQUEST, Json(error_message))`
 
 2. **Type Safety** (implemented)
@@ -221,8 +234,11 @@ DELETE /api/v1/committees/:id        # Delete committee role
    - `conference_business_meetings` table (1:1 with a conference) records figures *announced* at the annual business meeting — registered/onsite participants, countries, submission/acceptance counts, posters, `track_breakdown` (JSONB), and slide-deck links (`slides` JSONB). Distinct from the computed `conference_stats` view.
    - Populated from a tall `business_meeting.csv` per conference via `import_from_csv.py business-meetings`; rendered on the conference detail page and (registered count) on the conference overview.
 
-11. **Future Features**
-   - Dedicated full-text search endpoints for publications (schema has `search_vector` already)
+11. **Full-text search** (implemented)
+   - `GET /api/v1/publications?search=` and the `/publications` web browser query `search_vector` (title `A`, abstract `B`, author names `C`) via `plainto_tsquery`
+   - `search_vector` covers author names through the maintained `publications.author_names_text` column (migration 20260702000000)
+
+12. **Future Features**
    - Advanced filtering
    - Export to BibTeX, CSV
 
