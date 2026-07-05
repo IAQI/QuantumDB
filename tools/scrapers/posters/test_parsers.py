@@ -10,6 +10,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
 from scrapers.posters import parsers  # noqa: E402
 from scrapers.posters.parsers import split_authors, _split_authors_dot_title  # noqa: E402
+from scrapers.posters.runner import _dedupe_rows  # noqa: E402
+
+
+def _row(title, authors='', affiliations='', abstract='', session_name=''):
+    return {'title': title, 'authors': authors, 'affiliations': affiliations,
+            'abstract': abstract, 'session_name': session_name}
 
 
 def test_split_authors_semicolon_with_affiliation():
@@ -185,6 +191,46 @@ def test_qip_2026_collapses_presenter_name_variant():
     got = parsers.parse_qip_2026(BeautifulSoup(html, 'html.parser'))
     assert got[0]['authors'] == ['Erfan A', 'Sean Muleady'], got[0]
     assert got[0]['speakers'] == ['Sean Muleady'], got[0]
+
+
+def test_dedupe_merges_sessions_across_pages():
+    # QCRYPT 2022: the in-person session (poster3) re-lists posters already in
+    # sessions 1/2. The duplicate collapses to one row recording both sessions.
+    rows = [
+        _row('Quantum cryptography for quantum metrology', authors='A;B',
+             session_name='Poster Session 1'),
+        _row('Some other poster', authors='C', session_name='Poster Session 2'),
+        _row('Quantum Cryptography for Quantum Metrology', authors='A;B',
+             session_name='Poster Session 3 (In-person)'),
+    ]
+    out = _dedupe_rows(rows)
+    assert len(out) == 2, out
+    assert out[0]['session_name'] == 'Poster Session 1; Poster Session 3 (In-person)', out[0]
+    assert out[1]['title'] == 'Some other poster', out[1]  # order preserved
+
+
+def test_dedupe_keeps_richest_copy():
+    # TQC 2025 source doubling: same poster twice, one copy with a fuller author
+    # list -> the richer copy survives.
+    rows = [
+        _row('A Tokenized Signature Scheme', authors='Das'),
+        _row('A Tokenized Signature Scheme', authors='Venkatachalam;Ghosh;Das',
+             affiliations='X;Y;Z'),
+    ]
+    out = _dedupe_rows(rows)
+    assert len(out) == 1, out
+    assert out[0]['authors'] == 'Venkatachalam;Ghosh;Das', out[0]
+
+
+def test_dedupe_leaves_distinct_titles_and_empties():
+    rows = [
+        _row('Paper One', authors='A'),
+        _row('Paper Two', authors='B'),
+        _row('', authors='C'),  # empty title never merged
+        _row('', authors='D'),
+    ]
+    out = _dedupe_rows(rows)
+    assert len(out) == 4, out
 
 
 def _soup(html):

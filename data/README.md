@@ -41,7 +41,10 @@ TQC has both `proceedings.csv` and `workshop.csv` in years where both tracks
 ran. `posters.csv`, when present, holds the accepted posters (same schema as
 `talks.csv`, every row `paper_type=poster`); it is scraper-generated
 (`scrape_to_csv.py posters`) and overwritten wholesale — fix the parser/source,
-not the file. A `raw/` subfolder, when present, contains scraper inputs and
+not the file. A poster listed on more than one source page (e.g. a hybrid event's
+in-person session re-listing the online posters) is collapsed to a single row whose
+`session_name` merges the sessions it appeared in (`"Poster Session 1; Poster Session
+3 (In-person)"`). A `raw/` subfolder, when present, contains scraper inputs and
 intermediate files — you usually don't need to touch these.
 
 ## CSV schemas
