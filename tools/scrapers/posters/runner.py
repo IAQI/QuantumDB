@@ -139,6 +139,51 @@ def _build_row(venue: str, year: int, poster: Dict[str, Any],
     return row
 
 
+def _dedupe_rows(rows: List[Dict[str, str]]) -> List[Dict[str, str]]:
+    """Collapse rows describing the same poster listed more than once — e.g. a
+    hybrid event's in-person poster session re-lists the online posters (QCRYPT
+    2022 poster3), or a source page repeats each entry (QCRYPT 2021, TQC 2024/25).
+
+    Rows are keyed on their whitespace-collapsed, lowercased title. Within a group
+    the richest copy is kept (most authors, then longest affiliations, then longest
+    abstract, then first seen), and the distinct ``session_name`` values are merged
+    (first-seen order, ``"; "``-joined) so the surviving row records every session
+    it appeared in. Rows with an empty title are never merged (kept verbatim)."""
+    def author_count(r: Dict[str, str]) -> int:
+        return len([a for a in (r.get('authors') or '').split(';') if a.strip()])
+
+    order: List[Any] = []
+    buckets: Dict[Any, List[Dict[str, str]]] = {}
+    for i, r in enumerate(rows):
+        title_key = ' '.join((r.get('title') or '').split()).lower()
+        key: Any = title_key if title_key else (None, i)  # empties stay unique
+        if key not in buckets:
+            buckets[key] = []
+            order.append(key)
+        buckets[key].append(r)
+
+    out: List[Dict[str, str]] = []
+    for key in order:
+        grp = buckets[key]
+        if len(grp) == 1:
+            out.append(grp[0])
+            continue
+        best = max(grp, key=lambda r: (author_count(r),
+                                       len(r.get('affiliations') or ''),
+                                       len(r.get('abstract') or '')))
+        sessions: List[str] = []
+        for r in grp:
+            s = (r.get('session_name') or '').strip()
+            if s and s not in sessions:
+                sessions.append(s)
+        merged = dict(best)
+        merged['session_name'] = '; '.join(sessions)
+        out.append(merged)
+        logger.info(f"  deduped {len(grp)}x -> 1: {best['title'][:60]}"
+                    + (f" (sessions: {merged['session_name']})" if merged['session_name'] else ''))
+    return out
+
+
 def save_posters(venue: str, year: int, rows: List[Dict[str, str]],
                  output_dir: Path, force: bool = False) -> Optional[Path]:
     """Write poster rows to ``<output_dir>/<venue>_<year>/posters.csv``."""
@@ -292,6 +337,12 @@ async def async_main(args: argparse.Namespace) -> int:
     if not rows:
         logger.warning("No posters parsed! Check the source page structure / registry.")
         return 1
+
+    before = len(rows)
+    rows = _dedupe_rows(rows)
+    if len(rows) != before:
+        logger.info(f"Collapsed {before - len(rows)} duplicate poster row(s) "
+                    f"across sessions/pages -> {len(rows)} unique.")
 
     if args.dry_run:
         logger.info(f"\n[dry-run] {len(rows)} poster rows for {args.venue} {args.year}:")
