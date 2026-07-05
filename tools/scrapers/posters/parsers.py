@@ -864,6 +864,48 @@ def parse_qip_2024(soup: BeautifulSoup) -> List[Dict[str, Any]]:
     return posters
 
 
+_QIP_2023_SESSION_RE = re.compile(r'\b(Monday|Tuesday)\s+session\b', re.IGNORECASE)
+
+
+def parse_qip_2023(soup: BeautifulSoup) -> List[Dict[str, Any]]:
+    """QIP 2023 poster *session* pages (Indico): one ``ID | Title | Authors``
+    table per page, under an ``<h2>Monday session</h2>`` / ``<h2>Tuesday
+    session</h2>`` heading. Data rows lead with a numeric submission ID (the
+    header row does not). Authors are a prose list ("A, B and C") split by
+    ``_poster`` -> ``split_authors``.
+
+    Only the two session pages are wired in ``POSTER_SOURCES``; the "not
+    presenting" page is intentionally not read (those accepted-but-absent posters
+    must not be registered). Supersedes ``parse_qip_2023_pdf`` — the PDF text
+    extraction dropped/truncated leading authors and line-wrapped titles."""
+    session = ''
+    for h2 in soup.find_all('h2'):
+        m = _QIP_2023_SESSION_RE.search(h2.get_text(' ', strip=True))
+        if m:
+            session = f"{m.group(1).capitalize()} session"
+            break
+    posters: List[Dict[str, Any]] = []
+    for table in soup.find_all('table'):
+        rows = table.find_all('tr')
+        if not rows:
+            continue
+        header = [c.get_text(' ', strip=True).lower() for c in rows[0].find_all(['td', 'th'])]
+        if 'title' not in header or 'authors' not in header:
+            continue
+        ti, ai = header.index('title'), header.index('authors')
+        for tr in rows[1:]:
+            cells = tr.find_all(['td', 'th'])
+            if len(cells) <= max(ti, ai):
+                continue
+            if not cells[0].get_text(strip=True).isdigit():
+                continue  # skip any non-data row (e.g. a repeated header)
+            p = _poster(cells[ti].get_text(' ', strip=True),
+                        cells[ai].get_text(' ', strip=True), session_name=session)
+            if p:
+                posters.append(p)
+    return posters
+
+
 # ---------------------------------------------------------------------------
 # Families D/E — TQC accepted-poster pages + the teachpress BibTeX export
 # ---------------------------------------------------------------------------

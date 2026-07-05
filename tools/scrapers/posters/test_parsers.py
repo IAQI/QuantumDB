@@ -445,6 +445,31 @@ def test_display_unicode_normalisation():
     assert clean_display_name('Gómez') == 'Gómez'                        # decomposed -> composed
 
 
+def test_qip_2023_session_table():
+    # Indico session page: an <h2>…session</h2> heading + one ID|Title|Authors
+    # table. The header row (non-numeric ID) is skipped; the "not presenting"
+    # page is simply never passed to the parser. Authors are a prose "A, B and C"
+    # list -> split into a semicolon list.
+    from bs4 import BeautifulSoup
+    html = (
+        '<h1>Quantum Information Processing 2023</h1>'
+        '<h2>Choose timezone</h2><h2>Monday session</h2>'
+        '<table>'
+        '<tr><td class="QIPtd">ID</td><td class="QIPtd">Title</td><td class="QIPtd">Authors</td></tr>'
+        '<tr><td class="QIPtd">7</td><td class="QIPtd">Relation between features</td>'
+        '<td class="QIPtd">Sooryansh Asthana and V. Ravishankar</td></tr>'
+        '<tr><td class="QIPtd">18</td><td class="QIPtd">Out-of-distribution generalization</td>'
+        '<td class="QIPtd">Matthias C. Caro, Nic Ezzell and Zoe Holmes</td></tr>'
+        '</table>'
+    )
+    got = parsers.parse_qip_2023(BeautifulSoup(html, 'html.parser'))
+    assert len(got) == 2, got  # header row skipped
+    assert got[0]['session_name'] == 'Monday session', got[0]
+    assert got[0]['authors'] == ['Sooryansh Asthana', 'V. Ravishankar'], got[0]
+    # regression: the full leading author is kept, not truncated to a lone surname
+    assert got[1]['authors'] == ['Matthias C. Caro', 'Nic Ezzell', 'Zoe Holmes'], got[1]
+
+
 def main() -> int:
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     failed = 0
