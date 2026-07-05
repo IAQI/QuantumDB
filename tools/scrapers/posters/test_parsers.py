@@ -193,6 +193,31 @@ def test_qip_2026_collapses_presenter_name_variant():
     assert got[0]['speakers'] == ['Sean Muleady'], got[0]
 
 
+def test_qip_2026_latex_title_split_across_strong_tags():
+    # A title with inline LaTeX is bolded in several <strong> pieces (the math is
+    # wrapped in <span><strong>$…$</strong></span>). The whole title is bold and the
+    # authors are not, so all bold text is the title and the trailing fragments must
+    # NOT leak into the author list (regression: "…QSETH" became a bogus author).
+    from bs4 import BeautifulSoup
+    html = (
+        '<div class="genericText"><h2>Poster Session 2</h2><ol>'
+        '<li><strong>5-Local Hamiltonian Problem and Constant Relative Error '
+        'Quantum Partition Function Approximation: </strong>'
+        r'<span><strong>$O(2^{\frac{n}{2}})$</strong></span>'
+        '<strong> Algorithm Is Nearly Optimal under QSETH</strong> '
+        'Nai-Hui Chia, <u>Yu-Ching Shen</u></li></ol></div>'
+    )
+    got = parsers.parse_qip_2026(BeautifulSoup(html, 'html.parser'))
+    assert len(got) == 1, got
+    assert got[0]['title'] == (
+        '5-Local Hamiltonian Problem and Constant Relative Error Quantum Partition '
+        r'Function Approximation: $O(2^{\frac{n}{2}})$ Algorithm Is Nearly Optimal '
+        'under QSETH'
+    ), got[0]
+    assert got[0]['authors'] == ['Nai-Hui Chia', 'Yu-Ching Shen'], got[0]
+    assert got[0]['speakers'] == ['Yu-Ching Shen'], got[0]
+
+
 def test_dedupe_merges_sessions_across_pages():
     # QCRYPT 2022: the in-person session (poster3) re-lists posters already in
     # sessions 1/2. The duplicate collapses to one row recording both sessions.

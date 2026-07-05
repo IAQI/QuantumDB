@@ -717,15 +717,20 @@ def parse_qip_2026(soup: BeautifulSoup) -> List[Dict[str, Any]]:
         m = re.search(r'(\d+)', session_name)
         scheduled_date = _QIP_2026_SESSION_DATES.get(int(m.group(1))) if m else None
         for li in block.find_all('li'):
-            strong = li.find('strong')
-            if strong is None:
+            strongs = li.find_all('strong')
+            if not strongs:
                 continue
-            title = _collapse(strong.get_text(' ', strip=True))
+            # The whole title is bold; authors are the non-bold remainder. A title
+            # with inline LaTeX is split across several <strong> tags (the math is
+            # wrapped in <span><strong>$…$</strong></span>), so join *all* the bold
+            # text for the title and strip *every* <strong> block from the author
+            # cell — taking only the first would leak the trailing title fragments
+            # (e.g. "…QSETH") into the authors.
+            title = _collapse(' '.join(s.get_text(' ', strip=True) for s in strongs))
             if not title:
                 continue
-            # Author cell = the li's text with the leading <strong> title removed.
             authors_html = re.sub(r'<strong>.*?</strong>', '',
-                                  li.decode_contents(), count=1, flags=re.S)
+                                  li.decode_contents(), flags=re.S)
             authors_cell = BeautifulSoup(authors_html, 'html.parser').get_text(' ', strip=True)
             poster = _poster(title, authors_cell, session_name=session_name)
             if not poster:
