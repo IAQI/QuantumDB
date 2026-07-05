@@ -36,6 +36,47 @@ mirror).
 
 ---
 
+# Poster Data Sources
+
+Provenance for each `posters.csv` under `data/conferences/`. Sources are on the
+local static mirrors (`~/Web/{qcrypt,qip,tqc}.iaqi.org/`) unless marked *(fetched)*.
+Registered in `POSTER_SOURCES` (`tools/scrapers/posters/runner.py`); regenerate with
+`scrape_to_csv.py posters --venue <V> --year <Y> --local --force`, import via
+`import_from_csv.py talks <dir>/posters.csv`. Earlier years (QCrypt 2011/2013/2016/2018/2020–2025,
+QIP 2006–2016/2019/2026, TQC 2019–2025) are documented in the registry itself.
+
+**Recovered 2026-07** (11 conference-years, 2,358 posters):
+
+| Year | Source | Parser | Posters |
+|------|--------|--------|---------|
+| QCrypt 2012 | `2012/program.html` ("Posters" section) | `parse_qcrypt_2012` | 62 |
+| QCrypt 2015 | `2015/index.html?p=25.html` ("Selected Posters" list) | `parse_qcrypt_2015` | 114 |
+| QCrypt 2019 | `2019/scientific-program/poster-session-{monday,wednesday}-*/index.html` | `parse_qcrypt_2019` | 144 |
+| QIP 2013 | `2013/index.html@p=351.html` (poster schedule) | `parse_qip_2013` | 133 |
+| QIP 2014 | `2014/{Monday,Tuesday}Session.html` | `parse_qip_2014` | 259 |
+| QIP 2017 | `2017/wp-content/uploads/2017/11/QIP-2017-Posters-Day-{1,2}-*.pdf` | `parse_qip_2017_pdf` | 221 |
+| QIP 2018 | `2018/qutech.nl/wp-content/uploads/2018/01/Posters_QIP-2018.pdf` | `parse_qip_pdf_2col` | 261 |
+| QIP 2021 | `AllPostersQIP2021.pdf` *(fetched into `qip_2021/raw/` from mcqst.de; not on mirror)* | `parse_qip_2021_pdf` | 234 |
+| QIP 2023 | `2023/event/13076/QIP2023PosterList.pdf` | `parse_qip_2023_pdf` | 483 |
+| QIP 2024 | `2024/site/mypage.aspx?pid=263&lang=en&sid=1522.html` (two presenting-session tables) | `parse_qip_2024` | 403 |
+| TQC 2022 | `2022/files/2022/07/TQC-2022-Program-FINAL.pdf` ("POSTER SESSION PROGRAM") | `parse_tqc_2022_pdf` | 44 |
+
+Notes:
+- **QCrypt 2014 — not recoverable.** The mirrored posters page (`2014/posters/`) and the
+  live site both read only "Poster session — To be announced"; a poster list was never published.
+- **QIP 2024** and **QIP 2023** each carry a trailing "Not Presenting" list (accepted-but-absent)
+  that is deliberately excluded, matching the presented-posters convention.
+- **Known imperfect rows** (from source-PDF column merges where pdftotext ran two columns
+  together; ~0.1% of rows): QIP 2017 poster 39 (title wraps around the authors → author cell empty,
+  import-skipped) and QIP 2021 A.2.13 (title text bleeds into the author cell). The full text is
+  present in both, only the title/author boundary is fuzzy.
+- **Import author-fold collisions** (importer, not parser): QCrypt 2012 "Towards Wrocław Quantum
+  Network" and QCrypt 2019 "An Integrated Photonic Chip" list several initials-only same-surname
+  authors (e.g. "M. Jacak", "J. Jacak", …) that the importer's fuzzy matcher folds into one, so the
+  authorship insert hits a duplicate-key and the row is skipped. The `posters.csv` rows are correct.
+
+---
+
 # Business-Meeting Report Sources
 
 Catalog of the documents from which `business_meeting.csv` stats were drawn.

@@ -42,15 +42,21 @@ _DOMAINS = {
 _PARSERS = {
     'hugo_session': parsers.parse_hugo_session,
     'qcrypt_2011': parsers.parse_qcrypt_2011,
+    'qcrypt_2012': parsers.parse_qcrypt_2012,
     'qcrypt_2013': parsers.parse_qcrypt_2013,
+    'qcrypt_2015': parsers.parse_qcrypt_2015,
     'qcrypt_2016': parsers.parse_qcrypt_2016,
     'qcrypt_2018': parsers.parse_qcrypt_2018,
+    'qcrypt_2019': parsers.parse_qcrypt_2019,
     'qip_2006': parsers.parse_qip_2006,
     'qip_2009': parsers.parse_qip_2009,
     'qip_2010': parsers.parse_qip_2010,
     'qip_span_poster': parsers.parse_qip_span_poster,
+    'qip_2013': parsers.parse_qip_2013,
+    'qip_2014': parsers.parse_qip_2014,
     'qip_2015': parsers.parse_qip_2015,
     'qip_2016': parsers.parse_qip_2016,
+    'qip_2024': parsers.parse_qip_2024,
     'qip_2026': parsers.parse_qip_2026,
     'tqc_2019': parsers.parse_tqc_2019,
     'tqc_2020': parsers.parse_tqc_2020,
@@ -58,12 +64,17 @@ _PARSERS = {
     'tqc_2025': parsers.parse_tqc_2025,
     'tqc_bibtex': parsers.parse_tqc_bibtex,  # signature (text, year), not (soup)
     'qip_pdf_2col': parsers.parse_qip_pdf_2col,
+    'qip_2017_pdf': parsers.parse_qip_2017_pdf,
+    'qip_2021_pdf': parsers.parse_qip_2021_pdf,
+    'qip_2023_pdf': parsers.parse_qip_2023_pdf,
+    'tqc_2022_pdf': parsers.parse_tqc_2022_pdf,
 }
 
 # Families whose parser takes raw text + year (not a BeautifulSoup). PDF sources
 # are extracted to text via `pdftotext -layout` first.
-_TEXT_FAMILIES = {'tqc_bibtex', 'qip_pdf_2col'}
-_PDF_FAMILIES = {'qip_pdf_2col'}
+_TEXT_FAMILIES = {'tqc_bibtex', 'qip_pdf_2col', 'qip_2017_pdf', 'qip_2021_pdf',
+                  'qip_2023_pdf', 'tqc_2022_pdf'}
+_PDF_FAMILIES = {'qip_pdf_2col', 'qip_2017_pdf', 'qip_2021_pdf', 'qip_2023_pdf', 'tqc_2022_pdf'}
 
 # (venue, year) -> (family, [relative paths under the venue domain]).
 # Paths/formats are per-year, so encode them explicitly rather than deriving.
@@ -84,26 +95,44 @@ POSTER_SOURCES: Dict[tuple, tuple] = {
         '2022/sessions/poster3/index.html',
     ]),
     ('QCRYPT', 2011): ('qcrypt_2011', ['2011/programme/posters/index.html']),
+    ('QCRYPT', 2012): ('qcrypt_2012', ['2012/program.html']),
     ('QCRYPT', 2013): ('qcrypt_2013', ['2013/posters/index.html']),
+    ('QCRYPT', 2015): ('qcrypt_2015', ['2015/index.html?p=25.html']),
     ('QCRYPT', 2016): ('qcrypt_2016', ['2016/posters/index.html']),
     ('QCRYPT', 2018): ('qcrypt_2018', ['2018/others/accepted-posters/index.html']),
-    # QCrypt 2014 poster list was never published ("To be announced").
-    # QCrypt 2019 accepted posters are a PDF embed — handled in the PDF pass.
+    ('QCRYPT', 2019): ('qcrypt_2019', [
+        '2019/scientific-program/poster-session-monday-26-august-2019/index.html',
+        '2019/scientific-program/poster-session-wednesday-28-august-2019/index.html',
+    ]),
+    # QCrypt 2014 poster list was never published on the mirrored site — the
+    # posters page reads only "Poster session — To be announced".
     ('QIP', 2006): ('qip_2006', ['2006/accepted_posters.html']),
     ('QIP', 2009): ('qip_2009', ['2009/posters.html']),
     ('QIP', 2010): ('qip_2010', ['2010/postersession.html']),
     ('QIP', 2011): ('qip_span_poster', ['2011/scientificprogramme/postersession.php.html']),
     ('QIP', 2012): ('qip_span_poster', ['2012/posters_e.php.html']),
+    ('QIP', 2013): ('qip_2013', ['2013/index.html@p=351.html']),
+    ('QIP', 2014): ('qip_2014', ['2014/MondaySession.html', '2014/TuesdaySession.html']),
     ('QIP', 2015): ('qip_2015', ['2015/AcceptedPosters.php.html']),
     ('QIP', 2016): ('qip_2016', ['2016/accepted-posters.html']),
+    ('QIP', 2017): ('qip_2017_pdf', [
+        '2017/wp-content/uploads/2017/11/QIP-2017-Posters-Day-1-Monday-January-16.pdf',
+        '2017/wp-content/uploads/2017/11/QIP-2017-Posters-Day-2-Tuesday-January-17.pdf',
+    ]),
+    ('QIP', 2018): ('qip_pdf_2col', ['2018/qutech.nl/wp-content/uploads/2018/01/Posters_QIP-2018.pdf']),
     ('QIP', 2019): ('qip_pdf_2col', ['2019/qip2019_accepted_posters.pdf']),
+    # QIP 2021 accepted-poster list PDF is not on the mirror — it lived off-site
+    # (mcqst.de). Fetched into the conference data dir and referenced by @-path.
+    ('QIP', 2021): ('qip_2021_pdf', ['@data/conferences/qip_2021/raw/AllPostersQIP2021.pdf']),
+    ('QIP', 2023): ('qip_2023_pdf', ['2023/event/13076/QIP2023PosterList.pdf']),
+    ('QIP', 2024): ('qip_2024', ['2024/site/mypage.aspx?pid=263&lang=en&sid=1522.html']),
     # QIP 2026 uniquely underlines the presenter -> the parser emits `speakers`.
     ('QIP', 2026): ('qip_2026', ['2026/programme/poster-sessions/index.html']),
     # QIP 2002 poster page is unstructured prose (presenter/affiliation/abstract)
     # with no title markup — not reliably parseable; left for manual entry.
-    # QIP 2005/2013 (per-poster PDFs) and 2023 (a column-wrapped PDF that
-    # pdftotext cannot cleanly delimit) are left for manual entry — their source
-    # files are noted in data/SOURCES.md.
+    # QIP 2005 (per-poster PDFs) is left for manual entry — its source files are
+    # noted in data/SOURCES.md.
+    ('TQC', 2022): ('tqc_2022_pdf', ['2022/files/2022/07/TQC-2022-Program-FINAL.pdf']),
     ('TQC', 2019): ('tqc_2019', ['2019/accepted-posters/index.html']),
     ('TQC', 2020): ('tqc_2020', ['2020/accepted-posters/index.html']),
     ('TQC', 2021): ('tqc_2021', ['2021/program/accepted-posters/index.html']),

@@ -187,6 +187,200 @@ def test_qip_2026_collapses_presenter_name_variant():
     assert got[0]['speakers'] == ['Sean Muleady'], got[0]
 
 
+def _soup(html):
+    from bs4 import BeautifulSoup
+    return BeautifulSoup(html, 'html.parser')
+
+
+def test_qcrypt_2012_li_spans():
+    html = (
+        '<h3 id="posters">Posters</h3><ul>'
+        '<li><span class="talk-title">A Decoupling Approach</span><br>'
+        '<span class="talk-authors">Frédéric Dupuis, Oleg Szehr and Marco Tomamichel</span></li>'
+        '<li><span class="talk-title">A high speed generator</span><br>'
+        '<span class="talk-authors">Thomas Symul and Ping Koy Lam</span></li>'
+        '</ul>'
+        # A stray schedule <ul> using the same span class must NOT be picked up.
+        '<ul><li><span class="talk-title">09:00 Coffee</span></li></ul>'
+    )
+    got = parsers.parse_qcrypt_2012(_soup(html))
+    assert len(got) == 2, got
+    assert got[0]['title'] == 'A Decoupling Approach', got[0]
+    assert got[0]['authors'] == ['Frédéric Dupuis', 'Oleg Szehr', 'Marco Tomamichel'], got[0]
+
+
+def test_qcrypt_2015_emphasis_then_authors():
+    html = (
+        '<p>1. <em><strong>Long distance MDI-QKD</strong></em><br>'
+        'Chen Dong, Shanghong Zhao and Ying Sun'
+        '<img src="icon.png"/></p>'
+    )
+    got = parsers.parse_qcrypt_2015(_soup(html))
+    assert len(got) == 1, got
+    assert got[0]['title'] == 'Long distance MDI-QKD', got[0]
+    assert got[0]['authors'] == ['Chen Dong', 'Shanghong Zhao', 'Ying Sun'], got[0]
+
+
+def test_qcrypt_2019_table():
+    html = (
+        '<h1>Poster Session Monday</h1><table>'
+        '<tr><td>Poster Number</td><td>Author</td><td>Title</td></tr>'
+        '<tr><td>1</td><td>Xiang-Bin Wang.</td><td>Two protocols in Twin-Field QKD.</td></tr>'
+        '<tr><td>3</td><td>Toyohiro Tsurumaru.</td><td>Leftover hashing.</td></tr>'
+        '</table>'
+    )
+    got = parsers.parse_qcrypt_2019(_soup(html))
+    assert len(got) == 2, got
+    assert got[0]['authors'] == ['Xiang-Bin Wang'], got[0]  # trailing '.' stripped
+    assert got[0]['title'] == 'Two protocols in Twin-Field QKD', got[0]
+    assert got[0]['session_name'] == 'Poster Session Monday', got[0]
+
+
+def test_qip_2013_strong_br_title_with_sessions():
+    html = (
+        '<p><strong>SESSION 1</strong></p>'
+        '<p><strong>3. Jun Zhou and Jun Song</strong><br>A new squeezed coherent state</p>'
+        '<p><strong>SESSION 2</strong></p>'
+        '<p><strong>150. Oleg Gittsovich and John Donohue</strong><br>Entanglement verification</p>'
+    )
+    got = parsers.parse_qip_2013(_soup(html))
+    assert len(got) == 2, got
+    assert got[0]['authors'] == ['Jun Zhou', 'Jun Song'], got[0]
+    assert got[0]['title'] == 'A new squeezed coherent state', got[0]
+    assert got[0]['session_name'] == 'SESSION 1', got[0]
+    assert got[1]['session_name'] == 'SESSION 2', got[1]
+
+
+def test_qip_2014_div_paper_spans():
+    html = (
+        '<h2>QIP 2014 Monday Poster Session</h2>'
+        '<div class="paper"><span class="authors"><span>Alice Ng and Bob Lee</span>. </span>'
+        '<span class="title">Robust bidirectional communication</span></div>'
+    )
+    got = parsers.parse_qip_2014(_soup(html))
+    assert len(got) == 1, got
+    assert got[0]['authors'] == ['Alice Ng', 'Bob Lee'], got[0]
+    assert got[0]['title'] == 'Robust bidirectional communication', got[0]
+    assert got[0]['session_name'] == 'QIP 2014 Monday Poster Session', got[0]
+
+
+def test_qip_2024_tables_skip_not_presenting():
+    html = (
+        '<p>Poster Presentation Session on Jan. 15 (Monday)</p>'
+        '<table><tr><td>No.</td><td>Title</td><td>Authors</td></tr>'
+        '<tr><td>2</td><td>Quantum Advantage</td><td>Tomoyuki Morimae and Takashi Yamakawa</td></tr>'
+        '</table>'
+        '<p>Not Presenting</p>'
+        '<table><tr><td>No.</td><td>Title</td><td>Authors</td></tr>'
+        '<tr><td>99</td><td>Withdrawn paper</td><td>Nobody</td></tr>'
+        '</table>'
+    )
+    got = parsers.parse_qip_2024(_soup(html))
+    assert len(got) == 1, got  # the "Not Presenting" table is excluded
+    assert got[0]['title'] == 'Quantum Advantage', got[0]
+    assert got[0]['authors'] == ['Tomoyuki Morimae', 'Takashi Yamakawa'], got[0]
+    assert got[0]['scheduled_date'] == '2024-01-15', got[0]
+
+
+def test_qip_2017_pdf_columns_wrapped_title():
+    text = (
+        '  1    Localization effects in the circuit' + ' ' * 8 + 'Adrian Chapman and Akimasa Miyake\n'
+        '       efficient exact calculation\n'
+        '\n'
+        '  2    Conditional mutual information' + ' ' * 12 + 'Eneet Kaur and Mark Wilde\n'
+    )
+    got = parsers.parse_qip_2017_pdf(text)
+    assert len(got) == 2, got
+    assert got[0]['title'] == 'Localization effects in the circuit efficient exact calculation', got[0]
+    assert got[0]['authors'] == ['Adrian Chapman', 'Akimasa Miyake'], got[0]
+
+
+def test_qip_2021_pdf_authors_left_skips_footer():
+    text = (
+        'Monday – Poster Session A\n'
+        'Room A.1\n'
+        'A.1.1   Alice Ng, Bob Lee,' + ' ' * 15 + 'Excitation dynamics\n'
+        '        Carol Yu' + ' ' * 25 + 'in coupled circuits\n'
+        'POSTER SESSION A, MONDAY FEB 1ST 9 PM - 11 PM CET\n'
+        'Room A.2\n'
+        'A.2.1   Dan Fox' + ' ' * 25 + 'Quantum stuff\n'
+    )
+    got = parsers.parse_qip_2021_pdf(text)
+    assert len(got) == 2, got
+    assert got[0]['authors'] == ['Alice Ng', 'Bob Lee', 'Carol Yu'], got[0]
+    assert got[0]['title'] == 'Excitation dynamics in coupled circuits', got[0]
+    assert got[0]['session_name'] == 'Monday – Poster Session A', got[0]
+    # The running footer must not leak into A.2.1's authors.
+    assert got[1]['authors'] == ['Dan Fox'], got[1]
+    assert 'CET' not in ';'.join(got[1]['authors']), got[1]
+
+
+def test_qip_2023_pdf_centered_tiebreak_and_not_presenting():
+    # ID 48 sits on a line BELOW its content, equidistant from the full ID 47 and
+    # the empty ID 48 -> the tie must resolve to the hungry ID 48, not merge into
+    # ID 47 (regression: QIP 2023 posters 847/848).
+    text = (
+        'Monday session\n'
+        '  ID   Title' + ' ' * 40 + 'Authors\n'
+        '  47   First full poster' + ' ' * 25 + 'Alice and Bob\n'
+        '       Second poster title' + ' ' * 23 + 'Carol and Dan\n'
+        '  48\n'
+        'Not presenting\n'
+        '   Title' + ' ' * 40 + 'Authors\n'
+        '       ghost' + ' ' * 35 + 'Nobody\n'
+    )
+    got = parsers.parse_qip_2023_pdf(text)
+    assert len(got) == 2, got  # "Not presenting" section dropped
+    assert got[0]['title'] == 'First full poster', got[0]
+    assert got[0]['authors'] == ['Alice', 'Bob'], got[0]
+    assert got[1]['title'] == 'Second poster title', got[1]
+    assert got[1]['authors'] == ['Carol', 'Dan'], got[1]
+
+
+def test_tqc_2022_byline_institution_split():
+    # Authors are the comma-parts before the first institution; affiliation may
+    # itself contain commas.
+    names, aff = parsers._split_tqc_2022_byline(
+        'Stephen Fenner, Rabins Wosti, University of South Carolina')
+    assert names == ['Stephen Fenner', 'Rabins Wosti'], names
+    assert aff == 'University of South Carolina', aff
+    names, aff = parsers._split_tqc_2022_byline(
+        'Harshavardhan Nareddula, Southern Illinois University, Carbondale')
+    assert names == ['Harshavardhan Nareddula'], names
+    assert aff == 'Southern Illinois University, Carbondale', aff
+
+
+def test_tqc_2022_pdf_categories_and_wrapped_title():
+    text = (
+        '                       POSTER SESSION PROGRAM\n'
+        'Siebel Center for Design\n'
+        '\n'
+        'Algorithms\n'
+        '1. Avah Banerjee, Missouri University of Science and Technology\n'
+        '   “Discrete Quantum Walks on the Symmetric Group”\n'
+        'Foundations\n'
+        '2. Luke Schaeffer, University of Waterloo\n'
+        '   “Sample-optimal classical shadows for pure\n'
+        '   states”\n'
+        '                                INVITED SPEAKER ABSTRACTS\n'
+    )
+    got = parsers.parse_tqc_2022_pdf(text)
+    assert len(got) == 2, got
+    assert got[0]['session_name'] == 'Algorithms', got[0]
+    assert got[0]['authors'] == ['Avah Banerjee'], got[0]
+    # Wrapped quoted title is rejoined, not read as a category header.
+    assert got[1]['title'] == 'Sample-optimal classical shadows for pure states', got[1]
+    assert got[1]['session_name'] == 'Foundations', got[1]
+
+
+def test_display_unicode_normalisation():
+    from scrapers._lib import clean_display_name
+    assert clean_display_name('Reﬁk Mansuroglu') == 'Refik Mansuroglu'   # ligature
+    assert clean_display_name('Vı́ctor Zapatero') == 'Víctor Zapatero'    # dotless-i + accent
+    assert clean_display_name('Elie Ass´emat') == 'Elie Assémat'         # spacing acute
+    assert clean_display_name('Gómez') == 'Gómez'                        # decomposed -> composed
+
+
 def main() -> int:
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     failed = 0
