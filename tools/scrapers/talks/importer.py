@@ -35,6 +35,19 @@ _SCHEDULE_PREFIXES = (
     'welcome', 'reception', 'closing', 'opening remarks',
 )
 
+# Curated filler phrases matched against the *title* column, used only for rows
+# that name no author and no speaker. Some scrapes put the logistics label in the
+# title (e.g. "Welcoming Remarks", "Conference photo") rather than the author
+# column, so these slip past the author-column check above and otherwise surface
+# as bogus "no authors" import failures. Kept deliberately specific so a genuine
+# author-less talk title is not misclassified.
+_TITLE_FILLER_PREFIXES = (
+    'poster session', 'business meeting', 'welcoming remarks', 'welcome',
+    'concluding remarks', 'closing remarks', 'opening remarks',
+    'conference photo', 'hot topics session', 'industry exhibits',
+    'open session', 'trip to', 'excursion',
+)
+
 
 def parse_semicolon_list(value: str) -> Optional[List[str]]:
     """Parse a semicolon-separated string into a cleaned list.
@@ -51,11 +64,23 @@ def parse_semicolon_list(value: str) -> Optional[List[str]]:
 
 
 def _is_schedule_row(talk: Dict[str, str]) -> bool:
-    """True if a row is a schedule/logistics entry, not a real talk."""
-    if clean_field(talk.get('title')):
+    """True if a row is a schedule/logistics entry, not a real talk.
+
+    A real talk always names at least one author or speaker, so rows that name
+    *neither* are candidates. Two scrape shapes are recognised:
+    - legacy: the logistics label sits in the ``authors``/``speakers`` column and
+      the title is empty (e.g. an author of "Lunch");
+    - title-based: the label sits in the ``title`` column (e.g. "Welcoming
+      Remarks", "Conference photo") — matched against ``_TITLE_FILLER_PREFIXES``.
+    """
+    # A named author or speaker means it's a real talk, never schedule filler.
+    if clean_field(talk.get('authors')) or clean_field(talk.get('speakers')):
         return False
-    label = clean_field(talk.get('authors') or talk.get('speaker') or '').lower()
-    return any(label.startswith(prefix) for prefix in _SCHEDULE_PREFIXES)
+    title = clean_field(talk.get('title') or '').lower()
+    if not title:
+        label = clean_field(talk.get('authors') or talk.get('speakers') or '').lower()
+        return any(label.startswith(prefix) for prefix in _SCHEDULE_PREFIXES)
+    return any(title.startswith(prefix) for prefix in _TITLE_FILLER_PREFIXES)
 
 
 def generate_canonical_key(venue: str, year: int, paper_type: str, index: int) -> str:
@@ -331,7 +356,9 @@ async def import_from_csv(
     kept = []
     for talk in talks:
         if _is_schedule_row(talk):
-            label = clean_field(talk.get('authors') or talk.get('speaker') or '')
+            label = clean_field(
+                talk.get('authors') or talk.get('speakers') or talk.get('title') or ''
+            )
             logger.info(f"Skipping schedule/logistics row (not a talk): {label!r}")
             continue
         kept.append(talk)
