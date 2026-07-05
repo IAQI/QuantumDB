@@ -16,7 +16,7 @@
     <tbody>
         {% for conf in conferences %}
         <tr>
-            <td data-value="conference"><a href="/conferences/{{ conf.slug }}" class="conference-link"><strong>{{ conf.venue }} {{ conf.year }}</strong></a></td>
+            <td data-value="conference" data-sort-value="{{ conf.sort_key }}"><a href="/conferences/{{ conf.slug }}" class="conference-link"><strong>{{ conf.venue }} {{ conf.year }}</strong></a></td>
             <td data-value="location">{{ conf.location }}</td>
             <td data-value="papers">{{ conf.talk_count }}</td>
             <td data-value="posters">{% if conf.poster_count > 0 %}{{ conf.poster_count }}{% else %}-{% endif %}</td>

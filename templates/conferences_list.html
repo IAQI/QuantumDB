@@ -101,7 +101,7 @@
             <tbody>
                 {% for conf in conferences %}
                 <tr>
-                    <td data-value="conference"><a href="/conferences/{{ conf.slug }}" class="conference-link"><strong>{{ conf.venue }} {{ conf.year }}</strong></a></td>
+                    <td data-value="conference" data-sort-value="{{ conf.sort_key }}"><a href="/conferences/{{ conf.slug }}" class="conference-link"><strong>{{ conf.venue }} {{ conf.year }}</strong></a></td>
                     <td data-value="location">{{ conf.location }}</td>
                     <td data-value="papers">{{ conf.talk_count }}</td>
                     <td data-value="posters">{% if conf.poster_count > 0 %}{{ conf.poster_count }}{% else %}-{% endif %}</td>
@@ -120,6 +120,8 @@
 function toggleVenue(button) {
     button.classList.toggle('active');
     updateConferences();
+    // Re-draw the figures so only the active venues' series/colours appear.
+    if (statsRows) renderCharts(statsRows);
 }
 
 function updateConferences() {
@@ -147,6 +149,11 @@ document.addEventListener('DOMContentLoaded', function() {
 const VENUE_COLOR = { QIP: '#0072B2', QCRYPT: '#E69F00', TQC: '#009E73' };
 const VENUE_LABEL = { QIP: 'QIP', QCRYPT: 'QCrypt', TQC: 'TQC' };
 const VENUE_ORDER = ['QIP', 'QCRYPT', 'TQC'];
+
+// Cached stats rows + live Chart instances, so the venue buttons can re-render
+// the figures (destroying the old charts first) without re-fetching.
+let statsRows = null;
+let charts = [];
 
 // Editorial tokens — mirror the --paper/--ink/--rule CSS vars in base.html.
 const PAPER = '#f6f1e7', INK = '#1a1a1a', INK_SOFT = '#3a3633', MUTED = '#6b6256';
@@ -228,7 +235,17 @@ function renderCharts(rows) {
         yearSet.add(r.year);
     }
     const years = Array.from(yearSet).sort((a, b) => a - b);
-    const present = VENUE_ORDER.filter(v => byVenue[v]);
+
+    // Only draw venues that both have data and are toggled on, so the figures
+    // track the active (coloured) buttons. Years axis stays full so it doesn't
+    // jump as venues toggle.
+    const activeVenues = Array.from(document.querySelectorAll('.venue-toggle.active'))
+        .map(b => b.dataset.venue);
+    const present = VENUE_ORDER.filter(v => byVenue[v] && activeVenues.includes(v));
+
+    // Tear down any previously drawn charts before re-rendering.
+    charts.forEach(c => c.destroy());
+    charts = [];
 
     // One shared legend lives above the plate, so charts carry none of their own.
     const baseOpts = {
@@ -258,11 +275,11 @@ function renderCharts(rows) {
     const contribScales = scales();
     contribScales.x.stacked = true;
     contribScales.y.stacked = true;
-    new Chart(document.getElementById('chart-papers'), {
+    charts.push(new Chart(document.getElementById('chart-papers'), {
         type: 'bar',
         data: { labels: years, datasets: contribDatasets },
         options: { ...baseOpts, scales: contribScales },
-    });
+    }));
 
     // 2. Submissions vs accepted — one stacked bar per venue: accepted (solid)
     //    at the base, rejected (faint) above, so the full height is submissions
@@ -288,31 +305,31 @@ function renderCharts(rows) {
     const stackedScales = scales();
     stackedScales.x.stacked = true;
     stackedScales.y.stacked = true;
-    new Chart(document.getElementById('chart-submissions'), {
+    charts.push(new Chart(document.getElementById('chart-submissions'), {
         type: 'bar',
         data: { labels: years, datasets: subDatasets },
         options: { ...baseOpts, scales: stackedScales },
-    });
+    }));
 
     // 3. Acceptance rate — lines, fixed 0–100%, bridge null years.
-    new Chart(document.getElementById('chart-acceptance'), {
+    charts.push(new Chart(document.getElementById('chart-acceptance'), {
         type: 'line',
         data: { labels: years, datasets: lineSeries(byVenue, years, present, 'acceptance_rate') },
         options: { ...baseOpts, scales: scales({ max: 100, ticks: { maxTicksLimit: 5, padding: 6, font: { family: MONO, size: 9.5 }, callback: v => v + '%' } }) },
-    });
+    }));
 
     // 4. Participants per year — lines (sparse).
-    new Chart(document.getElementById('chart-participants'), {
+    charts.push(new Chart(document.getElementById('chart-participants'), {
         type: 'line',
         data: { labels: years, datasets: lineSeries(byVenue, years, present, 'registered_participants') },
         options: { ...baseOpts, scales: scales() },
-    });
+    }));
 }
 
 document.addEventListener('DOMContentLoaded', function() {
     fetch('/api/v1/stats/conferences')
         .then(r => r.ok ? r.json() : Promise.reject(r.status))
-        .then(renderCharts)
+        .then(rows => { statsRows = rows; renderCharts(statsRows); })
         .catch(err => console.error('Failed to load conference stats:', err));
 });
 </script>

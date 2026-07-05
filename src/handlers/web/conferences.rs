@@ -23,6 +23,7 @@ struct ConferenceListItem {
     venue: String,
     year: i32,
     slug: String,
+    start_date: Option<chrono::NaiveDate>,
     city: Option<String>,
     country: Option<String>,
     talk_count: i64,
@@ -36,6 +37,9 @@ struct ConferenceListItemDisplay {
     slug: String,
     venue: String,
     year: i32,
+    // ISO YYYY-MM-DD key used only for sorting the Conference column
+    // chronologically; display order is unchanged.
+    sort_key: String,
     location: String,
     talk_count: i64,
     poster_count: i64,
@@ -182,6 +186,7 @@ pub async fn conferences_list(
             c.venue,
             c.year,
             LOWER(c.venue) || '-' || c.year::text as slug,
+            c.start_date,
             c.city,
             c.country,
             COALESCE(pc.talk_count, 0) as talk_count,
@@ -236,6 +241,10 @@ pub async fn conferences_list(
                 slug: row.slug,
                 venue: row.venue,
                 year: row.year,
+                sort_key: row
+                    .start_date
+                    .map(|d| d.to_string())
+                    .unwrap_or_else(|| format!("{}-01-01", row.year)),
                 location,
                 talk_count: row.talk_count,
                 poster_count: row.poster_count,
