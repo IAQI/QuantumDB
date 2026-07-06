@@ -57,6 +57,7 @@ QIP 2006–2016/2019/2026, TQC 2019–2025) are documented in the registry itsel
 | QIP 2014 | `2014/{Monday,Tuesday}Session.html` | `parse_qip_2014` | 259 |
 | QIP 2017 | `2017/wp-content/uploads/2017/11/QIP-2017-Posters-Day-{1,2}-*.pdf` | `parse_qip_2017_pdf` | 221 |
 | QIP 2018 | `2018/qutech.nl/wp-content/uploads/2018/01/Posters_QIP-2018.pdf` | `parse_qip_pdf_2col` | 261 |
+| QIP 2020 | `2020/#/posterSessions` — data hard-coded as a `posterList` JS array in `2020/static/js/app.1ac155286edb3bd13e8f.js` | `parse_qip_2020` | 352 |
 | QIP 2021 | `AllPostersQIP2021.pdf` *(fetched into `qip_2021/raw/` from mcqst.de; not on mirror)* | `parse_qip_2021_pdf` | 234 |
 | QIP 2023 | `2023/event/13076/page/3896-monday-session.html`, `.../3897-tuesday-session.html` (`.../3898-not-presenting.html` excluded) | `parse_qip_2023` | 483 |
 | QIP 2024 | `2024/site/mypage.aspx?pid=263&lang=en&sid=1522.html` (two presenting-session tables) | `parse_qip_2024` | 403 |
@@ -209,6 +210,20 @@ Scraper: `scrape_qip_historical.py` → `parse_2021()`
 Local archive is a JavaScript SPA (`index.html` with bundled JS only); no committee data is readable from HTML.
 Committee data was likely collected from the live website or program book.
 Source: `qip_2020_committees.csv` — program committee list.
+
+**Posters**: the SPA renders no HTML, but its full poster list is hard-coded as a
+`posterList:[{author,title}]` JS array literal inside the bundle
+`static/js/app.1ac155286edb3bd13e8f.js`. `parse_qip_2020` slices that array out of
+the raw JS (no rendering needed) → 352 posters. The sibling `acceptedPoster` array
+in the same bundle is the contributed-*talks* list (all its titles are already in
+`talks.csv`) and is deliberately ignored. Two source records are malformed in the
+bundle (one has no title; one — "Stochastic gradient descent for hybrid
+quantum-classical optimization" — has its title in the author field) and are dropped.
+Three authors of one poster ("Integrated miniaturized magnetometer…") are stored in
+Chinese characters in the bundle (`牛刘敏, 柴笑晗 and 马宗敏`); the scraped CSV keeps
+them verbatim, and `data/author_aliases.csv` maps them to their published pinyin
+(Liumin Niu, Xiaohan Chai, Zongmin Ma — per J. Phys. D 2020, doi:10.1088/1361-6463/ab6af2)
+so the DB canonicalizes to Latin like every other author.
 
 ---
 

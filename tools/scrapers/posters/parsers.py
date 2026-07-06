@@ -825,6 +825,65 @@ def parse_qip_2014(soup: BeautifulSoup) -> List[Dict[str, Any]]:
     return posters
 
 
+# QIP 2020 is a JS single-page app: the accepted-poster list is hard-coded as a
+# `posterList:[{author:"...",title:"..."},...]` array literal inside the bundled
+# `static/js/app.*.js`, so there is no HTML/PDF to parse. We slice the array out
+# of the raw JS text (string-aware bracket matching) and read each object's
+# double-quoted values. Key:"value" pairs — the bundle uses no string escapes.
+_QIP_2020_KV_RE = re.compile(r'(\w+)\s*:\s*"((?:[^"\\]|\\.)*)"')
+
+
+def _slice_js_array(text: str, key: str) -> str:
+    """Return the ``[...]`` literal that follows ``<key>:`` in ``text``, matching
+    brackets while ignoring any ``[``/``]`` that fall inside a double-quoted
+    string. Empty string if the key is absent."""
+    m = re.search(re.escape(key) + r'\s*:\s*\[', text)
+    if not m:
+        return ''
+    start = i = text.index('[', m.start())
+    depth = 0
+    in_str = esc = False
+    while i < len(text):
+        c = text[i]
+        if in_str:
+            if esc:
+                esc = False
+            elif c == '\\':
+                esc = True
+            elif c == '"':
+                in_str = False
+        elif c == '"':
+            in_str = True
+        elif c == '[':
+            depth += 1
+        elif c == ']':
+            depth -= 1
+            if depth == 0:
+                return text[start:i + 1]
+        i += 1
+    return ''
+
+
+def parse_qip_2020(text: str, year: int = 0) -> List[Dict[str, Any]]:
+    """QIP 2020's site is a JS SPA; the accepted-poster list lives as a
+    ``posterList:[{author,title}]`` array literal in the bundled ``app.*.js``.
+    Slice that array out and map each entry through ``_poster`` (authors are prose
+    lists, split by ``split_authors``). The sibling ``acceptedPoster`` array is the
+    contributed-**talks** list — every one of its titles is already in
+    ``talks.csv`` — so it is deliberately ignored. Two source records are malformed
+    (one carries no title, one has its title in the author field with no title
+    key); both are dropped by ``_poster``'s empty-title guard, leaving 352."""
+    posters: List[Dict[str, Any]] = []
+    array = _slice_js_array(text, 'posterList')
+    for obj in re.finditer(r'\{[^{}]*\}', array):
+        kv = dict(_QIP_2020_KV_RE.findall(obj.group()))
+        p = _poster(kv.get('title', ''), kv.get('author', ''),
+                    session_name='Poster Sessions')
+        if p:
+            posters.append(p)
+    return posters
+
+
 # QIP 2024 poster-session headings -> the presentation date (both in Jan 2024).
 _QIP_2024_DATE_RE = re.compile(r'Jan\w*\.?\s+(\d{1,2})', re.IGNORECASE)
 

@@ -283,7 +283,7 @@ even though those years are seeded as conferences in the DB.
 |---|---|---|---|
 | QIP 2017 | yes (181 MB, registration only) | unusable — no program archived | none |
 | QIP 2018 | yes (177 MB, programs in PDFs) | PDF-only | none |
-| QIP 2020 | yes (880 KB, SPA) | unusable — JS-rendered | none |
+| QIP 2020 | yes (880 KB, SPA) | posters recovered — `posterList` JS array in `app.*.js` | `parse_qip_2020` → 352 posters imported |
 | QIP 2021 | yes | GOOD — `monday.html`–`friday.html` static | WIP parser planned in memory |
 | QIP 2022 | per memory: "manually collected" | unclear | none |
 | QIP 2023 | yes (70 MB, Indico) | FAIR — list pages static, detail pages JS | none |

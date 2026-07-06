@@ -57,6 +57,7 @@ _PARSERS = {
     'qip_2014': parsers.parse_qip_2014,
     'qip_2015': parsers.parse_qip_2015,
     'qip_2016': parsers.parse_qip_2016,
+    'qip_2020_js': parsers.parse_qip_2020,
     'qip_2023': parsers.parse_qip_2023,
     'qip_2024': parsers.parse_qip_2024,
     'qip_2026': parsers.parse_qip_2026,
@@ -74,8 +75,10 @@ _PARSERS = {
 
 # Families whose parser takes raw text + year (not a BeautifulSoup). PDF sources
 # are extracted to text via `pdftotext -layout` first.
+# qip_2020_js reads a JS bundle (the SPA hard-codes its poster list as a JS array
+# literal); text family, but not a PDF, so the runner passes the raw file text.
 _TEXT_FAMILIES = {'tqc_bibtex', 'qip_pdf_2col', 'qip_2017_pdf', 'qip_2021_pdf',
-                  'qip_2023_pdf', 'tqc_2022_pdf'}
+                  'qip_2023_pdf', 'tqc_2022_pdf', 'qip_2020_js'}
 _PDF_FAMILIES = {'qip_pdf_2col', 'qip_2017_pdf', 'qip_2021_pdf', 'qip_2023_pdf', 'tqc_2022_pdf'}
 
 # (venue, year) -> (family, [relative paths under the venue domain]).
@@ -124,6 +127,9 @@ POSTER_SOURCES: Dict[tuple, tuple] = {
     ]),
     ('QIP', 2018): ('qip_pdf_2col', ['2018/qutech.nl/wp-content/uploads/2018/01/Posters_QIP-2018.pdf']),
     ('QIP', 2019): ('qip_pdf_2col', ['2019/qip2019_accepted_posters.pdf']),
+    # QIP 2020 is a JS SPA — its poster list is hard-coded as a `posterList`
+    # array literal inside the bundled app.js (content-hashed filename).
+    ('QIP', 2020): ('qip_2020_js', ['2020/static/js/app.1ac155286edb3bd13e8f.js']),
     # QIP 2021 accepted-poster list PDF is not on the mirror — it lived off-site
     # (mcqst.de). Fetched into the conference data dir and referenced by @-path.
     ('QIP', 2021): ('qip_2021_pdf', ['@data/conferences/qip_2021/raw/AllPostersQIP2021.pdf']),
