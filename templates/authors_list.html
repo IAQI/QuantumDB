@@ -11,10 +11,10 @@
 
     <section class="search-box">
         <form>
-            <input 
-                type="search" 
-                name="search" 
-                placeholder="Search by author name..."
+            <input
+                type="search"
+                name="search"
+                placeholder="Search {{ total_count }} authors by name..."
                 value="{{ search_term }}"
                 hx-get="/authors"
                 hx-trigger="input changed delay:300ms, search"
@@ -28,15 +28,17 @@
 
     <section id="authors-table">
         {% if authors.is_empty() %}
-        <p>{% if search_term.is_empty() %}No authors found.{% else %}No authors matching "{{ search_term }}".{% endif %}</p>
+        {% if search_term.is_empty() %}
+        <p class="search-prompt">Start typing to search {{ total_count }} authors by name.</p>
+        {% else %}
+        <p>No authors matching "{{ search_term }}".</p>
+        {% endif %}
         {% else %}
         <table id="authors-list-table" class="sortable-table">
             <thead>
                 <tr>
                     <th data-sort="name">Name</th>
                     <th data-sort="affiliation">Affiliation</th>
-                    <th data-sort="committees">Committee Roles</th>
-                    <th data-sort="awards">Awards</th>
                     <th data-sort="years">Years Active</th>
                 </tr>
             </thead>
@@ -45,8 +47,6 @@
                 <tr>
                     <td data-value="name"><a href="/authors/{{ author.slug }}" class="author-link">{{ author.full_name }}</a></td>
                     <td data-value="affiliation">{{ author.affiliation }}</td>
-                    <td data-value="committees">{{ author.committee_role_count }}</td>
-                    <td data-value="awards">{% if author.award_count > 0 %}{{ author.award_count }}{% else %}-{% endif %}</td>
                     <td data-value="years">{% if !author.first_year.is_empty() %}{{ author.first_year }}–{{ author.last_year }}{% else %}-{% endif %}</td>
                 </tr>
                 {% endfor %}

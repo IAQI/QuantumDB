@@ -34,29 +34,39 @@
         {% if pc_count > 0 %}
         <div class="stat-card clickable" onclick="scrollToHighlight('#committee-section', 'program')">
             <div class="stat-value">{{ pc_count }}</div>
-            <span class="stat-label">program roles</span>
+            <span class="stat-label">program role{% if pc_count != 1 %}s{% endif %}</span>
         </div>
         {% endif %}
         {% if sc_count > 0 %}
         <div class="stat-card clickable" onclick="scrollToHighlight('#committee-section', 'steering')">
             <div class="stat-value">{{ sc_count }}</div>
-            <span class="stat-label">steering roles</span>
+            <span class="stat-label">steering role{% if sc_count != 1 %}s{% endif %}</span>
         </div>
         {% endif %}
         {% if oc_count > 0 %}
         <div class="stat-card clickable" onclick="scrollToHighlight('#committee-section', 'organizing')">
             <div class="stat-value">{{ oc_count }}</div>
-            <span class="stat-label">organizing roles</span>
+            <span class="stat-label">organizing role{% if oc_count != 1 %}s{% endif %}</span>
         </div>
         {% endif %}
+        {% if author.leadership_count > 0 %}
         <div class="stat-card clickable" onclick="scrollToHighlight('#committee-section', 'leadership')">
             <div class="stat-value">{{ author.leadership_count }}</div>
-            <span class="stat-label">leadership roles</span>
+            <span class="stat-label">leadership role{% if author.leadership_count != 1 %}s{% endif %}</span>
         </div>
+        {% endif %}
+        {% if collaborator_count > 0 %}
+        <div class="stat-card clickable" onclick="scrollToHighlight('#collaborators-section')">
+            <div class="stat-value">{{ collaborator_count }}</div>
+            <span class="stat-label">collaborator{% if collaborator_count != 1 %}s{% endif %}</span>
+        </div>
+        {% endif %}
+        {% if !author.first_year.is_empty() %}
         <div class="stat-card">
-            <div class="stat-value">{% if !author.first_year.is_empty() %}{{ author.first_year }}<span style="color: var(--muted); font-size: 1.4rem;">–{{ author.last_year }}</span>{% else %}—{% endif %}</div>
+            <div class="stat-value">{{ author.first_year }}<span style="color: var(--muted); font-size: 1.4rem;">–{{ author.last_year }}</span></div>
             <span class="stat-label">years active</span>
         </div>
+        {% endif %}
     </section>
 
     {% if contribution.year_count > 0 %}
@@ -112,7 +122,7 @@
 
     {% if !talks.is_empty() %}
     <section id="talks-section">
-        <h2>Talks</h2>
+        <h2>{{ talks.len() }} Talk{% if talks.len() != 1 %}s{% endif %}</h2>
         <table id="talks-table" class="sortable-table">
             <thead>
                 <tr>
@@ -170,7 +180,7 @@
 
     {% if !posters.is_empty() %}
     <section id="posters-section">
-        <h2>Posters</h2>
+        <h2>{{ posters.len() }} Poster{% if posters.len() != 1 %}s{% endif %}</h2>
         <table id="posters-table" class="sortable-table">
             <thead>
                 <tr>
@@ -248,7 +258,7 @@
     {% endif %}
 
     {% if !coauthors.is_empty() %}
-    <section>
+    <section id="collaborators-section">
         <h2>Collaborators</h2>
         <table id="collaborators-table" class="sortable-table">
             <thead>

@@ -1,0 +1,46 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT\n                a.slug as \"slug!\",\n                a.full_name,\n                COALESCE(ast.recent_affiliation, a.affiliation, '') as \"affiliation!\",\n                COALESCE(ast.first_year::text, '') as \"first_year!\",\n                COALESCE(ast.last_year::text, '') as \"last_year!\"\n            FROM authors a\n            LEFT JOIN author_stats ast ON a.id = ast.id\n            WHERE a.full_name ILIKE $1 OR a.normalized_name ILIKE $1\n            ORDER BY a.full_name\n            LIMIT 100\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "slug!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "full_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "affiliation!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "first_year!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "last_year!",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "e5d1aa1d3f18fc4c7691a5c9acc411a3a2c1fe67af34b75baef5c8c710fd5c0b"
+}
