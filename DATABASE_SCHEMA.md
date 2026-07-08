@@ -191,10 +191,14 @@ CREATE TABLE publications (
     -- Dates
     published_date      DATE,                 -- When published in proceedings
 
-    -- Full-text search
+    -- Full-text search (author names folded in by migration 20260702000000)
+    -- Denormalized author full/published names, maintained by triggers (see below);
+    -- a GENERATED column can't reference other tables, so this materializes them.
+    author_names_text   TEXT NOT NULL DEFAULT '',
     search_vector       tsvector GENERATED ALWAYS AS (
         setweight(to_tsvector('english', title), 'A') ||
-        setweight(to_tsvector('english', COALESCE(abstract, '')), 'B')
+        setweight(to_tsvector('english', COALESCE(abstract, '')), 'B') ||
+        setweight(to_tsvector('simple',  COALESCE(author_names_text, '')), 'C')
     ) STORED,
 
     -- Audit fields
@@ -215,6 +219,8 @@ CREATE INDEX idx_publications_award ON publications(award) WHERE award IS NOT NU
 CREATE INDEX idx_publications_metadata ON publications USING GIN(metadata);
 CREATE INDEX idx_publications_presenter ON publications(presenter_author_id) WHERE presenter_author_id IS NOT NULL;
 ```
+
+**Author-name search (migration 20260702000000):** `search_vector` weights title as `A`, abstract as `B`, and author names as `C`, so a search matches on any of the three. Because a `GENERATED` column can't join to `authorships`/`authors`, author names are materialized into `publications.author_names_text` and kept current by `publications_author_names_text()` plus triggers: `trg_authorships_sync_author_names` (on `authorships` INSERT/UPDATE/DELETE) and `trg_authors_sync_publication_author_names` (on author name changes). Author names use the `simple` config (no stemming); title/abstract use `english`.
 
 **Paper Type Guide:**
 Paper types represent what appears in conference programs, not the selection mechanism behind them:

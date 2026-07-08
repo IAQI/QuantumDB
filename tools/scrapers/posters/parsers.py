@@ -825,6 +825,65 @@ def parse_qip_2014(soup: BeautifulSoup) -> List[Dict[str, Any]]:
     return posters
 
 
+# QIP 2020 is a JS single-page app: the accepted-poster list is hard-coded as a
+# `posterList:[{author:"...",title:"..."},...]` array literal inside the bundled
+# `static/js/app.*.js`, so there is no HTML/PDF to parse. We slice the array out
+# of the raw JS text (string-aware bracket matching) and read each object's
+# double-quoted values. Key:"value" pairs — the bundle uses no string escapes.
+_QIP_2020_KV_RE = re.compile(r'(\w+)\s*:\s*"((?:[^"\\]|\\.)*)"')
+
+
+def _slice_js_array(text: str, key: str) -> str:
+    """Return the ``[...]`` literal that follows ``<key>:`` in ``text``, matching
+    brackets while ignoring any ``[``/``]`` that fall inside a double-quoted
+    string. Empty string if the key is absent."""
+    m = re.search(re.escape(key) + r'\s*:\s*\[', text)
+    if not m:
+        return ''
+    start = i = text.index('[', m.start())
+    depth = 0
+    in_str = esc = False
+    while i < len(text):
+        c = text[i]
+        if in_str:
+            if esc:
+                esc = False
+            elif c == '\\':
+                esc = True
+            elif c == '"':
+                in_str = False
+        elif c == '"':
+            in_str = True
+        elif c == '[':
+            depth += 1
+        elif c == ']':
+            depth -= 1
+            if depth == 0:
+                return text[start:i + 1]
+        i += 1
+    return ''
+
+
+def parse_qip_2020(text: str, year: int = 0) -> List[Dict[str, Any]]:
+    """QIP 2020's site is a JS SPA; the accepted-poster list lives as a
+    ``posterList:[{author,title}]`` array literal in the bundled ``app.*.js``.
+    Slice that array out and map each entry through ``_poster`` (authors are prose
+    lists, split by ``split_authors``). The sibling ``acceptedPoster`` array is the
+    contributed-**talks** list — every one of its titles is already in
+    ``talks.csv`` — so it is deliberately ignored. Two source records are malformed
+    (one carries no title, one has its title in the author field with no title
+    key); both are dropped by ``_poster``'s empty-title guard, leaving 352."""
+    posters: List[Dict[str, Any]] = []
+    array = _slice_js_array(text, 'posterList')
+    for obj in re.finditer(r'\{[^{}]*\}', array):
+        kv = dict(_QIP_2020_KV_RE.findall(obj.group()))
+        p = _poster(kv.get('title', ''), kv.get('author', ''),
+                    session_name='Poster Sessions')
+        if p:
+            posters.append(p)
+    return posters
+
+
 # QIP 2024 poster-session headings -> the presentation date (both in Jan 2024).
 _QIP_2024_DATE_RE = re.compile(r'Jan\w*\.?\s+(\d{1,2})', re.IGNORECASE)
 
@@ -985,6 +1044,35 @@ def parse_tqc_2025(soup: BeautifulSoup) -> List[Dict[str, Any]]:
         em = li.find('em')
         authors_cell = em.get_text(' ', strip=True) if em else ''
         p = _poster(title, authors_cell)
+        if p:
+            posters.append(p)
+    return posters
+
+
+def parse_tqc_span_list(soup: BeautifulSoup) -> List[Dict[str, Any]]:
+    """TQC 2015/2016/2017: posters under an ``<h2>Posters</h2>`` heading, each an
+    ``<li>`` with a ``<span class="title">`` and ``<span class="authors">``.
+
+    Span order and nesting vary by year — 2017 is title-then-authors; 2015/2016
+    are authors-then-title (2016 nests the title *inside* the authors span and
+    wraps some names in ``<a>``). Withdrawn posters are HTML-commented (``<!-- …
+    -->``), which ``html.parser`` keeps as a Comment node, so ``find_all('li')``
+    never descends into them and they drop out automatically."""
+    heading = next((h for h in soup.find_all('h2')
+                    if h.get_text(strip=True).lower() == 'posters'), None)
+    if not heading:
+        return []
+    container = heading.find_next(['ul', 'ol'])
+    posters: List[Dict[str, Any]] = []
+    for li in (container.find_all('li') if container else []):
+        title_span = li.find('span', class_='title')
+        authors_span = li.find('span', class_='authors')
+        if not title_span or not authors_span:
+            continue
+        title = title_span.get_text(' ', strip=True)
+        title_span.extract()  # so a title nested in the authors span (2016) drops out
+        cell = authors_span.get_text(' ', strip=True).rstrip('. ').strip()
+        p = _poster(title, cell)
         if p:
             posters.append(p)
     return posters

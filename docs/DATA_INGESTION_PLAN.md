@@ -277,13 +277,17 @@ TQC has zero schedule and zero video data anywhere in workshop.csv.
 Pre-2013 (2006–2012) committee/proceedings data is not in the CSV tree
 even though those years are seeded as conferences in the DB.
 
+TQC posters: 2015 (19) / 2016 (58) / 2017 (68) recovered 2026-07 from the
+program pages via `parse_tqc_span_list` (see `data/SOURCES.md`); joins the
+already-present TQC 2019/2020/2021/2022/2025 poster sets.
+
 ## Local mirror & parser support (cross-reference)
 
 | Venue/year | Local mirror | Mirror quality | Parser support |
 |---|---|---|---|
 | QIP 2017 | yes (181 MB, registration only) | unusable — no program archived | none |
 | QIP 2018 | yes (177 MB, programs in PDFs) | PDF-only | none |
-| QIP 2020 | yes (880 KB, SPA) | unusable — JS-rendered | none |
+| QIP 2020 | yes (880 KB, SPA) | posters recovered — `posterList` JS array in `app.*.js` | `parse_qip_2020` → 352 posters imported |
 | QIP 2021 | yes | GOOD — `monday.html`–`friday.html` static | WIP parser planned in memory |
 | QIP 2022 | per memory: "manually collected" | unclear | none |
 | QIP 2023 | yes (70 MB, Indico) | FAIR — list pages static, detail pages JS | none |

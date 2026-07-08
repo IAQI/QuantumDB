@@ -147,7 +147,8 @@ QuantumDB provides a user-friendly web interface for browsing and exploring quan
 - **Homepage** - Overview and quick access to key resources
 - **About Page** - Project information and IAQI branding
 - **Author Directory** - Browse and search researchers in quantum computing
-- **Conference Browser** - Explore conferences by venue (QIP, QCrypt, TQC)
+- **Conference Browser** - Explore conferences by venue (QIP, QCrypt, TQC), with per-conference business-meeting stats where known
+- **Publications Browser** - Full-text search over titles, abstracts, and author names
 - **Dynamic Loading** - HTMX-powered for smooth, fast navigation
 
 ### REST API
@@ -231,11 +232,12 @@ curl -H "Authorization: Bearer YOUR_TOKEN_HERE" \
 The API provides full CRUD operations (all under the versioned `/api/v1/` prefix) for:
 
 ```
-/api/v1/conferences   # Conference management
-/api/v1/publications  # Publication tracking
-/api/v1/authors       # Author profiles
-/api/v1/authorships   # Author-publication relationships
-/api/v1/committees    # Committee role management
+/api/v1/conferences        # Conference management
+/api/v1/publications       # Publication tracking (list supports ?search= full-text)
+/api/v1/authors            # Author profiles
+/api/v1/authorships        # Author-publication relationships
+/api/v1/committees         # Committee role management
+/api/v1/stats/conferences  # Read-only per-conference stats time series
 ```
 
 All endpoints are documented with:

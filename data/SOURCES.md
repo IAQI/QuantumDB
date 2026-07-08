@@ -57,16 +57,30 @@ QIP 2006–2016/2019/2026, TQC 2019–2025) are documented in the registry itsel
 | QIP 2014 | `2014/{Monday,Tuesday}Session.html` | `parse_qip_2014` | 259 |
 | QIP 2017 | `2017/wp-content/uploads/2017/11/QIP-2017-Posters-Day-{1,2}-*.pdf` | `parse_qip_2017_pdf` | 221 |
 | QIP 2018 | `2018/qutech.nl/wp-content/uploads/2018/01/Posters_QIP-2018.pdf` | `parse_qip_pdf_2col` | 261 |
+| QIP 2020 | `2020/#/posterSessions` — data hard-coded as a `posterList` JS array in `2020/static/js/app.1ac155286edb3bd13e8f.js` | `parse_qip_2020` | 352 |
 | QIP 2021 | `AllPostersQIP2021.pdf` *(fetched into `qip_2021/raw/` from mcqst.de; not on mirror)* | `parse_qip_2021_pdf` | 234 |
 | QIP 2023 | `2023/event/13076/page/3896-monday-session.html`, `.../3897-tuesday-session.html` (`.../3898-not-presenting.html` excluded) | `parse_qip_2023` | 483 |
 | QIP 2024 | `2024/site/mypage.aspx?pid=263&lang=en&sid=1522.html` (two presenting-session tables) | `parse_qip_2024` | 403 |
 | TQC 2022 | `2022/files/2022/07/TQC-2022-Program-FINAL.pdf` ("POSTER SESSION PROGRAM") | `parse_tqc_2022_pdf` | 44 |
+
+**Recovered 2026-07 (batch 2)** (TQC 2015/2016/2017, 145 posters):
+
+| Year | Source | Parser | Posters |
+|------|--------|--------|---------|
+| TQC 2015 | `2015/program.html` ("Posters" section) | `parse_tqc_span_list` | 19 |
+| TQC 2016 | `2016/Programme.html` ("Posters" section) | `parse_tqc_span_list` | 58 |
+| TQC 2017 | `2017/contributions.html` ("Posters" section) | `parse_tqc_span_list` | 68 |
 
 Notes:
 - **QCrypt 2014** — the dedicated posters page (`2014/posters/`) is a "To be announced" stub, but the
   accepted-poster list is at the bottom of the **program** page (`2014/program/index.html`).
 - **QIP 2024** and **QIP 2023** each carry a trailing "Not Presenting" list (accepted-but-absent)
   that is deliberately excluded, matching the presented-posters convention.
+- **TQC 2015/2016/2017** — a single `parse_tqc_span_list` handles all three: posters live under a
+  `<h2>Posters</h2>` heading, each an `<li>` of `<span class="title">` + `<span class="authors">`
+  (2017 is title-first; 2015/2016 authors-first, with 2016 nesting the title *inside* the authors
+  span). TQC 2016's page HTML-comments two withdrawn posters ("Covert Quantum Communication",
+  "Spin frustration…"); `html.parser` keeps comments as a Comment node so they are excluded (→ 58, not 60).
 - **Known imperfect rows** (from source-PDF column merges where pdftotext ran two columns
   together; ~0.1% of rows): QIP 2017 poster 39 (title wraps around the authors → author cell empty,
   import-skipped) and QIP 2021 A.2.13 (title text bleeds into the author cell). The full text is
@@ -170,6 +184,11 @@ presenter underlined per entry). Scraped via `scrape_to_csv.py posters --venue Q
 
 Scraper: `scrape_qip_historical.py` → `parse_2024()` (reads multiple `site/mypage.aspx?pid=*` files)
 
+**Posters**: one author of "Increasing quantum key length" self-entered their name in
+Chinese characters on the accepted-posters page (`振浩 余`, given-first). The scraped CSV
+keeps it verbatim; `data/author_aliases.csv` maps it to the standard pinyin (Zhenhao Yu)
+so the DB canonicalizes to Latin like every other author.
+
 ---
 
 ## 2023 — Ghent (UGhent)
@@ -209,6 +228,20 @@ Scraper: `scrape_qip_historical.py` → `parse_2021()`
 Local archive is a JavaScript SPA (`index.html` with bundled JS only); no committee data is readable from HTML.
 Committee data was likely collected from the live website or program book.
 Source: `qip_2020_committees.csv` — program committee list.
+
+**Posters**: the SPA renders no HTML, but its full poster list is hard-coded as a
+`posterList:[{author,title}]` JS array literal inside the bundle
+`static/js/app.1ac155286edb3bd13e8f.js`. `parse_qip_2020` slices that array out of
+the raw JS (no rendering needed) → 352 posters. The sibling `acceptedPoster` array
+in the same bundle is the contributed-*talks* list (all its titles are already in
+`talks.csv`) and is deliberately ignored. Two source records are malformed in the
+bundle (one has no title; one — "Stochastic gradient descent for hybrid
+quantum-classical optimization" — has its title in the author field) and are dropped.
+Three authors of one poster ("Integrated miniaturized magnetometer…") are stored in
+Chinese characters in the bundle (`牛刘敏, 柴笑晗 and 马宗敏`); the scraped CSV keeps
+them verbatim, and `data/author_aliases.csv` maps them to their published pinyin
+(Liumin Niu, Xiaohan Chai, Zongmin Ma — per J. Phys. D 2020, doi:10.1088/1361-6463/ab6af2)
+so the DB canonicalizes to Latin like every other author.
 
 ---
 

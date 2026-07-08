@@ -14,8 +14,9 @@
   ~3,970 publications, ~5,540 authors, ~2,635 committee roles, and 18 business
   meetings. Coverage is uneven per conference-year; the authoritative status
   table is in [`DATA_INGESTION_PLAN.md`](DATA_INGESTION_PLAN.md).
-- 🔮 **Future**: Dedicated search endpoints, export features, analytics
-  endpoints.
+- 🔮 **Future**: Remaining search endpoints (author-search / arXiv-lookup JSON
+  routes — publication full-text search already ships), export features,
+  analytics endpoints.
 
 **Where the live punch lists are:**
 - **Data work** → [`docs/DATA_INGESTION_PLAN.md`](DATA_INGESTION_PLAN.md) is the
@@ -35,8 +36,10 @@ for mechanics.
 **Remaining data gaps** are tracked per conference-year in
 `DATA_INGESTION_PLAN.md`. As of the last audit, the notable open items are:
 
-- A handful of QIP years deferred pending external sources (e.g. 2020, 2022 —
-  JS-rendered archives needing Wayback/DBLP fetches).
+- A handful of QIP years deferred pending external sources (e.g. 2022 —
+  JS-rendered archive needing Wayback/DBLP fetches). QIP 2020 posters are now
+  recovered (352, from the `posterList` JS array in the SPA bundle); its
+  contributed talks were already extracted from Wayback.
 - QIP 2019 talks only partially extracted.
 - TQC 2009/2010 committee + schedule gaps; some TQC workshop years lack
   schedule/video metadata.
@@ -51,14 +54,14 @@ current and is the single source of truth.
 
 ## 2. User-Facing Features (Not Yet Built)
 
-### A. Dedicated Search Endpoints ⭐⭐
-Current state: list endpoints support some filtering; there are no dedicated
-search endpoints, and the publications `search_vector` column is not yet
-queried.
-- `GET /api/v1/authors/search?q=<name>` — leverage `src/utils/normalize.rs`
-- `GET /api/v1/publications/search?q=<title>` — PostgreSQL full-text via
-  `search_vector` (column already exists and is `GENERATED ALWAYS`)
-- `GET /api/v1/publications/search?arxiv_id=<id>` — arXiv lookup
+### A. Dedicated Search Endpoints ⭐⭐ (partly done)
+Current state: publication full-text search is **implemented** — `GET /api/v1/publications?search=<q>`
+and the `/publications` web browser query `search_vector` (title/abstract/author names) via
+`plainto_tsquery`, and `search_vector` now folds in author names (migration 20260702000000).
+Still open:
+- A dedicated `GET /api/v1/authors/search?q=<name>` endpoint (leverage `src/utils/normalize.rs`) —
+  authors are currently searchable only via the web author list, not a JSON API route.
+- `GET /api/v1/publications/search?arxiv_id=<id>` — arXiv lookup convenience route.
 - Files: `src/handlers/publications.rs`, `src/handlers/authors.rs`, `src/main.rs`
 
 ### B. Export Features ⭐⭐
@@ -109,8 +112,8 @@ runbook documents the manual dump) and external uptime/DB-metric monitoring.
 ## Recommended Next Steps
 
 1. Continue closing data gaps per `DATA_INGESTION_PLAN.md`.
-2. Add dedicated search endpoints (Feature A) — highest user-facing value, and
-   the schema already supports full-text search.
+2. Finish the remaining search endpoints (Feature A) — author-search and
+   arXiv-lookup JSON routes; publication full-text search already ships.
 3. BibTeX/CSV export (Feature B).
 4. Analytics endpoints (Feature C).
 
