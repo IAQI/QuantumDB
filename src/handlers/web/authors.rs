@@ -12,6 +12,7 @@ use crate::models::{PaperType, CommitteeType, CommitteePosition};
 struct AuthorsListTemplate {
     authors: Vec<AuthorListItem>,
     search_term: String,
+    total_count: i64,
 }
 
 #[derive(Template)]
@@ -19,14 +20,13 @@ struct AuthorsListTemplate {
 struct AuthorsTablePartialTemplate {
     authors: Vec<AuthorListItem>,
     search_term: String,
+    total_count: i64,
 }
 
 struct AuthorListItem {
     slug: String,
     full_name: String,
     affiliation: String,
-    committee_role_count: i64,
-    award_count: i64,
     first_year: String,
     last_year: String,
 }
@@ -42,6 +42,7 @@ struct AuthorDetailTemplate {
     sc_count: usize,
     oc_count: usize,
     coauthors: Vec<CoauthorItem>,
+    collaborator_count: i64,
     contribution: ContributionGraph,
 }
 
@@ -463,49 +464,55 @@ pub async fn authors_list(
     State(pool): State<PgPool>,
     headers: HeaderMap,
 ) -> Result<Response, StatusCode> {
-    let search_pattern = format!("%{}%", params.search);
+    let search = params.search.trim().to_string();
 
-    let authors = sqlx::query!(
-        r#"
-        SELECT
-            a.slug as "slug!",
-            a.full_name,
-            COALESCE(ast.recent_affiliation, a.affiliation, '') as "affiliation!",
-            COALESCE(ast.committee_role_count, 0) as "committee_role_count!",
-            COALESCE(aw.award_count, 0) as "award_count!",
-            COALESCE(ast.first_year::text, '') as "first_year!",
-            COALESCE(ast.last_year::text, '') as "last_year!"
-        FROM authors a
-        LEFT JOIN author_stats ast ON a.id = ast.id
-        LEFT JOIN (
-            SELECT au.author_id, COUNT(*) AS award_count
-            FROM authorships au
-            JOIN publications p ON p.id = au.publication_id
-            WHERE p.award IS NOT NULL
-            GROUP BY au.author_id
-        ) aw ON aw.author_id = a.id
-        WHERE a.full_name ILIKE $1 OR a.normalized_name ILIKE $1
-        ORDER BY a.full_name
-        "#,
-        search_pattern
-    )
-    .fetch_all(&pool)
-    .await
-    .map_err(|e| {
-        tracing::error!("Database error: {}", e);
-        StatusCode::INTERNAL_SERVER_ERROR
-    })?
-    .into_iter()
-    .map(|row| AuthorListItem {
-        slug: row.slug,
-        full_name: row.full_name,
-        affiliation: row.affiliation,
-        committee_role_count: row.committee_role_count,
-        award_count: row.award_count,
-        first_year: row.first_year,
-        last_year: row.last_year,
-    })
-    .collect();
+    // Total author count for the search-first prompt ("Search N authors by name").
+    let total_count = sqlx::query_scalar!(r#"SELECT COUNT(*) as "count!" FROM authors"#)
+        .fetch_one(&pool)
+        .await
+        .map_err(|e| {
+            tracing::error!("Database error counting authors: {}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        })?;
+
+    // Search-first: render no table until the user types. This avoids ever building
+    // the ~11k-row table on an empty query. Non-empty searches are capped at 100.
+    let authors: Vec<AuthorListItem> = if search.is_empty() {
+        Vec::new()
+    } else {
+        let search_pattern = format!("%{}%", search);
+        sqlx::query!(
+            r#"
+            SELECT
+                a.slug as "slug!",
+                a.full_name,
+                COALESCE(ast.recent_affiliation, a.affiliation, '') as "affiliation!",
+                COALESCE(ast.first_year::text, '') as "first_year!",
+                COALESCE(ast.last_year::text, '') as "last_year!"
+            FROM authors a
+            LEFT JOIN author_stats ast ON a.id = ast.id
+            WHERE a.full_name ILIKE $1 OR a.normalized_name ILIKE $1
+            ORDER BY a.full_name
+            LIMIT 100
+            "#,
+            search_pattern
+        )
+        .fetch_all(&pool)
+        .await
+        .map_err(|e| {
+            tracing::error!("Database error: {}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        })?
+        .into_iter()
+        .map(|row| AuthorListItem {
+            slug: row.slug,
+            full_name: row.full_name,
+            affiliation: row.affiliation,
+            first_year: row.first_year,
+            last_year: row.last_year,
+        })
+        .collect()
+    };
 
     // Check if this is an HTMX request
     let is_htmx = headers.get("hx-request").is_some();
@@ -514,14 +521,16 @@ pub async fn authors_list(
         // Return partial template for HTMX requests
         let template = AuthorsTablePartialTemplate {
             authors,
-            search_term: params.search,
+            search_term: search,
+            total_count,
         };
         template.render()
     } else {
         // Return full page for regular requests
         let template = AuthorsListTemplate {
             authors,
-            search_term: params.search,
+            search_term: search,
+            total_count,
         };
         template.render()
     };
@@ -714,6 +723,22 @@ pub async fn author_detail(
     })
     .collect();
 
+    // True distinct-collaborator count (the `coauthors` list above is LIMIT 20).
+    let collaborator_count = sqlx::query_scalar!(
+        r#"
+        SELECT COUNT(*) as "count!"
+        FROM coauthor_pairs
+        WHERE author1_id = $1 OR author2_id = $1
+        "#,
+        author_id
+    )
+    .fetch_one(&pool)
+    .await
+    .map_err(|e| {
+        tracing::error!("Database error counting collaborators: {}", e);
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
+
     let (talks, posters): (Vec<PublicationItem>, Vec<PublicationItem>) = publications
         .into_iter()
         .partition(|p| p.paper_type != "poster");
@@ -760,6 +785,7 @@ pub async fn author_detail(
         sc_count,
         oc_count,
         coauthors,
+        collaborator_count,
         contribution,
     };
 
