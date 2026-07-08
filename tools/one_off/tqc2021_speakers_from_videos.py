@@ -95,9 +95,16 @@ PRESENTERS = {
     'VLpeTWtZZXs': ('Markus Hasenöhrl', 'HIGH', 'confirmed by organizer'),
     'd9o3RiOgvZY': ('Tomotaka Kuwahara', 'HIGH', 'confirmed by organizer'),
     'gxgCndCLVpQ': ('Vishal Katariya', 'HIGH', 'confirmed by organizer'),
-    # LOW: unresolved.
-    'ieYcZ3qDYYc': ('', 'LOW', 'full author list, no marker; young webcam (Bravyi/Kliesch/Koenig/Tang)'),
-    'jUYOjC9Z68g': ('', 'LOW', 'MERGED talk (toric code + color code); presenter of this half unclear'),
+    'ieYcZ3qDYYc': ('Alexander Kliesch', 'HIGH', 'confirmed by organizer'),
+    'jUYOjC9Z68g': ('Tomas Jochym-O’Connor', 'HIGH', 'confirmed by organizer; toric-code half of the merged talk'),
+}
+
+# The merged video jUYOjC9Z68g covers two papers: the toric-code half (row above)
+# and "Locally unencoding the color code", which has no youtube_id of its own.
+# The organizer confirmed Michael Vasmer presented that second half.
+# title -> (presenter, shared_youtube_id).
+MERGED_SECOND_HALF = {
+    'Locally unencoding the color code': ('Michael Vasmer', 'jUYOjC9Z68g'),
 }
 
 
@@ -138,6 +145,17 @@ def main():
 
     applied, skipped, mism = [], [], []
     for r in rows:
+        # merged-talk second half: give it the shared video + confirmed presenter
+        merged = MERGED_SECOND_HALF.get(r["title"])
+        if merged:
+            presenter, shared_yid = merged
+            r["youtube_id"] = shared_yid
+            r["video_url"] = f"https://www.youtube.com/watch?v={shared_yid}"
+            authors = [a.strip() for a in r["authors"].split(";") if a.strip()]
+            canon = canonical_author(presenter, authors) or presenter
+            r["speakers"] = canon
+            applied.append((shared_yid, canon, r["title"]))
+            continue
         yid = (r.get("youtube_id") or "").strip()
         entry = PRESENTERS.get(yid)
         if not entry:
