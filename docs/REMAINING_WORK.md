@@ -36,8 +36,10 @@ for mechanics.
 **Remaining data gaps** are tracked per conference-year in
 `DATA_INGESTION_PLAN.md`. As of the last audit, the notable open items are:
 
-- A handful of QIP years deferred pending external sources (e.g. 2020, 2022 —
-  JS-rendered archives needing Wayback/DBLP fetches).
+- A handful of QIP years deferred pending external sources (e.g. 2022 —
+  JS-rendered archive needing Wayback/DBLP fetches). QIP 2020 posters are now
+  recovered (352, from the `posterList` JS array in the SPA bundle); its
+  contributed talks were already extracted from Wayback.
 - QIP 2019 talks only partially extracted.
 - TQC 2009/2010 committee + schedule gaps; some TQC workshop years lack
   schedule/video metadata.
