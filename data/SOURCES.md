@@ -63,11 +63,24 @@ QIP 2006–2016/2019/2026, TQC 2019–2025) are documented in the registry itsel
 | QIP 2024 | `2024/site/mypage.aspx?pid=263&lang=en&sid=1522.html` (two presenting-session tables) | `parse_qip_2024` | 403 |
 | TQC 2022 | `2022/files/2022/07/TQC-2022-Program-FINAL.pdf` ("POSTER SESSION PROGRAM") | `parse_tqc_2022_pdf` | 44 |
 
+**Recovered 2026-07 (batch 2)** (TQC 2015/2016/2017, 145 posters):
+
+| Year | Source | Parser | Posters |
+|------|--------|--------|---------|
+| TQC 2015 | `2015/program.html` ("Posters" section) | `parse_tqc_span_list` | 19 |
+| TQC 2016 | `2016/Programme.html` ("Posters" section) | `parse_tqc_span_list` | 58 |
+| TQC 2017 | `2017/contributions.html` ("Posters" section) | `parse_tqc_span_list` | 68 |
+
 Notes:
 - **QCrypt 2014** — the dedicated posters page (`2014/posters/`) is a "To be announced" stub, but the
   accepted-poster list is at the bottom of the **program** page (`2014/program/index.html`).
 - **QIP 2024** and **QIP 2023** each carry a trailing "Not Presenting" list (accepted-but-absent)
   that is deliberately excluded, matching the presented-posters convention.
+- **TQC 2015/2016/2017** — a single `parse_tqc_span_list` handles all three: posters live under a
+  `<h2>Posters</h2>` heading, each an `<li>` of `<span class="title">` + `<span class="authors">`
+  (2017 is title-first; 2015/2016 authors-first, with 2016 nesting the title *inside* the authors
+  span). TQC 2016's page HTML-comments two withdrawn posters ("Covert Quantum Communication",
+  "Spin frustration…"); `html.parser` keeps comments as a Comment node so they are excluded (→ 58, not 60).
 - **Known imperfect rows** (from source-PDF column merges where pdftotext ran two columns
   together; ~0.1% of rows): QIP 2017 poster 39 (title wraps around the authors → author cell empty,
   import-skipped) and QIP 2021 A.2.13 (title text bleeds into the author cell). The full text is

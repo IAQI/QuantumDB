@@ -65,6 +65,7 @@ _PARSERS = {
     'tqc_2020': parsers.parse_tqc_2020,
     'tqc_2021': parsers.parse_tqc_2021,
     'tqc_2025': parsers.parse_tqc_2025,
+    'tqc_span_list': parsers.parse_tqc_span_list,
     'tqc_bibtex': parsers.parse_tqc_bibtex,  # signature (text, year), not (soup)
     'qip_pdf_2col': parsers.parse_qip_pdf_2col,
     'qip_2017_pdf': parsers.parse_qip_2017_pdf,
@@ -149,6 +150,11 @@ POSTER_SOURCES: Dict[tuple, tuple] = {
     # QIP 2005 (per-poster PDFs) is left for manual entry — its source files are
     # noted in data/SOURCES.md.
     ('TQC', 2022): ('tqc_2022_pdf', ['2022/files/2022/07/TQC-2022-Program-FINAL.pdf']),
+    # 2015/2016/2017: posters listed under a "Posters" <h2> on the program page,
+    # each an <li> of <span class="title"> + <span class="authors"> (one parser).
+    ('TQC', 2015): ('tqc_span_list', ['2015/program.html']),
+    ('TQC', 2016): ('tqc_span_list', ['2016/Programme.html']),
+    ('TQC', 2017): ('tqc_span_list', ['2017/contributions.html']),
     ('TQC', 2019): ('tqc_2019', ['2019/accepted-posters/index.html']),
     ('TQC', 2020): ('tqc_2020', ['2020/accepted-posters/index.html']),
     ('TQC', 2021): ('tqc_2021', ['2021/program/accepted-posters/index.html']),
