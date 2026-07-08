@@ -990,6 +990,35 @@ def parse_tqc_2025(soup: BeautifulSoup) -> List[Dict[str, Any]]:
     return posters
 
 
+def parse_tqc_span_list(soup: BeautifulSoup) -> List[Dict[str, Any]]:
+    """TQC 2015/2016/2017: posters under an ``<h2>Posters</h2>`` heading, each an
+    ``<li>`` with a ``<span class="title">`` and ``<span class="authors">``.
+
+    Span order and nesting vary by year — 2017 is title-then-authors; 2015/2016
+    are authors-then-title (2016 nests the title *inside* the authors span and
+    wraps some names in ``<a>``). Withdrawn posters are HTML-commented (``<!-- …
+    -->``), which ``html.parser`` keeps as a Comment node, so ``find_all('li')``
+    never descends into them and they drop out automatically."""
+    heading = next((h for h in soup.find_all('h2')
+                    if h.get_text(strip=True).lower() == 'posters'), None)
+    if not heading:
+        return []
+    container = heading.find_next(['ul', 'ol'])
+    posters: List[Dict[str, Any]] = []
+    for li in (container.find_all('li') if container else []):
+        title_span = li.find('span', class_='title')
+        authors_span = li.find('span', class_='authors')
+        if not title_span or not authors_span:
+            continue
+        title = title_span.get_text(' ', strip=True)
+        title_span.extract()  # so a title nested in the authors span (2016) drops out
+        cell = authors_span.get_text(' ', strip=True).rstrip('. ').strip()
+        p = _poster(title, cell)
+        if p:
+            posters.append(p)
+    return posters
+
+
 # BibTeX @Poster{...} block and its title/author/year fields (teachpress export).
 _BIB_ENTRY_RE = re.compile(r'@Poster\s*\{(.*?)\n\}', re.IGNORECASE | re.DOTALL)
 _BIB_FIELD_RE = lambda f: re.compile(

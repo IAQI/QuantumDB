@@ -495,6 +495,39 @@ def test_qip_2023_session_table():
     assert got[1]['authors'] == ['Matthias C. Caro', 'Nic Ezzell', 'Zoe Holmes'], got[1]
 
 
+def test_tqc_span_list_layout_variants():
+    # One parser covers TQC 2015/2016/2017: title-first (2017), authors-first with
+    # the title span *nested inside* the authors span (2016), an <a>-wrapped name,
+    # and an HTML-commented withdrawn poster that must be dropped.
+    from bs4 import BeautifulSoup
+    html = (
+        '<h2>Contributed talks</h2><ul>'
+        '<li><span class="title">A talk not a poster</span><br>'
+        '<span class="authors">Someone Else</span></li></ul>'
+        '<h2>Posters</h2><ol>'
+        # 2017 shape: title span, then authors span ("A, B and C")
+        '<li><span class="title">Covert quantum communication</span><br>'
+        '<span class="authors">Juan Miguel Arrazola and Valerio Scarani</span></li>'
+        # 2016 shape: authors span with the title nested inside, <a>-wrapped name,
+        # trailing period after the author list
+        '<li><span class="authors"><span>'
+        'Mario Berta, Hrant Gharibyan and <a href="http://x">Michael Walter</a>.'
+        '<br><span class="title">Compound quantum channels</span></span></span></li>'
+        # withdrawn poster: HTML-commented -> never parsed
+        '<!--<li><span class="authors"><span>Withdrawn Person</span>.</span>'
+        '<br><span class="title">A withdrawn poster</span></li>-->'
+        '</ol>'
+    )
+    got = parsers.parse_tqc_span_list(BeautifulSoup(html, 'html.parser'))
+    assert len(got) == 2, got  # only the two Posters entries; talk + comment excluded
+    assert got[0]['title'] == 'Covert quantum communication', got[0]
+    assert got[0]['authors'] == ['Juan Miguel Arrazola', 'Valerio Scarani'], got[0]
+    # nested-title layout: the title text must NOT leak into the author list
+    assert got[1]['title'] == 'Compound quantum channels', got[1]
+    assert got[1]['authors'] == ['Mario Berta', 'Hrant Gharibyan', 'Michael Walter'], got[1]
+    assert all('withdrawn' not in p['title'].lower() for p in got), got
+
+
 def main() -> int:
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     failed = 0
