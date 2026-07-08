@@ -171,6 +171,11 @@ presenter underlined per entry). Scraped via `scrape_to_csv.py posters --venue Q
 
 Scraper: `scrape_qip_historical.py` → `parse_2024()` (reads multiple `site/mypage.aspx?pid=*` files)
 
+**Posters**: one author of "Increasing quantum key length" self-entered their name in
+Chinese characters on the accepted-posters page (`振浩 余`, given-first). The scraped CSV
+keeps it verbatim; `data/author_aliases.csv` maps it to the standard pinyin (Zhenhao Yu)
+so the DB canonicalizes to Latin like every other author.
+
 ---
 
 ## 2023 — Ghent (UGhent)
