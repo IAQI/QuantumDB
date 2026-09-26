@@ -1,0 +1,11 @@
+venue,year,field,value,source_type,source_url,source_date,notes
+QCRYPT,2026,meeting_date,2026-08-27,conference_website,https://qcrypt.net/2026/schedule/,2026,"Open discussion about the current and future editions of QCrypt, Thu 27 Aug 17:15-17:45; LOC report dated 27 Aug 2026"
+QCRYPT,2026,registered_participants,256,slides,https://qcrypt.net/2026/sessions/slides/QCrypt%202026-Business%20Meeting%20Report.pdf,2026-08-27,"LOC report: 256 registrations (137 standard + 116 student + 3 extra banquet/excursion tickets; 154 early bird / 80 regular / 22 late)"
+QCRYPT,2026,countries_represented,24,slides,https://qcrypt.net/2026/sessions/slides/QCrypt%202026-Business%20Meeting%20Report.pdf,2026-08-27,"LOC report registration-by-country table (Canada 69, South Korea 27, USA 22, Germany 16, Spain 16, China 14, ...)"
+QCRYPT,2026,talk_submissions,130,slides,https://qcrypt.net/2026/sessions/slides/QCrypt%202026-Program%20Committee%20Report.pdf,2026-08-27,"PC report: 130 talk submissions (36 experiment, 94 theory) + 68 poster-only submissions"
+QCRYPT,2026,talks_accepted,35,slides,https://qcrypt.net/2026/sessions/slides/QCrypt%202026-Program%20Committee%20Report.pdf,2026-08-27,"PC report: 35 of 130 accepted; 2 merged (#8/#100), 1 upgraded to invited (#104)"
+QCRYPT,2026,acceptance_rate,26.9,slides,https://qcrypt.net/2026/sessions/slides/QCrypt%202026-Program%20Committee%20Report.pdf,2026-08-27,"PC report: 35/130 = 26.9%"
+QCRYPT,2026,track_breakdown,"{""experiment"": {""submissions"": 36, ""talks"": 11}, ""theory"": {""submissions"": 94, ""talks"": 24}, ""poster_only"": {""submissions"": 68}}",slides,https://qcrypt.net/2026/sessions/slides/QCrypt%202026-Program%20Committee%20Report.pdf,2026-08-27,"PC report: 11/36 = 30.6% experiment, 24/94 = 25.5% theory"
+QCRYPT,2026,posters_accepted,112,conference_website,https://qcrypt.net/2026/technical/accepted-papers/,2026,"counted from official accepted-posters list"
+QCRYPT,2026,slide:LOC report,https://qcrypt.net/2026/sessions/slides/QCrypt%202026-Business%20Meeting%20Report.pdf,slides,,2026-08-27,
+QCRYPT,2026,slide:PC report,https://qcrypt.net/2026/sessions/slides/QCrypt%202026-Program%20Committee%20Report.pdf,slides,,2026-08-27,

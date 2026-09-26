@@ -1,0 +1,7 @@
+venue,year,field,value,source_type,source_url,source_date,notes
+TQC,2026,meeting_date,2026-09-02,conference_website,https://tqc-conference.org/2026/sessions/business/,2026,"Lunch Break and Business Meeting, Wed 2 Sep 12:30-14:00; no report deck published"
+TQC,2026,talk_submissions,443,proceedings,10.4230/LIPIcs.TQC.2026.0,2026,"443 submissions across the three tracks (With Proceedings, Without Proceedings, Poster only)"
+TQC,2026,talks_accepted,87,proceedings,10.4230/LIPIcs.TQC.2026.0,2026,"87 submissions selected for talks, incl. 8 in the With Proceedings track; matches the 87-entry accepted-talks list"
+TQC,2026,posters_accepted,289,conference_website,https://tqc-conference.org/2026/accepted-posters/,2026,"counted from official accepted-posters list"
+TQC,2026,track_breakdown,"{""with_proceedings"": {""talks"": 8}, ""total"": {""submissions"": 443, ""talks"": 87}}",proceedings,10.4230/LIPIcs.TQC.2026.0,2026,"LIPIcs foreword (vol 389)"
+TQC,2026,slide:proceedings foreword,https://drops.dagstuhl.de/storage/00lipics/lipics-vol389-tqc2026/LIPIcs.TQC.2026.0/LIPIcs.TQC.2026.0.pdf,proceedings,,2026,

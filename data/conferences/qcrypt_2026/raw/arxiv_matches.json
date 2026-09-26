@@ -1,0 +1,1205 @@
+{
+ "10": {
+  "arxiv_id": "2604.25225",
+  "authors": [
+   "Qiang Zeng",
+   "Abhishek Mishra",
+   "Haoyang Wang",
+   "Zhiliang Yuan"
+  ],
+  "ratio": 1.0,
+  "title": "Transmitter-device-independent quantum key distribution"
+ },
+ "100": {
+  "arxiv_authors": [
+   "Archishna Bhattacharyya",
+   "Anne Broadbent",
+   "Eric Culf"
+  ],
+  "arxiv_id": "2603.08916",
+  "authors": [
+   "Archishna Bhattacharyya",
+   "Anne Broadbent",
+   "Eric Culf"
+  ],
+  "ratio": 1.0,
+  "title": "The uncloneable bit exists"
+ },
+ "101": {
+  "candidates": [
+   "High-Performance Heterodyne Receiver for Quantum Information Processing in a Laser Written Integrated Photonic Platform"
+  ],
+  "q": 2,
+  "unmatched": true
+ },
+ "103": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "104": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "105": {
+  "candidates": [
+   "Eavesdropper-Blind Remote State Preparation and Applications to Quantum Public-Key Encryption"
+  ],
+  "q": 2,
+  "unmatched": true
+ },
+ "107": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "108": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "109": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "113": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "114": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "119": {
+  "arxiv_authors": [
+   "Anne Broadbent",
+   "Joshua Nevin"
+  ],
+  "arxiv_id": "2511.22844",
+  "authors": [
+   "Joshua Nevin",
+   "Anne Broadbent"
+  ],
+  "ratio": 1.0,
+  "title": "Noise-Robustness for Delegated Quantum Computation in the Circuit Model"
+ },
+ "122": {
+  "arxiv_authors": [
+   "Roo Dunnill",
+   "Mina Doosti"
+  ],
+  "arxiv_id": "2608.11187",
+  "authors": [
+   "Roo Dunnill",
+   "Mina Doosti"
+  ],
+  "ratio": 1.0,
+  "title": "Statistically-Secure Bit Commitment and Coin Flipping Protocols Based on Quantum Hardware Assumptions"
+ },
+ "128": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "129": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "13": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "131": {
+  "arxiv_authors": [
+   "Monika Mothsara",
+   "Suraj Goel",
+   "Bohnishikha Ghosh",
+   "Vatshal Srivastav",
+   "Will McCutcheon",
+   "Mehul Malik",
+   "Gláucia Murta"
+  ],
+  "arxiv_id": "2607.08709",
+  "authors": [
+   "Monika Mothsara",
+   "Gláucia Murta",
+   "Mehul Malik",
+   "Suraj Goel",
+   "Bohnishikha Ghosh",
+   "Vatshal Srivastav",
+   "Will McCutcheon"
+  ],
+  "ratio": 1.0,
+  "title": "Robust One-Sided Device-Independent Quantum Key Distribution via High-Dimensional Steering"
+ },
+ "134": {
+  "arxiv_authors": [
+   "Karol Horodecki",
+   "Chirag Srivastava",
+   "Leonard Sikorski",
+   "Siddhartha Das"
+  ],
+  "arxiv_id": "2510.27687",
+  "authors": [
+   "Karol Horodecki",
+   "Chirag Srivastava",
+   "Leonard Sikorski",
+   "Siddhartha Das"
+  ],
+  "ratio": 1.0,
+  "title": "Quantum waste management: Utilizing residual states in quantum information processing"
+ },
+ "135": {
+  "candidates": [
+   "Molecule-based coherent light-spin interfaces for quantum information processing -- optical spin state polarization in a binuclear Europium complex"
+  ],
+  "q": 2,
+  "unmatched": true
+ },
+ "138": {
+  "arxiv_authors": [
+   "Alex B. Grilo",
+   "Lucas Hanouz",
+   "Anne Marin"
+  ],
+  "arxiv_id": "2606.23392",
+  "authors": [
+   "Alex B. Grilo",
+   "Lucas Hanouz",
+   "Anne Marin"
+  ],
+  "ratio": 1.0,
+  "title": "On the cryptographic potential of single-qubit rotations"
+ },
+ "139": {
+  "arxiv_id": "2510.04159",
+  "authors": [
+   "Minki Hhan",
+   "Tomoyuki Morimae",
+   "Yasuaki Okinaka",
+   "Takashi Yamakawa"
+  ],
+  "ratio": 1.0,
+  "title": "Proofs of quantum memory"
+ },
+ "14": {
+  "arxiv_authors": [
+   "Francesco Cesa",
+   "Tommaso Feri",
+   "Angelo Bassi"
+  ],
+  "arxiv_id": "2501.18693",
+  "authors": [
+   "Tommaso Feri",
+   "Francesco Cesa",
+   "Angelo Bassi"
+  ],
+  "ratio": 1.0,
+  "title": "Hierarchical Generation and Design of Tree-Codes for Resource-Efficient Loss-Tolerant Quantum Communications"
+ },
+ "140": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "141": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "142": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "145": {
+  "arxiv_authors": [
+   "Fengxia Liu",
+   "Zixian Gong",
+   "Kun Tian",
+   "Yi Zhang",
+   "Zhiming Zheng",
+   "Maozhi Xu"
+  ],
+  "arxiv_id": "2604.23490",
+  "authors": [
+   "Fengxia Liu",
+   "Zixian Gong",
+   "Maozhi Xu",
+   "Zhiming Zheng"
+  ],
+  "ratio": 1.0,
+  "title": "Efficient Quantum Fully Homomorphic Encryption"
+ },
+ "146": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "147": {
+  "arxiv_authors": [
+   "Juan Antonio Vieira Giestinhas",
+   "Timothy Spiller"
+  ],
+  "arxiv_id": "2603.26907",
+  "authors": [
+   "Juan Antonio Vieira Giestinhas",
+   "Timothy Spiller"
+  ],
+  "ratio": 1.0,
+  "title": "Information-Theoretic Solutions for Seedless QRNG Bootstrapping and Hybrid PQC-QKD Key Combination"
+ },
+ "149": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "15": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "150": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "151": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "152": {
+  "arxiv_authors": [
+   "Dhruv Baheti",
+   "Shubhayan Sarkar"
+  ],
+  "arxiv_id": "2506.23637",
+  "authors": [
+   "Dhruv Baheti"
+  ],
+  "ratio": 1.0,
+  "title": "Topologically noise robust network steering without inputs"
+ },
+ "153": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "155": {
+  "arxiv_authors": [
+   "Ben J. Taylor",
+   "Peter R. Smith",
+   "James F. Dynes",
+   "Robert I. Woodward",
+   "Marco Lucamarini",
+   "R. Mark Stevenson",
+   "Andrew J. Shields"
+  ],
+  "arxiv_id": "2605.22580",
+  "authors": [
+   "Ben J. Taylor"
+  ],
+  "ratio": 0.962,
+  "title": "Practical Countermeasure Against Attacks Exploiting Detection Efficiency Mismatch in Quantum Key Distribution"
+ },
+ "156": {
+  "candidates": [
+   "Experimental demonstration of Continuous-Variable Quantum Key Distribution with a silicon photonics integrated receiver",
+   "Continuous-Variable Quantum Key Distribution at 10 GBaud using an Integrated Photonic-Electronic Receiver",
+   "Continuous-variable quantum key distribution over 28.6 km fiber with an integrated silicon photonic receiver chip"
+  ],
+  "q": 2,
+  "unmatched": true
+ },
+ "157": {
+  "arxiv_authors": [
+   "Federico Grasselli",
+   "Gaetano Russo",
+   "Giuseppe De Falco",
+   "Stefano Pepe",
+   "Carlo Liorni",
+   "Massimiliano Proietti"
+  ],
+  "arxiv_id": "2508.05355",
+  "authors": [
+   "Federico Grasselli",
+   "Gaetano Russo",
+   "Carlo Liorni",
+   "Giuseppe De Falco",
+   "Massimiliano Proietti"
+  ],
+  "ratio": 1.0,
+  "title": "Equivocation-resistant multiparty digital signature for quantum networks"
+ },
+ "158": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "159": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "161": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "163": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "164": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "165": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "166": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "167": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "169": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "170": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "171": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "172": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "173": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "174": {
+  "candidates": [
+   "Passive Polarization Stabilization for Robust Entanglement Distribution via Cross-Aligned Polarization Maintaining Fiber Pairs"
+  ],
+  "q": 2,
+  "unmatched": true
+ },
+ "175": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "176": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "177": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "179": {
+  "candidates": [
+   "Chip-Scale Transmitter Module for Real-Time Continuous-Variable QKD"
+  ],
+  "q": 2,
+  "unmatched": true
+ },
+ "18": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "180": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "181": {
+  "arxiv_authors": [
+   "Hao Dong",
+   "Tian-Jiao Zhang",
+   "Yan-Wei Chen",
+   "Wei Sun",
+   "Cong Jiang",
+   "Sanli Huang",
+   "Shuyi Li",
+   "Di Ma",
+   "Xiang-Bin Wang",
+   "Yang Liu",
+   "Junqiu Liu",
+   "Qiang Zhang",
+   "Jian-Wei Pan"
+  ],
+  "arxiv_id": "2604.00431",
+  "authors": [
+   "Hao Dong",
+   "Tian-Jiao Zhang"
+  ],
+  "ratio": 1.0,
+  "title": "1-Mbps Twin-Field Quantum Key Distribution over 200 km Using Independent Dissipative Kerr Solitons"
+ },
+ "182": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "183": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "184": {
+  "candidates": [
+   "Absolutely Secure Distributed Superdense Coding: Entanglement Requirement for Optimality",
+   "Quantum key secure communication protocol via enhanced superdense coding",
+   "Quantum secure direct communication network with superdense coding and decoy photons"
+  ],
+  "q": 2,
+  "unmatched": true
+ },
+ "185": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "186": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "188": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "189": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "19": {
+  "arxiv_authors": [
+   "Karol Horodecki",
+   "Marek Winczewski",
+   "Leonard Sikorski",
+   "Paweł Mazurek",
+   "Mikołaj Czechlewski",
+   "Raja Yehia"
+  ],
+  "arxiv_id": "2507.23108",
+  "authors": [
+   "Karol Horodecki",
+   "Marek Winczewski",
+   "Leonard Sikorski",
+   "Paweł Mazurek",
+   "Mikołaj Czechlewski",
+   "Raja Yehia"
+  ],
+  "ratio": 1.0,
+  "title": "Quantification of the energy consumption of entanglement distribution"
+ },
+ "190": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "192": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "193": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "194": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "195": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "196": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "197": {
+  "arxiv_authors": [
+   "Aaron A. Aguilar-Cardoso",
+   "Cheng Li",
+   "Tobey J. B. Luck",
+   "Manuel F. Ferrer-Garcia",
+   "Jeremy Upham",
+   "Jeff S. Lundeen",
+   "Robert W. Boyd"
+  ],
+  "arxiv_id": "2511.02066",
+  "authors": [
+   "Aaron A. Aguilar-Cardoso",
+   "Cheng Li",
+   "Tobey J. B. Luck",
+   "Manuel F. Ferrer-Garcia",
+   "Jeremy Upham",
+   "Jeff S. Lundeen",
+   "Robert W. Boyd"
+  ],
+  "ratio": 1.0,
+  "title": "All-optical turbulence mitigation for free-space quantum key distribution using stimulated parametric down-conversion"
+ },
+ "198": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "2": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "200": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "201": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "202": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "203": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "204": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "205": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "206": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "207": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "208": {
+  "candidates": [
+   "On the viability of Transatlantic Quantum Entanglement Distribution using Combined Satellite and Stratospheric Relay Nodes"
+  ],
+  "q": 2,
+  "unmatched": true
+ },
+ "209": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "21": {
+  "arxiv_authors": [
+   "Matilde Baroni",
+   "Igor Klep",
+   "Dominik Leichtle",
+   "Marc-Olivier Renou",
+   "Ivan Šupić",
+   "Lucas Tendick",
+   "Xiangling Xu"
+  ],
+  "arxiv_id": "2509.25145",
+  "authors": [
+   "Xiangling Xu",
+   "Matilde Baroni",
+   "Igor Klep",
+   "Dominik Leichtle",
+   "Marc-Olivier Renou",
+   "Ivan Šupić",
+   "Lucas Tendick"
+  ],
+  "ratio": 1.0,
+  "title": "Quantitative quantum soundness for all multipartite compiled nonlocal games"
+ },
+ "210": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "211": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "213": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "215": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "216": {
+  "arxiv_authors": [
+   "Mirela Selimović",
+   "Roman Solar",
+   "Jonathan Gruner",
+   "Sebastian Mair",
+   "Mario Wenzl",
+   "Thomas Heine",
+   "Matej Pivoluska",
+   "Rupert Ursin",
+   "Sebastian Philipp Neumann"
+  ],
+  "arxiv_id": "2607.11252",
+  "authors": [
+   "Mirela Selimović",
+   "Roman Solar",
+   "Jonathan Gruner",
+   "Sebastian Mair",
+   "Mario Wenzl",
+   "Thomas Heine",
+   "Matej Pivoluska",
+   "Rupert Ursin",
+   "Sebastian Philipp Neumann"
+  ],
+  "ratio": 1.0,
+  "title": "Deployment of Entanglement-Based QKD in Financial Infrastructure"
+ },
+ "22": {
+  "arxiv_authors": [
+   "Gorjan Alagic",
+   "Joseph Carolan",
+   "Christian Majenz",
+   "Saliha Tokat"
+  ],
+  "arxiv_id": "2504.16887",
+  "authors": [
+   "Saliha Tokat",
+   "Gorjan Alagic",
+   "Joseph Carolan",
+   "Christian Majenz"
+  ],
+  "ratio": 1.0,
+  "title": "The Sponge is Quantum Indifferentiable"
+ },
+ "24": {
+  "arxiv_authors": [
+   "Kathrin Hövelmanns",
+   "Daan Planken",
+   "Christian Schaffner",
+   "Sebastian R. Verschoor"
+  ],
+  "arxiv_id": "2509.12478",
+  "authors": [
+   "Kathrin Hövelmanns",
+   "Daan Planken",
+   "Christian Schaffner",
+   "Sebastian R. Verschoor"
+  ],
+  "ratio": 1.0,
+  "title": "QKD Oracles for Authenticated Key Exchange"
+ },
+ "26": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "27": {
+  "arxiv_authors": [
+   "Andreas Bluhm",
+   "Simon Höfer",
+   "Alex May",
+   "Mikka Stasiuk",
+   "Philip Verduyn Lunel",
+   "Henry Yuen"
+  ],
+  "arxiv_id": "2505.23893",
+  "authors": [
+   "Andreas Bluhm",
+   "Simon Höfer",
+   "Alex May",
+   "Mikka Stasiuk",
+   "Philip Verduyn Lunel",
+   "Henry Yuen"
+  ],
+  "ratio": 1.0,
+  "title": "A complexity theory for non-local quantum computation"
+ },
+ "28": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "29": {
+  "arxiv_authors": [
+   "Mariana Navarro",
+   "Andrés González Lorente",
+   "Pablo V. Parellada",
+   "Carlos Pascual-García",
+   "Mateus Araújo"
+  ],
+  "arxiv_id": "2511.10584",
+  "authors": [
+   "Mariana Navarro",
+   "Andrés González Lorente",
+   "Pablo V. Parellada",
+   "Carlos Pascual-García",
+   "Mateus Araújo"
+  ],
+  "ratio": 1.0,
+  "title": "Finite-size quantum key distribution rates from Rényi entropies using conic optimization"
+ },
+ "3": {
+  "arxiv_authors": [
+   "Uma Girish",
+   "Alex May",
+   "Leo Orshansky",
+   "Chris Waddell"
+  ],
+  "arxiv_id": "2505.02939",
+  "authors": [
+   "Uma Girish",
+   "Alex May",
+   "Leo Orshansky",
+   "Chris Waddell"
+  ],
+  "ratio": 1.0,
+  "title": "Comparing classical and quantum conditional disclosure of secrets"
+ },
+ "30": {
+  "arxiv_authors": [
+   "Pablo Tikas Pueyo",
+   "Tomás Fernández Martos",
+   "Gabriel Senno"
+  ],
+  "arxiv_id": "2512.08900",
+  "authors": [
+   "Pablo Tikas Pueyo",
+   "Tomás Fernández Martos",
+   "Gabriel Senno"
+  ],
+  "ratio": 1.0,
+  "title": "Deterministic randomness extraction for quantum random number generation with partial trust"
+ },
+ "31": {
+  "candidates": [
+   "Exact Non-Identity Check and Gate-Teleportation-Based Indistinguishability Obfuscation are NP-hard for Low-T-Depth Quantum Circuits"
+  ],
+  "q": 2,
+  "unmatched": true
+ },
+ "33": {
+  "arxiv_id": "2603.04493",
+  "authors": [
+   "Bartosz Regula",
+   "Marco Tomamichel"
+  ],
+  "ratio": 1.0,
+  "title": "Rethinking quantum smooth entropies: Tight one-shot analysis of quantum privacy amplification"
+ },
+ "34": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "37": {
+  "arxiv_id": "2510.05203",
+  "authors": [
+   "Martin Sandfuchs",
+   "Carla Ferradini",
+   "Renato Renner"
+  ],
+  "ratio": 1.0,
+  "title": "Randomness from causally independent processes"
+ },
+ "38": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "40": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "42": {
+  "arxiv_id": "2512.03924",
+  "authors": [
+   "Nicolas Laurent-Puig",
+   "Matilde Baroni",
+   "Federico Centrone",
+   "Eleni Diamanti"
+  ],
+  "ratio": 1.0,
+  "title": "Experimental Quantum Electronic Voting"
+ },
+ "43": {
+  "arxiv_id": "2605.04650",
+  "authors": [
+   "Nicolas Laurent-Puig",
+   "Mina Doosti",
+   "Adriano Innocenzi",
+   "Eleni Diamanti"
+  ],
+  "ratio": 1.0,
+  "title": "Unconditional Authentication in Quantum Key Distribution via Hybrid Entangled Physical Unclonable Functions"
+ },
+ "44": {
+  "arxiv_authors": [
+   "Christian Majenz",
+   "Jaya Sharma"
+  ],
+  "arxiv_id": "2602.17307",
+  "authors": [
+   "Jaya Sharma",
+   "Christian Majenz"
+  ],
+  "ratio": 0.97,
+  "title": "Security of the Fischlin Transform in Quantum Random Oracle Model"
+ },
+ "48": {
+  "arxiv_authors": [
+   "Sami Abdul Sater",
+   "Harold Ollivier"
+  ],
+  "arxiv_id": "2601.07111",
+  "authors": [
+   "Sami Abdul Sater",
+   "Harold Ollivier"
+  ],
+  "ratio": 1.0,
+  "title": "Composable Verification in the Circuit-Model via Magic-Blindness"
+ },
+ "50": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "52": {
+  "arxiv_authors": [
+   "Anne Broadbent",
+   "Upendra Kapshikar",
+   "Denis Rochette"
+  ],
+  "arxiv_id": "2509.12986",
+  "authors": [
+   "Upendra Kapshikar",
+   "Anne Broadbent",
+   "Denis Rochette"
+  ],
+  "ratio": 1.0,
+  "title": "Towards Universal Quantum Tamper Detection"
+ },
+ "53": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "54": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "56": {
+  "arxiv_id": "2603.10843",
+  "authors": [
+   "Zitai Xu",
+   "Guoding Liu"
+  ],
+  "ratio": 1.0,
+  "title": "Entanglement distillation based on Hamiltonian dynamics"
+ },
+ "57": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "6": {
+  "arxiv_authors": [
+   "Devashish Tupkary",
+   "Shlok Nahar",
+   "Ernest Y. -Z. Tan"
+  ],
+  "arxiv_id": "2601.17960",
+  "authors": [
+   "Devashish Tupkary",
+   "Shlok Nahar",
+   "Ernest Y. -Z. Tan"
+  ],
+  "ratio": 1.0,
+  "title": "Authentication in Security Proofs for Quantum Key Distribution"
+ },
+ "61": {
+  "arxiv_id": "2411.05176",
+  "authors": [
+   "Alper Çakan",
+   "Vipul Goyal",
+   "Justin Raizes"
+  ],
+  "ratio": 1.0,
+  "title": "How to Delete Without a Trace: Certified Deniability in a Quantum World"
+ },
+ "62": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "63": {
+  "arxiv_id": "2509.18586",
+  "authors": [
+   "Joseph Carolan"
+  ],
+  "ratio": 1.0,
+  "title": "Compressed Permutation Oracles"
+ },
+ "64": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "65": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "67": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "68": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "69": {
+  "candidates": [
+   "A Hybrid Noise Approach to Modelling of Free-Space Satellite Quantum Communication Channel for Continuous-Variable QKD"
+  ],
+  "q": 2,
+  "unmatched": true
+ },
+ "7": {
+  "arxiv_authors": [
+   "Devashish Tupkary",
+   "Shlok Nahar",
+   "Amir Arqand",
+   "Ernest Y. -Z. Tan",
+   "Norbert Lütkenhaus"
+  ],
+  "arxiv_id": "2601.18035",
+  "authors": [
+   "Devashish Tupkary",
+   "Shlok Nahar",
+   "Amir Arqand",
+   "Ernest Y. -Z. Tan",
+   "Norbert Lütkenhaus"
+  ],
+  "ratio": 1.0,
+  "title": "A rigorous and complete security proof of decoy-state BB84 quantum key distribution"
+ },
+ "70": {
+  "arxiv_id": "2603.02923",
+  "authors": [
+   "Lucas Hanouz",
+   "Marc Kaplan",
+   "Jean-Sébastien Kersaint Tournebize",
+   "Chin-te Liao",
+   "Anne Marin"
+  ],
+  "ratio": 1.0,
+  "title": "Toward multi-purpose quantum communication networks: from theory to protocol implementation"
+ },
+ "72": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "73": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "74": {
+  "arxiv_id": "2510.08725",
+  "authors": [
+   "Gorjan Alagic",
+   "Chen Bai",
+   "Christian Majenz",
+   "Kaiyan Shi"
+  ],
+  "ratio": 1.0,
+  "title": "Post-Quantum Security of Block Cipher Constructions"
+ },
+ "75": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "76": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "77": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "78": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "8": {
+  "arxiv_id": "2503.19125",
+  "authors": [
+   "Archishna Bhattacharyya",
+   "Eric Culf"
+  ],
+  "ratio": 1.0,
+  "title": "Uncloneable Encryption from Decoupling"
+ },
+ "81": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "82": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "83": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "84": {
+  "arxiv_authors": [
+   "Anne Broadbent",
+   "Eric Culf",
+   "Denis Rochette"
+  ],
+  "arxiv_id": "2510.00903",
+  "authors": [
+   "Eric Culf",
+   "Anne Broadbent",
+   "Denis Rochette"
+  ],
+  "ratio": 1.0,
+  "title": "Optimal Untelegraphable Encryption and Implications for Uncloneable Encryption"
+ },
+ "85": {
+  "arxiv_authors": [
+   "Lev Stambler"
+  ],
+  "arxiv_id": "2509.22290",
+  "authors": [
+   "Lev Stambler"
+  ],
+  "ratio": 1.0,
+  "title": "New Quantum Internet Applications via Verifiable One-Time Programs"
+ },
+ "89": {
+  "candidates": [
+   "Reference-Beam Attacks against Twin-Field Quantum Key Distribution using Optical Injection Locking"
+  ],
+  "q": 2,
+  "unmatched": true
+ },
+ "92": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "93": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "94": {
+  "arxiv_authors": [
+   "Fabrizio Genovese",
+   "Lev Stambler"
+  ],
+  "arxiv_id": "2512.21304",
+  "authors": [
+   "Lev Stambler",
+   "Fabrizio Genovese"
+  ],
+  "ratio": 1.0,
+  "title": "A Note on Publicly Verifiable Quantum Money with Low Quantum Computational Resources"
+ },
+ "95": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "96": {
+  "candidates": [],
+  "q": 2,
+  "unmatched": true
+ },
+ "99": {
+  "arxiv_authors": [
+   "Margarida Pereira",
+   "Guillermo Currás-Lorenzo",
+   "Mateus Araújo"
+  ],
+  "arxiv_id": "2510.13085",
+  "authors": [
+   "Margarida Pereira",
+   "Guillermo Currás-Lorenzo",
+   "Mateus Araújo"
+  ],
+  "ratio": 1.0,
+  "title": "Optimal key rates for quantum key distribution with partial source characterization"
+ }
+}
