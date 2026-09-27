@@ -1,15 +1,18 @@
 #!/usr/bin/env python3
-"""Build the TQC 2026 (Sherbrooke) CSVs from the saved live-site pages.
+"""Build the TQC 2026 (Sherbrooke) CSVs from the conference site.
 
-Inputs (``data/conferences/tqc_2026/raw/``, saved from https://tqc-conference.org/2026/):
+Pages are read from the static mirror ``~/Web/tqc.iaqi.org/2026/`` when present,
+else fetched from https://tqc-conference.org/2026/ (see ``_pages.py``):
 
-* ``accepted-papers.html``  — 87 accepted contributed talks: title, authors with
+* ``accepted-papers/``  — 87 accepted contributed talks: title, authors with
   ``(affiliation)``, the presenter in ``<strong>``, abstract, and a ``[proceedings]``
   DOI link for the 8 papers in LIPIcs vol. 389.
-* ``accepted-posters.html`` — 289 accepted posters (same markup).
-* ``schedule.html``         — ``<article id=day_YYYY-MM-DD>`` per day; each
+* ``accepted-posters/`` — 289 accepted posters (same markup).
+* ``schedule/``         — ``<article id=day_YYYY-MM-DD>`` per day; each
   parallel session lists its talks in order (presenter in ``<em>``).
-* ``lipics-vol389.html``    — the Dagstuhl volume page (cross-check of the 8 DOIs).
+* ``speakers/``, ``sessions/invited_*/`` — invited speakers' affiliations/abstracts.
+
+The Dagstuhl LIPIcs vol. 389 page is always fetched live (cross-check of the 8 DOIs).
 
 Outputs (``data/conferences/tqc_2026/``):
 
@@ -29,14 +32,15 @@ import sys
 from datetime import datetime, timedelta
 from pathlib import Path
 
-from bs4 import BeautifulSoup
-
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 from scrapers._lib import clean_display_name  # noqa: E402
+from _pages import Site, fetch  # noqa: E402
 
 CONF = Path(__file__).resolve().parents[3] / "data" / "conferences" / "tqc_2026"
-RAW = CONF / "raw"
 SITE = "https://tqc-conference.org/2026"
+PAGES = Site(SITE, 'tqc.iaqi.org')
+LIPICS_VOLUME = 'https://drops.dagstuhl.de/entities/volume/LIPIcs-volume-389'
 SLOT_MINUTES = 30
 INVITED_MINUTES = 60
 
@@ -46,10 +50,6 @@ FIELDNAMES = [
     'video_url', 'youtube_id', 'session_name', 'award', 'notes',
     'scheduled_date', 'scheduled_time', 'duration_minutes',
 ]
-
-
-def soup(name):
-    return BeautifulSoup((RAW / name).read_text(encoding='utf-8'), 'html.parser')
 
 
 AWARD_RE = re.compile(r"\s*\((?:Winner of the )?(Best [^()]*?Award)!?\)\s*$")
@@ -109,7 +109,7 @@ def split_top_level(text):
 
 def parse_list(name):
     out = []
-    for p in soup(name).select('.paper-single'):
+    for p in PAGES.soup(name).select('.paper-single'):
         names, affs, presenters = split_authors(p.select_one('.paper-authors'))
         ab = p.select_one('.paper-abstract-full')
         abstract = ''
@@ -131,7 +131,7 @@ def parse_list(name):
 
 def parse_schedule():
     """-> {norm_title: dict(date, time, session, room, presenter)}, [invited]."""
-    s = soup('schedule.html')
+    s = PAGES.soup('schedule')
     talks, invited = {}, []
     for day in s.select('article.day'):
         date = day['id'].removeprefix('day_')
@@ -166,7 +166,7 @@ def parse_schedule():
 def speaker_affiliations():
     """Invited speakers' affiliations from speakers.html."""
     out = {}
-    text = [ws(t) for t in soup('speakers.html').find('main').stripped_strings]
+    text = [ws(t) for t in PAGES.soup('speakers').find('main').stripped_strings]
     for i, t in enumerate(text):
         if t.startswith('/2026/sessions/invited_') and i + 2 < len(text):
             out[text[i + 1]] = text[i + 2]
@@ -179,11 +179,8 @@ NAME_FIXES = {'Greg Meyer': 'Greg Kahanamoku-Meyer'}
 
 
 def invited_abstract(href):
-    """Abstract text from a saved session page (raw/session_<slug>.html)."""
-    path = RAW / f"session_{href.strip('/').rsplit('/', 1)[1]}.html"
-    if not path.exists():
-        return ''
-    text = ' '.join(soup(path.name).find('main').stripped_strings)
+    """Abstract text from an invited talk's session page (href like /2026/sessions/x/)."""
+    text = ' '.join(PAGES.soup(href.removeprefix('/2026/')).find('main').stripped_strings)
     i = text.rfind('Abstract')
     return text[i + len('Abstract'):].strip() if i >= 0 else ''
 
@@ -196,10 +193,10 @@ def row(**kw):
 
 
 def main():
-    papers = parse_list('accepted-papers.html')
-    posters = parse_list('accepted-posters.html')
+    papers = parse_list('accepted-papers')
+    posters = parse_list('accepted-posters')
     sched, invited = parse_schedule()
-    lipics = set(re.findall(r'LIPIcs\.TQC\.2026\.(\d+)', (RAW / 'lipics-vol389.html').read_text()))
+    lipics = set(re.findall(r'LIPIcs\.TQC\.2026\.(\d+)', fetch(LIPICS_VOLUME)))
     lipics.discard('0')
 
     proceedings, workshop, unscheduled = [], [], []
@@ -275,6 +272,7 @@ def main():
     print("unscheduled:", unscheduled)
     stray = set(sched) - {norm_title(p['title']) for p in papers}
     print("schedule titles not in accepted list:", stray)
+    PAGES.report()
 
 
 if __name__ == '__main__':

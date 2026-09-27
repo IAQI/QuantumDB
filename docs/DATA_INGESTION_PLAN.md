@@ -353,7 +353,7 @@ YouTube enrichment pass (deferred — see below), not re-scraping HTML.
 |------|-----|--------|
 | 2011–2024 | sparse video / yt fields | YouTube enrichment (deferred) |
 | 2025 | not seeded | seed when archive is published |
-| 2026 | CSVs built; full author names for rows tagged `names=initials_ambiguous` (45); video links once posted | hand-fix residue; re-run `convert_qcrypt_2026.py` after refreshing `raw/` |
+| 2026 | CSVs built; full author names for rows tagged `names=initials_ambiguous` (45); video links once posted | hand-fix residue; re-run `convert_qcrypt_2026.py` (reads the `~/Web` mirror, else the live site) |
 
 ### TQC
 
@@ -364,7 +364,7 @@ YouTube enrichment pass (deferred — see below), not re-scraping HTML.
 | 2018 | committees + workshop missing | claude-direct or defer — small mirror | |
 | 2017/19/20/21/25 | workshop has rows, zero schedule/video metadata | claude-direct from local mirror | |
 | 2022/23/24 | workshop.csv missing entirely | check `tools/one_off/tqc2023-24/` output — BibTeX conversion was supposedly done; the CSV may just need to be moved into place | |
-| 2026 | video/slide links not yet on site | re-fetch `raw/` pages later and re-run `convert_tqc_2026.py` | the accepted-papers markup has empty `paper-youtubeid`/`paper-slides` slots ready |
+| 2026 | video/slide links not yet on site | re-run `convert_tqc_2026.py` once posted (reads the `~/Web` mirror, else the live site) | the accepted-papers markup has empty `paper-youtubeid`/`paper-slides` slots ready |
 | All years | no video / yt anywhere | YouTube enrichment if a TQC channel exists (deferred) | |
 
 ## Tipping-point summary applied here

@@ -1,28 +1,30 @@
 #!/usr/bin/env python3
-"""Build the QCrypt 2026 (Ottawa) CSVs from the saved live-site pages.
+"""Build the QCrypt 2026 (Ottawa) CSVs from the conference site.
 
-Inputs (``data/conferences/qcrypt_2026/raw/``, saved from https://qcrypt.net/2026/):
+Pages are read from the static mirror ``~/Web/qcrypt.iaqi.org/2026/`` when
+present, else fetched from https://qcrypt.net/2026/ (see ``_pages.py``):
 
-* ``accepted-papers.html`` — "List of Accepted Talks" (35) + "List of Accepted
-  Posters" (112): title, initials-only authors, abstract; the submission id is
-  the ``abstract-<id>`` element id.
-* ``schedule.html``        — ``<section class=qc-day>`` per day, one
-  ``qc-card`` per slot with a ``HH:MM–HH:MM`` range. Contributed slots are titled
+* ``technical/accepted-papers/`` — "List of Accepted Talks" (35) + "List of
+  Accepted Posters" (112): title, initials-only authors, abstract; the
+  submission id is the ``abstract-<id>`` element id.
+* ``schedule/``        — ``<section class=qc-day>`` per day, one ``qc-card``
+  per slot with a ``HH:MM–HH:MM`` range. Contributed slots are titled
   ``#<id> <title>`` (``#8/#100`` = two merged papers sharing one slot).
-* ``session_<kind>_<name>.html`` — tutorial / invited / industry-panel pages
-  (speaker, affiliation, abstract). The ``lecture_*`` pages (Brassard, Pan) are
-  leftovers from the QCrypt 2025 site this one was cloned from — neither appears
-  in the 2026 schedule, and both talks are already in ``qcrypt_2025/talks.csv`` —
-  so they are ignored.
-* ``photos_prizes.html``   — paper prizes (#22, #104) and poster prizes (#28, #53).
-* ``arxiv_matches.json``   — full author names + arXiv ids from
-  ``qcrypt_2026_arxiv_names.py``.
+* ``sessions/{tutorial,invited,industry}/<name>/`` — speaker, affiliation,
+  abstract; the industry panelists are found via ``speakers/``. The
+  ``sessions/lecture/*`` pages (Brassard, Pan) are leftovers from the QCrypt
+  2025 site this one was cloned from — neither appears in the 2026 schedule, and
+  both talks are already in ``qcrypt_2025/talks.csv`` — so they are ignored.
+* ``photos_prizes/``   — paper prizes (#22, #104) and poster prizes (#28, #53),
+  transcribed into ``AWARDS`` below.
+
+Plus ``data/conferences/qcrypt_2026/raw/arxiv_matches.json`` — full author
+names + arXiv ids from ``qcrypt_2026_arxiv_names.py``.
 
 Author names: the site prints initials ("D. Tupkary"). Each list is expanded to
 full names from its arXiv match when one was found; otherwise each initial is
-expanded individually when exactly one full name with that surname + first
-initial exists in the repo's other conference CSVs. Rows that still carry
-initials are tagged ``names=initials_unresolved`` in ``notes``.
+expanded individually from the names in the repo's other conference CSVs (see
+``resolve_authors`` for the ``names=...`` tags written to ``notes``).
 
 Outputs (``data/conferences/qcrypt_2026/``): ``talks.csv``, ``posters.csv``.
 
@@ -37,15 +39,16 @@ from collections import Counter, defaultdict
 from datetime import datetime
 from pathlib import Path
 
-from bs4 import BeautifulSoup
-
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 from scrapers._lib import clean_display_name  # noqa: E402
+from _pages import Site  # noqa: E402
 
 DATA = Path(__file__).resolve().parents[3] / "data" / "conferences"
 CONF = DATA / "qcrypt_2026"
-RAW = CONF / "raw"
+RAW = CONF / "raw"  # holds only arxiv_matches.json
 SITE = "https://qcrypt.net/2026"
+PAGES = Site(SITE, 'qcrypt.iaqi.org')
 
 FIELDNAMES = [
     'venue', 'year', 'paper_type', 'title', 'speakers', 'authors',
@@ -58,15 +61,12 @@ FIELDNAMES = [
 # and photos_prizes.html. #104 was upgraded to an invited talk (Yu-Huai Li).
 AWARDS = {
     104: 'Best Student Paper Award (Experiment) — Min-Yan Wang',
-    22: 'Best Student Paper Award (Theory) — S. Tokat',
+    22: 'Best Student Paper Award (Theory) — Saliha Tokat',
     28: 'Poster Prize',
     53: 'Poster Prize',
 }
 UPGRADED_TO_INVITED = {104: 'li'}  # submission id -> invited session slug
 
-
-def soup(name):
-    return BeautifulSoup((RAW / name).read_text(encoding='utf-8'), 'html.parser')
 
 
 def ws(s):
@@ -81,7 +81,7 @@ def fold(s):
 def parse_accepted():
     """-> [dict(pid, section, title, authors, abstract)] in page order."""
     out, section = [], None
-    main = soup('accepted-papers.html').find('main')
+    main = PAGES.soup('technical/accepted-papers').find('main')
     for el in main.find_all(['h2', 'div']):
         if el.name == 'h2':
             t = el.get_text(' ', strip=True)
@@ -106,7 +106,7 @@ def parse_accepted():
 def parse_schedule():
     """-> [dict(date, start, minutes, kind, title, speaker, affiliation, href)]."""
     out = []
-    for day in soup('schedule.html').select('section.qc-day'):
+    for day in PAGES.soup('schedule').select('section.qc-day'):
         date = datetime.strptime(day.select_one('.qc-day-title').get_text(strip=True),
                                  '%A, %B %d, %Y').date().isoformat()
         for row in day.select('div.qc-row'):
@@ -125,8 +125,9 @@ def parse_schedule():
 
 
 def session_page(slug):
-    """(title, speaker, affiliation, abstract) from raw/session_<slug>.html."""
-    strings = list(soup(f'session_{slug}.html').find('main').stripped_strings)
+    """(title, speaker, affiliation, abstract) from sessions/<kind>/<name>/,
+    given slug ``<kind>_<name>``."""
+    strings = list(PAGES.soup('sessions/' + slug.replace('_', '/', 1)).find('main').stripped_strings)
     abstract = ''
     if 'Abstract' in strings:
         abstract = ' '.join(strings[strings.index('Abstract') + 1:])
@@ -158,6 +159,11 @@ class NameIndex:
         parts = fold(name).replace('.', ' ').split()
         return (parts[-1], parts[0][0]) if parts else ('', '')
 
+    def pick(self, spellings):
+        """Most frequent spelling; ties -> longest, then the accented form
+        ('René' > 'Rene'). Deterministic regardless of set order."""
+        return max(spellings, key=lambda c: (self.freq[c], len(c), c))
+
     def expand(self, name):
         """-> (full name | None, has_candidates)."""
         surname = self.key(name)[0]
@@ -171,7 +177,7 @@ class NameIndex:
             return None, False
         # Spellings differing only in accents/middle names are one person.
         if len({fold(c).split()[0] for c in cands}) == 1:
-            return max(cands, key=len), True
+            return self.pick(cands), True
         # Variant/typo spellings in the repo ("Anotnio Acín", "Chris Majenz"):
         # accept a clearly dominant spelling.
         # Accent-only differences count as the same spelling.
@@ -182,7 +188,7 @@ class NameIndex:
         total = sum(weight.values())
         best = max(weight, key=weight.get)
         if total >= 3 and weight[best] >= 0.75 * total:
-            return max(groups[best], key=lambda c: (self.freq[c], len(c))), True
+            return self.pick(groups[best]), True
         return None, True
 
 
@@ -269,7 +275,8 @@ def main():
         elif s['title'].startswith('Industry Panel'):
             # A plain 'program' card; the per-panelist session pages carry the
             # canonical spellings (schedule says "Steve", bio says "Steeve").
-            panel = sorted(f.stem.removeprefix('session_') for f in RAW.glob('session_industry_*.html'))
+            panel = sorted({'industry_' + m.lower() for m in re.findall(
+                r'/2026/sessions/industry/(\w+)', PAGES.html('speakers'))})
             people = [session_page(p) for p in panel]
             talks.append(row(paper_type='industry', title=s['title'].removeprefix('Industry Panel: '),
                              speakers='; '.join(x[1] for x in people),
@@ -320,6 +327,7 @@ def main():
     allrows = talks + posters
     for tag in ('names=arxiv', 'names=repo_index', 'names=initials_new', 'names=initials_ambiguous'):
         print(f'  {tag}: {sum(tag in r["notes"] for r in allrows)}')
+    PAGES.report()
 
 
 if __name__ == '__main__':

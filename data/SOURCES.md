@@ -12,8 +12,9 @@ mirror). Three PC members (Piotr Rydlichowski, Andy Schreier, Joshua Slater)
 were added to the page after the first scrape; they were backfilled on
 2026-09-26, matching the 36-member list in the PC report.
 
-> **QCrypt 2026 talks + posters** (fetched 2026-09-26; raw pages under
-> `qcrypt_2026/raw/`) are built by `tools/one_off/conf2026/convert_qcrypt_2026.py`
+> **QCrypt 2026 talks + posters** (fetched 2026-09-26 from the live site; pages
+> are not stored in the repo — the converter reads `~/Web/qcrypt.iaqi.org/2026/`
+> once mirrored, else the live site) are built by `tools/one_off/conf2026/convert_qcrypt_2026.py`
 > from `schedule/`, `technical/accepted-papers/` (35 talks + 112 posters with
 > abstracts; submission id = `abstract-<id>`), the tutorial/invited/industry
 > `sessions/*` pages and `photos_prizes/`. The site prints authors as **initials
@@ -535,8 +536,9 @@ and Members). Collected by hand — no year-specific parser in
 `scrapers/committees/tqc.py` yet. Note: the page lists both "Joe Renes" and
 "Joseph M. Renes" (both ETH Zurich) — the same person, collapsed to one row.
 
-**Talks, proceedings, posters** (fetched 2026-09-26; raw pages saved under
-`tqc_2026/raw/`), built by `tools/one_off/conf2026/convert_tqc_2026.py`:
+**Talks, proceedings, posters** (fetched 2026-09-26 from the live site; pages are
+not stored in the repo — the converter reads `~/Web/tqc.iaqi.org/2026/` once
+mirrored, else the live site), built by `tools/one_off/conf2026/convert_tqc_2026.py`:
 
 - `accepted-papers/` — 87 contributed talks with affiliations, abstracts and the
   presenter in bold; 8 carry a `[proceedings]` DOI → `proceedings.csv`
