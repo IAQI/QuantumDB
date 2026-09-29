@@ -1,6 +1,6 @@
 venue,year,committee_type,position,full_name,affiliation,role_title
 QCRYPT,2016,program,chair,Matthias Christandl,University of Copenhagen,
-QCRYPT,2016,program,chair,Hugo Zbinden,University of Geneva,
+QCRYPT,2016,program,co_chair,Hugo Zbinden,University of Geneva,
 QCRYPT,2016,program,member,Antonio Acin,ICFO Barcelona,
 QCRYPT,2016,program,member,Romain Alléaume,Télécom ParisTech,
 QCRYPT,2016,program,member,Ulrik Lund Andersen,Technical University of Denmark,
@@ -27,14 +27,12 @@ QCRYPT,2016,steering,member,Masahide Sasaki,NICT,
 QCRYPT,2016,steering,member,Christian Schaffner,University of Amsterdam,
 QCRYPT,2016,steering,member,Wolfgang Tittel,University of Calgary,
 QCRYPT,2016,steering,member,Stephanie Wehner,"QuTech, TU Delft",
-QCRYPT,2016,steering,member,Charles H. Bennett,IBM Research,
-QCRYPT,2016,steering,member,Gilles Brassard,Université de Montréal,
-QCRYPT,2016,steering,member,Ivan Damgård,Aarhus University,
-QCRYPT,2016,steering,member,Artur Ekert,CQT Singapore and Oxford University,
-QCRYPT,2016,steering,member,Nicolas Gisin,Université de Genève,
-QCRYPT,2016,steering,member,Richard Hughes,Unaffiliated,
-QCRYPT,2016,steering,member,Andrew Childs,University of Maryland,
-QCRYPT,2016,steering,member,Jake Taylor,NIST / University of Maryland,
+QCRYPT,2016,steering,member,Charles H. Bennett,IBM Research,Advisory Committee
+QCRYPT,2016,steering,member,Gilles Brassard,Université de Montréal,Advisory Committee
+QCRYPT,2016,steering,member,Ivan Damgård,Aarhus University,Advisory Committee
+QCRYPT,2016,steering,member,Artur Ekert,CQT Singapore and Oxford University,Advisory Committee
+QCRYPT,2016,steering,member,Nicolas Gisin,Université de Genève,Advisory Committee
+QCRYPT,2016,steering,member,Richard Hughes,Unaffiliated,Advisory Committee
 QCRYPT,2016,organizing,chair,Yi-Kai Liu,NIST / University of Maryland,
 QCRYPT,2016,organizing,member,Andrew Childs,University of Maryland,
 QCRYPT,2016,organizing,member,Jake Taylor,NIST / University of Maryland,

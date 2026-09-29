@@ -18,7 +18,7 @@ QCRYPT,2017,program,member,Hiroki Takesue,NTT,
 QCRYPT,2017,program,member,Marco Tomamichel,University of Technology Sydney,
 QCRYPT,2017,program,member,Dominique Unruh,University of Tartu,
 QCRYPT,2017,program,chair,Thomas Vidick,California Institute of Technology,
-QCRYPT,2017,program,chair,Paolo Villoresi,University of Padova,
+QCRYPT,2017,program,co_chair,Paolo Villoresi,University of Padova,
 QCRYPT,2017,program,member,Christian Weedbrock,CipherQ,
 QCRYPT,2017,program,member,Feihu Xu,Massachusetts Institute of Technology,
 QCRYPT,2017,program,member,Hugo Zbinden,University of Geneva,
@@ -30,14 +30,14 @@ QCRYPT,2017,steering,member,Norbert Lütkenhaus,"IQC, University of Waterloo",
 QCRYPT,2017,steering,member,Masahide Sasaki,NICT,
 QCRYPT,2017,steering,chair,Christian Schaffner,"University of Amsterdam, CWI, QuSoft",
 QCRYPT,2017,steering,member,Qiang Zhang,University of Science and Technology of China,
-QCRYPT,2017,steering,member,Charles H. Bennett,IBM Research,
-QCRYPT,2017,steering,member,Gilles Brassard,Université de Montréal,
-QCRYPT,2017,steering,member,Ivan Damgård,Aarhus University,
-QCRYPT,2017,steering,member,Artur Ekert,CQT Singapore and Oxford University,
-QCRYPT,2017,steering,member,Nicolas Gisin,Université de Genève,
-QCRYPT,2017,steering,member,Richard Hughes,Unaffiliated,
-QCRYPT,2017,organizing,member,Richard Penty,UCAM,
-QCRYPT,2017,organizing,member,Adrian Wonfor,UCAM,
+QCRYPT,2017,steering,member,Charles H. Bennett,IBM Research,Advisory Committee
+QCRYPT,2017,steering,member,Gilles Brassard,Université de Montréal,Advisory Committee
+QCRYPT,2017,steering,member,Ivan Damgård,Aarhus University,Advisory Committee
+QCRYPT,2017,steering,member,Artur Ekert,CQT Singapore and Oxford University,Advisory Committee
+QCRYPT,2017,steering,member,Nicolas Gisin,Université de Genève,Advisory Committee
+QCRYPT,2017,steering,member,Richard Hughes,Unaffiliated,Advisory Committee
+QCRYPT,2017,organizing,chair,Richard Penty,UCAM,
+QCRYPT,2017,organizing,chair,Adrian Wonfor,UCAM,
 QCRYPT,2017,organizing,member,Victoria Barrett,UCAM,
 QCRYPT,2017,organizing,member,Georgia Mortzou,York University,
 QCRYPT,2017,organizing,member,Klitos Andrea,York University,

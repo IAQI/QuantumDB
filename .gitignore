@@ -42,3 +42,5 @@ tools/.claude/
 # Business-meeting outreach — contains personal emails, keep local only (never commit)
 docs/business_meeting_outreach.md
 docs/business_meeting_contacts.csv
+docs/business_meeting_mailmerge_*.csv
+docs/business_meeting_campaign_docs/

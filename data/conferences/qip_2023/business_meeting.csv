@@ -1,3 +1,7 @@
 venue,year,field,value,source_type,source_url,source_date,notes
 QIP,2023,registered_participants,1000,conference_website,index.html,,"approximate — site descriptor ""around 1000 attendees ... (as of 2023)"", not an official 2023 count"
-QIP,2023,talk_submissions,500,conference_website,index.html,,"approximate — site descriptor ""500 submissions (as of 2023)"", not an official 2023 count"
+QIP,2023,talk_submissions,558,slides,/static/business_meetings/qip_2024/QIP2024_Business_Meeting.pdf,2024,second-hand: year-over-year comparison in the QIP 2024 PC report
+QIP,2023,acceptance_rate,19.9,slides,/static/business_meetings/qip_2024/QIP2024_Business_Meeting.pdf,2024,second-hand: QIP 2024 PC report
+QIP,2023,talks_accepted,111,spreadsheet,,2026-09-28,"111 accepted submissions = 107 talks (4 merges); QIP statistics compilation shared with QuantumDB (2026)"
+QIP,2023,posters_submitted,737,spreadsheet,,2026-09-28,"QIP statistics compilation shared with QuantumDB (2026)"
+QIP,2023,posters_accepted,734,spreadsheet,,2026-09-28,"QIP statistics compilation shared with QuantumDB (2026)"

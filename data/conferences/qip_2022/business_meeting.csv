@@ -1,0 +1,11 @@
+venue,year,field,value,source_type,source_url,source_date,notes
+QIP,2022,meeting_date,2022-03-11,slides,/static/business_meetings/qip_2022/QIP2022_LOC_Report.pdf,2022-03-11,
+QIP,2022,talk_submissions,514,slides,/static/business_meetings/qip_2022/QIP2022_PC_Report.pdf,2022-03-11,
+QIP,2022,talks_accepted,113,slides,/static/business_meetings/qip_2022/QIP2022_PC_Report.pdf,2022-03-11,105 talks after 7 merges per the QIP statistics spreadsheet
+QIP,2022,acceptance_rate,22.0,slides,/static/business_meetings/qip_2022/QIP2022_PC_Report.pdf,2022-03-11,
+QIP,2022,posters_submitted,151,slides,/static/business_meetings/qip_2022/QIP2022_PC_Report.pdf,2022-03-11,"poster-only submissions, all accepted"
+QIP,2022,posters_accepted,476,spreadsheet,,2026-09-28,"accepted posters incl. rejected talk submissions; QIP statistics compilation shared with QuantumDB (2026)"
+QIP,2022,registered_participants,1538,slides,/static/business_meetings/qip_2022/QIP2022_LOC_Report.pdf,2022-03-11,"570 in-person + 968 online (online: 212 general, 756 students); spreadsheet: 563 in-person, 969 online"
+QIP,2022,onsite_participants,570,slides,/static/business_meetings/qip_2022/QIP2022_LOC_Report.pdf,2022-03-11,"in-person: 71 faculty, 108 industry, 103 postdoc, 239 PhD, 48 master/undergrad"
+QIP,2022,slide:PC chair report,/static/business_meetings/qip_2022/QIP2022_PC_Report.pdf,slides,,2022-03-11,
+QIP,2022,slide:local organizers report,/static/business_meetings/qip_2022/QIP2022_LOC_Report.pdf,slides,,2022-03-11,

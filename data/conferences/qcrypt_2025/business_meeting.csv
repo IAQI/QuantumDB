@@ -1,0 +1,8 @@
+venue,year,field,value,source_type,source_url,source_date,notes
+QCRYPT,2025,talk_submissions,128,slides,/static/business_meetings/qcrypt_2025/QCrypt2025_Business_Meeting.pdf,2025,
+QCRYPT,2025,talks_accepted,33,slides,/static/business_meetings/qcrypt_2025/QCrypt2025_Business_Meeting.pdf,2025,"18 computer science, 15 physics/engineering"
+QCRYPT,2025,acceptance_rate,25,slides,/static/business_meetings/qcrypt_2025/QCrypt2025_Business_Meeting.pdf,2025,as stated; 33/128 = 25.8%
+QCRYPT,2025,posters_submitted,75,slides,/static/business_meetings/qcrypt_2025/QCrypt2025_Business_Meeting.pdf,2025,"""75 additional poster submissions"" (poster-only)"
+QCRYPT,2025,posters_accepted,164,slides,/static/business_meetings/qcrypt_2025/QCrypt2025_Business_Meeting.pdf,2025,
+QCRYPT,2025,registered_participants,279,slides,/static/business_meetings/qcrypt_2025/QCrypt2025_Business_Meeting.pdf,2025,"Student 142, Regular 92, Sponsor/exhibitor/media 45; live stream ~27k/22k/11k viewers on Aug 26/27/28"
+QCRYPT,2025,"slide:business meeting slides (SC, PC and LOC reports)",/static/business_meetings/qcrypt_2025/QCrypt2025_Business_Meeting.pdf,slides,,2025,PC-chair report also received separately from Christian Majenz

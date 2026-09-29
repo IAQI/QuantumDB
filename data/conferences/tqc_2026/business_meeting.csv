@@ -1,7 +1,13 @@
 venue,year,field,value,source_type,source_url,source_date,notes
-TQC,2026,meeting_date,2026-09-02,conference_website,https://tqc-conference.org/2026/sessions/business/,2026,"Lunch Break and Business Meeting, Wed 2 Sep 12:30-14:00; no report deck published"
-TQC,2026,talk_submissions,443,proceedings,10.4230/LIPIcs.TQC.2026.0,2026,"443 submissions across the three tracks (With Proceedings, Without Proceedings, Poster only)"
-TQC,2026,talks_accepted,87,proceedings,10.4230/LIPIcs.TQC.2026.0,2026,"87 submissions selected for talks, incl. 8 in the With Proceedings track; matches the 87-entry accepted-talks list"
-TQC,2026,posters_accepted,289,conference_website,https://tqc-conference.org/2026/accepted-posters/,2026,"counted from official accepted-posters list"
-TQC,2026,track_breakdown,"{""with_proceedings"": {""talks"": 8}, ""total"": {""submissions"": 443, ""talks"": 87}}",proceedings,10.4230/LIPIcs.TQC.2026.0,2026,"LIPIcs foreword (vol 389)"
+TQC,2026,meeting_date,2026-09-02,slides,/static/business_meetings/tqc_2026/TQC2026_LOC_Report.pdf,2026-09-02,
+TQC,2026,registered_participants,274,slides,/static/business_meetings/tqc_2026/TQC2026_LOC_Report.pdf,2026-09-02,114 from Canada (75 Québec); 152 institutions; PhD students 102
+TQC,2026,countries_represented,26,slides,/static/business_meetings/tqc_2026/TQC2026_LOC_Report.pdf,2026-09-02,
+TQC,2026,talk_submissions,390,slides,/static/business_meetings/tqc_2026/TQC2026_PC_Report.pdf,2026-09-02,after a few withdrawals / out-of-scope; 42 (~11%) to the With Proceedings track; LIPIcs foreword (vol 389) gives 443 submissions across all three tracks incl. poster-only (390 + 46 = 436 after withdrawals per the PC report)
+TQC,2026,talks_accepted,87,slides,/static/business_meetings/tqc_2026/TQC2026_PC_Report.pdf,2026-09-02,"8 with proceedings; 7 online talks due to visa issues, 1 removed as authors could not attend; matches the LIPIcs foreword and the 87-entry accepted-talks list"
+TQC,2026,acceptance_rate,22.3,slides,/static/business_meetings/tqc_2026/TQC2026_PC_Report.pdf,2026-09-02,87/390; slide says ~22%
+TQC,2026,posters_submitted,46,slides,/static/business_meetings/tqc_2026/TQC2026_PC_Report.pdf,2026-09-02,"poster-only submissions, all accepted"
+TQC,2026,track_breakdown,"{""with_proceedings"": {""submissions"": 42, ""talks"": 8}, ""without_proceedings"": {""submissions"": 348, ""talks"": 79}, ""total"": {""submissions"": 390, ""talks"": 87}, ""poster_only"": {""submissions"": 46, ""accepted"": 46}}",slides,/static/business_meetings/tqc_2026/TQC2026_PC_Report.pdf,2026-09-02,"73 PC members; 1,144 reviews"
+TQC,2026,posters_accepted,289,conference_website,https://tqc-conference.org/2026/accepted-posters/,2026,counted from official accepted-posters list
+TQC,2026,slide:local organizers report,/static/business_meetings/tqc_2026/TQC2026_LOC_Report.pdf,slides,,2026-09-02,
+TQC,2026,slide:PC chair report,/static/business_meetings/tqc_2026/TQC2026_PC_Report.pdf,slides,,2026-09-02,
 TQC,2026,slide:proceedings foreword,https://drops.dagstuhl.de/storage/00lipics/lipics-vol389-tqc2026/LIPIcs.TQC.2026.0/LIPIcs.TQC.2026.0.pdf,proceedings,,2026,

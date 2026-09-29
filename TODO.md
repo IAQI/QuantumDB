@@ -47,14 +47,13 @@ Quick scratchpad of pending work. Add items freely; move done items out.
 
 ## Import pipeline
 
-- [ ] **TQC `canonical_key` collision: proceedings clobbered by workshop** —
-  `generate_canonical_key()` is `{VENUE}{YEAR}-{paper_type}-{index}` with `index`
-  reset per file (`tools/scrapers/talks/importer.py`). TQC has both
-  `proceedings.csv` and `workshop.csv` with `paper_type=regular`, imported as
-  separate files, so e.g. `TQC2025-regular-1` collides and workshop overwrites
-  proceedings (TQC 2025 lands 90 pubs, not 102). Fix: namespace the key by track
-  (e.g. include `is_proceedings_track` or the source filename) so both survive.
-  Surfaced during the author-anomaly cleanup; out of scope there.
+- [x] **TQC `canonical_key` collision: proceedings clobbered by workshop** — fixed
+  2026-09-28. `proceedings.csv` rows are keyed `{VENUE}{YEAR}-proc-{type}-{n}` and the
+  importer now writes `is_proceedings_track`. Before the fix the DB held only
+  max(proceedings, workshop) regular talks per TQC year (76 talks missing across 2009–2025) and
+  no row was flagged as proceedings. Papers listed in both files (2017: 6, 2019: 8,
+  2020: 11, 2021: 10, 2024: 12, 2025: 10) were merged into the proceedings row.
+  **Needs a from-scratch rebuild** (existing rows keep their old keys).
 
 ## Schema / data model
 

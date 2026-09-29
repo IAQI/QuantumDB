@@ -10,7 +10,7 @@ QCRYPT,2021,organizing,member,Esteban Landerreche,design,
 QCRYPT,2021,organizing,member,Mehrdad Tahmasbi,"CWI, QuSoft",
 QCRYPT,2021,organizing,member,Peter van Ormondt,"ILLC, University of Amsterdam",
 QCRYPT,2021,organizing,member,Wessel van Woerden,CWI Cryptology Group,
-QCRYPT,2021,steering,co_chair,Gorjan Alagic,University of Maryland,
+QCRYPT,2021,steering,member,Gorjan Alagic,University of Maryland,
 QCRYPT,2021,steering,member,Serge Fehr,"CWI Cryptology group, Leiden University",
 QCRYPT,2021,steering,member,Stacey Jeffery,CWI,
 QCRYPT,2021,steering,member,Marco Lucamarini,University of York,
@@ -18,15 +18,15 @@ QCRYPT,2021,steering,chair,Christoph Marquardt,Max Planck Institute for the Scie
 QCRYPT,2021,steering,member,Akihisa Tomita,Hokkaido University,
 QCRYPT,2021,steering,member,Feihu Xu,University of Science and Technology of China,
 QCRYPT,2021,steering,member,Hugo Zbinden,University of Geneva,
-QCRYPT,2021,steering,member,Charles H. Bennett,IBM Research,
-QCRYPT,2021,steering,member,Gilles Brassard,Université de Montréal,
-QCRYPT,2021,steering,member,Ivan Damgård,Aarhus University,
-QCRYPT,2021,steering,member,Artur Ekert,CQT Singapore and Oxford University,
-QCRYPT,2021,steering,member,Nicolas Gisin,University of Geneva,
-QCRYPT,2021,steering,member,Richard Hughes,Los Alamos National Lab,
-QCRYPT,2021,steering,member,Michele Mosca,"IQC, University of Waterloo",
-QCRYPT,2021,steering,member,Jian-Wei Pan,University of Science and Technology of China,
-QCRYPT,2021,program,chair,Tobias Gehring,"DTU Physics, Technical University of Denmark",
+QCRYPT,2021,steering,member,Charles H. Bennett,IBM Research,Advisory Committee
+QCRYPT,2021,steering,member,Gilles Brassard,Université de Montréal,Advisory Committee
+QCRYPT,2021,steering,member,Ivan Damgård,Aarhus University,Advisory Committee
+QCRYPT,2021,steering,member,Artur Ekert,CQT Singapore and Oxford University,Advisory Committee
+QCRYPT,2021,steering,member,Nicolas Gisin,University of Geneva,Advisory Committee
+QCRYPT,2021,steering,member,Richard Hughes,Los Alamos National Lab,Advisory Committee
+QCRYPT,2021,steering,member,Michele Mosca,"IQC, University of Waterloo",Advisory Committee
+QCRYPT,2021,steering,member,Jian-Wei Pan,University of Science and Technology of China,Advisory Committee
+QCRYPT,2021,program,co_chair,Tobias Gehring,"DTU Physics, Technical University of Denmark",
 QCRYPT,2021,program,chair,Carl Miller,"QuICS, University of Maryland, NIST",
 QCRYPT,2021,program,member,Antonio Acín,Institute of Photonic Sciences,
 QCRYPT,2021,program,member,Romain Alléaume,Telecom Paris,

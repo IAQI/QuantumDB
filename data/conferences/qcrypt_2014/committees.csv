@@ -23,12 +23,12 @@ QCRYPT,2014,steering,member,Louis Salvail,Université de Montréal,
 QCRYPT,2014,steering,member,Masahide Sasaki,NICT Tokyo,
 QCRYPT,2014,steering,member,Wolfgang Tittel,University of Calgary,
 QCRYPT,2014,steering,member,Stephanie Wehner,CQT Singapore,
-QCRYPT,2014,steering,member,Charles H. Bennett,IBM Research,
-QCRYPT,2014,steering,member,Gilles Brassard,Université de Montréal,
-QCRYPT,2014,steering,member,Ivan Damgård,Aarhus University,
-QCRYPT,2014,steering,member,Artur Ekert,CQT Singapore and Oxford University,
-QCRYPT,2014,steering,member,Nicolas Gisin,Université de Genève,
-QCRYPT,2014,steering,member,Richard Hughes,Los Alamos,
+QCRYPT,2014,steering,member,Charles H. Bennett,IBM Research,Advisory Committee
+QCRYPT,2014,steering,member,Gilles Brassard,Université de Montréal,Advisory Committee
+QCRYPT,2014,steering,member,Ivan Damgård,Aarhus University,Advisory Committee
+QCRYPT,2014,steering,member,Artur Ekert,CQT Singapore and Oxford University,Advisory Committee
+QCRYPT,2014,steering,member,Nicolas Gisin,Université de Genève,Advisory Committee
+QCRYPT,2014,steering,member,Richard Hughes,Los Alamos,Advisory Committee
 QCRYPT,2014,organizing,member,Romain Alléaume,Telecom ParisTech,
 QCRYPT,2014,organizing,member,Philippe Grangier,Institut d’Optique,
 QCRYPT,2014,organizing,member,Frédéric Grosshans,Laboratoire Aimé Cotton,
@@ -37,3 +37,5 @@ QCRYPT,2014,organizing,member,Iordanis Kerenidis,LIAFA,
 QCRYPT,2014,organizing,member,Anthony Leverrier,Inria,
 QCRYPT,2014,organizing,member,Damian Markham,Telecom ParisTech,
 QCRYPT,2014,organizing,member,Isabelle Zaquine,Telecom ParisTech,
+QCRYPT,2014,steering,chair,Eleni Diamanti,,
+QCRYPT,2014,organizing,chair,Eleni Diamanti,,

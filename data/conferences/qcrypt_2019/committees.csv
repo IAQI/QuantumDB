@@ -1,7 +1,7 @@
 venue,year,committee_type,position,full_name,affiliation,role_title
 QCRYPT,2019,program,member,Ulrik Andersen,Technical University of Denmark,
 QCRYPT,2019,program,member,Rotem Arnon-Friedman,UC Berkeley,
-QCRYPT,2019,program,chair,Eleni Diamanti,"CNRS, Sorbonne Université",
+QCRYPT,2019,program,co_chair,Eleni Diamanti,"CNRS, Sorbonne Université",
 QCRYPT,2019,program,member,David Elkouss,TU Delft,
 QCRYPT,2019,program,member,Alexandru Gheorghiu,California Institute of Technology,
 QCRYPT,2019,program,member,Thomas Jennewein,Institute for Quantum Computing,
@@ -28,17 +28,17 @@ QCRYPT,2019,steering,member,Serge Fehr,"CWI, Leiden University, QuSoft",
 QCRYPT,2019,steering,member,Yi-Kai Liu,NIST / University of Maryland,
 QCRYPT,2019,steering,member,Christoph Marquardt,Max Planck Institute for the Science of Light,
 QCRYPT,2019,steering,member,Akihisa Tomita,Hokkaido University,
-QCRYPT,2019,steering,chair,Hugo Zbinden,"U Geneva, Switzerland",
+QCRYPT,2019,steering,member,Hugo Zbinden,"U Geneva, Switzerland",
 QCRYPT,2019,steering,member,Qiang Zhang,University of Science and Technology of China,
-QCRYPT,2019,steering,member,Charles H. Bennett,IBM Research,
-QCRYPT,2019,steering,member,Gilles Brassard,Université de Montréal,
-QCRYPT,2019,steering,member,Ivan Damgård,Aarhus University,
-QCRYPT,2019,steering,member,Artur Ekert,CQT Singapore and Oxford University,
-QCRYPT,2019,steering,member,Nicolas Gisin,Université de Genève,
-QCRYPT,2019,steering,member,Richard Hughes,Unaffiliated,
-QCRYPT,2019,steering,member,Michele Mosca,"IQC, University of Waterloo",
-QCRYPT,2019,steering,member,Jian-Wei Pan,University of Science and Technology of China,
-QCRYPT,2019,organizing,member,Gilles Brassard,Université de Montréal,
-QCRYPT,2019,organizing,member,Claude Crépeau,McGill University,
-QCRYPT,2019,organizing,member,Sébastien Gambs,Université du Québec à Montréal,
-QCRYPT,2019,organizing,member,Louis Salvail,Université de Montréal,
+QCRYPT,2019,steering,member,Charles H. Bennett,IBM Research,Advisory Committee
+QCRYPT,2019,steering,member,Gilles Brassard,Université de Montréal,Advisory Committee
+QCRYPT,2019,steering,member,Ivan Damgård,Aarhus University,Advisory Committee
+QCRYPT,2019,steering,member,Artur Ekert,CQT Singapore and Oxford University,Advisory Committee
+QCRYPT,2019,steering,member,Nicolas Gisin,Université de Genève,Advisory Committee
+QCRYPT,2019,steering,member,Richard Hughes,Unaffiliated,Advisory Committee
+QCRYPT,2019,steering,member,Michele Mosca,"IQC, University of Waterloo",Advisory Committee
+QCRYPT,2019,steering,member,Jian-Wei Pan,University of Science and Technology of China,Advisory Committee
+QCRYPT,2019,organizing,chair,Gilles Brassard,Université de Montréal,
+QCRYPT,2019,organizing,chair,Claude Crépeau,McGill University,
+QCRYPT,2019,organizing,chair,Sébastien Gambs,Université du Québec à Montréal,
+QCRYPT,2019,organizing,chair,Louis Salvail,Université de Montréal,
