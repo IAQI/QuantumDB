@@ -21,9 +21,14 @@ present, else fetched from https://qcrypt.net/2026/ (see ``_pages.py``):
 Plus ``data/conferences/qcrypt_2026/raw/arxiv_matches.json`` — full author
 names + arXiv ids from ``qcrypt_2026_arxiv_names.py``.
 
-Author names: the site prints initials ("D. Tupkary"). Each list is expanded to
-full names from its arXiv match when one was found; otherwise each initial is
-expanded individually from the names in the repo's other conference CSVs (see
+Author names: the site's HotCRP export first printed initials only ("D.
+Tupkary"). Since 2026-09-29 the site carries full given names, filled in from
+the private HotCRP author export. They are read from the website repo's
+``data/accepted-papers-2026.json`` and ``data/posters-2026.json`` (local clone at
+``~/Web/qcrypt-website``, keyed by submission id), which are version-controlled
+and so more reproducible than the rendered page. Only if a submission is absent
+there, or a name is still initials-only, does the old fallback apply: the arXiv
+match, then per-initial expansion from the repo's other conference CSVs (see
 ``resolve_authors`` for the ``names=...`` tags written to ``notes``).
 
 Outputs (``data/conferences/qcrypt_2026/``): ``talks.csv``, ``posters.csv``.
@@ -47,6 +52,8 @@ from _pages import Site  # noqa: E402
 DATA = Path(__file__).resolve().parents[3] / "data" / "conferences"
 CONF = DATA / "qcrypt_2026"
 RAW = CONF / "raw"  # holds only arxiv_matches.json
+WEBSITE_DATA = Path.home() / 'Web' / 'qcrypt-website' / 'data'
+SITE_NAME_FILES = ('accepted-papers-2026.json', 'posters-2026.json')
 SITE = "https://qcrypt.net/2026"
 PAGES = Site(SITE, 'qcrypt.iaqi.org')
 
@@ -164,6 +171,31 @@ class NameIndex:
         ('René' > 'Rene'). Deterministic regardless of set order."""
         return max(spellings, key=lambda c: (self.freq[c], len(c), c))
 
+    def canonical(self, name):
+        """A full site name -> the repo's spelling of the same person, so the
+        import does not create a duplicate author ("Adnan Adil Ebrahim Hajomer"
+        -> "Adnan Hajomer", "Ernest Y.-Z Tan" -> "Ernest Y.-Z. Tan"). Matches on
+        surname + first given name; keeps the site name when the repo has no such
+        person or the first given name is only an initial."""
+        name = re.sub(r'^(Prof|Dr)\.?\s+', '', name)
+        if name in self.freq:
+            return name
+        parts = fold(name).replace('.', ' ').split()
+        if len(parts) < 2 or len(parts[0]) < 2:
+            return name
+        # Common surnames (Nguyen, Li, ...): same first name is no proof.
+        surname = self.key(name)[0]
+        if len({i for (s, i) in self.idx if s == surname}) >= 3:
+            return name
+        cands = {c for c in self.idx.get(self.key(name), set())
+                 if fold(c).replace('.', ' ').split()[0] == parts[0]}
+        if not cands:
+            return name
+        best = self.pick(cands)
+        # Accent-only differences: the importer folds accents, so keep the
+        # site's (usually accented) spelling.
+        return name if fold(best) == fold(name) else best
+
     def expand(self, name):
         """-> (full name | None, has_candidates)."""
         surname = self.key(name)[0]
@@ -200,21 +232,41 @@ def dot_initials(name):
     return re.sub(r'\b([A-Z])(?=\s)', r'\1.', name)
 
 
-def resolve_authors(p, arxiv, names):
+def load_site_names():
+    """-> {submission id: [full author names]} from the website repo's data
+    files; {} when the clone is absent."""
+    out = {}
+    for fn in SITE_NAME_FILES:
+        f = WEBSITE_DATA / fn
+        if not f.exists():
+            print(f"note: {f} not found — falling back to arXiv / repo-index names")
+            continue
+        for item in json.loads(f.read_text(encoding='utf-8')):
+            out[int(item['pid'])] = [ws(f"{a.get('first', '')} {a.get('last', '')}")
+                                     for a in item['authors']]
+    return out
+
+
+def resolve_authors(p, arxiv, names, site=None):
     """-> (authors, arxiv_id, note).
 
-    note: ``names=arxiv`` / ``names=repo_index`` when fully resolved;
+    note: ``names=site`` when the website data has full names for every author;
+    ``names=arxiv`` / ``names=repo_index`` when fully resolved by the fallbacks;
     ``names=initials_new`` when the remaining initials have no same-surname
     candidate in the repo (new people — no duplicate risk);
     ``names=initials_ambiguous`` when some initial matches several repo people
     (possible duplicate author — review by hand before import)."""
     hit = arxiv.get(str(p['pid'])) or {}
-    if not hit.get('unmatched') and hit.get('authors'):
-        return [clean_display_name(a) for a in hit['authors']], hit['arxiv_id'], 'names=arxiv'
+    matched = not hit.get('unmatched') and hit.get('authors')
+    arxiv_id = hit['arxiv_id'] if matched else ''
+    site_names = (site or {}).get(p['pid'])
+    if not site_names and matched:
+        return [clean_display_name(a) for a in hit['authors']], arxiv_id, 'names=arxiv'
     out, new, ambiguous = [], 0, []
-    for a in p['authors']:
+    for a in site_names or p['authors']:
         if not INITIAL.match(a):
-            out.append(clean_display_name(a))
+            full = clean_display_name(a)
+            out.append(names.canonical(full) if site_names else full)
             continue
         full, has_cands = names.expand(a)
         if full:
@@ -230,8 +282,10 @@ def resolve_authors(p, arxiv, names):
     elif new:
         note = 'names=initials_new'
     else:
-        note = 'names=repo_index'
-    return out, '', note
+        note = 'names=site' if site_names else 'names=repo_index'
+    if site_names and note != 'names=site':
+        note = 'names=site; ' + note
+    return out, arxiv_id if site_names else '', note
 
 
 def row(**kw):
@@ -246,6 +300,7 @@ def main():
     by_pid = {p['pid']: p for p in accepted}
     arxiv = json.loads((RAW / 'arxiv_matches.json').read_text()) if (RAW / 'arxiv_matches.json').exists() else {}
     names = NameIndex()
+    site = load_site_names()
     sched = parse_schedule()
 
     talks, seen = [], set()
@@ -253,7 +308,8 @@ def main():
         base = dict(scheduled_date=s['date'], scheduled_time=s['start'],
                     duration_minutes=str(s['minutes']))
         if s['kind'] in ('tutorial', 'invited'):
-            slug = s['href'].rstrip('/').split('/sessions/')[1].replace('/', '_').lower()
+            slug = (s['href'].rstrip('/').split('sessions/')[1]
+                    .removesuffix('.html').replace('/', '_').lower())
             title, speaker, aff, abstract = session_page(slug)
             title = re.sub(r'^(Tutorial|Invited) Talk:\s*', '', title)
             notes = ['source_type=claude_extraction', f"Source: {SITE}/sessions/{slug.replace('_', '/', 1)}/"]
@@ -261,7 +317,7 @@ def main():
             for pid, inv in UPGRADED_TO_INVITED.items():
                 if slug == f'invited_{inv}':
                     p = by_pid[pid]
-                    full, arxiv_id, nn = resolve_authors(p, arxiv, names)
+                    full, arxiv_id, nn = resolve_authors(p, arxiv, names, site)
                     seen.add(pid)
                     award = AWARDS.get(pid, '')
                     notes += [f'submission #{pid} "{p["title"]}" upgraded to invited talk', nn]
@@ -276,7 +332,7 @@ def main():
             # A plain 'program' card; the per-panelist session pages carry the
             # canonical spellings (schedule says "Steve", bio says "Steeve").
             panel = sorted({'industry_' + m.lower() for m in re.findall(
-                r'/2026/sessions/industry/(\w+)', PAGES.html('speakers'))})
+                r'sessions/industry/(\w+)', PAGES.html('speakers'))})
             people = [session_page(p) for p in panel]
             talks.append(row(paper_type='industry', title=s['title'].removeprefix('Industry Panel: '),
                              speakers='; '.join(x[1] for x in people),
@@ -290,7 +346,7 @@ def main():
             for pid in pids:
                 p = by_pid[pid]
                 seen.add(pid)
-                authors, arxiv_id, nn = resolve_authors(p, arxiv, names)
+                authors, arxiv_id, nn = resolve_authors(p, arxiv, names, site)
                 notes = ['source_type=claude_extraction', f'submission #{pid}', nn,
                          f'Source: {SITE}/sessions/contributed/{pid}/']
                 if len(pids) > 1:
@@ -306,7 +362,7 @@ def main():
     for p in accepted:
         if p['section'] != 'poster':
             continue
-        authors, arxiv_id, nn = resolve_authors(p, arxiv, names)
+        authors, arxiv_id, nn = resolve_authors(p, arxiv, names, site)
         posters.append(row(paper_type='poster', title=p['title'], authors='; '.join(authors),
                            abstract=p['abstract'], arxiv_ids=arxiv_id,
                            award=AWARDS.get(p['pid'], ''),
@@ -325,7 +381,7 @@ def main():
           sum(p['section'] == 'poster' for p in accepted), 'posters')
     print('accepted talks not scheduled:', [(p['pid'], p['title'][:50]) for p in unscheduled])
     allrows = talks + posters
-    for tag in ('names=arxiv', 'names=repo_index', 'names=initials_new', 'names=initials_ambiguous'):
+    for tag in ('names=site', 'names=arxiv', 'names=repo_index', 'names=initials_new', 'names=initials_ambiguous'):
         print(f'  {tag}: {sum(tag in r["notes"] for r in allrows)}')
     PAGES.report()
 

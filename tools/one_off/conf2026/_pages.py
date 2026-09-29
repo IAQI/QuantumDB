@@ -23,8 +23,17 @@ class Site:
         self.used_live = set()
 
     def local_path(self, rel):
+        """Mirror copy of page ``rel``: ``<rel>/index.html``, or ``<rel>.html``
+        for mirrors that flatten leaf pages (e.g. ``sessions/invited/Li.html``;
+        the lookup is case-insensitive on macOS)."""
         rel = rel.strip('/')
-        return self.mirror_root / rel / 'index.html' if rel else self.mirror_root / 'index.html'
+        if not rel:
+            return self.mirror_root / 'index.html'
+        if rel.endswith('.html'):
+            return self.mirror_root / rel
+        nested = self.mirror_root / rel / 'index.html'
+        flat = self.mirror_root / f'{rel}.html'
+        return nested if nested.exists() or not flat.exists() else flat
 
     @lru_cache(maxsize=None)
     def html(self, rel):
