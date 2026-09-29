@@ -514,14 +514,18 @@ pub async fn conference_detail(
     .map(|bm| {
         let int = |v: Option<i32>| v.map(|n| n.to_string()).unwrap_or_default();
         // Parse the slides JSONB array into validated {label, url} links.
-        // Only http(s) URLs are kept (these render as <a href>).
+        // Only http(s) URLs and decks we host under /static/ are kept (these
+        // render as <a href>).
         let slides: Vec<SlideLink> = serde_json::from_value::<Vec<serde_json::Value>>(bm.slides)
             .unwrap_or_default()
             .into_iter()
             .filter_map(|s| {
                 let url = s.get("url")?.as_str()?.to_string();
                 let lower = url.to_ascii_lowercase();
-                if !(lower.starts_with("http://") || lower.starts_with("https://")) {
+                if !(lower.starts_with("http://")
+                    || lower.starts_with("https://")
+                    || lower.starts_with("/static/"))
+                {
                     return None;
                 }
                 let label = s.get("label").and_then(|l| l.as_str()).unwrap_or("slides").to_string();

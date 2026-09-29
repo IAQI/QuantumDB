@@ -19,12 +19,12 @@ QCRYPT,2013,steering,member,Louis Salvail,Université de Montréal,
 QCRYPT,2013,steering,member,Masahide Sasaki,NICT Tokyo,
 QCRYPT,2013,steering,member,Wolfgang Tittel,University of Calgary,
 QCRYPT,2013,steering,member,Stephanie Wehner,CQT Singapore,
-QCRYPT,2013,steering,member,Charles H. Bennett,IBM Research,
-QCRYPT,2013,steering,member,Gilles Brassard,Université de Montréal,
-QCRYPT,2013,steering,member,Ivan Damgård,Aarhus University,
-QCRYPT,2013,steering,member,Artur Ekert,CQT Singapore and Oxford University,
-QCRYPT,2013,steering,member,Nicolas Gisin,Université de Genève,
-QCRYPT,2013,steering,member,Richard Hughes,Los Alamos,
+QCRYPT,2013,steering,member,Charles H. Bennett,IBM Research,Advisory Committee
+QCRYPT,2013,steering,member,Gilles Brassard,Université de Montréal,Advisory Committee
+QCRYPT,2013,steering,member,Ivan Damgård,Aarhus University,Advisory Committee
+QCRYPT,2013,steering,member,Artur Ekert,CQT Singapore and Oxford University,Advisory Committee
+QCRYPT,2013,steering,member,Nicolas Gisin,Université de Genève,Advisory Committee
+QCRYPT,2013,steering,member,Richard Hughes,Los Alamos,Advisory Committee
 QCRYPT,2013,organizing,member,Elena Anisimova,,
 QCRYPT,2013,organizing,member,Jean-Philippe Bourgoin,,
 QCRYPT,2013,organizing,member,Tobi Day-Hamilton,,
@@ -36,7 +36,7 @@ QCRYPT,2013,organizing,member,Peter Kovacs,,
 QCRYPT,2013,organizing,member,Martin Laforest,,
 QCRYPT,2013,organizing,member,Norbert Lütkenhaus,,
 QCRYPT,2013,organizing,member,Xian Ma,,
-QCRYPT,2013,organizing,member,Vadim Makarov,,
+QCRYPT,2013,organizing,chair,Vadim Makarov,,
 QCRYPT,2013,organizing,member,Ryan Robinson-Hatton,,
 QCRYPT,2013,organizing,member,Shihan Sajeed,,
 QCRYPT,2013,organizing,member,Kimberly Simmermaker,,

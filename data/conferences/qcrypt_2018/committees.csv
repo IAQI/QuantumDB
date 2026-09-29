@@ -16,7 +16,7 @@ QCRYPT,2018,program,member,Prem Kumar,Northwestern University,
 QCRYPT,2018,program,member,Anthony Leverrier,Inria Paris,
 QCRYPT,2018,program,member,Xiongfeng Ma,TsingHua University,
 QCRYPT,2018,program,member,Serge Massar,Université libre de Bruxelles,
-QCRYPT,2018,program,chair,Christoph Marquardt,Max Planck Institute for the Science of Light,
+QCRYPT,2018,program,co_chair,Christoph Marquardt,Max Planck Institute for the Science of Light,
 QCRYPT,2018,program,member,Carl Miller,NIST / University of Maryland,
 QCRYPT,2018,program,member,Christoph Pacher,Austrian Institute of Technology,
 QCRYPT,2018,program,member,Christopher Portmann,ETH Zurich,
@@ -25,7 +25,7 @@ QCRYPT,2018,program,member,Florian Speelman,"QMATH, University of Copenhagen",
 QCRYPT,2018,program,member,Masahiro Takeoka,"National Institute of Information and Communications Technology, Japan",
 QCRYPT,2018,program,member,Harald Weinfurter,LMU Munch,
 QCRYPT,2018,program,member,Feihu Xu,University of Science and Technology of China,
-QCRYPT,2018,steering,chair,Anne Broadbent,University of Ottawa,
+QCRYPT,2018,steering,member,Anne Broadbent,University of Ottawa,
 QCRYPT,2018,steering,member,Marcos Curty,University of Vigo,
 QCRYPT,2018,steering,member,Yi-Kai Liu,NIST / University of Maryland,
 QCRYPT,2018,steering,member,Norbert Lütkenhaus,"IQC, University of Waterloo",
@@ -33,14 +33,14 @@ QCRYPT,2018,steering,member,Christian Schaffner,"University of Amsterdam, CWI, Q
 QCRYPT,2018,steering,member,Akihisa Tomita,Hokkaido University,
 QCRYPT,2018,steering,member,Hugo Zbinden,"U Geneva, Switzerland",
 QCRYPT,2018,steering,chair,Qiang Zhang,University of Science and Technology of China,
-QCRYPT,2018,steering,member,Charles H. Bennett,IBM Research,
-QCRYPT,2018,steering,member,Gilles Brassard,Université de Montréal,
-QCRYPT,2018,steering,member,Ivan Damgård,Aarhus University,
-QCRYPT,2018,steering,member,Artur Ekert,CQT Singapore and Oxford University,
-QCRYPT,2018,steering,member,Nicolas Gisin,Université de Genève,
-QCRYPT,2018,steering,member,Richard Hughes,Unaffiliated,
-QCRYPT,2018,steering,member,Michele Mosca,"IQC, University of Waterloo",
-QCRYPT,2018,steering,member,Jian-Wei Pan,University of Science and Technology of China,
+QCRYPT,2018,steering,member,Charles H. Bennett,IBM Research,Advisory Committee
+QCRYPT,2018,steering,member,Gilles Brassard,Université de Montréal,Advisory Committee
+QCRYPT,2018,steering,member,Ivan Damgård,Aarhus University,Advisory Committee
+QCRYPT,2018,steering,member,Artur Ekert,CQT Singapore and Oxford University,Advisory Committee
+QCRYPT,2018,steering,member,Nicolas Gisin,Université de Genève,Advisory Committee
+QCRYPT,2018,steering,member,Richard Hughes,Unaffiliated,Advisory Committee
+QCRYPT,2018,steering,member,Michele Mosca,"IQC, University of Waterloo",Advisory Committee
+QCRYPT,2018,steering,member,Jian-Wei Pan,University of Science and Technology of China,Advisory Committee
 QCRYPT,2018,organizing,member,Xiongfeng Ma,Tsinghua University,
 QCRYPT,2018,organizing,member,Feihu Xu,University of Science and Technology of China,
 QCRYPT,2018,organizing,member,Jun Zhang,University of Science and Technology of China,

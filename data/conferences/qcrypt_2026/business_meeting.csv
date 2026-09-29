@@ -1,0 +1,12 @@
+venue,year,field,value,source_type,source_url,source_date,notes
+QCRYPT,2026,talk_submissions,130,slides,/static/business_meetings/qcrypt_2026/QCrypt2026_PC_Report.pdf,2026,
+QCRYPT,2026,talks_accepted,35,slides,/static/business_meetings/qcrypt_2026/QCrypt2026_PC_Report.pdf,2026,"35 accepted submissions; 2 merged, 1 upgraded to invited"
+QCRYPT,2026,acceptance_rate,26.9,slides,/static/business_meetings/qcrypt_2026/QCrypt2026_PC_Report.pdf,2026,35/130
+QCRYPT,2026,posters_submitted,68,slides,/static/business_meetings/qcrypt_2026/QCrypt2026_PC_Report.pdf,2026,poster-only submissions
+QCRYPT,2026,track_breakdown,"{""experiment"": {""submissions"": 36, ""accepted"": 11}, ""theory"": {""submissions"": 94, ""accepted"": 24}}",slides,/static/business_meetings/qcrypt_2026/QCrypt2026_PC_Report.pdf,2026,
+QCRYPT,2026,meeting_date,2026-08-27,slides,/static/business_meetings/qcrypt_2026/QCrypt2026_LOC_Report.pdf,2026-08-27,
+QCRYPT,2026,registered_participants,256,slides,/static/business_meetings/qcrypt_2026/QCrypt2026_LOC_Report.pdf,2026-08-27,"137 standard + 116 student registrations (+3 extra tickets); 40 visa requests, 9 rejected/not issued"
+QCRYPT,2026,countries_represented,24,slides,/static/business_meetings/qcrypt_2026/QCrypt2026_LOC_Report.pdf,2026-08-27,counted from the per-country registration table
+QCRYPT,2026,slide:PC chair report,/static/business_meetings/qcrypt_2026/QCrypt2026_PC_Report.pdf,slides,,2026,
+QCRYPT,2026,slide:local organizers report,/static/business_meetings/qcrypt_2026/QCrypt2026_LOC_Report.pdf,slides,,2026-08-27,
+QCRYPT,2026,slide:steering committee report,/static/business_meetings/qcrypt_2026/QCrypt2026_SC_Report.pdf,slides,,2026-08-27,

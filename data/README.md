@@ -93,7 +93,7 @@ may be empty.
 
 The table above is the **current canonical header**. Two documented deviations exist in real files:
 
-- **`is_proceedings_track`** — TQC's `proceedings.csv`/`workshop.csv` for the newest years (2023–24) carry an extra `is_proceedings_track` column (`TRUE`/`FALSE`) right after `paper_type`, distinguishing the LIPIcs proceedings track from the workshop track. Other files omit it (the importer defaults it per file type).
+- **`is_proceedings_track`** — TQC's `proceedings.csv`/`workshop.csv` for the newest years (2023–24) carry an extra `is_proceedings_track` column (`TRUE`/`FALSE`) right after `paper_type`, distinguishing the LIPIcs proceedings track from the workshop track. Other files omit it (the importer defaults it per file type: `TRUE` for `proceedings.csv`, `FALSE` otherwise). List each paper **once**: a proceedings-track paper goes in `proceedings.csv` only, never also in `workshop.csv` (put its program session, schedule, video and presenter on the proceedings row). `proceedings.csv` rows get their own key namespace (`TQC2024-proc-regular-3`), so the two files no longer overwrite each other.
 - **Legacy variants** — some older, hand-converted QIP files (roughly 1998–2005) use a reduced or reordered header: singular `speaker` instead of `speakers`, `duration` instead of `duration_minutes`, and no `youtube_id`. The importer still reads these. When adding *new* data, use the canonical header above.
 
 ### `business_meeting.csv`
@@ -131,7 +131,7 @@ QCRYPT,2022,slide:PC chair report,https://qcrypt.iaqi.org/2022/slides/01_PC_Repo
 QCRYPT,2022,slide:local organizers report,https://qcrypt.iaqi.org/2022/slides/02_Local%20organizers%20report_business-meeting.pdf,slides,,2022-08-31,
 ```
 
-Only `http(s)` URLs are rendered. Multiple `slide:` rows are kept in file order.
+Only `http(s)` URLs and site-local `/static/...` paths (decks hosted in `static/business_meetings/<venue>_<year>/`) are rendered. Multiple `slide:` rows are kept in file order.
 
 The importer pivots all rows for a conference into one
 `conference_business_meetings` row and records per-fact provenance in

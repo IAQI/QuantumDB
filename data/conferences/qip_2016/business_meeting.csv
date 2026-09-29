@@ -1,0 +1,6 @@
+venue,year,field,value,source_type,source_url,source_date,notes
+QIP,2016,talk_submissions,184,spreadsheet,,2026-09-28,"QIP statistics compilation shared with QuantumDB (2026); same figure in the QIP 2025 PC report chart"
+QIP,2016,talks_accepted,46,spreadsheet,,2026-09-28,"46 accepted submissions = 42 talks (4 merges); QIP statistics compilation shared with QuantumDB (2026)"
+QIP,2016,acceptance_rate,25.0,spreadsheet,,2026-09-28,"derived 46/184; QIP statistics compilation shared with QuantumDB (2026)"
+QIP,2016,posters_accepted,155,spreadsheet,,2026-09-28,"QIP statistics compilation shared with QuantumDB (2026)"
+QIP,2016,registered_participants,242,spreadsheet,,2026-09-28,"QIP statistics compilation shared with QuantumDB (2026)"

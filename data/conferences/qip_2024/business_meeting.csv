@@ -1,0 +1,8 @@
+venue,year,field,value,source_type,source_url,source_date,notes
+QIP,2024,registered_participants,734,slides,/static/business_meetings/qip_2024/QIP2024_Business_Meeting.pdf,2024,396 students (~54%)
+QIP,2024,talk_submissions,575,slides,/static/business_meetings/qip_2024/QIP2024_Business_Meeting.pdf,2024,
+QIP,2024,talks_accepted,111,slides,/static/business_meetings/qip_2024/QIP2024_Business_Meeting.pdf,2024,"111 accepted submissions = 109 talks after 2 merges: 96 regular, 10 short plenary, 3 long plenary"
+QIP,2024,acceptance_rate,19.3,slides,/static/business_meetings/qip_2024/QIP2024_Business_Meeting.pdf,2024,
+QIP,2024,posters_submitted,249,slides,/static/business_meetings/qip_2024/QIP2024_Business_Meeting.pdf,2024,poster-only submissions
+QIP,2024,posters_accepted,402,slides,/static/business_meetings/qip_2024/QIP2024_Business_Meeting.pdf,2024,"""402 posters signed up to present""; (almost) all rejected talks accepted as posters, 3 rejected even as poster"
+QIP,2024,slide:business meeting slides (LOC and PC reports),/static/business_meetings/qip_2024/QIP2024_Business_Meeting.pdf,slides,,2024,

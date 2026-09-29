@@ -1,0 +1,8 @@
+venue,year,field,value,source_type,source_url,source_date,notes
+QIP,2025,talk_submissions,778,slides,/static/business_meetings/qip_2025/QIP2025_PC_Report.pdf,2025,
+QIP,2025,talks_accepted,163,slides,/static/business_meetings/qip_2025/QIP2025_PC_Report.pdf,2025,"163 accepted submissions = 151 talks after merges: 3 long plenary, 7 short plenary, 138 parallel; plus 3 SC-invited long plenaries"
+QIP,2025,acceptance_rate,20.1,slides,/static/business_meetings/qip_2025/QIP2025_PC_Report.pdf,2025,
+QIP,2025,posters_submitted,198,slides,/static/business_meetings/qip_2025/QIP2025_PC_Report.pdf,2025,poster-only submissions (197 accepted)
+QIP,2025,posters_accepted,812,slides,/static/business_meetings/qip_2025/QIP2025_PC_Report.pdf,2025,812 accepted posters in total; only 357 (44%) willing to be presented
+QIP,2025,registered_participants,906,spreadsheet,,2026-09-28,"QIP statistics compilation shared with QuantumDB (2026)"
+QIP,2025,slide:PC chair report,/static/business_meetings/qip_2025/QIP2025_PC_Report.pdf,slides,,2025,

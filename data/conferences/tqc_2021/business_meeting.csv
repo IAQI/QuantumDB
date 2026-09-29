@@ -1,3 +1,10 @@
 venue,year,field,value,source_type,source_url,source_date,notes
-TQC,2021,registered_participants,465,conference_website,2021/index.html,,"from 37 countries"
 TQC,2021,countries_represented,37,conference_website,2021/index.html,,
+TQC,2021,meeting_date,2021-07-06,slides,/static/business_meetings/tqc_2021/TQC2021_Business_Meeting_Minutes.pdf,2021-07-06,"online, 14:00-15:00 UTC; chaired by Stacey Jeffery (minutes by Jevgēnijs Vihrovs)"
+TQC,2021,talk_submissions,245,slides,/static/business_meetings/tqc_2021/TQC2021_PC_Report.pdf,2021-07-06,plus 15 late poster submissions; 145 in 2020 (~70% increase)
+TQC,2021,talks_accepted,78,slides,/static/business_meetings/tqc_2021/TQC2021_PC_Report.pdf,2021-07-06,"""78 contributed talks (2 merged)""; 10 conference-track (proceedings) papers accepted"
+TQC,2021,acceptance_rate,33,slides,/static/business_meetings/tqc_2021/TQC2021_PC_Report.pdf,2021-07-06,
+TQC,2021,track_breakdown,"{""conference"": {""talks"": 10}, ""total"": {""submissions"": 245, ""talks"": 78}, ""late_posters"": 15}",slides,/static/business_meetings/tqc_2021/TQC2021_PC_Report.pdf,2021-07-06,slide does not say whether the 10 conference-track papers are included in the 78
+TQC,2021,registered_participants,465,conference_website,2021/index.html,,"online; 213 students; ""from 37 countries""; same figure in TQC organizers' participant compilation shared with QuantumDB (2026)"
+TQC,2021,slide:PC chair report,/static/business_meetings/tqc_2021/TQC2021_PC_Report.pdf,slides,,2021-07-06,
+TQC,2021,slide:business meeting minutes,/static/business_meetings/tqc_2021/TQC2021_Business_Meeting_Minutes.pdf,slides,,2021-07-06,

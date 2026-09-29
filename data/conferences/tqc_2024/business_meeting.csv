@@ -1,7 +1,11 @@
 venue,year,field,value,source_type,source_url,source_date,notes
-TQC,2024,talk_submissions,460,conference_website,2025/talks-2024/index.html,,
-TQC,2024,talks_accepted,92,conference_website,2025/talks-2024/index.html,,
-TQC,2024,acceptance_rate,20,conference_website,2025/talks-2024/index.html,,"92 out of 460 = 20%"
-TQC,2024,posters_accepted,429,conference_website,2025/posters-2024/index.html,,"includes 19 Outstanding Posters"
-TQC,2024,track_breakdown,"{""with_proceedings"": {""submissions"": 44, ""talks"": 12}, ""total"": {""submissions"": 460, ""talks"": 92}, ""outstanding_posters"": 19}",proceedings,10.4230/LIPIcs.TQC.2024.0,2024,"LIPIcs foreword (vol 310): 44 of 460 talk submissions also to With Proceedings track; 92 selected incl. 12 With Proceedings; 19 outstanding posters"
+TQC,2024,posters_accepted,429,conference_website,2025/posters-2024/index.html,,includes 19 Outstanding Posters
+TQC,2024,registered_participants,383,slides,/static/business_meetings/tqc_2024/TQC2024_LOC_Report.pdf,2024,approximate — read off charts: regional split 135/110/86/46/6 sums to 383; participants-over-years bar ~385
+TQC,2024,countries_represented,31,slides,/static/business_meetings/tqc_2024/TQC2024_LOC_Report.pdf,2024,"31 countries/territories named on the per-country chart (incl. Hong Kong) plus ""Other"""
+TQC,2024,talk_submissions,460,slides,/static/business_meetings/tqc_2024/TQC2024_PC_Report.pdf,2024,307 in 2023
+TQC,2024,talks_accepted,92,slides,/static/business_meetings/tqc_2024/TQC2024_PC_Report.pdf,2024,12 with proceedings (2 outstanding paper prizes) + 80 without
+TQC,2024,acceptance_rate,20,slides,/static/business_meetings/tqc_2024/TQC2024_PC_Report.pdf,2024,92/460
+TQC,2024,track_breakdown,"{""with_proceedings"": {""submissions"": 44, ""talks"": 12}, ""without_proceedings"": {""submissions"": 416, ""talks"": 80}, ""total"": {""submissions"": 460, ""talks"": 92}, ""outstanding_posters"": 19}",slides,/static/business_meetings/tqc_2024/TQC2024_PC_Report.pdf,2024,"45 PC members, 437 subreviewers; matches LIPIcs foreword (vol 310)"
+TQC,2024,slide:local organizers report,/static/business_meetings/tqc_2024/TQC2024_LOC_Report.pdf,slides,,2024,
+TQC,2024,slide:PC chair report,/static/business_meetings/tqc_2024/TQC2024_PC_Report.pdf,slides,,2024,
 TQC,2024,slide:proceedings foreword,https://drops.dagstuhl.de/storage/00lipics/lipics-vol310-tqc2024/LIPIcs.TQC.2024.0/LIPIcs.TQC.2024.0.pdf,proceedings,,2024,
