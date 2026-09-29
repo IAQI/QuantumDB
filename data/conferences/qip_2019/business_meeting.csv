@@ -1,2 +1,7 @@
 venue,year,field,value,source_type,source_url,source_date,notes
-QIP,2019,posters_accepted,310,conference_website,2019/program.html,,"two poster sessions: 158 (Monday) + 152 (Tuesday)"
+QIP,2019,talk_submissions,349,spreadsheet,,2026-09-28,"QIP statistics compilation shared with QuantumDB (2026); same figure in the QIP 2025 PC report chart"
+QIP,2019,talks_accepted,63,spreadsheet,,2026-09-28,"63 accepted submissions = 60 talks (3 merges); QIP statistics compilation shared with QuantumDB (2026)"
+QIP,2019,acceptance_rate,18.1,spreadsheet,,2026-09-28,"derived 63/349; QIP statistics compilation shared with QuantumDB (2026)"
+QIP,2019,posters_submitted,325,spreadsheet,,2026-09-28,"QIP statistics compilation shared with QuantumDB (2026)"
+QIP,2019,posters_accepted,325,spreadsheet,,2026-09-28,"QIP statistics compilation shared with QuantumDB (2026); program lists 310 (158 Monday + 152 Tuesday)"
+QIP,2019,registered_participants,437,spreadsheet,,2026-09-28,"QIP statistics compilation shared with QuantumDB (2026)"

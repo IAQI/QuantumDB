@@ -83,13 +83,34 @@ def _is_schedule_row(talk: Dict[str, str]) -> bool:
     return any(title.startswith(prefix) for prefix in _TITLE_FILLER_PREFIXES)
 
 
-def generate_canonical_key(venue: str, year: int, paper_type: str, index: int) -> str:
+def generate_canonical_key(venue: str, year: int, paper_type: str, index: int,
+                           track: Optional[str] = None) -> str:
     """Generate canonical_key for publication.
 
-    Format: {VENUE}{YEAR}-{paper_type}-{index}
-    Examples: QCRYPT2023-invited-1, QIP2024-tutorial-2
+    Format: {VENUE}{YEAR}-{paper_type}-{index}, or {VENUE}{YEAR}-{track}-{paper_type}-{index}
+    when the file belongs to a separate track. The index is positional and resets per
+    file, so TQC's proceedings.csv needs its own namespace — otherwise its rows share
+    keys with workshop.csv and the two files overwrite each other.
+    Examples: QCRYPT2023-invited-1, QIP2024-tutorial-2, TQC2024-proc-regular-3
     """
+    if track:
+        return f"{venue}{year}-{track}-{paper_type}-{index}"
     return f"{venue}{year}-{paper_type}-{index}"
+
+
+def is_proceedings_file(csv_file: Path) -> bool:
+    """TQC's formal (LIPIcs/LNCS) proceedings track lives in proceedings.csv."""
+    return csv_file.name == 'proceedings.csv'
+
+
+def parse_proceedings_flag(talk: Dict[str, str], default: bool) -> bool:
+    """Per-row is_proceedings_track (TQC 2023+ files carry it), else the file default."""
+    value = (talk.get('is_proceedings_track') or '').strip().lower()
+    if value in ('true', 't', '1', 'yes'):
+        return True
+    if value in ('false', 'f', '0', 'no'):
+        return False
+    return default
 
 
 async def get_conference_id(
@@ -112,7 +133,8 @@ async def import_talk(
     talk: Dict[str, str],
     canonical_key: str,
     source_metadata: Dict,
-    csv_filename: str
+    csv_filename: str,
+    is_proceedings_track: bool = False
 ) -> bool:
     """Import a single talk with authors."""
 
@@ -201,8 +223,9 @@ async def import_talk(
                 arxiv_ids = $4, session_name = $5, presentation_url = $6,
                 video_url = $7, youtube_id = $8, award = $9,
                 metadata = $10, talk_date = $11, talk_time = $12, duration_minutes = $13,
+                is_proceedings_track = $14,
                 updated_at = NOW(), modifier = 'import_from_csv'
-            WHERE id = $14
+            WHERE id = $15
             """,
             talk.get('title'),
             talk.get('abstract') or None,
@@ -217,6 +240,7 @@ async def import_talk(
             talk_date,
             talk_time,
             duration_minutes,
+            is_proceedings_track,
             existing
         )
         publication_id = existing
@@ -228,19 +252,19 @@ async def import_talk(
                 conference_id, canonical_key, title, abstract, paper_type,
                 arxiv_ids, session_name, presentation_url, video_url, youtube_id,
                 award, metadata, talk_date, talk_time, duration_minutes,
-                creator, modifier
+                is_proceedings_track, creator, modifier
             ) VALUES (
                 $1, $2, $3, $4, $5::paper_type,
                 $6, $7, $8, $9, $10,
                 $11, $12, $13, $14, $15,
-                'import_from_csv', 'import_from_csv'
+                $16, 'import_from_csv', 'import_from_csv'
             ) RETURNING id
             """,
             conference_id, canonical_key, talk.get('title'), talk.get('abstract') or None, talk.get('paper_type'),
             arxiv_ids, talk.get('session_name') or None, talk.get('presentation_url') or None,
             talk.get('video_url') or None, talk.get('youtube_id') or None,
             talk.get('award') or None, json.dumps(enriched_metadata),
-            talk_date, talk_time, duration_minutes
+            talk_date, talk_time, duration_minutes, is_proceedings_track
         )
         logger.info(f"Created publication: {talk.get('title')}")
 
@@ -392,6 +416,9 @@ async def import_from_csv(
             talks_by_type[paper_type] = []
         talks_by_type[paper_type].append(talk)
 
+    proceedings_file = is_proceedings_file(csv_file)
+    track = 'proc' if proceedings_file else None
+
     async with pool.acquire() as conn:
         # Per-talk savepoints (inside one outer transaction) so a single bad
         # row doesn't poison the rest of the file — postgres otherwise aborts
@@ -399,7 +426,7 @@ async def import_from_csv(
         async with conn.transaction():
             for paper_type, type_talks in talks_by_type.items():
                 for idx, talk in enumerate(type_talks, start=1):
-                    canonical_key = generate_canonical_key(venue, year, paper_type, idx)
+                    canonical_key = generate_canonical_key(venue, year, paper_type, idx, track)
                     source_metadata = {
                         'source_type': 'conference_website',
                         'source_url': talk.get('notes', ''),
@@ -409,7 +436,8 @@ async def import_from_csv(
                     try:
                         async with conn.transaction():  # savepoint
                             success = await import_talk(
-                                conn, venue, year, talk, canonical_key, source_metadata, csv_file.name
+                                conn, venue, year, talk, canonical_key, source_metadata, csv_file.name,
+                                parse_proceedings_flag(talk, proceedings_file),
                             )
                         if success:
                             imported += 1

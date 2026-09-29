@@ -4,7 +4,7 @@ QCRYPT,2015,program,member,Anne Broadbent,University of Ottawa,
 QCRYPT,2015,program,member,Felix Bussieres,Université de Genève,
 QCRYPT,2015,program,member,Serge Fehr,CWI Amsterdam,
 QCRYPT,2015,program,member,Ilja Gerhard,MPI Stuttgart,
-QCRYPT,2015,program,chair,Richard Hughes,Unaffiliated,
+QCRYPT,2015,program,co_chair,Richard Hughes,Unaffiliated,
 QCRYPT,2015,program,member,Ping-Koy Lam,Australian National University,
 QCRYPT,2015,program,member,Anthony Leverrier,INRIA,
 QCRYPT,2015,program,member,Marco Lucamarini,Toshiba Research Cambridge,
@@ -27,12 +27,12 @@ QCRYPT,2015,steering,chair,Masahide Sasaki,NICT,
 QCRYPT,2015,steering,member,Christian Schaffner,University of Amsterdam,
 QCRYPT,2015,steering,member,Wolfgang Tittel,University of Calgary,
 QCRYPT,2015,steering,member,Stephanie Wehner,"QuTech, TU Delft",
-QCRYPT,2015,steering,member,Charles H. Bennett,IBM Research,
-QCRYPT,2015,steering,member,Gilles Brassard,Université de Montréal,
-QCRYPT,2015,steering,member,Ivan Damgård,Aarhus University,
-QCRYPT,2015,steering,member,Artur Ekert,CQT Singapore and Oxford University,
-QCRYPT,2015,steering,member,Nicolas Gisin,Université de Genève,
-QCRYPT,2015,steering,member,Richard Hughes,Unaffiliated,
+QCRYPT,2015,steering,member,Charles H. Bennett,IBM Research,Advisory Committee
+QCRYPT,2015,steering,member,Gilles Brassard,Université de Montréal,Advisory Committee
+QCRYPT,2015,steering,member,Ivan Damgård,Aarhus University,Advisory Committee
+QCRYPT,2015,steering,member,Artur Ekert,CQT Singapore and Oxford University,Advisory Committee
+QCRYPT,2015,steering,member,Nicolas Gisin,Université de Genève,Advisory Committee
+QCRYPT,2015,steering,member,Richard Hughes,Unaffiliated,Advisory Committee
 QCRYPT,2015,organizing,member,Mikio Fujiwara,NICT,
 QCRYPT,2015,organizing,member,Kazuhiro Hayasaka,NICT,
 QCRYPT,2015,organizing,member,Masahiko Matsuo,NICT,

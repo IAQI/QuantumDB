@@ -1,0 +1,7 @@
+venue,year,field,value,source_type,source_url,source_date,notes
+QIP,2021,talk_submissions,462,slides,/static/business_meetings/qip_2024/QIP2024_Business_Meeting.pdf,2024,second-hand: year-over-year comparison in the QIP 2024 PC report
+QIP,2021,acceptance_rate,24.0,slides,/static/business_meetings/qip_2024/QIP2024_Business_Meeting.pdf,2024,second-hand: QIP 2024 PC report
+QIP,2021,talks_accepted,111,spreadsheet,,2026-09-28,"111 accepted submissions = 104 talks (7 merges); QIP statistics compilation shared with QuantumDB (2026)"
+QIP,2021,posters_submitted,431,spreadsheet,,2026-09-28,"QIP statistics compilation shared with QuantumDB (2026)"
+QIP,2021,posters_accepted,426,spreadsheet,,2026-09-28,"QIP statistics compilation shared with QuantumDB (2026)"
+QIP,2021,registered_participants,3803,spreadsheet,,2026-09-28,"online conference (Munich, virtual); QIP statistics compilation shared with QuantumDB (2026)"

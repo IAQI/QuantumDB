@@ -1,6 +1,11 @@
 venue,year,field,value,source_type,source_url,source_date,notes
 TQC,2025,talk_submissions,375,conference_website,2025/index.html,,
-TQC,2025,talks_accepted,77,conference_website,2025/index.html,,"77 accepted talks out of 375 submissions"
 TQC,2025,meeting_date,2025-09-17,conference_website,2025/index.html,,"announced at the TQC 2025 business meeting, 17 Sep 2025; poster count given as 150+ (website) / 200+ (abstract booklet)"
-TQC,2025,track_breakdown,"{""with_proceedings"": {""talks"": 12}, ""total"": {""submissions"": 375, ""talks"": 77}}",proceedings,10.4230/LIPIcs.TQC.2025.0,2025,"LIPIcs foreword (vol 350): 375 submissions, 77 selected incl. 12 published in the With Proceedings track"
+TQC,2025,talks_accepted,89,slides,/static/business_meetings/tqc_2025/TQC2025_PC_Report.pdf,2025-09-17,"77/309 without-proceedings + 12/66 with-proceedings; the website/LIPIcs-foreword figure ""77"" is the without-proceedings count only"
+TQC,2025,acceptance_rate,23.7,slides,/static/business_meetings/tqc_2025/TQC2025_PC_Report.pdf,2025-09-17,89/375
+TQC,2025,track_breakdown,"{""with_proceedings"": {""submissions"": 66, ""talks"": 12}, ""without_proceedings"": {""submissions"": 309, ""talks"": 77}, ""total"": {""submissions"": 375, ""talks"": 89}}",slides,/static/business_meetings/tqc_2025/TQC2025_PC_Report.pdf,2025-09-17,"58 PC members, 424 subreviewers"
+TQC,2025,registered_participants,345,slides,/static/business_meetings/tqc_2025/TQC2025_LOC_Report.pdf,2025-09-17,plus 100 pre-conference tutorial participants
+TQC,2025,countries_represented,28,slides,/static/business_meetings/tqc_2025/TQC2025_LOC_Report.pdf,2025-09-17,"""28 (out of 31 expected)"""
+TQC,2025,slide:PC chair report,/static/business_meetings/tqc_2025/TQC2025_PC_Report.pdf,slides,,2025-09-17,
+TQC,2025,slide:local organizers report,/static/business_meetings/tqc_2025/TQC2025_LOC_Report.pdf,slides,,2025-09-17,
 TQC,2025,slide:proceedings foreword,https://drops.dagstuhl.de/storage/00lipics/lipics-vol350-tqc2025/LIPIcs.TQC.2025.0/LIPIcs.TQC.2025.0.pdf,proceedings,,2025,

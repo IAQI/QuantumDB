@@ -1,0 +1,9 @@
+venue,year,field,value,source_type,source_url,source_date,notes
+QIP,2026,registered_participants,913,slides,/static/business_meetings/qip_2026/QIP2026_Business_Meeting.pdf,2026,408 students; 81% early registrations
+QIP,2026,countries_represented,43,slides,/static/business_meetings/qip_2026/QIP2026_Business_Meeting.pdf,2026,
+QIP,2026,talk_submissions,767,slides,/static/business_meetings/qip_2026/QIP2026_Business_Meeting.pdf,2026,"""talk-eligible"": 151 talk-only + 616 talk-or-poster; plus 248 poster-only"
+QIP,2026,talks_accepted,158,slides,/static/business_meetings/qip_2026/QIP2026_Business_Meeting.pdf,2026,"158 accepted = 154 talks (merges, SC invited): 138 parallel, 7 long plenary, 3 short plenary (spreadsheet: 3 long / 7 short), 3 SC-invited long plenaries"
+QIP,2026,acceptance_rate,20.6,slides,/static/business_meetings/qip_2026/QIP2026_Business_Meeting.pdf,2026,
+QIP,2026,posters_submitted,248,slides,/static/business_meetings/qip_2026/QIP2026_Business_Meeting.pdf,2026,poster-only submissions
+QIP,2026,posters_accepted,442,slides,/static/business_meetings/qip_2026/QIP2026_Business_Meeting.pdf,2026,
+QIP,2026,"slide:business meeting slides (SC, LOC and PC reports)",/static/business_meetings/qip_2026/QIP2026_Business_Meeting.pdf,slides,,2026,

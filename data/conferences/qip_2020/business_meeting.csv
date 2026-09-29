@@ -1,0 +1,7 @@
+venue,year,field,value,source_type,source_url,source_date,notes
+QIP,2020,talks_accepted,78,spreadsheet,,2026-09-28,"78 accepted submissions = 73 talks (5 merges); QIP statistics compilation shared with QuantumDB (2026)"
+QIP,2020,acceptance_rate,27.6,spreadsheet,,2026-09-28,"derived 78/283; QIP statistics compilation shared with QuantumDB (2026)"
+QIP,2020,posters_submitted,350,spreadsheet,,2026-09-28,"QIP statistics compilation shared with QuantumDB (2026)"
+QIP,2020,posters_accepted,350,spreadsheet,,2026-09-28,"QIP statistics compilation shared with QuantumDB (2026)"
+QIP,2020,registered_participants,700,spreadsheet,,2026-09-28,"314 students; QIP statistics compilation shared with QuantumDB (2026); QIP 2022 LOC report: ""~700 (60% China)"""
+QIP,2020,talk_submissions,283,spreadsheet,,2026-09-28,"QIP statistics compilation shared with QuantumDB (2026); same figure in the QIP 2025 PC report chart; the QIP 2022 PC report instead lists 296 for 2020 (and 349 for 2019)"
