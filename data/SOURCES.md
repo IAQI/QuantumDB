@@ -8,7 +8,29 @@ QCrypt committee provenance is not yet captured here; see
 `tools/scrapers/committees/qcrypt.py` for the current source URLs. Exception:
 **QCrypt 2026** (Ottawa; Aug 24–28, 2026) committees were taken from the live
 site <https://qcrypt.net/2026/team/> (not yet on the `qcrypt.iaqi.org` archive
-mirror).
+mirror). Three PC members (Piotr Rydlichowski, Andy Schreier, Joshua Slater)
+were added to the page after the first scrape; they were backfilled on
+2026-09-26, matching the 36-member list in the PC report.
+
+> **QCrypt 2026 talks + posters** (fetched 2026-09-26 from the live site; pages
+> are not stored in the repo — the converter reads `~/Web/qcrypt.iaqi.org/2026/`
+> once mirrored, else the live site) are built by `tools/one_off/conf2026/convert_qcrypt_2026.py`
+> from `schedule/`, `technical/accepted-papers/` (35 talks + 112 posters with
+> abstracts; submission id = `abstract-<id>`), the tutorial/invited/industry
+> `sessions/*` pages and `photos_prizes/`. The site prints authors as **initials
+> only**; `qcrypt_2026_arxiv_names.py` resolves full names + arXiv ids by title
+> search (cache: `raw/arxiv_matches.json`), with a fallback to a unique
+> surname+initial match among names already in the repo's CSVs (skipped for
+> common surnames; a dominant spelling wins over repo typos/variants). Result
+> tags in `notes`: `names=arxiv` (44 rows) / `names=repo_index` (16) — fully
+> resolved; `names=initials_new` (41) — leftover initials have no same-surname
+> person in the repo (new authors, no duplicate risk); `names=initials_ambiguous
+> (<names>)` (45) — those initials match several repo people (mostly common
+> surnames) and should be fixed by hand before import to avoid duplicate
+> authors. Submission #104 was upgraded to Yu-Huai Li's invited
+> talk; #8/#100 were merged into one slot. The site was cloned from the 2025
+> one: its `sessions/lecture/{brassard,pan}` pages are 2025 leftovers (not in the
+> 2026 schedule, already in `qcrypt_2025/talks.csv`) and are ignored.
 
 > **QCrypt student paper prizes** (the `Best Student Paper Award …` values in
 > the `award` column of each `qcrypt_<year>/talks.csv`) come from the official
@@ -112,6 +134,7 @@ Paths are relative to the local static mirrors: `~/Web/qcrypt.iaqi.org/` (QCrypt
 | 2022 | `2022/slides/01_PC_Report.pdf`; `2022/slides/02_Local organizers report_business-meeting.pdf` | talk_submissions=121, talks_accepted=33, posters_accepted=130, registered_participants=389, onsite_participants=45; theory/experiment splits in notes |
 | 2023 | `2023/slides/QCrypt2023_PC_Report.pdf`; `2023/slides/QCrypt2023_LC_Report.pdf` | talk_submissions=106, talks_accepted=33, acceptance_rate=34, posters_accepted=104, countries_represented=24, registered_participants=206 |
 | 2024 | `2024/accepted-papers/index.html`; `2024/sessions/business/index.html` | meeting_date=2024-09-05; talks_accepted=36, posters_accepted=193 (both derived). No PC/LC report deck archived; `2023/slides/QCrypt2024_Org_Report.pdf` is a save-the-date promo with no stats |
+| 2026 | Live site (not mirrored): <https://qcrypt.net/2026/sessions/slides/QCrypt%202026-Program%20Committee%20Report.pdf> (PC report); `.../QCrypt%202026-Business%20Meeting%20Report.pdf` (LOC report — registration tables are images, read by eye); `technical/accepted-papers/` | talk_submissions=130 (36 exp / 94 theory) + 68 poster-only, talks_accepted=35, acceptance_rate=26.9, registered_participants=256, countries_represented=24, posters_accepted=112 (derived), meeting_date=2026-08-27 |
 
 ## QIP
 
@@ -136,6 +159,7 @@ from PC-chair intro letters embedded in the program booklets.
 | 2023 | `2025/tqc2023/index.html` | talk_submissions=342, talks_accepted=74, posters_accepted=266, full track_breakdown |
 | 2024 | `2025/talks-2024/index.html`; `2025/posters-2024/index.html`; LIPIcs foreword `10.4230/LIPIcs.TQC.2024.0` (vol 310); `simplystatic/.../wp-content/uploads/2024/05/TQC-2024-booklet-1.pdf` (pre-event est.) | talk_submissions=460, talks_accepted=92, acceptance_rate=20, posters_accepted=429; foreword adds track_breakdown (44 of 460 also to With Proceedings; 12 of 92 With Proceedings; 19 outstanding posters). Booklet's "~400 in-person" is a pre-event estimate, not stored |
 | 2025 | `2025/index.html`; LIPIcs foreword `10.4230/LIPIcs.TQC.2025.0` (vol 350); `simplystatic/.../wp-content/uploads/2025/09/Abstract_Booklet.pdf` | talk_submissions=375, talks_accepted=77, meeting_date=2025-09-17; foreword adds track_breakdown (12 of 77 published in With Proceedings). Poster count conflicts (150+ page vs 200+ booklet — kept in notes) |
+| 2026 | LIPIcs foreword `10.4230/LIPIcs.TQC.2026.0` (vol 389); live site <https://tqc-conference.org/2026/accepted-posters/>, `sessions/business/` | talk_submissions=443 (all three tracks), talks_accepted=87 (8 With Proceedings), posters_accepted=289 (derived), meeting_date=2026-09-02. No report deck published |
 
 No PC-chair/local-organizer slide decks were archived for TQC; figures come from
 inline HTML, the two recent booklet PDFs, and the LIPIcs proceedings forewords.
@@ -148,7 +172,8 @@ were checked: **only the 2024 and 2025 forewords state submission/acceptance
 counts** — every earlier foreword (2013–2023) only describes the program
 structure and lists prior editions, with no numbers. TQC volume map: 2013=022,
 2014=027, 2015=044, 2016=061, 2017=073, 2018=111, 2019=135, 2020=158, 2021=197,
-2022=232, 2023=266, 2024=310, 2025=350.
+2022=232, 2023=266, 2024=310, 2025=350, 2026=389. The 2026 foreword also states
+counts (443 submissions / 87 talks / 8 With Proceedings).
 
 ---
 
@@ -510,6 +535,25 @@ Committee", "Steering Committee", and "Program Committee" (PC split into Chairs
 and Members). Collected by hand — no year-specific parser in
 `scrapers/committees/tqc.py` yet. Note: the page lists both "Joe Renes" and
 "Joseph M. Renes" (both ETH Zurich) — the same person, collapsed to one row.
+
+**Talks, proceedings, posters** (fetched 2026-09-26 from the live site; pages are
+not stored in the repo — the converter reads `~/Web/tqc.iaqi.org/2026/` once
+mirrored, else the live site), built by `tools/one_off/conf2026/convert_tqc_2026.py`:
+
+- `accepted-papers/` — 87 contributed talks with affiliations, abstracts and the
+  presenter in bold; 8 carry a `[proceedings]` DOI → `proceedings.csv`
+  (LIPIcs vol 389, cross-checked against the Dagstuhl volume page), the other 79
+  → `workshop.csv`. Awards are embedded in two titles ("(Winner of the Best
+  Paper Award!)" etc.) and moved to the `award` column.
+- `schedule/` — dates, 30-min slot times, parallel session/track/room; 86 of 87
+  talks scheduled ("Channel Coding and Quantum Channel Discrimination against
+  Jammers" is accepted but unscheduled — kept, flagged in `notes`). The 4 invited
+  talks (titles from the schedule, abstracts from `sessions/invited_*/`) are in
+  `workshop.csv`. "Greg Meyer" is recorded as Greg Kahanamoku-Meyer (per his bio,
+  and the spelling already in the repo). The two sponsored talks (Nord Quantique,
+  IonQ) have no title/speaker and are skipped.
+- `accepted-posters/` — 289 posters with affiliations and abstracts → `posters.csv`.
+- No videos or slides are linked yet (`paper-youtubeid`/`paper-slides` empty).
 
 ## 2025 — Bengaluru (IISc)
 

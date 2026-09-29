@@ -223,7 +223,7 @@ Committees count is row count.
 | 2025 |  – | – | not seeded |
 | 2026 | 154 | 158 (152/152/0/0) | ✓ JSON-backed talks; 6 talks missing schedule; posters pending separate JSON |
 
-### QCrypt (2011–2024 seeded; 2025/2026 not seeded; no proceedings/workshop)
+### QCrypt (2011–2024 seeded; 2025/2026 CSVs present; no proceedings/workshop)
 
 | Year | Committees | Talks (rows / date / time / video / yt) | Status |
 |------|-----------:|----------------------------------------|--------|
@@ -242,13 +242,13 @@ Committees count is row count.
 | 2023 | 50 | 47 (47/47/0/0) | no video |
 | 2024 | 49 | 50 (50/50/0/0) | no video |
 | 2025 | – | – | not seeded |
-| 2026 | – | – | not seeded |
+| 2026 | 51 | 46 (46/46/46/0/0) + 112 posters | ✓ live-site scrape 2026-09-26 (`tools/one_off/conf2026/`); authors initials-only on site → arXiv-resolved, residue tagged `names=initials_new` / `names=initials_ambiguous`; no videos yet |
 
 QCrypt is the most complete venue. Schedule data is essentially 100%.
 Video URLs only for 2011–2014; YouTube playlist enrichment would
 fill 2013 onward.
 
-### TQC (2006–2025 seeded; uses proceedings.csv + workshop.csv, no talks.csv)
+### TQC (2006–2026 seeded; uses proceedings.csv + workshop.csv, no talks.csv)
 
 | Year | Committees | Proc | Workshop (rows / date / time / video / yt) | Status |
 |------|-----------:|-----:|--------------------------------------------|--------|
@@ -272,6 +272,7 @@ fill 2013 onward.
 | 2023 | 55 | 14 (0 sched)  | 59 (59/59/0/0) | ✓ workshop has schedule; proc still lacks (TODO: copy from workshop) |
 | 2024 | 61 | 12 (0 sched)  | 92 (92/92/0/0) | ✓ workshop has schedule; proc still lacks (TODO) |
 | 2025 | 76 | 12 (12 sched) | 90 (90/90/0/0) | ✓ all entries scheduled |
+| 2026 | 86 | 8 (8 sched) | 83 (82/82/0/0) | ✓ live-site scrape 2026-09-26 (`tools/one_off/conf2026/`); 289 posters; 1 accepted talk unscheduled; no videos yet |
 
 TQC has zero schedule and zero video data anywhere in workshop.csv.
 Pre-2013 (2006–2012) committee/proceedings data is not in the CSV tree
@@ -352,7 +353,7 @@ YouTube enrichment pass (deferred — see below), not re-scraping HTML.
 |------|-----|--------|
 | 2011–2024 | sparse video / yt fields | YouTube enrichment (deferred) |
 | 2025 | not seeded | seed when archive is published |
-| 2026 | not seeded | (call for papers presumably out) |
+| 2026 | CSVs built; full author names for rows tagged `names=initials_ambiguous` (45); video links once posted | hand-fix residue; re-run `convert_qcrypt_2026.py` (reads the `~/Web` mirror, else the live site) |
 
 ### TQC
 
@@ -363,6 +364,7 @@ YouTube enrichment pass (deferred — see below), not re-scraping HTML.
 | 2018 | committees + workshop missing | claude-direct or defer — small mirror | |
 | 2017/19/20/21/25 | workshop has rows, zero schedule/video metadata | claude-direct from local mirror | |
 | 2022/23/24 | workshop.csv missing entirely | check `tools/one_off/tqc2023-24/` output — BibTeX conversion was supposedly done; the CSV may just need to be moved into place | |
+| 2026 | video/slide links not yet on site | re-run `convert_tqc_2026.py` once posted (reads the `~/Web` mirror, else the live site) | the accepted-papers markup has empty `paper-youtubeid`/`paper-slides` slots ready |
 | All years | no video / yt anywhere | YouTube enrichment if a TQC channel exists (deferred) | |
 
 ## Tipping-point summary applied here
