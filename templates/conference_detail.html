@@ -11,30 +11,24 @@
             <h1 class="display">
                 <span class="venue-word">{{ conference.venue }}</span><span class="year-suffix"> · {{ conference.year }}</span>
             </h1>
-            <p class="mono masthead-strip">
-                {%- if !conference.location.is_empty() && conference.location != "-" -%}
-                    {{ conference.location }}
-                {%- endif -%}
-                {%- if !conference.start_date.is_empty() && conference.start_date != "-" -%}
-                    &nbsp;·&nbsp;{{ conference.start_date }}
-                    {%- if !conference.end_date.is_empty() && conference.end_date != "-" %} – {{ conference.end_date }}{% endif -%}
-                {%- endif -%}
-                {%- if conference.is_virtual %}&nbsp;·&nbsp;virtual{% else if conference.is_hybrid %}&nbsp;·&nbsp;hybrid{% endif -%}
-                {%- if !conference.acceptance_rate.is_empty() && conference.acceptance_rate != "-" -%}
-                    &nbsp;·&nbsp;{{ conference.acceptance_rate }} accepted
-                {%- endif -%}
+            {% let has_loc = !conference.location.is_empty() && conference.location != "-" %}
+            <p class="masthead-strip">
+                {%- if has_loc %}{{ conference.location }}{% if !conference.date_range.is_empty() %}, {% endif %}{% endif -%}
+                {%- if !conference.date_range.is_empty() %}{{ conference.date_range }}{% endif -%}
+                {%- if has_loc || !conference.date_range.is_empty() %}.{% endif -%}
+                {%- if conference.is_virtual %} Held online.{% else if conference.is_hybrid %} Hybrid, on site and online.{% endif -%}
             </p>
             <p class="masthead-links">
-                {% if !conference.website_url.is_empty() %}<a href="{{ conference.website_url }}" target="_blank" rel="noopener">original site ↗</a>{% endif %}
-                {% if !conference.archive_url.is_empty() %}<a href="{{ conference.archive_url }}" target="_blank" rel="noopener">IAQI copy ↗</a>{% endif %}
-                {% if !conference.proceedings_url.is_empty() %}<a href="{{ conference.proceedings_url }}" target="_blank" rel="noopener">proceedings ↗</a>{% endif %}
+                {% if !conference.website_url.is_empty() %}<a href="{{ conference.website_url }}" target="_blank" rel="noopener">Original site</a>{% endif %}
+                {% if !conference.archive_url.is_empty() %}<a href="{{ conference.archive_url }}" target="_blank" rel="noopener">IAQI copy</a>{% endif %}
+                {% if !conference.proceedings_url.is_empty() %}<a href="{{ conference.proceedings_url }}" target="_blank" rel="noopener">Proceedings</a>{% endif %}
             </p>
         </div>
     </header>
 
     <hr class="venue-rule">
 
-    <section class="stats-grid">
+    <section class="stats-grid stats-grid--lead">
         <div class="stat-card clickable" onclick="scrollToHighlight('#talks-section', 'talks')">
             <div class="stat-value">{{ conference.talk_count }}</div>
             <span class="stat-label">talks</span>
@@ -43,6 +37,12 @@
             <div class="stat-value">{{ conference.poster_count }}</div>
             <span class="stat-label">posters</span>
         </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ conference.unique_author_count }}</div>
+            <span class="stat-label">unique authors</span>
+        </div>
+    </section>
+    <section class="stats-grid stats-grid--minor">
         <div class="stat-card clickable" onclick="scrollToHighlight('#talks-section', 'regular')">
             <div class="stat-value">{{ conference.regular_paper_count }}</div>
             <span class="stat-label">regular papers</span>
@@ -55,10 +55,6 @@
             <div class="stat-value">{{ conference.award_count }}</div>
             <span class="stat-label">awards</span>
         </div>
-        <div class="stat-card">
-            <div class="stat-value">{{ conference.unique_author_count }}</div>
-            <span class="stat-label">unique authors</span>
-        </div>
         <div class="stat-card clickable" onclick="scrollToHighlight('#committees-section', 'all')">
             <div class="stat-value">{{ conference.committee_member_count }}</div>
             <span class="stat-label">committee members</span>
@@ -66,8 +62,13 @@
     </section>
 
     {% if !conference.submission_count.is_empty() && conference.submission_count != "-" %}
-    <p class="mono" style="font-size: 0.85rem; color: var(--muted); margin: -1.5rem 0 2.5rem;">
-        submissions {{ conference.submission_count }} &nbsp;·&nbsp; accepted {{ conference.acceptance_count }} &nbsp;·&nbsp; rate {{ conference.acceptance_rate }}
+    <p class="stats-aside">
+        {%- if conference.acceptance_count != "-" -%}
+            {{ conference.acceptance_count }} of {{ conference.submission_count }} submissions were accepted
+            {%- if conference.acceptance_rate != "-" %} ({{ conference.acceptance_rate }}){% endif %}.
+        {%- else -%}
+            {{ conference.submission_count }} submissions.
+        {%- endif -%}
     </p>
     {% endif %}
 
@@ -147,7 +148,7 @@
                             <div class="cell-mono arxiv-extra">
                             {% for arxiv_id in pub.arxiv_ids %}
                                 {% if loop.index0 > 0 %}
-                                    <a href="https://arxiv.org/abs/{{ arxiv_id }}" target="_blank" rel="noopener noreferrer">arXiv:{{ arxiv_id }} ↗</a>{% if !loop.last %}, {% endif %}
+                                    <a href="https://arxiv.org/abs/{{ arxiv_id }}" target="_blank" rel="noopener noreferrer">arXiv:{{ arxiv_id }}</a>{% if !loop.last %}, {% endif %}
                                 {% endif %}
                             {% endfor %}
                             </div>
@@ -157,7 +158,7 @@
                         {% if !pub.abstract_text.is_empty() || !pub.video_url.is_empty() || !pub.presenter_name.is_empty() %}
                         <div class="talk-meta">
                             {% if !pub.abstract_text.is_empty() %}<span class="abstract-toggle" tabindex="0" aria-expanded="false">abstract</span>{% endif %}
-                            {% if !pub.video_url.is_empty() %}<a href="{{ pub.video_url }}" target="_blank" rel="noopener">video ↗</a>{% endif %}
+                            {% if !pub.video_url.is_empty() %}<a href="{{ pub.video_url }}" target="_blank" rel="noopener">video</a>{% endif %}
                             {% if !pub.presenter_name.is_empty() %}<span class="presented-by">presented by {{ pub.presenter_name }}</span>{% endif %}
                         </div>
                         {% endif %}

@@ -189,18 +189,29 @@ function scales(yOpts) {
     };
 }
 
-function hexToRgba(hex, alpha) {
-    const n = parseInt(hex.slice(1), 16);
-    return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${alpha})`;
+// "rgb(r, g, b)" (as computed styles report colours) → "rgba(r, g, b, alpha)"
+function withAlpha(rgb, alpha) {
+    const [r, g, b] = rgb.match(/[\d.]+/g);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
+// Colour tokens are light-dark() pairs, which getPropertyValue returns
+// unresolved; a hidden probe element resolves them to the active scheme.
+const tokenProbe = document.createElement('span');
+tokenProbe.hidden = true;
+document.body.appendChild(tokenProbe);
+
 function readTheme() {
-    const cs = getComputedStyle(document.documentElement);
-    const tok = name => cs.getPropertyValue(name).trim();
+    const tok = name => {
+        tokenProbe.style.color = `var(${name})`;
+        return getComputedStyle(tokenProbe).color;
+    };
     PAPER = tok('--paper'); INK = tok('--ink'); INK_SOFT = tok('--ink-soft');
     MUTED = tok('--muted'); RULE_STRONG = tok('--rule-strong');
-    GRID = hexToRgba(RULE_STRONG, 0.30);
-    FAINT_ALPHA = parseFloat(tok('--chart-faint-alpha')) || 0.20;
+    GRID = withAlpha(RULE_STRONG, 0.30);
+    // Bar fills need a little more opacity to read on the dark paper.
+    const [pr, pg, pb] = PAPER.match(/[\d.]+/g).map(Number);
+    FAINT_ALPHA = (pr + pg + pb) / 3 < 128 ? 0.30 : 0.20;
     VENUE_COLOR = { QIP: tok('--venue-qip'), QCRYPT: tok('--venue-qcrypt'), TQC: tok('--venue-tqc') };
     Chart.defaults.color = MUTED;
     Object.assign(TOOLTIP, { backgroundColor: PAPER, titleColor: INK, bodyColor: INK_SOFT, borderColor: RULE_STRONG });
@@ -278,7 +289,7 @@ function renderCharts(rows) {
         contribDatasets.push({
             label: `${VENUE_LABEL[v]} posters`,
             data: seriesFor(byVenue, years, v, 'poster_count'),
-            backgroundColor: hexToRgba(VENUE_COLOR[v], FAINT_ALPHA),
+            backgroundColor: withAlpha(VENUE_COLOR[v], FAINT_ALPHA),
             stack: v, categoryPercentage: 0.72, barPercentage: 0.92,
         });
     }
@@ -308,7 +319,7 @@ function renderCharts(rows) {
         subDatasets.push({
             label: `${VENUE_LABEL[v]} rejected`,
             data: rej,
-            backgroundColor: hexToRgba(VENUE_COLOR[v], FAINT_ALPHA),
+            backgroundColor: withAlpha(VENUE_COLOR[v], FAINT_ALPHA),
             stack: v, order: 1, categoryPercentage: 0.7, barPercentage: 0.94,
         });
     }

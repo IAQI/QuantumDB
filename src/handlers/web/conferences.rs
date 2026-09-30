@@ -61,8 +61,8 @@ struct ConferenceDetail {
     venue: String,
     year: i32,
     location: String,
-    start_date: String,
-    end_date: String,
+    /// Readable dates ("10–14 August 2020"), empty if unknown.
+    date_range: String,
     website_url: String,
     archive_url: String,
     proceedings_url: String,
@@ -114,6 +114,23 @@ struct SlideLink {
     /// Where the deck lives: a hostname, or "IAQI archive" for decks we host.
     host: String,
     url: String,
+}
+
+/// "10–14 August 2020", "30 August – 3 September 2020", "28 December 2020 –
+/// 2 January 2021", or a single day; empty when the start date is unknown.
+fn format_date_range(start: Option<chrono::NaiveDate>, end: Option<chrono::NaiveDate>) -> String {
+    use chrono::Datelike;
+    let Some(s) = start else { return String::new() };
+    match end {
+        Some(e) if e > s && e.year() == s.year() && e.month() == s.month() => {
+            format!("{}–{}", s.format("%-d"), e.format("%-d %B %Y"))
+        }
+        Some(e) if e > s && e.year() == s.year() => {
+            format!("{} – {}", s.format("%-d %B"), e.format("%-d %B %Y"))
+        }
+        Some(e) if e > s => format!("{} – {}", s.format("%-d %B %Y"), e.format("%-d %B %Y")),
+        _ => s.format("%-d %B %Y").to_string(),
+    }
 }
 
 /// Display label for a business-meeting field key (as used in the notes column).
@@ -663,8 +680,7 @@ pub async fn conference_detail(
             venue: conference.venue,
             year: conference.year,
             location,
-            start_date: conference.start_date.map(|d| d.to_string()).unwrap_or_else(|| String::from("-")),
-            end_date: conference.end_date.map(|d| d.to_string()).unwrap_or_else(|| String::from("-")),
+            date_range: format_date_range(conference.start_date, conference.end_date),
             website_url: conference.website_url.unwrap_or_default(),
             archive_url: conference.archive_url.unwrap_or_default(),
             proceedings_url: conference.proceedings_url.unwrap_or_default(),
@@ -719,6 +735,16 @@ mod tests {
             ("Business meeting slides".to_string(), "SC, PC and LOC reports".to_string())
         );
         assert_eq!(split_slide_label("PC chair report"), ("PC chair report".to_string(), String::new()));
+    }
+
+    #[test]
+    fn formats_date_ranges() {
+        let d = |y, m, day| chrono::NaiveDate::from_ymd_opt(y, m, day);
+        assert_eq!(format_date_range(d(2020, 8, 10), d(2020, 8, 14)), "10–14 August 2020");
+        assert_eq!(format_date_range(d(2020, 8, 30), d(2020, 9, 3)), "30 August – 3 September 2020");
+        assert_eq!(format_date_range(d(2020, 12, 28), d(2021, 1, 2)), "28 December 2020 – 2 January 2021");
+        assert_eq!(format_date_range(d(2020, 8, 10), None), "10 August 2020");
+        assert_eq!(format_date_range(None, d(2020, 8, 10)), "");
     }
 
     #[test]

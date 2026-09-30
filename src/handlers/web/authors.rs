@@ -774,7 +774,7 @@ pub async fn author_detail(
             google_scholar_id: author.google_scholar_id,
             publication_count: author.publication_count,
             leadership_count: author.leadership_count,
-            venues: author.venues,
+            venues: join_with_and(&author.venues),
             first_year: author.first_year,
             last_year: author.last_year,
         },
@@ -795,5 +795,26 @@ pub async fn author_detail(
             tracing::error!("Template error: {}", e);
             Err(StatusCode::INTERNAL_SERVER_ERROR)
         }
+    }
+}
+
+/// "QIP, QCRYPT, TQC" → "QIP, QCRYPT and TQC" (for the prose masthead line).
+fn join_with_and(list: &str) -> String {
+    match list.rsplit_once(", ") {
+        Some((head, last)) => format!("{head} and {last}"),
+        None => list.to_string(),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::join_with_and;
+
+    #[test]
+    fn joins_venue_lists() {
+        assert_eq!(join_with_and("QIP, QCRYPT, TQC"), "QIP, QCRYPT and TQC");
+        assert_eq!(join_with_and("QIP, TQC"), "QIP and TQC");
+        assert_eq!(join_with_and("QIP"), "QIP");
+        assert_eq!(join_with_and(""), "");
     }
 }

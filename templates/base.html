@@ -54,30 +54,32 @@
         /* ──────────────────────────────────────────────────────────────────
          * Editorial palette + typography
          * ────────────────────────────────────────────────────────────────── */
+        /* Each colour is written once as light-dark(<light>, <dark>); which one
+           applies follows `color-scheme` (the OS, or the nav toggle below). */
         :root {
-            --paper:        #f6f1e7;
-            --paper-deep:   #efe7d4;
-            --ink:          #1a1a1a;
-            --ink-soft:     #3a3633;
-            --rule:         #d8cfbe;
-            --rule-strong:  #b8ac95;
-            --muted:        #6b6256;
+            --paper:        light-dark(#f6f1e7, #1b1916);
+            --paper-deep:   light-dark(#efe7d4, #25221e);
+            --ink:          light-dark(#1a1a1a, #ece6da);
+            --ink-soft:     light-dark(#3a3633, #cfc7b8);
+            --rule:         light-dark(#d8cfbe, #38332c);
+            --rule-strong:  light-dark(#b8ac95, #5a5146);
+            --muted:        light-dark(#6b6256, #a39a8c);
+            --sheet:        light-dark(#fbf8f1, #24211d);  /* raised surface (slide-deck frames) */
 
-            --venue-qip:    #0072B2;  /* true blue (Wong palette) */
-            --venue-qcrypt: #E69F00;  /* orange (Wong palette) */
-            --venue-tqc:    #009E73;  /* green (Wong palette) */
+            /* Wong palette; QIP blue and TQC green are lightened on dark (#0072B2 is too dim) */
+            --venue-qip:    light-dark(#0072B2, #56B4E9);
+            --venue-qcrypt: #E69F00;
+            --venue-tqc:    light-dark(#009E73, #1FB386);
             --accent:       var(--ink);
-            --accent-tint:  rgba(26, 26, 26, 0.06);
+            --accent-tint:  light-dark(rgba(26, 26, 26, 0.06), rgba(236, 230, 218, 0.07));
 
-            --venue-qip-tint:    rgba(0,114,178,0.09);
-            --venue-qcrypt-tint: rgba(230,159,0,0.12);
-            --venue-tqc-tint:    rgba(0,158,115,0.10);
-            --sheet:        #fbf8f1;  /* raised surface (slide-deck frames) */
-            --chart-faint-alpha: 0.20;  /* read by the conferences-page charts */
+            --venue-qip-tint:    light-dark(rgba(0,114,178,0.09), rgba(86,180,233,0.14));
+            --venue-qcrypt-tint: light-dark(rgba(230,159,0,0.12), rgba(230,159,0,0.16));
+            --venue-tqc-tint:    light-dark(rgba(0,158,115,0.10), rgba(31,179,134,0.15));
 
-            --award-ink:    #7a5b00;
-            --award-bg:     rgba(246, 201, 69, 0.22);
-            --award-border: rgba(184, 140, 11, 0.5);
+            --award-ink:    light-dark(#7a5b00, #f6c945);
+            --award-bg:     light-dark(rgba(246, 201, 69, 0.22), rgba(246, 201, 69, 0.12));
+            --award-border: light-dark(rgba(184, 140, 11, 0.5), rgba(246, 201, 69, 0.45));
 
             --grid-max:    78rem;
         }
@@ -87,7 +89,7 @@
            plain `:root` loses to it, which let Pico's dark text colours leak onto
            our light paper for anyone whose OS is in dark mode. */
         :root:not([data-theme]), :root[data-theme] {
-            color-scheme: light;
+            color-scheme: light dark;
             --pico-background-color:        var(--paper);
             --pico-color:                   var(--ink);
             --pico-primary:                 var(--accent);
@@ -107,58 +109,10 @@
             --pico-line-height:             1.55;
         }
 
-        /* ──────────────────────────────────────────────────────────────────
-         * Dark palette — follows the OS unless the nav toggle pins a theme
-         * (data-theme="light" | "dark" on <html>). The two blocks must stay
-         * identical; CSS can't share one declaration block between a media
-         * query and a plain selector.
-         * ────────────────────────────────────────────────────────────────── */
-        @media (prefers-color-scheme: dark) {
-            :root:not([data-theme="light"]) {
-                color-scheme: dark;
-                --paper:        #1b1916;
-                --paper-deep:   #25221e;
-                --ink:          #ece6da;
-                --ink-soft:     #cfc7b8;
-                --rule:         #38332c;
-                --rule-strong:  #5a5146;
-                --muted:        #a39a8c;
-                --venue-qip:    #56B4E9;  /* sky blue (Wong) — #0072B2 is too dim on dark */
-                --venue-qcrypt: #E69F00;
-                --venue-tqc:    #1FB386;
-                --accent-tint:  rgba(236, 230, 218, 0.07);
-                --venue-qip-tint:    rgba(86,180,233,0.14);
-                --venue-qcrypt-tint: rgba(230,159,0,0.16);
-                --venue-tqc-tint:    rgba(31,179,134,0.15);
-                --sheet:        #24211d;
-                --chart-faint-alpha: 0.30;
-                --award-ink:    #f6c945;
-                --award-bg:     rgba(246, 201, 69, 0.12);
-                --award-border: rgba(246, 201, 69, 0.45);
-            }
-        }
-        :root[data-theme="dark"] {
-            color-scheme: dark;
-            --paper:        #1b1916;
-            --paper-deep:   #25221e;
-            --ink:          #ece6da;
-            --ink-soft:     #cfc7b8;
-            --rule:         #38332c;
-            --rule-strong:  #5a5146;
-            --muted:        #a39a8c;
-            --venue-qip:    #56B4E9;
-            --venue-qcrypt: #E69F00;
-            --venue-tqc:    #1FB386;
-            --accent-tint:  rgba(236, 230, 218, 0.07);
-            --venue-qip-tint:    rgba(86,180,233,0.14);
-            --venue-qcrypt-tint: rgba(230,159,0,0.16);
-            --venue-tqc-tint:    rgba(31,179,134,0.15);
-            --sheet:        #24211d;
-            --chart-faint-alpha: 0.30;
-            --award-ink:    #f6c945;
-            --award-bg:     rgba(246, 201, 69, 0.12);
-            --award-border: rgba(246, 201, 69, 0.45);
-        }
+        /* Pinned theme from the nav toggle (data-theme="light" | "dark" on <html>);
+           absent = follow the OS via `color-scheme: light dark` above. */
+        :root[data-theme="light"] { color-scheme: light; }
+        :root[data-theme="dark"]  { color-scheme: dark; }
 
         /* Per-venue accent cascade */
         [data-venue="QIP"]    { --accent: var(--venue-qip);    --accent-tint: var(--venue-qip-tint);    --pico-primary-background: var(--venue-qip-tint);    }
@@ -267,13 +221,11 @@
         .theme-toggle {
             all: unset;
             cursor: pointer;
-            font-family: "IBM Plex Mono", monospace;
-            font-size: 0.72rem;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
+            font-family: "Newsreader", Georgia, serif;
+            font-size: 0.9rem;
             color: var(--muted);
             border: 1px solid var(--rule);
-            padding: 0.2rem 0.55rem;
+            padding: 0.15rem 0.6rem;
             white-space: nowrap;
             transition: color 120ms ease, border-color 120ms ease;
         }
@@ -385,17 +337,14 @@
             align-self: flex-start;
         }
         .masthead-strip {
-            font-family: "IBM Plex Mono", monospace;
-            font-size: 0.85rem;
-            color: var(--muted);
+            font-size: 1.1rem;
+            line-height: 1.5;
+            color: var(--ink-soft);
             margin: 0;
-            letter-spacing: 0.02em;
+            max-width: 60ch;
         }
         .masthead-links {
-            font-family: "IBM Plex Mono", monospace;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
+            font-size: 1rem;
             margin: 0.25rem 0 0;
             display: flex; flex-wrap: wrap; gap: 1.4rem;
         }
@@ -472,16 +421,41 @@
         }
         .stat-label {
             display: block;
-            margin-top: 0.6rem;
-            font-family: "IBM Plex Mono", monospace;
-            font-size: 0.7rem;
+            margin-top: 0.5rem;
+            font-size: 0.98rem;
+            line-height: 1.3;
             color: var(--muted);
-            text-transform: uppercase;
-            letter-spacing: 0.14em;
         }
+        .stat-label::first-letter { text-transform: uppercase; }
         .stat-card.clickable { cursor: pointer; transition: background 120ms ease; }
         .stat-card.clickable:hover { background: var(--accent-tint); }
         .stat-card.clickable:hover .stat-value { color: var(--accent); }
+
+        /* Conference page: the three headline figures, then a quieter row */
+        .stats-grid.stats-grid--lead {
+            margin-bottom: 0;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+        .stats-grid--lead .stat-value { font-size: 3.4rem; }
+        .stats-grid--lead .stat-card { padding: 1.6rem 1.4rem 1.35rem; }
+        .stats-grid.stats-grid--minor {
+            margin-top: 0;
+            border-top: 0;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+        @media (max-width: 640px) {
+            .stats-grid--lead .stat-card { padding: 1.1rem 0.9rem 1rem; }
+            .stats-grid--lead .stat-value { font-size: 2.4rem; }
+            .stats-grid.stats-grid--minor { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+        .stats-grid--minor .stat-card { padding: 0.9rem 1.25rem 0.85rem; }
+        .stats-grid--minor .stat-value { font-size: 1.7rem; }
+        .stats-grid--minor .stat-label { font-size: 0.9rem; margin-top: 0.3rem; }
+        .stats-aside {
+            margin: -1.75rem 0 2.5rem;
+            font-size: 0.98rem;
+            color: var(--muted);
+        }
 
         /* Business-meeting (announced figures) block */
         .business-meeting { margin: 2.5rem 0; }
@@ -1116,7 +1090,7 @@
             <li><a href="/publications">publications</a></li>
             <li><a href="/about">about</a></li>
             <li><a href="/api/v1/swagger-ui/">api</a></li>
-            <li><button type="button" class="theme-toggle" id="theme-toggle">◐ auto</button></li>
+            <li><button type="button" class="theme-toggle" id="theme-toggle">○ Light theme</button></li>
         </ul>
     </nav>
 
@@ -1132,21 +1106,26 @@
     <script>
         /**
          * Theme toggle: cycles auto → light → dark. "auto" removes data-theme so
-         * the prefers-color-scheme rules apply. Fires `quantumdb:themechange`
+         * the OS preference applies (color-scheme: light dark). Fires `quantumdb:themechange`
          * (also on OS changes) so canvas charts can re-read the CSS tokens.
          */
         (function () {
             const KEY = 'quantumdb-theme';
             const ORDER = ['auto', 'light', 'dark'];
             const GLYPH = { auto: '◐', light: '○', dark: '●' };
+            // The button names what clicking does; the current mode is in the tooltip.
+            const ACTION = { auto: 'Match system', light: 'Light theme', dark: 'Dark theme' };
+            const STATE = { auto: 'following your system setting', light: 'light', dark: 'dark' };
             const btn = document.getElementById('theme-toggle');
             const root = document.documentElement;
             const current = () => root.dataset.theme || 'auto';
+            const next = mode => ORDER[(ORDER.indexOf(mode) + 1) % ORDER.length];
 
             function paint(mode) {
-                btn.textContent = `${GLYPH[mode]} ${mode}`;
-                btn.setAttribute('aria-label', `Colour theme: ${mode} (click to change)`);
-                btn.title = mode === 'auto' ? 'Theme follows your system setting' : `Theme pinned to ${mode}`;
+                const to = next(mode);
+                btn.textContent = `${GLYPH[to]} ${ACTION[to]}`;
+                btn.title = `Theme is ${STATE[mode]}. Click to switch to ${ACTION[to].toLowerCase()}.`;
+                btn.setAttribute('aria-label', btn.title);
             }
             function apply(mode) {
                 if (mode === 'auto') delete root.dataset.theme; else root.dataset.theme = mode;
@@ -1158,7 +1137,7 @@
             }
 
             paint(current());
-            btn.addEventListener('click', () => apply(ORDER[(ORDER.indexOf(current()) + 1) % ORDER.length]));
+            btn.addEventListener('click', () => apply(next(current())));
             matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
                 if (current() === 'auto') document.dispatchEvent(new CustomEvent('quantumdb:themechange'));
             });
