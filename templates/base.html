@@ -217,7 +217,7 @@
         nav .navlinks a:hover { color: var(--accent); border-bottom-color: var(--accent); }
         nav .navlinks a.active { color: var(--accent); border-bottom-color: var(--accent); }
 
-        /* Theme toggle (auto → light → dark); reset Pico's button chrome */
+        /* Theme toggle (light ⇄ dark); reset Pico's button chrome */
         .theme-toggle {
             all: unset;
             cursor: pointer;
@@ -1097,7 +1097,7 @@
             <li><a href="/publications">publications</a></li>
             <li><a href="/about">about</a></li>
             <li><a href="/api/v1/swagger-ui/">api</a></li>
-            <li><button type="button" class="theme-toggle" id="theme-toggle">○ Light theme</button></li>
+            <li><button type="button" class="theme-toggle" id="theme-toggle">● Dark theme</button></li>
         </ul>
     </nav>
 
@@ -1112,41 +1112,45 @@
 
     <script>
         /**
-         * Theme toggle: cycles auto → light → dark. "auto" removes data-theme so
-         * the OS preference applies (color-scheme: light dark). Fires `quantumdb:themechange`
-         * (also on OS changes) so canvas charts can re-read the CSS tokens.
+         * Theme toggle: a two-way switch on the theme actually shown, so every
+         * click visibly flips the page. With no pin (data-theme absent) the OS
+         * preference applies (color-scheme: light dark). Choosing the theme the
+         * OS already prefers clears the pin, so the site follows the system again.
+         * Fires `quantumdb:themechange` (also on OS changes) so canvas charts can
+         * re-read the CSS tokens.
          */
         (function () {
             const KEY = 'quantumdb-theme';
-            const ORDER = ['auto', 'light', 'dark'];
-            const GLYPH = { auto: '◐', light: '○', dark: '●' };
-            // The button names what clicking does; the current mode is in the tooltip.
-            const ACTION = { auto: 'Match system', light: 'Light theme', dark: 'Dark theme' };
-            const STATE = { auto: 'following your system setting', light: 'light', dark: 'dark' };
             const btn = document.getElementById('theme-toggle');
             const root = document.documentElement;
-            const current = () => root.dataset.theme || 'auto';
-            const next = mode => ORDER[(ORDER.indexOf(mode) + 1) % ORDER.length];
+            const osDark = matchMedia('(prefers-color-scheme: dark)');
+            const shown = () => root.dataset.theme || (osDark.matches ? 'dark' : 'light');
 
-            function paint(mode) {
-                const to = next(mode);
-                btn.textContent = `${GLYPH[to]} ${ACTION[to]}`;
-                btn.title = `Theme is ${STATE[mode]}. Click to switch to ${ACTION[to].toLowerCase()}.`;
+            // The button names what clicking does: the opposite of what is shown.
+            function paint() {
+                const to = shown() === 'dark' ? 'light' : 'dark';
+                btn.textContent = to === 'dark' ? '● Dark theme' : '○ Light theme';
+                btn.title = `Switch to the ${to} theme`;
                 btn.setAttribute('aria-label', btn.title);
             }
-            function apply(mode) {
-                if (mode === 'auto') delete root.dataset.theme; else root.dataset.theme = mode;
+            function apply(theme) {
+                const os = osDark.matches ? 'dark' : 'light';
+                const pin = theme === os ? null : theme;
+                if (pin) root.dataset.theme = pin; else delete root.dataset.theme;
                 try {
-                    if (mode === 'auto') localStorage.removeItem(KEY); else localStorage.setItem(KEY, mode);
+                    if (pin) localStorage.setItem(KEY, pin); else localStorage.removeItem(KEY);
                 } catch (e) {}
-                paint(mode);
+                paint();
                 document.dispatchEvent(new CustomEvent('quantumdb:themechange'));
             }
 
-            paint(current());
-            btn.addEventListener('click', () => apply(next(current())));
-            matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-                if (current() === 'auto') document.dispatchEvent(new CustomEvent('quantumdb:themechange'));
+            paint();
+            btn.addEventListener('click', () => apply(shown() === 'dark' ? 'light' : 'dark'));
+            osDark.addEventListener('change', () => {
+                if (!root.dataset.theme) {
+                    paint();
+                    document.dispatchEvent(new CustomEvent('quantumdb:themechange'));
+                }
             });
         })();
 
