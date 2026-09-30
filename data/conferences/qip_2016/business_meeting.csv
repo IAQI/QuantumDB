@@ -1,6 +1,7 @@
 venue,year,field,value,source_type,source_url,source_date,notes
-QIP,2016,talk_submissions,184,spreadsheet,,2026-09-28,"QIP statistics compilation shared with QuantumDB (2026); same figure in the QIP 2025 PC report chart"
-QIP,2016,talks_accepted,46,spreadsheet,,2026-09-28,"46 accepted submissions = 42 talks (4 merges); QIP statistics compilation shared with QuantumDB (2026)"
-QIP,2016,acceptance_rate,25.0,spreadsheet,,2026-09-28,"derived 46/184; QIP statistics compilation shared with QuantumDB (2026)"
-QIP,2016,posters_accepted,155,spreadsheet,,2026-09-28,"QIP statistics compilation shared with QuantumDB (2026)"
-QIP,2016,registered_participants,242,spreadsheet,,2026-09-28,"QIP statistics compilation shared with QuantumDB (2026)"
+QIP,2016,registered_participants,242,spreadsheet,,2026-09-28,QIP statistics compilation shared with QuantumDB (2026)
+QIP,2016,talk_submissions,184,slides,/static/business_meetings/qip_2016/QIP2016_PC_Report.pdf,2016,talk or talk-or-poster submissions
+QIP,2016,talks_accepted,46,slides,/static/business_meetings/qip_2016/QIP2016_PC_Report.pdf,2016,"4 mergers, so 42 talks; 6 plenary; plus 3 SC-invited talks"
+QIP,2016,acceptance_rate,25,slides,/static/business_meetings/qip_2016/QIP2016_PC_Report.pdf,2016,46/184
+QIP,2016,posters_accepted,155,slides,/static/business_meetings/qip_2016/QIP2016_PC_Report.pdf,2016,"101 from rejected talk submissions + 54 second-round poster submissions, all accepted"
+QIP,2016,slide:PC chair report,/static/business_meetings/qip_2016/QIP2016_PC_Report.pdf,slides,,2016,

@@ -1,7 +1,10 @@
 venue,year,field,value,source_type,source_url,source_date,notes
-QIP,2020,talks_accepted,78,spreadsheet,,2026-09-28,"78 accepted submissions = 73 talks (5 merges); QIP statistics compilation shared with QuantumDB (2026)"
-QIP,2020,acceptance_rate,27.6,spreadsheet,,2026-09-28,"derived 78/283; QIP statistics compilation shared with QuantumDB (2026)"
-QIP,2020,posters_submitted,350,spreadsheet,,2026-09-28,"QIP statistics compilation shared with QuantumDB (2026)"
-QIP,2020,posters_accepted,350,spreadsheet,,2026-09-28,"QIP statistics compilation shared with QuantumDB (2026)"
-QIP,2020,registered_participants,700,spreadsheet,,2026-09-28,"314 students; QIP statistics compilation shared with QuantumDB (2026); QIP 2022 LOC report: ""~700 (60% China)"""
-QIP,2020,talk_submissions,283,spreadsheet,,2026-09-28,"QIP statistics compilation shared with QuantumDB (2026); same figure in the QIP 2025 PC report chart; the QIP 2022 PC report instead lists 296 for 2020 (and 349 for 2019)"
+QIP,2020,posters_submitted,350,spreadsheet,,2026-09-28,QIP statistics compilation shared with QuantumDB (2026)
+QIP,2020,posters_accepted,350,spreadsheet,,2026-09-28,QIP statistics compilation shared with QuantumDB (2026)
+QIP,2020,talk_submissions,283,slides,/static/business_meetings/qip_2020/QIP2020_PC_Report.pdf,2020,"talk/talk-or-poster (cf. 349 at QIP 2019, 296 at QIP 2018); the QIP 2021 and 2022 PC reports misquote 2020 as 293 and 296"
+QIP,2020,talks_accepted,78,slides,/static/business_meetings/qip_2020/QIP2020_PC_Report.pdf,2020,5 merged in pairs; statistics compilation: 73 talks
+QIP,2020,acceptance_rate,27.6,slides,/static/business_meetings/qip_2020/QIP2020_PC_Report.pdf,2020,derived 78/283
+QIP,2020,registered_participants,700,slides,/static/business_meetings/qip_2020/QIP2020_LOC_Report.pdf,2020-01-08,"approximate: ~700, ~60% from mainland China; ~300 students, ~100 industry"
+QIP,2020,meeting_date,2020-01-08,slides,/static/business_meetings/qip_2020/QIP2020_LOC_Report.pdf,2020-01-08,
+QIP,2020,slide:PC chair report,/static/business_meetings/qip_2020/QIP2020_PC_Report.pdf,slides,,2020,
+QIP,2020,slide:local organizers report,/static/business_meetings/qip_2020/QIP2020_LOC_Report.pdf,slides,,2020-01-08,

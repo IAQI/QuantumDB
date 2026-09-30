@@ -1,7 +1,8 @@
 venue,year,field,value,source_type,source_url,source_date,notes
-QIP,2015,talk_submissions,197,spreadsheet,,2026-09-28,"QIP statistics compilation shared with QuantumDB (2026); same figure in the QIP 2025 PC report chart"
-QIP,2015,talks_accepted,39,spreadsheet,,2026-09-28,"39 accepted submissions = 37 talks (2 merges); QIP statistics compilation shared with QuantumDB (2026)"
-QIP,2015,acceptance_rate,19.8,spreadsheet,,2026-09-28,"derived 39/197; QIP statistics compilation shared with QuantumDB (2026)"
-QIP,2015,posters_submitted,194,spreadsheet,,2026-09-28,"QIP statistics compilation shared with QuantumDB (2026)"
-QIP,2015,posters_accepted,192,spreadsheet,,2026-09-28,"QIP statistics compilation shared with QuantumDB (2026)"
-QIP,2015,registered_participants,276,spreadsheet,,2026-09-28,"QIP statistics compilation shared with QuantumDB (2026)"
+QIP,2015,posters_submitted,194,spreadsheet,,2026-09-28,QIP statistics compilation shared with QuantumDB (2026)
+QIP,2015,registered_participants,276,spreadsheet,,2026-09-28,QIP statistics compilation shared with QuantumDB (2026)
+QIP,2015,talk_submissions,197,slides,/static/business_meetings/qip_2015/QIP2015_PC_Report.pdf,2015,talk or talk-or-poster submissions (1 withdrawn)
+QIP,2015,talks_accepted,39,slides,/static/business_meetings/qip_2015/QIP2015_PC_Report.pdf,2015,39 accepts incl. 2 mergers (37 talks); 6 recommended for plenary; plus 3 SC-invited talks
+QIP,2015,acceptance_rate,20,slides,/static/business_meetings/qip_2015/QIP2015_PC_Report.pdf,2015,as stated; 39/197 = 19.8%
+QIP,2015,posters_accepted,192,slides,/static/business_meetings/qip_2015/QIP2015_PC_Report.pdf,2015,102 in the first round (5 poster-only + rejected talk-or-poster) + 90 of 92 second-round poster submissions
+QIP,2015,slide:PC chair report,/static/business_meetings/qip_2015/QIP2015_PC_Report.pdf,slides,,2015,

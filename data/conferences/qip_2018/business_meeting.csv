@@ -1,6 +1,8 @@
 venue,year,field,value,source_type,source_url,source_date,notes
-QIP,2018,talk_submissions,296,spreadsheet,,2026-09-28,"QIP statistics compilation shared with QuantumDB (2026); same figure in the QIP 2025 PC report chart"
-QIP,2018,talks_accepted,61,spreadsheet,,2026-09-28,"61 accepted submissions = 57 talks (4 merges); QIP statistics compilation shared with QuantumDB (2026)"
-QIP,2018,acceptance_rate,20.6,spreadsheet,,2026-09-28,"derived 61/296; QIP statistics compilation shared with QuantumDB (2026)"
-QIP,2018,posters_accepted,261,spreadsheet,,2026-09-28,"QIP statistics compilation shared with QuantumDB (2026)"
 QIP,2018,registered_participants,550,spreadsheet,,2026-09-28,"approximate (""approx 550""); QIP statistics compilation shared with QuantumDB (2026)"
+QIP,2018,talk_submissions,296,slides,/static/business_meetings/qip_2018/QIP2018_PC_Report.pdf,2018,incl. talk-or-poster
+QIP,2018,talks_accepted,61,slides,/static/business_meetings/qip_2018/QIP2018_PC_Report.pdf,2018,"61 accepted for 57 talks (4 merges); incl. plenary, excl. invited talks and tutorials"
+QIP,2018,acceptance_rate,20.6,slides,/static/business_meetings/qip_2018/QIP2018_PC_Report.pdf,2018,
+QIP,2018,posters_submitted,301,slides,/static/business_meetings/qip_2018/QIP2018_PC_Report.pdf,2018,133 poster-only + 168 from talk-or-poster submissions
+QIP,2018,posters_accepted,300,slides,/static/business_meetings/qip_2018/QIP2018_PC_Report.pdf,2018,1 rejected; statistics compilation: 261 accepted
+QIP,2018,slide:PC chair report,/static/business_meetings/qip_2018/QIP2018_PC_Report.pdf,slides,,2018,

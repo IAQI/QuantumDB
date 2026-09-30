@@ -1,6 +1,8 @@
 venue,year,field,value,source_type,source_url,source_date,notes
-QIP,2010,talk_submissions,168,conference_website,2010/index.html,,"plus ~80 poster-only submissions"
+QIP,2010,talk_submissions,168,conference_website,2010/index.html,,plus ~80 poster-only submissions
 QIP,2010,talks_accepted,34,conference_website,2010/index.html,,
-QIP,2010,acceptance_rate,20,conference_website,2010/index.html,,"roughly 20% (34 talks)"
+QIP,2010,acceptance_rate,20,conference_website,2010/index.html,,roughly 20% (34 talks)
 QIP,2010,posters_accepted,140,conference_website,2010/index.html,,
 QIP,2010,posters_submitted,80,conference_website,2010/index.html,,"~80 ""poster only"" submissions (approximate)"
+QIP,2010,registered_participants,308,slides,/static/business_meetings/qip_2010/QIP2010_LOC_Report.pdf,2010,tutorial: 120-140 participants
+QIP,2010,slide:local organizers report,/static/business_meetings/qip_2010/QIP2010_LOC_Report.pdf,slides,,2010,

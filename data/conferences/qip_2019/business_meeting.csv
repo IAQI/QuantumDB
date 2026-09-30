@@ -1,7 +1,9 @@
 venue,year,field,value,source_type,source_url,source_date,notes
-QIP,2019,talk_submissions,349,spreadsheet,,2026-09-28,"QIP statistics compilation shared with QuantumDB (2026); same figure in the QIP 2025 PC report chart"
-QIP,2019,talks_accepted,63,spreadsheet,,2026-09-28,"63 accepted submissions = 60 talks (3 merges); QIP statistics compilation shared with QuantumDB (2026)"
-QIP,2019,acceptance_rate,18.1,spreadsheet,,2026-09-28,"derived 63/349; QIP statistics compilation shared with QuantumDB (2026)"
-QIP,2019,posters_submitted,325,spreadsheet,,2026-09-28,"QIP statistics compilation shared with QuantumDB (2026)"
-QIP,2019,posters_accepted,325,spreadsheet,,2026-09-28,"QIP statistics compilation shared with QuantumDB (2026); program lists 310 (158 Monday + 152 Tuesday)"
-QIP,2019,registered_participants,437,spreadsheet,,2026-09-28,"QIP statistics compilation shared with QuantumDB (2026)"
+QIP,2019,posters_submitted,325,spreadsheet,,2026-09-28,QIP statistics compilation shared with QuantumDB (2026)
+QIP,2019,talk_submissions,349,slides,/static/business_meetings/qip_2019/QIP2019_PC_Report.pdf,2019,talk-only or talk-or-poster
+QIP,2019,talks_accepted,63,slides,/static/business_meetings/qip_2019/QIP2019_PC_Report.pdf,2019,6 merged in pairs -> 60 talks; 5 upgraded to plenary
+QIP,2019,acceptance_rate,18,slides,/static/business_meetings/qip_2019/QIP2019_PC_Report.pdf,2019,as stated; 63/349 = 18.1%
+QIP,2019,posters_accepted,325,slides,/static/business_meetings/qip_2019/QIP2019_PC_Report.pdf,2019,"""ca 325 posters""; program lists 310 (158 Monday + 152 Tuesday)"
+QIP,2019,registered_participants,490,slides,/static/business_meetings/qip_2019/QIP2019_LOC_Report.pdf,2019,"206 students, 67 faculty, ~100 postdocs, ~100 industry/other; tutorials 200-250; statistics compilation: 437"
+QIP,2019,slide:PC chair report,/static/business_meetings/qip_2019/QIP2019_PC_Report.pdf,slides,,2019,
+QIP,2019,slide:local organizers report,/static/business_meetings/qip_2019/QIP2019_LOC_Report.pdf,slides,,2019,
