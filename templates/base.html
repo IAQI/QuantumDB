@@ -472,18 +472,21 @@
         }
         .business-meeting .stats-grid { margin-bottom: 0; }
 
-        /* Footnote mark in a stat tile's corner */
+        /* Footnote mark: a superscript letter on the figure, top-aligned with
+           its numerals. Padding enlarges the click target; the negative margin
+           keeps it from pushing the mark away from the number. */
         .business-meeting .bm-mark {
-            position: absolute;
-            top: 0.7rem;
-            right: 0.8rem;
+            display: inline-block;
+            vertical-align: top;
+            margin: -0.1em -0.25em 0 0;
+            padding: 0.1em 0.25em 0.1em 0.12em;
             font-family: "Fraunces", serif;
             font-style: italic;
-            font-size: 1rem;
+            font-size: 0.4em;
             line-height: 1;
+            letter-spacing: 0;
             color: var(--accent);
             text-decoration: none;
-            padding: 0.15rem 0.3rem;
         }
         .business-meeting .bm-mark:hover { text-decoration: underline; }
 
@@ -571,14 +574,16 @@
             line-height: 1.6;
             color: var(--ink-soft);
         }
-        .business-meeting .bm-notes li { position: relative; list-style: none; margin: 0 0 0.45rem; }
-        /* Hanging letter mark, matching the tile marks */
+        .business-meeting .bm-notes li { list-style: none; margin: 0 0 0.45rem; }
+        /* Hanging letter mark: inline at the text's own size so it shares the
+           baseline, pulled into the left margin by its own width. */
         .business-meeting .bm-note__mark {
-            position: absolute;
-            left: -1.4rem;
+            display: inline-block;
+            width: 1.4rem;
+            margin-left: -1.4rem;
             font-family: "Fraunces", serif;
             font-style: italic;
-            font-size: 1rem;
+            font-size: 1em;
             color: var(--accent);
         }
         .business-meeting .bm-notes li:target { background: var(--accent-tint); }
