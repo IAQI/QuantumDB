@@ -255,11 +255,21 @@ function renderCharts(rows) {
         (byVenue[r.venue] = byVenue[r.venue] || {})[r.year] = r;
         yearSet.add(r.year);
     }
-    const years = Array.from(yearSet).sort((a, b) => a - b);
+    const allYears = Array.from(yearSet).sort((a, b) => a - b);
+
+    // Each chart's axis starts at the first year any venue has a value for its
+    // fields (0 counts as missing: a conference with no talks loaded reports 0).
+    // Computed over all venues, not just the toggled ones, so the axis doesn't
+    // jump as venues toggle.
+    const yearsWithData = (...fields) => {
+        const has = y => Object.values(byVenue).some(m =>
+            m[y] && fields.some(f => m[y][f] != null && m[y][f] !== 0));
+        const start = allYears.findIndex(has);
+        return start < 0 ? [] : allYears.slice(start);
+    };
 
     // Only draw venues that both have data and are toggled on, so the figures
-    // track the active (coloured) buttons. Years axis stays full so it doesn't
-    // jump as venues toggle.
+    // track the active (coloured) buttons.
     const activeVenues = Array.from(document.querySelectorAll('.venue-toggle.active'))
         .map(b => b.dataset.venue);
     const present = VENUE_ORDER.filter(v => byVenue[v] && activeVenues.includes(v));
@@ -278,6 +288,7 @@ function renderCharts(rows) {
 
     // 1. Accepted contributions — stacked bar per venue: talks (solid) at the
     //    base, posters (faint) above, so posters are counted apart from talks.
+    let years = yearsWithData('talk_count', 'poster_count');
     const contribDatasets = [];
     for (const v of present) {
         contribDatasets.push({
@@ -305,6 +316,7 @@ function renderCharts(rows) {
     // 2. Submissions vs accepted — one stacked bar per venue: accepted (solid)
     //    at the base, rejected (faint) above, so the full height is submissions
     //    and the solid share reads as the acceptance fraction.
+    years = yearsWithData('submission_count', 'acceptance_count');
     const subDatasets = [];
     for (const v of present) {
         const acc = seriesFor(byVenue, years, v, 'acceptance_count');
@@ -333,6 +345,7 @@ function renderCharts(rows) {
     }));
 
     // 3. Acceptance rate — lines, fixed 0–100%, bridge null years.
+    years = yearsWithData('acceptance_rate');
     charts.push(new Chart(document.getElementById('chart-acceptance'), {
         type: 'line',
         data: { labels: years, datasets: lineSeries(byVenue, years, present, 'acceptance_rate') },
@@ -340,6 +353,7 @@ function renderCharts(rows) {
     }));
 
     // 4. Participants per year — lines (sparse).
+    years = yearsWithData('registered_participants');
     charts.push(new Chart(document.getElementById('chart-participants'), {
         type: 'line',
         data: { labels: years, datasets: lineSeries(byVenue, years, present, 'registered_participants') },
