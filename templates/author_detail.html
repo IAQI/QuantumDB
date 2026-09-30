@@ -12,18 +12,18 @@
         <div class="masthead-meta">
             <span class="venue-badge">researcher</span>
             <h1 class="display"><span class="venue-word">{{ author.full_name }}</span></h1>
-            <p class="mono masthead-strip">
-                {%- if !author.affiliation.is_empty() %}{{ author.affiliation }}{% endif -%}
-                {%- if !author.first_year.is_empty() %}
-                    {%- if !author.affiliation.is_empty() %}&nbsp;·&nbsp;{% endif -%}
-                    active {{ author.first_year }}–{{ author.last_year }}
+            <p class="masthead-strip">
+                {%- if !author.affiliation.is_empty() %}{{ author.affiliation }}.{% endif -%}
+                {%- if !author.first_year.is_empty() -%}
+                    {%- if !author.affiliation.is_empty() %} {% endif -%}
+                    {%- if author.first_year == author.last_year %}Active in {{ author.first_year }}{% else %}Active {{ author.first_year }}–{{ author.last_year }}{% endif -%}
+                    {%- if !author.venues.is_empty() %} at {{ author.venues }}{% endif %}.
                 {%- endif -%}
-                {%- if !author.venues.is_empty() %}&nbsp;·&nbsp;{{ author.venues }}{% endif -%}
             </p>
             <p class="masthead-links">
-                {% if !author.orcid.is_empty() %}<a href="https://orcid.org/{{ author.orcid }}" target="_blank" rel="noopener">orcid ↗</a>{% endif %}
-                {% if !author.google_scholar_id.is_empty() %}<a href="https://scholar.google.com/citations?user={{ author.google_scholar_id }}" target="_blank" rel="noopener">scholar ↗</a>{% endif %}
-                {% if !author.homepage_url.is_empty() %}<a href="{{ author.homepage_url }}" target="_blank" rel="noopener">homepage ↗</a>{% endif %}
+                {% if !author.orcid.is_empty() %}<a href="https://orcid.org/{{ author.orcid }}" target="_blank" rel="noopener">ORCID</a>{% endif %}
+                {% if !author.google_scholar_id.is_empty() %}<a href="https://scholar.google.com/citations?user={{ author.google_scholar_id }}" target="_blank" rel="noopener">Google Scholar</a>{% endif %}
+                {% if !author.homepage_url.is_empty() %}<a href="{{ author.homepage_url }}" target="_blank" rel="noopener">Homepage</a>{% endif %}
             </p>
         </div>
     </header>
@@ -145,7 +145,7 @@
                             <div class="cell-mono arxiv-extra">
                             {% for arxiv_id in pub.arxiv_ids %}
                                 {% if loop.index0 > 0 %}
-                                    <a href="https://arxiv.org/abs/{{ arxiv_id }}" target="_blank" rel="noopener noreferrer">arXiv:{{ arxiv_id }} ↗</a>{% if !loop.last %}, {% endif %}
+                                    <a href="https://arxiv.org/abs/{{ arxiv_id }}" target="_blank" rel="noopener noreferrer">arXiv:{{ arxiv_id }}</a>{% if !loop.last %}, {% endif %}
                                 {% endif %}
                             {% endfor %}
                             </div>
@@ -156,7 +156,7 @@
                         {% if !pub.abstract_text.is_empty() || !pub.video_url.is_empty() %}
                         <div class="talk-meta">
                             {% if !pub.abstract_text.is_empty() %}<span class="abstract-toggle" tabindex="0" aria-expanded="false">abstract</span>{% endif %}
-                            {% if !pub.video_url.is_empty() %}<a href="{{ pub.video_url }}" target="_blank" rel="noopener">video ↗</a>{% endif %}
+                            {% if !pub.video_url.is_empty() %}<a href="{{ pub.video_url }}" target="_blank" rel="noopener">video</a>{% endif %}
                         </div>
                         {% endif %}
                     </td>
@@ -202,7 +202,7 @@
                             <div class="cell-mono arxiv-extra">
                             {% for arxiv_id in pub.arxiv_ids %}
                                 {% if loop.index0 > 0 %}
-                                    <a href="https://arxiv.org/abs/{{ arxiv_id }}" target="_blank" rel="noopener noreferrer">arXiv:{{ arxiv_id }} ↗</a>{% if !loop.last %}, {% endif %}
+                                    <a href="https://arxiv.org/abs/{{ arxiv_id }}" target="_blank" rel="noopener noreferrer">arXiv:{{ arxiv_id }}</a>{% if !loop.last %}, {% endif %}
                                 {% endif %}
                             {% endfor %}
                             </div>
@@ -213,7 +213,7 @@
                         {% if !pub.abstract_text.is_empty() || !pub.video_url.is_empty() %}
                         <div class="talk-meta">
                             {% if !pub.abstract_text.is_empty() %}<span class="abstract-toggle" tabindex="0" aria-expanded="false">abstract</span>{% endif %}
-                            {% if !pub.video_url.is_empty() %}<a href="{{ pub.video_url }}" target="_blank" rel="noopener">video ↗</a>{% endif %}
+                            {% if !pub.video_url.is_empty() %}<a href="{{ pub.video_url }}" target="_blank" rel="noopener">video</a>{% endif %}
                         </div>
                         {% endif %}
                     </td>

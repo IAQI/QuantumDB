@@ -61,8 +61,8 @@ struct ConferenceDetail {
     venue: String,
     year: i32,
     location: String,
-    start_date: String,
-    end_date: String,
+    /// Readable dates ("10–14 August 2020"), empty if unknown.
+    date_range: String,
     website_url: String,
     archive_url: String,
     proceedings_url: String,
@@ -82,27 +82,143 @@ struct ConferenceDetail {
     business_meeting: Option<BusinessMeetingView>,
 }
 
-/// Pre-formatted business-meeting figures for display. Each field is an empty
-/// string when that figure wasn't announced/recorded; the template renders a
-/// line only when its value is non-empty.
+/// Pre-formatted business-meeting figures for display. `stats` holds only the
+/// figures that were announced/recorded, in tile order; `notes` are the parsed
+/// `field: text` lines of the notes column, numbered by the tile they qualify.
 struct BusinessMeetingView {
+    /// Human-readable date ("13 August 2020"), empty if unknown.
     meeting_date: String,
-    registered_participants: String,
-    onsite_participants: String,
-    countries_represented: String,
-    talk_submissions: String,
-    talks_accepted: String,
-    posters_submitted: String,
-    posters_accepted: String,
-    acceptance_rate: String,
-    notes: String,
+    stats: Vec<BmStat>,
+    notes: Vec<BmNote>,
     /// Links to the business-meeting slide decks (PC report, local report, …).
     slides: Vec<SlideLink>,
 }
 
-struct SlideLink {
+struct BmStat {
+    value: String,
     label: String,
+    /// Footnote number, 0 when the figure has no note.
+    note_no: usize,
+    /// Footnote mark shown on the tile ("a", "b", …), empty when no note.
+    mark: String,
+}
+
+struct BmNote {
+    /// Footnote number, 0 for notes on fields without a stat tile.
+    no: usize,
+    /// Footnote mark ("a", "b", …), empty for unnumbered notes.
+    mark: String,
+    label: String,
+    text: String,
+}
+
+/// Footnote mark for note `n` (1-based): letters, so marks next to the figures
+/// can't be misread as digits. a–z, then aa, ab, … (never needed in practice).
+fn note_mark(n: usize) -> String {
+    if n == 0 {
+        return String::new();
+    }
+    let mut n = n;
+    let mut out = Vec::new();
+    while n > 0 {
+        n -= 1;
+        out.push((b'a' + (n % 26) as u8) as char);
+        n /= 26;
+    }
+    out.iter().rev().collect()
+}
+
+struct SlideLink {
+    title: String,
+    subtitle: String,
+    /// Where the deck lives: a hostname, or "IAQI archive" for decks we host.
+    host: String,
     url: String,
+}
+
+/// "10–14 August 2020", "30 August – 3 September 2020", "28 December 2020 –
+/// 2 January 2021", or a single day; empty when the start date is unknown.
+fn format_date_range(start: Option<chrono::NaiveDate>, end: Option<chrono::NaiveDate>) -> String {
+    use chrono::Datelike;
+    let Some(s) = start else { return String::new() };
+    match end {
+        Some(e) if e > s && e.year() == s.year() && e.month() == s.month() => {
+            format!("{}–{}", s.format("%-d"), e.format("%-d %B %Y"))
+        }
+        Some(e) if e > s && e.year() == s.year() => {
+            format!("{} – {}", s.format("%-d %B"), e.format("%-d %B %Y"))
+        }
+        Some(e) if e > s => format!("{} – {}", s.format("%-d %B %Y"), e.format("%-d %B %Y")),
+        _ => s.format("%-d %B %Y").to_string(),
+    }
+}
+
+/// Display label for a business-meeting field key (as used in the notes column).
+fn bm_field_label(key: &str) -> String {
+    match key {
+        "registered_participants" => "registered".into(),
+        "onsite_participants" => "on-site".into(),
+        "countries_represented" => "countries".into(),
+        "talk_submissions" => "talk submissions".into(),
+        "talks_accepted" => "talks accepted".into(),
+        "acceptance_rate" => "acceptance rate".into(),
+        "posters_submitted" => "poster submissions".into(),
+        "posters_accepted" => "posters accepted".into(),
+        "meeting_date" => "meeting".into(),
+        other => other.replace('_', " "),
+    }
+}
+
+/// Split the notes column into `(field_key, text)` pairs, one per non-empty
+/// line. Lines without a `key: ` prefix keep an empty key so nothing is lost.
+fn parse_bm_notes(notes: &str) -> Vec<(String, String)> {
+    notes
+        .lines()
+        .map(str::trim)
+        .filter(|l| !l.is_empty())
+        .map(|line| match line.split_once(": ") {
+            Some((key, text))
+                if !key.is_empty() && key.chars().all(|c| c.is_ascii_lowercase() || c == '_') =>
+            {
+                (key.to_string(), text.trim().to_string())
+            }
+            _ => (String::new(), line.to_string()),
+        })
+        .collect()
+}
+
+/// Uppercase the first character (labels and notes are stored lower-case).
+fn capitalize_first(s: &str) -> String {
+    let mut chars = s.chars();
+    match chars.next() {
+        Some(c) => c.to_uppercase().chain(chars).collect(),
+        None => String::new(),
+    }
+}
+
+/// "business meeting slides (SC, PC and LOC reports)" →
+/// ("Business meeting slides", "SC, PC and LOC reports").
+fn split_slide_label(label: &str) -> (String, String) {
+    let label = label.trim();
+    if let Some(open) = label.rfind(" (") {
+        if label.ends_with(')') && open > 0 {
+            return (
+                capitalize_first(&label[..open]),
+                label[open + 2..label.len() - 1].to_string(),
+            );
+        }
+    }
+    (capitalize_first(label), String::new())
+}
+
+/// Hostname of a deck URL, or "IAQI archive" for decks served from /static/.
+fn slide_host(url: &str) -> String {
+    if url.starts_with('/') {
+        return "IAQI archive".to_string();
+    }
+    let rest = url.split_once("://").map(|(_, r)| r).unwrap_or(url);
+    let host = rest.split(['/', '?', '#']).next().unwrap_or(rest);
+    host.strip_prefix("www.").unwrap_or(host).to_string()
 }
 
 struct PublicationItem {
@@ -528,21 +644,58 @@ pub async fn conference_detail(
                 {
                     return None;
                 }
-                let label = s.get("label").and_then(|l| l.as_str()).unwrap_or("slides").to_string();
-                Some(SlideLink { label, url })
+                let label = s.get("label").and_then(|l| l.as_str()).unwrap_or("slides");
+                let (title, subtitle) = split_slide_label(label);
+                let host = slide_host(&url);
+                Some(SlideLink { title, subtitle, host, url })
             })
             .collect();
+
+        // Announced figures in tile order; unrecorded ones get no tile.
+        let fields = [
+            ("registered_participants", int(bm.registered_participants)),
+            ("onsite_participants", int(bm.onsite_participants)),
+            ("countries_represented", int(bm.countries_represented)),
+            ("talk_submissions", int(bm.talk_submissions)),
+            ("talks_accepted", int(bm.talks_accepted)),
+            ("acceptance_rate", bm.acceptance_rate.map(|r| format!("{}%", r)).unwrap_or_default()),
+            ("posters_submitted", int(bm.posters_submitted)),
+            ("posters_accepted", int(bm.posters_accepted)),
+        ];
+
+        // Number the notes by the tile they qualify; the rest follow unnumbered.
+        let mut pending = parse_bm_notes(bm.notes.as_deref().unwrap_or_default());
+        let mut stats = Vec::new();
+        let mut notes = Vec::new();
+        for (key, value) in fields {
+            if value.is_empty() {
+                continue;
+            }
+            let label = bm_field_label(key);
+            let mut note_no = 0;
+            if let Some(i) = pending.iter().position(|(k, _)| k == key) {
+                let (_, text) = pending.remove(i);
+                note_no = notes.len() + 1;
+                notes.push(BmNote {
+                    no: note_no,
+                    mark: note_mark(note_no),
+                    label: capitalize_first(&label),
+                    text: capitalize_first(&text),
+                });
+            }
+            stats.push(BmStat { value, label, note_no, mark: note_mark(note_no) });
+        }
+        notes.extend(pending.into_iter().map(|(key, text)| BmNote {
+            no: 0,
+            mark: String::new(),
+            label: capitalize_first(&bm_field_label(&key)),
+            text: capitalize_first(&text),
+        }));
+
         BusinessMeetingView {
-            meeting_date: bm.meeting_date.map(|d| d.to_string()).unwrap_or_default(),
-            registered_participants: int(bm.registered_participants),
-            onsite_participants: int(bm.onsite_participants),
-            countries_represented: int(bm.countries_represented),
-            talk_submissions: int(bm.talk_submissions),
-            talks_accepted: int(bm.talks_accepted),
-            posters_submitted: int(bm.posters_submitted),
-            posters_accepted: int(bm.posters_accepted),
-            acceptance_rate: bm.acceptance_rate.map(|r| format!("{}%", r)).unwrap_or_default(),
-            notes: bm.notes.unwrap_or_default(),
+            meeting_date: bm.meeting_date.map(|d| d.format("%-d %B %Y").to_string()).unwrap_or_default(),
+            stats,
+            notes,
             slides,
         }
     });
@@ -553,8 +706,7 @@ pub async fn conference_detail(
             venue: conference.venue,
             year: conference.year,
             location,
-            start_date: conference.start_date.map(|d| d.to_string()).unwrap_or_else(|| String::from("-")),
-            end_date: conference.end_date.map(|d| d.to_string()).unwrap_or_else(|| String::from("-")),
+            date_range: format_date_range(conference.start_date, conference.end_date),
             website_url: conference.website_url.unwrap_or_default(),
             archive_url: conference.archive_url.unwrap_or_default(),
             proceedings_url: conference.proceedings_url.unwrap_or_default(),
@@ -582,5 +734,58 @@ pub async fn conference_detail(
             tracing::error!("Template error: {}", e);
             Err(StatusCode::INTERNAL_SERVER_ERROR)
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parses_keyed_note_lines() {
+        let notes = "talk_submissions: 95 in 2019\n\nregistered_participants: online; \">1000\"\nfree text: kept";
+        assert_eq!(
+            parse_bm_notes(notes),
+            vec![
+                ("talk_submissions".to_string(), "95 in 2019".to_string()),
+                ("registered_participants".to_string(), "online; \">1000\"".to_string()),
+                (String::new(), "free text: kept".to_string()),
+            ]
+        );
+    }
+
+    #[test]
+    fn splits_parenthetical_slide_labels() {
+        assert_eq!(
+            split_slide_label("business meeting slides (SC, PC and LOC reports)"),
+            ("Business meeting slides".to_string(), "SC, PC and LOC reports".to_string())
+        );
+        assert_eq!(split_slide_label("PC chair report"), ("PC chair report".to_string(), String::new()));
+    }
+
+    #[test]
+    fn letters_note_marks() {
+        assert_eq!(note_mark(0), "");
+        assert_eq!(note_mark(1), "a");
+        assert_eq!(note_mark(8), "h");
+        assert_eq!(note_mark(26), "z");
+        assert_eq!(note_mark(27), "aa");
+    }
+
+    #[test]
+    fn formats_date_ranges() {
+        let d = |y, m, day| chrono::NaiveDate::from_ymd_opt(y, m, day);
+        assert_eq!(format_date_range(d(2020, 8, 10), d(2020, 8, 14)), "10–14 August 2020");
+        assert_eq!(format_date_range(d(2020, 8, 30), d(2020, 9, 3)), "30 August – 3 September 2020");
+        assert_eq!(format_date_range(d(2020, 12, 28), d(2021, 1, 2)), "28 December 2020 – 2 January 2021");
+        assert_eq!(format_date_range(d(2020, 8, 10), None), "10 August 2020");
+        assert_eq!(format_date_range(None, d(2020, 8, 10)), "");
+    }
+
+    #[test]
+    fn names_slide_hosts() {
+        assert_eq!(slide_host("/static/business_meetings/qip_2010/x.pdf"), "IAQI archive");
+        assert_eq!(slide_host("https://qcrypt.iaqi.org/2020/slides/slides-pc.pdf"), "qcrypt.iaqi.org");
+        assert_eq!(slide_host("http://www.example.org?x=1"), "example.org");
     }
 }

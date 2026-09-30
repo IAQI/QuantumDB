@@ -23,7 +23,7 @@
                     <div class="cell-mono arxiv-extra">
                     {% for arxiv_id in pub.arxiv_ids %}
                         {% if loop.index0 > 0 %}
-                            <a href="https://arxiv.org/abs/{{ arxiv_id }}" target="_blank" rel="noopener noreferrer">arXiv:{{ arxiv_id }} ↗</a>{% if !loop.last %}, {% endif %}
+                            <a href="https://arxiv.org/abs/{{ arxiv_id }}" target="_blank" rel="noopener noreferrer">arXiv:{{ arxiv_id }}</a>{% if !loop.last %}, {% endif %}
                         {% endif %}
                     {% endfor %}
                     </div>
@@ -34,7 +34,7 @@
                 {% if !pub.abstract_text.is_empty() || !pub.video_url.is_empty() %}
                 <div class="talk-meta">
                     {% if !pub.abstract_text.is_empty() %}<span class="abstract-toggle" tabindex="0" aria-expanded="false">abstract</span>{% endif %}
-                    {% if !pub.video_url.is_empty() %}<a href="{{ pub.video_url }}" target="_blank" rel="noopener">video ↗</a>{% endif %}
+                    {% if !pub.video_url.is_empty() %}<a href="{{ pub.video_url }}" target="_blank" rel="noopener">video</a>{% endif %}
                 </div>
                 {% endif %}
             </td>

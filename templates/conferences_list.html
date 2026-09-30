@@ -189,18 +189,29 @@ function scales(yOpts) {
     };
 }
 
-function hexToRgba(hex, alpha) {
-    const n = parseInt(hex.slice(1), 16);
-    return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${alpha})`;
+// "rgb(r, g, b)" (as computed styles report colours) → "rgba(r, g, b, alpha)"
+function withAlpha(rgb, alpha) {
+    const [r, g, b] = rgb.match(/[\d.]+/g);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
+// Colour tokens are light-dark() pairs, which getPropertyValue returns
+// unresolved; a hidden probe element resolves them to the active scheme.
+const tokenProbe = document.createElement('span');
+tokenProbe.hidden = true;
+document.body.appendChild(tokenProbe);
+
 function readTheme() {
-    const cs = getComputedStyle(document.documentElement);
-    const tok = name => cs.getPropertyValue(name).trim();
+    const tok = name => {
+        tokenProbe.style.color = `var(${name})`;
+        return getComputedStyle(tokenProbe).color;
+    };
     PAPER = tok('--paper'); INK = tok('--ink'); INK_SOFT = tok('--ink-soft');
     MUTED = tok('--muted'); RULE_STRONG = tok('--rule-strong');
-    GRID = hexToRgba(RULE_STRONG, 0.30);
-    FAINT_ALPHA = parseFloat(tok('--chart-faint-alpha')) || 0.20;
+    GRID = withAlpha(RULE_STRONG, 0.30);
+    // Bar fills need a little more opacity to read on the dark paper.
+    const [pr, pg, pb] = PAPER.match(/[\d.]+/g).map(Number);
+    FAINT_ALPHA = (pr + pg + pb) / 3 < 128 ? 0.30 : 0.20;
     VENUE_COLOR = { QIP: tok('--venue-qip'), QCRYPT: tok('--venue-qcrypt'), TQC: tok('--venue-tqc') };
     Chart.defaults.color = MUTED;
     Object.assign(TOOLTIP, { backgroundColor: PAPER, titleColor: INK, bodyColor: INK_SOFT, borderColor: RULE_STRONG });
@@ -244,11 +255,21 @@ function renderCharts(rows) {
         (byVenue[r.venue] = byVenue[r.venue] || {})[r.year] = r;
         yearSet.add(r.year);
     }
-    const years = Array.from(yearSet).sort((a, b) => a - b);
+    const allYears = Array.from(yearSet).sort((a, b) => a - b);
+
+    // Each chart's axis starts at the first year any venue has a value for its
+    // fields (0 counts as missing: a conference with no talks loaded reports 0).
+    // Computed over all venues, not just the toggled ones, so the axis doesn't
+    // jump as venues toggle.
+    const yearsWithData = (...fields) => {
+        const has = y => Object.values(byVenue).some(m =>
+            m[y] && fields.some(f => m[y][f] != null && m[y][f] !== 0));
+        const start = allYears.findIndex(has);
+        return start < 0 ? [] : allYears.slice(start);
+    };
 
     // Only draw venues that both have data and are toggled on, so the figures
-    // track the active (coloured) buttons. Years axis stays full so it doesn't
-    // jump as venues toggle.
+    // track the active (coloured) buttons.
     const activeVenues = Array.from(document.querySelectorAll('.venue-toggle.active'))
         .map(b => b.dataset.venue);
     const present = VENUE_ORDER.filter(v => byVenue[v] && activeVenues.includes(v));
@@ -267,6 +288,7 @@ function renderCharts(rows) {
 
     // 1. Accepted contributions — stacked bar per venue: talks (solid) at the
     //    base, posters (faint) above, so posters are counted apart from talks.
+    let years = yearsWithData('talk_count', 'poster_count');
     const contribDatasets = [];
     for (const v of present) {
         contribDatasets.push({
@@ -278,7 +300,7 @@ function renderCharts(rows) {
         contribDatasets.push({
             label: `${VENUE_LABEL[v]} posters`,
             data: seriesFor(byVenue, years, v, 'poster_count'),
-            backgroundColor: hexToRgba(VENUE_COLOR[v], FAINT_ALPHA),
+            backgroundColor: withAlpha(VENUE_COLOR[v], FAINT_ALPHA),
             stack: v, categoryPercentage: 0.72, barPercentage: 0.92,
         });
     }
@@ -294,6 +316,7 @@ function renderCharts(rows) {
     // 2. Submissions vs accepted — one stacked bar per venue: accepted (solid)
     //    at the base, rejected (faint) above, so the full height is submissions
     //    and the solid share reads as the acceptance fraction.
+    years = yearsWithData('submission_count', 'acceptance_count');
     const subDatasets = [];
     for (const v of present) {
         const acc = seriesFor(byVenue, years, v, 'acceptance_count');
@@ -308,7 +331,7 @@ function renderCharts(rows) {
         subDatasets.push({
             label: `${VENUE_LABEL[v]} rejected`,
             data: rej,
-            backgroundColor: hexToRgba(VENUE_COLOR[v], FAINT_ALPHA),
+            backgroundColor: withAlpha(VENUE_COLOR[v], FAINT_ALPHA),
             stack: v, order: 1, categoryPercentage: 0.7, barPercentage: 0.94,
         });
     }
@@ -322,6 +345,7 @@ function renderCharts(rows) {
     }));
 
     // 3. Acceptance rate — lines, fixed 0–100%, bridge null years.
+    years = yearsWithData('acceptance_rate');
     charts.push(new Chart(document.getElementById('chart-acceptance'), {
         type: 'line',
         data: { labels: years, datasets: lineSeries(byVenue, years, present, 'acceptance_rate') },
@@ -329,6 +353,7 @@ function renderCharts(rows) {
     }));
 
     // 4. Participants per year — lines (sparse).
+    years = yearsWithData('registered_participants');
     charts.push(new Chart(document.getElementById('chart-participants'), {
         type: 'line',
         data: { labels: years, datasets: lineSeries(byVenue, years, present, 'registered_participants') },
