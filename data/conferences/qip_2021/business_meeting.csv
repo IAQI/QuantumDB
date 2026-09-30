@@ -1,7 +1,9 @@
 venue,year,field,value,source_type,source_url,source_date,notes
-QIP,2021,talk_submissions,462,slides,/static/business_meetings/qip_2024/QIP2024_Business_Meeting.pdf,2024,second-hand: year-over-year comparison in the QIP 2024 PC report
-QIP,2021,acceptance_rate,24.0,slides,/static/business_meetings/qip_2024/QIP2024_Business_Meeting.pdf,2024,second-hand: QIP 2024 PC report
-QIP,2021,talks_accepted,111,spreadsheet,,2026-09-28,"111 accepted submissions = 104 talks (7 merges); QIP statistics compilation shared with QuantumDB (2026)"
-QIP,2021,posters_submitted,431,spreadsheet,,2026-09-28,"QIP statistics compilation shared with QuantumDB (2026)"
-QIP,2021,posters_accepted,426,spreadsheet,,2026-09-28,"QIP statistics compilation shared with QuantumDB (2026)"
-QIP,2021,registered_participants,3803,spreadsheet,,2026-09-28,"online conference (Munich, virtual); QIP statistics compilation shared with QuantumDB (2026)"
+QIP,2021,posters_accepted,426,spreadsheet,,2026-09-28,QIP statistics compilation shared with QuantumDB (2026)
+QIP,2021,talk_submissions,462,slides,/static/business_meetings/qip_2021/QIP2021_PC_Report.pdf,2021,
+QIP,2021,talks_accepted,111,slides,/static/business_meetings/qip_2021/QIP2021_PC_Report.pdf,2021,104 PC-selected talks after 7 merges (111 accepted submissions per the statistics compilation); 2 long + 9 short plenaries
+QIP,2021,acceptance_rate,24.0,slides,/static/business_meetings/qip_2021/QIP2021_PC_Report.pdf,2021,as stated
+QIP,2021,posters_submitted,431,spreadsheet,,2026-09-28,QIP statistics compilation shared with QuantumDB (2026); PC report: 85 poster-only submissions (5 rejected)
+QIP,2021,registered_participants,3803,slides,/static/business_meetings/qip_2021/QIP2021_LOC_Report.pdf,2021,online; 1477 on Slack
+QIP,2021,slide:PC chair report,/static/business_meetings/qip_2021/QIP2021_PC_Report.pdf,slides,,2021,
+QIP,2021,slide:local organizers report,/static/business_meetings/qip_2021/QIP2021_LOC_Report.pdf,slides,,2021,
