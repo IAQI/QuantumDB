@@ -478,12 +478,12 @@
             top: 0.7rem;
             right: 0.8rem;
             font-family: "Fraunces", serif;
-            font-size: 0.8rem;
-            font-variant-numeric: lining-nums;
+            font-style: italic;
+            font-size: 1rem;
             line-height: 1;
             color: var(--accent);
             text-decoration: none;
-            padding: 0.15rem 0.25rem;
+            padding: 0.15rem 0.3rem;
         }
         .business-meeting .bm-mark:hover { text-decoration: underline; }
 
@@ -563,6 +563,7 @@
 
         /* Footnotes qualifying the announced figures */
         .business-meeting .bm-notes {
+            list-style: none;
             margin: 0;
             padding-left: 1.6rem;
             max-width: 70ch;
@@ -570,14 +571,18 @@
             line-height: 1.6;
             color: var(--ink-soft);
         }
-        .business-meeting .bm-notes li { margin: 0 0 0.45rem; padding-left: 0.25rem; }
-        .business-meeting .bm-notes li::marker {
+        .business-meeting .bm-notes li { position: relative; list-style: none; margin: 0 0 0.45rem; }
+        /* Hanging letter mark, matching the tile marks */
+        .business-meeting .bm-note__mark {
+            position: absolute;
+            left: -1.4rem;
             font-family: "Fraunces", serif;
+            font-style: italic;
+            font-size: 1rem;
             color: var(--accent);
         }
         .business-meeting .bm-notes li:target { background: var(--accent-tint); }
         .business-meeting .bm-notes em { color: var(--ink); }
-        .business-meeting .bm-notes .bm-note--extra { list-style: none; }
 
         /* ──────────────────────────────────────────────────────────────────
          * Tables (talks, committees, conference list, authors list)

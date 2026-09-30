@@ -99,13 +99,33 @@ struct BmStat {
     label: String,
     /// Footnote number, 0 when the figure has no note.
     note_no: usize,
+    /// Footnote mark shown on the tile ("a", "b", …), empty when no note.
+    mark: String,
 }
 
 struct BmNote {
     /// Footnote number, 0 for notes on fields without a stat tile.
     no: usize,
+    /// Footnote mark ("a", "b", …), empty for unnumbered notes.
+    mark: String,
     label: String,
     text: String,
+}
+
+/// Footnote mark for note `n` (1-based): letters, so marks next to the figures
+/// can't be misread as digits. a–z, then aa, ab, … (never needed in practice).
+fn note_mark(n: usize) -> String {
+    if n == 0 {
+        return String::new();
+    }
+    let mut n = n;
+    let mut out = Vec::new();
+    while n > 0 {
+        n -= 1;
+        out.push((b'a' + (n % 26) as u8) as char);
+        n /= 26;
+    }
+    out.iter().rev().collect()
 }
 
 struct SlideLink {
@@ -656,12 +676,18 @@ pub async fn conference_detail(
             if let Some(i) = pending.iter().position(|(k, _)| k == key) {
                 let (_, text) = pending.remove(i);
                 note_no = notes.len() + 1;
-                notes.push(BmNote { no: note_no, label: capitalize_first(&label), text: capitalize_first(&text) });
+                notes.push(BmNote {
+                    no: note_no,
+                    mark: note_mark(note_no),
+                    label: capitalize_first(&label),
+                    text: capitalize_first(&text),
+                });
             }
-            stats.push(BmStat { value, label, note_no });
+            stats.push(BmStat { value, label, note_no, mark: note_mark(note_no) });
         }
         notes.extend(pending.into_iter().map(|(key, text)| BmNote {
             no: 0,
+            mark: String::new(),
             label: capitalize_first(&bm_field_label(&key)),
             text: capitalize_first(&text),
         }));
@@ -735,6 +761,15 @@ mod tests {
             ("Business meeting slides".to_string(), "SC, PC and LOC reports".to_string())
         );
         assert_eq!(split_slide_label("PC chair report"), ("PC chair report".to_string(), String::new()));
+    }
+
+    #[test]
+    fn letters_note_marks() {
+        assert_eq!(note_mark(0), "");
+        assert_eq!(note_mark(1), "a");
+        assert_eq!(note_mark(8), "h");
+        assert_eq!(note_mark(26), "z");
+        assert_eq!(note_mark(27), "aa");
     }
 
     #[test]

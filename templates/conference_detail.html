@@ -84,7 +84,7 @@
             <div class="stat-card">
                 <div class="stat-value">{{ st.value }}</div>
                 <span class="stat-label">{{ st.label }}</span>
-                {% if st.note_no > 0 %}<a class="bm-mark" href="#bm-note-{{ st.note_no }}" aria-label="Note {{ st.note_no }}">{{ st.note_no }}</a>{% endif %}
+                {% if st.note_no > 0 %}<a class="bm-mark" href="#bm-note-{{ st.note_no }}" aria-label="Note {{ st.mark }}">{{ st.mark }}</a>{% endif %}
             </div>
             {% endfor %}
         </section>
@@ -111,7 +111,7 @@
         <ol class="bm-notes">
             {% for n in bm.notes %}
             {% if n.no > 0 %}
-            <li id="bm-note-{{ n.no }}" value="{{ n.no }}"><em>{{ n.label }}.</em> {{ n.text }}</li>
+            <li id="bm-note-{{ n.no }}"><span class="bm-note__mark" aria-hidden="true">{{ n.mark }}</span><em>{{ n.label }}.</em> {{ n.text }}</li>
             {% else %}
             <li class="bm-note--extra">{% if !n.label.is_empty() %}<em>{{ n.label }}.</em> {% endif %}{{ n.text }}</li>
             {% endif %}
