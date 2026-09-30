@@ -61,7 +61,15 @@
             --accent:       var(--ink);
             --accent-tint:  rgba(26, 26, 26, 0.06);
 
-            /* Override Pico so inherited components blend in */
+            --grid-max:    78rem;
+        }
+
+        /* Override Pico so inherited components blend in. The doubled selector
+           matches Pico's own `:root:not([data-theme])` (0,2,0) auto-dark rule:
+           plain `:root` loses to it, which let Pico's dark text colours leak onto
+           our light paper for anyone whose OS is in dark mode. */
+        :root:not([data-theme]), :root[data-theme] {
+            color-scheme: light;
             --pico-background-color:        var(--paper);
             --pico-color:                   var(--ink);
             --pico-primary:                 var(--accent);
@@ -79,8 +87,6 @@
             --pico-font-family:             "Newsreader", Georgia, "Times New Roman", serif;
             --pico-font-size:               17px;
             --pico-line-height:             1.55;
-
-            --grid-max:    78rem;
         }
 
         /* Per-venue accent cascade */
