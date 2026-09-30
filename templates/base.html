@@ -472,21 +472,20 @@
         }
         .business-meeting .stats-grid { margin-bottom: 0; }
 
-        /* Footnote mark: a superscript letter on the figure, top-aligned with
-           its numerals. Padding enlarges the click target; the negative margin
-           keeps it from pushing the mark away from the number. */
+        /* Footnote mark in the tile's top-right corner, its top level with the
+           top of the figure's numerals (card padding + the digits' top bearing). */
         .business-meeting .bm-mark {
-            display: inline-block;
-            vertical-align: top;
-            margin: -0.1em -0.25em 0 0;
-            padding: 0.1em 0.25em 0.1em 0.12em;
+            position: absolute;
+            top: calc(1.4rem + 0.2rem);
+            right: 1.1rem;
             font-family: "Fraunces", serif;
             font-style: italic;
-            font-size: 0.4em;
+            font-size: 1.05rem;
             line-height: 1;
-            letter-spacing: 0;
             color: var(--accent);
             text-decoration: none;
+            padding: 0.2rem 0.3rem;
+            margin: -0.2rem -0.3rem 0 0;
         }
         .business-meeting .bm-mark:hover { text-decoration: underline; }
 

@@ -82,8 +82,9 @@
         <section class="stats-grid">
             {% for st in bm.stats %}
             <div class="stat-card">
-                <div class="stat-value">{{ st.value }}{% if st.note_no > 0 %}<a class="bm-mark" href="#bm-note-{{ st.note_no }}" aria-label="Note {{ st.mark }}">{{ st.mark }}</a>{% endif %}</div>
+                <div class="stat-value">{{ st.value }}</div>
                 <span class="stat-label">{{ st.label }}</span>
+                {% if st.note_no > 0 %}<a class="bm-mark" href="#bm-note-{{ st.note_no }}" aria-label="Note {{ st.mark }}">{{ st.mark }}</a>{% endif %}
             </div>
             {% endfor %}
         </section>
