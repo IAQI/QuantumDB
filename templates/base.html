@@ -72,6 +72,7 @@
             --venue-qip-tint:    rgba(0,114,178,0.09);
             --venue-qcrypt-tint: rgba(230,159,0,0.12);
             --venue-tqc-tint:    rgba(0,158,115,0.10);
+            --sheet:        #fbf8f1;  /* raised surface (slide-deck frames) */
             --chart-faint-alpha: 0.20;  /* read by the conferences-page charts */
 
             --award-ink:    #7a5b00;
@@ -129,6 +130,7 @@
                 --venue-qip-tint:    rgba(86,180,233,0.14);
                 --venue-qcrypt-tint: rgba(230,159,0,0.16);
                 --venue-tqc-tint:    rgba(31,179,134,0.15);
+                --sheet:        #24211d;
                 --chart-faint-alpha: 0.30;
                 --award-ink:    #f6c945;
                 --award-bg:     rgba(246, 201, 69, 0.12);
@@ -151,6 +153,7 @@
             --venue-qip-tint:    rgba(86,180,233,0.14);
             --venue-qcrypt-tint: rgba(230,159,0,0.16);
             --venue-tqc-tint:    rgba(31,179,134,0.15);
+            --sheet:        #24211d;
             --chart-faint-alpha: 0.30;
             --award-ink:    #f6c945;
             --award-bg:     rgba(246, 201, 69, 0.12);
@@ -482,23 +485,125 @@
 
         /* Business-meeting (announced figures) block */
         .business-meeting { margin: 2.5rem 0; }
-        .business-meeting-note {
-            font-size: 0.78rem;
-            color: var(--muted);
-            margin: -0.5rem 0 1.1rem;
+        .business-meeting h3 {
+            font-size: 1.15rem;
+            font-weight: 500;
+            margin: 2.25rem 0 0.9rem;
+        }
+        .business-meeting .bm-intro {
+            font-style: italic;
+            color: var(--ink-soft);
+            max-width: 62ch;
+            margin: -0.4rem 0 1.25rem;
         }
         .business-meeting .stats-grid { margin-bottom: 0; }
-        .business-meeting-slides { margin: 1rem 0 0; font-size: 0.9rem; }
-        .business-meeting-slides .bm-slides-label {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: var(--muted);
-            margin-right: 0.6rem;
+
+        /* Footnote mark in a stat tile's corner */
+        .business-meeting .bm-mark {
+            position: absolute;
+            top: 0.7rem;
+            right: 0.8rem;
+            font-family: "Fraunces", serif;
+            font-size: 0.8rem;
+            font-variant-numeric: lining-nums;
+            line-height: 1;
+            color: var(--accent);
+            text-decoration: none;
+            padding: 0.15rem 0.25rem;
         }
-        .business-meeting-slides a { color: var(--accent); border-bottom: 1px solid var(--rule); }
-        .business-meeting-slides a:hover { border-bottom-color: var(--accent); }
-        .business-meeting-slides .bm-slides-sep { color: var(--rule-strong); margin: 0 0.55rem; }
+        .business-meeting .bm-mark:hover { text-decoration: underline; }
+
+        /* Slide decks, drawn as a stack of projected slides */
+        .business-meeting .bm-decks {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+            gap: 1.5rem 1.75rem;
+        }
+        .business-meeting .bm-decks li { list-style: none; margin: 0; padding: 0; }
+        .business-meeting .bm-deck {
+            display: flex;
+            flex-direction: column;
+            aspect-ratio: 4 / 3;
+            padding: 0 0.95rem 0.75rem;
+            background: var(--sheet);
+            border: 1px solid var(--rule-strong);
+            box-shadow: 4px 4px 0 -1px var(--paper-deep), 4px 4px 0 0 var(--rule-strong);
+            color: var(--ink);
+            text-decoration: none;
+            transition: transform 140ms ease, box-shadow 140ms ease;
+        }
+        .business-meeting .bm-deck__band {
+            display: block;
+            height: 5px;
+            margin: 0 -0.95rem 0.8rem;
+            background: var(--accent);
+        }
+        .business-meeting .bm-deck__title {
+            font-family: "Fraunces", serif;
+            font-size: 1.1rem;
+            font-weight: 500;
+            line-height: 1.2;
+            text-wrap: balance;
+        }
+        .business-meeting .bm-deck__sub {
+            margin-top: 0.3rem;
+            font-size: 0.85rem;
+            line-height: 1.35;
+            color: var(--ink-soft);
+        }
+        .business-meeting .bm-deck__foot {
+            margin-top: auto;
+            display: flex;
+            justify-content: space-between;
+            gap: 0.75rem;
+            padding-top: 0.5rem;
+            border-top: 1px solid var(--rule);
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+        .business-meeting .bm-deck__host { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .business-meeting .bm-deck:hover,
+        .business-meeting .bm-deck:focus-visible {
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0 -1px var(--paper-deep), 6px 6px 0 0 var(--rule-strong);
+            color: var(--ink);
+        }
+        .business-meeting .bm-deck:hover .bm-deck__title { color: var(--accent); }
+        .business-meeting .bm-deck:focus-visible,
+        .business-meeting .bm-mark:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 3px;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .business-meeting .bm-deck { transition: none; }
+            .business-meeting .bm-deck:hover,
+            .business-meeting .bm-deck:focus-visible { transform: none; }
+        }
+        @media (max-width: 480px) {
+            .business-meeting .bm-decks { grid-template-columns: 1fr; }
+            .business-meeting .bm-deck { aspect-ratio: auto; min-height: 7.5rem; }
+        }
+
+        /* Footnotes qualifying the announced figures */
+        .business-meeting .bm-notes {
+            margin: 0;
+            padding-left: 1.6rem;
+            max-width: 70ch;
+            font-size: 0.92rem;
+            line-height: 1.6;
+            color: var(--ink-soft);
+        }
+        .business-meeting .bm-notes li { margin: 0 0 0.45rem; padding-left: 0.25rem; }
+        .business-meeting .bm-notes li::marker {
+            font-family: "Fraunces", serif;
+            color: var(--accent);
+        }
+        .business-meeting .bm-notes li:target { background: var(--accent-tint); }
+        .business-meeting .bm-notes em { color: var(--ink); }
+        .business-meeting .bm-notes .bm-note--extra { list-style: none; }
 
         /* ──────────────────────────────────────────────────────────────────
          * Tables (talks, committees, conference list, authors list)
