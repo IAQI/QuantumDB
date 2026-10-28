@@ -1,0 +1,37 @@
+# QuantumDB
+
+> QuantumDB is the curated database of the three main academic conferences in quantum information science: QIP (Quantum Information Processing, {{ qip_years }}), QCrypt (Conference on Quantum Cryptography, {{ qcrypt_years }}) and TQC (Theory of Quantum Computation, Communication and Cryptography, {{ tqc_years }}). It is maintained by the International Association for Quantum Information (IAQI), which also hosts the archived conference websites (qip.iaqi.org, qcrypt.iaqi.org, tqc.iaqi.org). The data is free to use under CC0 1.0.
+
+It currently holds {{ conference_count }} conference instances, {{ talk_count }} talks, {{ poster_count }} posters, {{ author_count }} authors and {{ committee_count }} committee roles (programme, steering and organizing committees). Each conference also lists the figures announced at its business meeting (registrations, submissions, acceptance rates) when they are known. Data collection is ongoing: when something is missing, it usually just hasn't been entered yet.
+
+## Recommended: bulk exports (one request, no pagination, author names inline)
+
+- [Index of all conferences]({{ base }}/api/v1/export/all.json): every conference with its dates, location, counts and the URLs of its exports
+- [One conference, complete]({{ base }}/api/v1/export/conferences/qip-2015): committees, talks and posters with ordered authors (name, slug, ORCID, affiliation, presenter flag), abstracts, arXiv ids, video/slide links and business-meeting figures. Replace `qip-2015` with any `<venue>-<year>` (venues: `qip`, `qcrypt`, `tqc`)
+- Per-conference CSVs: `{{ base }}/api/v1/export/conferences/<slug>/talks.csv`, `.../posters.csv` and `.../committees.csv`. They use the same columns as the CSV files in the GitHub repository; lists inside a cell are separated by `;`
+- [Full dataset]({{ base }}/api/v1/export/all-full.json): every conference, nested, in one file (about 19 MB, or 4 MB gzip-compressed)
+- [All authors]({{ base }}/api/v1/export/authors.json): permanent slugs, ORCID and Google Scholar ids, activity summary
+
+## REST API
+
+- [OpenAPI specification]({{ base }}/api/v1/openapi.json) and [Swagger UI]({{ base }}/api/v1/swagger-ui/)
+- Read endpoints are public: `/api/v1/conferences`, `/api/v1/authors`, `/api/v1/publications?conference=QIP2015&search=...`, `/api/v1/committees?conference=QIP2015`, `/api/v1/authorships`, `/api/v1/stats/conferences`
+- Rate limit: 10 requests per second per IP (bursts up to 100). For whole conferences, use the exports above
+
+## Web pages
+
+- [Conferences]({{ base }}/conferences), e.g. {{ base }}/conferences/qip-2015
+- [Authors]({{ base }}/authors), e.g. {{ base }}/authors/<slug>
+- [Publication search]({{ base }}/publications), full-text over titles, abstracts and author names
+- [Sitemap]({{ base }}/sitemap.xml)
+
+## Source data
+
+- [GitHub repository]({{ source_repo }}): the source-of-truth CSVs live in `data/conferences/<venue>_<year>/` (`committees.csv`, `talks.csv`, `posters.csv`, `business_meeting.csv`; TQC uses `proceedings.csv` and `workshop.csv`). Schemas are in `data/README.md` and provenance in `data/SOURCES.md`. The live exports above are generated from the database and include identifiers (author slugs, ORCIDs) that the CSVs lack
+
+## License and citation
+
+- Data: CC0 1.0 (public domain dedication), {{ license_url }}. Abstracts, slides and recordings linked or reproduced here remain the property of their authors.
+- Code: MIT.
+- Please cite as: {{ how_to_cite }}
+- Corrections and contact: {{ contact }}

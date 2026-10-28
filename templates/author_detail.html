@@ -2,6 +2,8 @@
 
 {% block title %}{{ author.full_name }} — QuantumDB{% endblock %}
 
+{% block extra_head %}<script type="application/ld+json">{{ json_ld|safe }}</script>{% endblock %}
+
 {% block content %}
 <article class="author-page">
 

@@ -1,0 +1,70 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT\n            au.publication_id,\n            au.author_position,\n            au.published_as_name,\n            au.affiliation,\n            a.id as author_id,\n            a.slug as \"slug!\",\n            a.full_name,\n            a.orcid,\n            COALESCE(p.presenter_author_id = a.id, false) as \"is_presenter!\"\n        FROM authorships au\n        JOIN publications p ON p.id = au.publication_id\n        JOIN authors a ON a.id = au.author_id\n        WHERE p.conference_id = ANY($1::uuid[])\n        ORDER BY au.publication_id, au.author_position\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "publication_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "author_position",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 2,
+        "name": "published_as_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "affiliation",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "author_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "slug!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "full_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "orcid",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "is_presenter!",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      true,
+      null
+    ]
+  },
+  "hash": "5343f5e8ccba849c07d81108c2bf5945b00baf26a27e5f037aaf2368fba9dd6e"
+}

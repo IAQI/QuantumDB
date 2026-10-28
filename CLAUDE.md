@@ -145,6 +145,7 @@ src/
 │   ├── authorships.rs   # Full CRUD for authorships
 │   ├── committees.rs    # Full CRUD for committee roles
 │   ├── stats.rs         # Read-only per-conference stats (GET /api/v1/stats/conferences)
+│   ├── export.rs        # Bulk denormalized exports (GET /api/v1/export/...: JSON + CSV)
 │   └── web/             # Web interface handlers (implemented)
 │       ├── mod.rs
 │       ├── home.rs      # Homepage
@@ -152,6 +153,7 @@ src/
 │       ├── authors.rs   # Author list and detail pages
 │       ├── conferences.rs # Conference list and detail pages
 │       ├── publications.rs # Publications browser (full-text search page + table partial)
+│       ├── discovery.rs # robots.txt, sitemap.xml, llms.txt
 │       └── admin.rs     # Admin utilities (stats refresh)
 ├── middleware/          # Request middleware (implemented)
 │   ├── mod.rs
@@ -162,6 +164,7 @@ src/
     ├── conference.rs    # Conference slug parsing (e.g., "QIP2024")
     ├── pagination.rs    # clamp_pagination() — bounds limit/offset (default 100, max 1000)
     ├── validation.rs    # URL scheme + length + JSONB metadata validators
+    ├── site.rs          # Public base URL, data-license constants, CSV/JSON-LD/XML encoders
     └── db_error.rs      # map_db_error()/map_delete_error() — SQLSTATE → HTTP status (409/400/500)
 ```
 
@@ -246,6 +249,18 @@ src/
 
 **Stats** (`/api/v1/stats`):
 - `GET /api/v1/stats/conferences` - Public read-only per-conference (venue/year) stats time series, combining `conference_stats` view counts with announced figures from `conference_business_meetings`. Powers the conferences-overview trend charts.
+
+**Bulk exports** (`/api/v1/export`, public, read-only, `src/handlers/export.rs`). These are the denormalized "give me the data" endpoints for agents and researchers. `load_conference_exports()` loads one conference or all of them with five set-based queries:
+- `GET /api/v1/export/all.json` - Index of every conference, with counts and export URLs
+- `GET /api/v1/export/all-full.json` - Every conference, nested, in one file (~19 MB, ~4 MB gzipped; cached in memory for 10 min)
+- `GET /api/v1/export/authors.json` - All authors (slug, ORCID, Scholar id, `author_stats` summary)
+- `GET /api/v1/export/conferences/{slug}` - One conference: committees, talks/posters with ordered authors inline, business meeting (slug `qip-2015`, `QIP2015` or `qip-2015.json`)
+- `GET /api/v1/export/conferences/{slug}/{talks,posters,committees}.csv` - The `data/` CSV formats plus `is_proceedings_track`/`author_slugs` (`author_slug` for committees)
+- Every export carries a `dataset` header (CC0 license, rights notice, how to cite). The constants live in `src/utils/site.rs`.
+
+**Discovery files** (`src/handlers/web/discovery.rs`): `/robots.txt` (allow all except `/admin/`), `/sitemap.xml` (built from the DB: conferences and authors), `/llms.txt` (Markdown guide for AI agents, `templates/llms.txt`, live counts). Absolute URLs come from `PUBLIC_BASE_URL` (default `https://quantumdb.iaqi.org`) via `public_base_url()`. Pages embed schema.org JSON-LD through `{% block extra_head %}` in `base.html`: `Dataset` (home, about), `Event` (conference detail) and `Person` (author detail). Always serialize it with `utils::json_ld()`, which escapes `<`/`>`/`&`.
+
+**Data license**: data is **CC0 1.0** (`data/LICENSE`) and code is MIT. Abstracts, slides and recordings remain with their authors. `CITATION.cff` is at the repo root. Responses are gzip-compressed (`CompressionLayer`) when the client accepts it.
 
 **Web Interface** (HTML pages, server-rendered, unversioned):
 - `GET /` - Homepage

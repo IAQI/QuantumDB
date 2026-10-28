@@ -10,6 +10,17 @@ the supported way to contribute corrections.
 > We are particularly looking for the business-meeting slide decks — the annual reports presented by the local organizers and the PC chair at each conference's business meeting. These record participant counts, submission and acceptance numbers, and other figures we attach to each conference. If you have (or can point us to) any of these decks, please send them to quantumdb@iaqi.org — or open a pull request against the data directory.
 >
 
+## License and live exports
+
+The data is dedicated to the public domain under **CC0 1.0** (see [`LICENSE`](LICENSE)). Abstracts, slides and recordings remain with their authors. Citation is requested, not required (see [`CITATION.cff`](../CITATION.cff)).
+
+You don't need to clone the repository to get the data. The live site serves the same data from the database, with author slugs and ORCIDs added:
+
+- `https://quantumdb.iaqi.org/api/v1/export/conferences/<venue>-<year>`: one conference as JSON (e.g. `qip-2015`)
+- `.../<venue>-<year>/talks.csv`, `posters.csv`, `committees.csv`: the CSV formats below, plus `is_proceedings_track` and `author_slugs` (`author_slug` for committees)
+- `https://quantumdb.iaqi.org/api/v1/export/all.json` (index), `all-full.json` (everything), `authors.json`
+- `https://quantumdb.iaqi.org/llms.txt`: overview for AI agents
+
 ## Layout
 
 ```

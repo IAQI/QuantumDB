@@ -1,0 +1,98 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT\n            a.id, a.slug as \"slug!\", a.full_name, a.family_name, a.given_name,\n            a.orcid, a.google_scholar_id, a.homepage_url,\n            s.recent_affiliation,\n            COALESCE(s.publication_count, 0) as \"publication_count!\",\n            COALESCE(s.committee_role_count, 0) as \"committee_role_count!\",\n            COALESCE(s.venues, ARRAY[]::text[]) as \"venues!\",\n            s.first_year, s.last_year\n        FROM authors a\n        LEFT JOIN author_stats s ON s.id = a.id\n        ORDER BY a.slug\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "slug!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "full_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "family_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "given_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "orcid",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "google_scholar_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "homepage_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "recent_affiliation",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "publication_count!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 10,
+        "name": "committee_role_count!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 11,
+        "name": "venues!",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 12,
+        "name": "first_year",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 13,
+        "name": "last_year",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      null,
+      null,
+      null,
+      true,
+      true
+    ]
+  },
+  "hash": "03a9b6949982c27fc289ad311db9b37cce376d6a8b243f690bacb6dbcfa72a4d"
+}

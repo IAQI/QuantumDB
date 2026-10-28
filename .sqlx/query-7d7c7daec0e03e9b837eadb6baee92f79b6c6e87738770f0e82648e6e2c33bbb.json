@@ -1,0 +1,32 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT venue, MIN(year) as \"first!\", MAX(year) as \"last!\" FROM conferences GROUP BY venue",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "venue",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "first!",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 2,
+        "name": "last!",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      null,
+      null
+    ]
+  },
+  "hash": "7d7c7daec0e03e9b837eadb6baee92f79b6c6e87738770f0e82648e6e2c33bbb"
+}

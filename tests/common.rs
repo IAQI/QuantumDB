@@ -35,5 +35,16 @@ pub fn create_test_app(pool: Pool<Postgres>) -> Router {
         // Authorship routes
         .route("/authorships", get(handlers::list_authorships).post(handlers::create_authorship))
         .route("/authorships/{id}", get(handlers::get_authorship).put(handlers::update_authorship).delete(handlers::delete_authorship))
+        // Bulk exports
+        .route("/export/all.json", get(handlers::export_index))
+        .route("/export/authors.json", get(handlers::export_authors))
+        .route("/export/conferences/{slug}", get(handlers::export_conference))
+        .route("/export/conferences/{slug}/talks.csv", get(handlers::export_conference_talks_csv))
+        .route("/export/conferences/{slug}/posters.csv", get(handlers::export_conference_posters_csv))
+        .route("/export/conferences/{slug}/committees.csv", get(handlers::export_conference_committees_csv))
+        // Discovery files
+        .route("/robots.txt", get(handlers::web::robots_txt))
+        .route("/sitemap.xml", get(handlers::web::sitemap_xml))
+        .route("/llms.txt", get(handlers::web::llms_txt))
         .with_state(pool)
 }

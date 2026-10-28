@@ -2,6 +2,8 @@
 
 {% block title %}About QuantumDB{% endblock %}
 
+{% block extra_head %}<script type="application/ld+json">{{ json_ld|safe }}</script>{% endblock %}
+
 {% block content %}
 <article>
     <header>
@@ -73,6 +75,25 @@
         <p>
             The project is open source and available on GitHub at <a href="https://github.com/IAQI/QuantumDB" target="_blank">https://github.com/IAQI/QuantumDB</a>. Contributions, bug reports, and feature requests are welcome!
         </p>
+    </section>
+
+    <section id="data-access">
+        <h2>Data access &amp; license</h2>
+        <p>
+            All QuantumDB data is free to reuse under
+            <a href="https://creativecommons.org/publicdomain/zero/1.0/" target="_blank" rel="noopener">CC0 1.0</a>
+            (public domain dedication). Abstracts, slides and recordings linked or reproduced here remain the
+            property of their authors. If you use the data, please cite <em>QuantumDB, International Association
+            for Quantum Information (IAQI), https://quantumdb.iaqi.org</em>.
+        </p>
+        <ul>
+            <li><strong>Whole conference in one request</strong>: <a href="/api/v1/export/conferences/qip-2015">/api/v1/export/conferences/qip-2015</a> (JSON, authors inline), or <code>/talks.csv</code>, <code>/posters.csv</code>, <code>/committees.csv</code> after the slug. Every conference page links its own files.</li>
+            <li><strong>Index of all conferences</strong>: <a href="/api/v1/export/all.json">/api/v1/export/all.json</a></li>
+            <li><strong>Everything in one file</strong>: <a href="/api/v1/export/all-full.json">/api/v1/export/all-full.json</a></li>
+            <li><strong>All authors</strong>: <a href="/api/v1/export/authors.json">/api/v1/export/authors.json</a></li>
+            <li><strong>REST API</strong>: <a href="/api/v1/swagger-ui/">Swagger UI</a> and <a href="/api/v1/openapi.json">OpenAPI spec</a></li>
+            <li><strong>For AI agents</strong>: <a href="/llms.txt">/llms.txt</a></li>
+        </ul>
     </section>
 
     <section>

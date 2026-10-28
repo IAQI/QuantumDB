@@ -54,6 +54,7 @@ struct ConferenceDetailTemplate {
     conference: ConferenceDetail,
     publications: Vec<PublicationItem>,
     committee_by_type: Vec<CommitteeSection>,
+    json_ld: String,
 }
 
 struct ConferenceDetail {
@@ -700,7 +701,20 @@ pub async fn conference_detail(
         }
     });
 
+    let json_ld = event_json_ld(
+        &conference.venue,
+        conference.year,
+        conference.start_date,
+        conference.end_date,
+        conference.city.as_deref(),
+        conference.country.as_deref(),
+        conference.is_virtual.unwrap_or(false),
+        conference.is_hybrid.unwrap_or(false),
+        [conference.website_url.as_deref(), conference.archive_url.as_deref()],
+    );
+
     let template = ConferenceDetailTemplate {
+        json_ld,
         conference: ConferenceDetail {
             slug: conference.slug.unwrap_or_default(),
             venue: conference.venue,
@@ -735,6 +749,70 @@ pub async fn conference_detail(
             Err(StatusCode::INTERNAL_SERVER_ERROR)
         }
     }
+}
+
+/// schema.org `Event` for a conference page.
+#[allow(clippy::too_many_arguments)]
+fn event_json_ld(
+    venue: &str,
+    year: i32,
+    start: Option<chrono::NaiveDate>,
+    end: Option<chrono::NaiveDate>,
+    city: Option<&str>,
+    country: Option<&str>,
+    is_virtual: bool,
+    is_hybrid: bool,
+    same_as: [Option<&str>; 2],
+) -> String {
+    use serde_json::{json, Map, Value};
+    let base = crate::utils::public_base_url();
+    let slug = format!("{}-{}", venue.to_lowercase(), year);
+    let mut ev = Map::new();
+    ev.insert("@context".into(), json!("https://schema.org"));
+    ev.insert("@type".into(), json!("Event"));
+    ev.insert("name".into(), json!(format!("{} {}", crate::handlers::display_venue(venue), year)));
+    ev.insert("url".into(), json!(format!("{base}/conferences/{slug}")));
+    if let Some(d) = start {
+        ev.insert("startDate".into(), json!(d.to_string()));
+    }
+    if let Some(d) = end {
+        ev.insert("endDate".into(), json!(d.to_string()));
+    }
+    let mode = if is_virtual {
+        "OnlineEventAttendanceMode"
+    } else if is_hybrid {
+        "MixedEventAttendanceMode"
+    } else {
+        "OfflineEventAttendanceMode"
+    };
+    ev.insert("eventAttendanceMode".into(), json!(format!("https://schema.org/{mode}")));
+    if is_virtual {
+        ev.insert("location".into(), json!({"@type": "VirtualLocation"}));
+    } else if city.is_some() || country.is_some() {
+        let mut addr = Map::new();
+        addr.insert("@type".into(), json!("PostalAddress"));
+        if let Some(c) = city {
+            addr.insert("addressLocality".into(), json!(c));
+        }
+        if let Some(c) = country {
+            addr.insert("addressCountry".into(), json!(c));
+        }
+        ev.insert("location".into(), json!({"@type": "Place", "name": city.or(country), "address": Value::Object(addr)}));
+    }
+    let same: Vec<&str> = same_as.into_iter().flatten().filter(|s| !s.is_empty()).collect();
+    if !same.is_empty() {
+        ev.insert("sameAs".into(), json!(same));
+    }
+    ev.insert("subjectOf".into(), json!({
+        "@type": "Dataset",
+        "name": format!("{} {} in QuantumDB", crate::handlers::display_venue(venue), year),
+        "license": crate::utils::DATA_LICENSE_URL,
+        "distribution": [
+            {"@type": "DataDownload", "encodingFormat": "application/json", "contentUrl": format!("{base}/api/v1/export/conferences/{slug}")},
+            {"@type": "DataDownload", "encodingFormat": "text/csv", "contentUrl": format!("{base}/api/v1/export/conferences/{slug}/talks.csv")}
+        ]
+    }));
+    crate::utils::json_ld(&Value::Object(ev))
 }
 
 #[cfg(test)]

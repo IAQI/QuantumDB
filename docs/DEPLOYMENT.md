@@ -14,6 +14,7 @@ See `docs/CODE_REVIEW.md` for the security-review history.
 | `CORS_ALLOWED_ORIGINS` | no | *(none → no cross-origin)* | Comma-separated browser origins allowed to call the API cross-origin. `*` restores any-origin. Same-origin always works. |
 | `TRUST_PROXY` | no | `false` | When `1`, the rate limiter keys on `X-Forwarded-For`/`X-Real-IP`. Enable **only** behind a proxy that overwrites those headers. |
 | `ENABLE_SWAGGER` | no | `true` (app) | Gates `/api/v1/openapi.json` + the Swagger UI. The app enables it by default; the **prod compose flips the default off** (`${ENABLE_SWAGGER:-0}`), so set `ENABLE_SWAGGER=1` in `.env` to expose it in prod. |
+| `PUBLIC_BASE_URL` | no | `https://quantumdb.iaqi.org` | Absolute site URL used in `/sitemap.xml`, `/robots.txt`, `/llms.txt`, export links and JSON-LD. Only override for a different public hostname. |
 | `BIND_ADDR` | no | `0.0.0.0:3000` | Listen address. Use `127.0.0.1:3000` for a direct run behind a same-host proxy. |
 | `RUST_LOG` | no | `info` | Log level. |
 | `AUTH_DISABLED` | no | unset | `1` bypasses auth entirely. **Local dev only — never set in production.** |

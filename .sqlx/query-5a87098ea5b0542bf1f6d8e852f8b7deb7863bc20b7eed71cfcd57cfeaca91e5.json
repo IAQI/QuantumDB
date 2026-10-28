@@ -1,0 +1,100 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT\n            conference_id, meeting_date,\n            registered_participants, onsite_participants, countries_represented,\n            talk_submissions, talks_accepted, posters_submitted, posters_accepted,\n            acceptance_rate::float8 as acceptance_rate,\n            track_breakdown, notes, slides,\n            metadata->'sources' as sources\n        FROM conference_business_meetings\n        WHERE conference_id = ANY($1::uuid[])\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "conference_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "meeting_date",
+        "type_info": "Date"
+      },
+      {
+        "ordinal": 2,
+        "name": "registered_participants",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "onsite_participants",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 4,
+        "name": "countries_represented",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 5,
+        "name": "talk_submissions",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 6,
+        "name": "talks_accepted",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 7,
+        "name": "posters_submitted",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 8,
+        "name": "posters_accepted",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 9,
+        "name": "acceptance_rate",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 10,
+        "name": "track_breakdown",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 11,
+        "name": "notes",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 12,
+        "name": "slides",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 13,
+        "name": "sources",
+        "type_info": "Jsonb"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      null,
+      true,
+      true,
+      false,
+      null
+    ]
+  },
+  "hash": "5a87098ea5b0542bf1f6d8e852f8b7deb7863bc20b7eed71cfcd57cfeaca91e5"
+}

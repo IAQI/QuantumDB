@@ -240,6 +240,20 @@ The API provides full CRUD operations (all under the versioned `/api/v1/` prefix
 /api/v1/stats/conferences  # Read-only per-conference stats time series
 ```
 
+**Bulk exports** (read-only, denormalized, CC0). One request returns a whole conference, or the whole dataset, with authors inline:
+
+```
+/api/v1/export/all.json                          # Index of every conference + export URLs
+/api/v1/export/all-full.json                     # Everything, nested, in one file
+/api/v1/export/authors.json                      # All authors (slug, ORCID, Scholar id, activity)
+/api/v1/export/conferences/{slug}                # One conference as JSON (slug: qip-2015 or QIP2015)
+/api/v1/export/conferences/{slug}/talks.csv      # Same columns as data/conferences/*/talks.csv
+/api/v1/export/conferences/{slug}/posters.csv
+/api/v1/export/conferences/{slug}/committees.csv
+```
+
+**Discovery** for crawlers and AI agents: `/robots.txt`, `/sitemap.xml` and `/llms.txt`. The pages also embed schema.org JSON-LD: `Dataset` on the home and about pages, `Event` on conference pages, `Person` on author pages.
+
 All endpoints are documented with:
 - Request/response schemas
 - Example payloads
@@ -260,4 +274,6 @@ See [TESTING.md](TESTING.md) for testing instructions and [DATABASE_SCHEMA.md](D
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details
+- **Code**: MIT License.
+- **Data** (`data/` and everything served by <https://quantumdb.iaqi.org>, including the API and bulk exports): [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/), a public domain dedication. See [`data/LICENSE`](data/LICENSE). Abstracts, slides and recordings remain the property of their authors.
+- **Citation**: requested, not required. See [`CITATION.cff`](CITATION.cff).
