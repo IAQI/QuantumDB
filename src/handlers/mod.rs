@@ -4,6 +4,7 @@ pub mod publications;
 pub mod committees;
 pub mod authorships;
 pub mod stats;
+pub mod export;
 pub mod web;
 
 pub use conferences::*;
@@ -12,3 +13,4 @@ pub use publications::*;
 pub use committees::*;
 pub use authorships::*;
 pub use stats::*;
+pub use export::*;

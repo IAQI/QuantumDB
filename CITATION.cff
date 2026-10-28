@@ -1,0 +1,30 @@
+cff-version: 1.2.0
+message: "If you use QuantumDB data, please cite it as below. The data is CC0 1.0; citation is requested, not required."
+type: dataset
+title: "QuantumDB: a database of the QIP, QCrypt and TQC conferences"
+abstract: >-
+  Curated database of the quantum information conferences QIP (Quantum
+  Information Processing), QCrypt (Conference on Quantum Cryptography) and TQC
+  (Theory of Quantum Computation, Communication and Cryptography): conference
+  instances, accepted talks and posters with their authors, programme,
+  steering and organizing committees, and figures announced at the business
+  meetings.
+authors:
+  - name: "International Association for Quantum Information (IAQI)"
+    website: "https://iaqi.org"
+  - family-names: "Schaffner"
+    given-names: "Christian"
+contact:
+  - name: "QuantumDB"
+    email: "quantumdb@iaqi.org"
+url: "https://quantumdb.iaqi.org"
+repository-code: "https://github.com/IAQI/QuantumDB"
+license: CC0-1.0
+keywords:
+  - quantum information
+  - quantum computing
+  - quantum cryptography
+  - conferences
+  - QIP
+  - QCrypt
+  - TQC

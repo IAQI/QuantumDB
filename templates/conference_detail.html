@@ -2,6 +2,9 @@
 
 {% block title %}{{ conference.venue }} {{ conference.year }} — QuantumDB{% endblock %}
 
+{% block extra_head %}<link rel="alternate" type="application/json" title="{{ conference.venue }} {{ conference.year }} data (JSON)" href="/api/v1/export/conferences/{{ conference.slug }}">
+<script type="application/ld+json">{{ json_ld|safe }}</script>{% endblock %}
+
 {% block content %}
 <article data-venue="{{ conference.venue }}" class="conference-page">
 
@@ -22,6 +25,13 @@
                 {% if !conference.website_url.is_empty() %}<a href="{{ conference.website_url }}" target="_blank" rel="noopener">Original site</a>{% endif %}
                 {% if !conference.archive_url.is_empty() %}<a href="{{ conference.archive_url }}" target="_blank" rel="noopener">IAQI copy</a>{% endif %}
                 {% if !conference.proceedings_url.is_empty() %}<a href="{{ conference.proceedings_url }}" target="_blank" rel="noopener">Proceedings</a>{% endif %}
+            </p>
+            <p class="masthead-links masthead-data" aria-label="Download this conference's data (CC0)">
+                <span>Data (CC0):</span>
+                <a href="/api/v1/export/conferences/{{ conference.slug }}">JSON</a>
+                <a href="/api/v1/export/conferences/{{ conference.slug }}/talks.csv">talks CSV</a>
+                <a href="/api/v1/export/conferences/{{ conference.slug }}/posters.csv">posters CSV</a>
+                <a href="/api/v1/export/conferences/{{ conference.slug }}/committees.csv">committees CSV</a>
             </p>
         </div>
     </header>

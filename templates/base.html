@@ -349,6 +349,9 @@
             display: flex; flex-wrap: wrap; gap: 1.4rem;
         }
         .masthead-links a { color: var(--accent); border-bottom: 1px solid var(--accent); padding-bottom: 1px; }
+        .masthead-data { font-size: 0.85rem; gap: 0.9rem; color: var(--muted); }
+        .masthead-data a { color: var(--muted); border-bottom-color: var(--rule); }
+        .masthead-data a:hover { color: var(--accent); border-bottom-color: var(--accent); }
 
         .venue-rule {
             border: 0;
@@ -1067,6 +1070,7 @@
         .site-banner__link:hover { border-bottom-color: var(--accent); }
     </style>
 
+    <link rel="alternate" type="text/markdown" title="Guide for AI agents and crawlers" href="/llms.txt">
     {% block extra_head %}{% endblock %}
 </head>
 <body>
@@ -1107,7 +1111,7 @@
 
     <footer class="container">
         <p>QuantumDB — quantum computing conference database</p>
-        <p>tracking QIP · QCrypt · TQC &nbsp;·&nbsp; <a href="https://github.com/IAQI/QuantumDB" target="_blank">source</a> &nbsp;·&nbsp; <a href="/api/v1/swagger-ui/">api</a> &nbsp;·&nbsp; <a href="/about">about</a> &nbsp;·&nbsp; <a href="/admin/refresh-stats" hx-boost="false">refresh stats</a></p>
+        <p>tracking QIP · QCrypt · TQC &nbsp;·&nbsp; <a href="https://github.com/IAQI/QuantumDB" target="_blank">source</a> &nbsp;·&nbsp; <a href="/api/v1/swagger-ui/">api</a> &nbsp;·&nbsp; <a href="/about#data-access">open data (CC0)</a> &nbsp;·&nbsp; <a href="/llms.txt">llms.txt</a> &nbsp;·&nbsp; <a href="/about">about</a> &nbsp;·&nbsp; <a href="/admin/refresh-stats" hx-boost="false">refresh stats</a></p>
     </footer>
 
     <script>

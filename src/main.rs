@@ -16,6 +16,7 @@ use tower_governor::{
     governor::GovernorConfigBuilder, key_extractor::SmartIpKeyExtractor, GovernorLayer,
 };
 use tower_http::{
+    compression::CompressionLayer,
     cors::CorsLayer,
     services::ServeDir,
     set_header::SetResponseHeaderLayer,
@@ -63,6 +64,13 @@ use quantumdb::{handlers, middleware::auth_middleware, models::*};
         handlers::update_authorship,
         handlers::delete_authorship,
         handlers::list_conference_stats,
+        handlers::export_index,
+        handlers::export_all_full,
+        handlers::export_authors,
+        handlers::export_conference,
+        handlers::export_conference_talks_csv,
+        handlers::export_conference_posters_csv,
+        handlers::export_conference_committees_csv,
     ),
     components(schemas(
         Conference, CreateConference, UpdateConference,
@@ -71,6 +79,11 @@ use quantumdb::{handlers, middleware::auth_middleware, models::*};
         CommitteeRole, CreateCommitteeRole, UpdateCommitteeRole, CommitteeType, CommitteePosition,
         Authorship, CreateAuthorship, UpdateAuthorship,
         ConferenceStat,
+        handlers::DatasetInfo, handlers::ExportLinks, handlers::ExportConference,
+        handlers::ExportCommitteeMember, handlers::ExportAuthorRef, handlers::ExportPublication,
+        handlers::ExportBusinessMeeting, handlers::ConferenceExport, handlers::FullExport,
+        handlers::ConferenceIndexEntry, handlers::DatasetIndex, handlers::ExportAuthor,
+        handlers::AuthorsExport,
     )),
     modifiers(&SecurityAddon),
     tags(
@@ -80,6 +93,7 @@ use quantumdb::{handlers, middleware::auth_middleware, models::*};
         (name = "committees", description = "Committee role management"),
         (name = "authorships", description = "Authorship (author-publication links) management"),
         (name = "stats", description = "Aggregated conference statistics"),
+        (name = "export", description = "Bulk, denormalized exports (whole conferences or the whole dataset in one request; data licensed CC0 1.0). Start here if you want the data rather than individual records."),
     )
 )]
 struct ApiDoc;
@@ -130,7 +144,15 @@ async fn main() -> Result<(), sqlx::Error> {
         // Authorship routes (read-only)
         .route("/authorships", get(handlers::list_authorships))
         .route("/authorships/{id}", get(handlers::get_authorship))
-        .route("/stats/conferences", get(handlers::list_conference_stats));
+        .route("/stats/conferences", get(handlers::list_conference_stats))
+        // Bulk exports (denormalized; see /llms.txt)
+        .route("/export/all.json", get(handlers::export_index))
+        .route("/export/all-full.json", get(handlers::export_all_full))
+        .route("/export/authors.json", get(handlers::export_authors))
+        .route("/export/conferences/{slug}", get(handlers::export_conference))
+        .route("/export/conferences/{slug}/talks.csv", get(handlers::export_conference_talks_csv))
+        .route("/export/conferences/{slug}/posters.csv", get(handlers::export_conference_posters_csv))
+        .route("/export/conferences/{slug}/committees.csv", get(handlers::export_conference_committees_csv));
 
     // API docs (OpenAPI spec + Swagger UI) enumerate the API surface, so they are
     // gated behind ENABLE_SWAGGER. Enabled by default for local/dev convenience;
@@ -199,6 +221,10 @@ async fn main() -> Result<(), sqlx::Error> {
         .route("/conferences/{slug}", get(handlers::web::conference_detail))
         .route("/publications", get(handlers::web::publications_list))
         .route("/about", get(handlers::web::about))
+        // Discovery files for crawlers and AI agents
+        .route("/robots.txt", get(handlers::web::robots_txt))
+        .route("/sitemap.xml", get(handlers::web::sitemap_xml))
+        .route("/llms.txt", get(handlers::web::llms_txt))
         .route("/health", get(health));
 
     // Protected web routes (admin operations)
@@ -279,6 +305,8 @@ async fn main() -> Result<(), sqlx::Error> {
         .nest_service("/static", ServeDir::new("static"))
         .layer(cors)
         .layer(security_headers)
+        // gzip when the client accepts it (the full export is ~10 MB of JSON).
+        .layer(CompressionLayer::new())
         // Cap request bodies; the largest legitimate payload is a ~50 KB abstract.
         .layer(DefaultBodyLimit::max(1024 * 1024))
         // Database pool state

@@ -1,0 +1,92 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT\n            c.venue, c.year, c.start_date, c.end_date, c.city, c.country,\n            c.is_virtual, c.is_hybrid, c.website_url, c.updated_at,\n            (SELECT COUNT(*) FROM publications p\n               WHERE p.conference_id = c.id AND p.paper_type <> 'poster') as \"talk_count!\",\n            (SELECT COUNT(*) FROM publications p\n               WHERE p.conference_id = c.id AND p.paper_type = 'poster') as \"poster_count!\",\n            (SELECT COUNT(*) FROM committee_roles cr\n               WHERE cr.conference_id = c.id) as \"committee_member_count!\"\n        FROM conferences c\n        ORDER BY c.venue, c.year\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "venue",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "year",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 2,
+        "name": "start_date",
+        "type_info": "Date"
+      },
+      {
+        "ordinal": 3,
+        "name": "end_date",
+        "type_info": "Date"
+      },
+      {
+        "ordinal": 4,
+        "name": "city",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "country",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "is_virtual",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 7,
+        "name": "is_hybrid",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 8,
+        "name": "website_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 10,
+        "name": "talk_count!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 11,
+        "name": "poster_count!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 12,
+        "name": "committee_member_count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "5252c29efb509ba4a3981bad0d1a3c387d576650605a5187bd552f6989bb9564"
+}

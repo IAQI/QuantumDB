@@ -44,6 +44,7 @@ struct AuthorDetailTemplate {
     coauthors: Vec<CoauthorItem>,
     collaborator_count: i64,
     contribution: ContributionGraph,
+    json_ld: String,
 }
 
 // ─── Contribution-over-time SVG layout ──────────────────────────────────────
@@ -761,7 +762,43 @@ pub async fn author_detail(
         .filter(|r| r.committee_type == "OC")
         .count();
 
+    let json_ld = {
+        let mut same_as = Vec::new();
+        if !author.orcid.is_empty() {
+            same_as.push(format!("https://orcid.org/{}", author.orcid));
+        }
+        if !author.google_scholar_id.is_empty() {
+            same_as.push(format!("https://scholar.google.com/citations?user={}", author.google_scholar_id));
+        }
+        let mut person = serde_json::json!({
+            "@context": "https://schema.org",
+            "@type": "Person",
+            "name": author.full_name,
+            "url": format!("{}/authors/{}", crate::utils::public_base_url(), author.slug),
+        });
+        if !author.given_name.is_empty() {
+            person["givenName"] = serde_json::json!(author.given_name);
+        }
+        if !author.family_name.is_empty() {
+            person["familyName"] = serde_json::json!(author.family_name);
+        }
+        if !author.affiliation.is_empty() {
+            person["affiliation"] = serde_json::json!({"@type": "Organization", "name": author.affiliation});
+        }
+        if !author.orcid.is_empty() {
+            person["identifier"] = serde_json::json!(format!("https://orcid.org/{}", author.orcid));
+        }
+        if !author.homepage_url.is_empty() {
+            same_as.push(author.homepage_url.clone());
+        }
+        if !same_as.is_empty() {
+            person["sameAs"] = serde_json::json!(same_as);
+        }
+        crate::utils::json_ld(&person)
+    };
+
     let template = AuthorDetailTemplate {
+        json_ld,
         author: AuthorDetail {
             slug: author.slug,
             full_name: author.full_name,

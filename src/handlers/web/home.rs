@@ -13,6 +13,7 @@ struct HomeTemplate {
     total_conferences: i64,
     total_committee_roles: i64,
     recent_conferences: Vec<RecentConference>,
+    json_ld: String,
 }
 
 struct RecentConference {
@@ -88,6 +89,7 @@ pub async fn home(State(pool): State<PgPool>) -> Result<Response, StatusCode> {
         total_conferences: stats.total_conferences,
         total_committee_roles: stats.total_committee_roles,
         recent_conferences,
+        json_ld: crate::utils::json_ld(&crate::utils::dataset_json_ld()),
     };
 
     match template.render() {

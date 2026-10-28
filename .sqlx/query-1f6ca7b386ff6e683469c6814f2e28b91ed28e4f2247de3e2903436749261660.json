@@ -1,0 +1,44 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT\n            (SELECT COUNT(*) FROM conferences) as \"conferences!\",\n            (SELECT COUNT(*) FROM publications WHERE paper_type <> 'poster') as \"talks!\",\n            (SELECT COUNT(*) FROM publications WHERE paper_type = 'poster') as \"posters!\",\n            (SELECT COUNT(*) FROM authors) as \"authors!\",\n            (SELECT COUNT(*) FROM committee_roles) as \"committee_roles!\"\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "conferences!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 1,
+        "name": "talks!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 2,
+        "name": "posters!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 3,
+        "name": "authors!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 4,
+        "name": "committee_roles!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "1f6ca7b386ff6e683469c6814f2e28b91ed28e4f2247de3e2903436749261660"
+}

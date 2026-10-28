@@ -4,6 +4,7 @@ pub mod conferences;
 pub mod publications;
 pub mod admin;
 pub mod about;
+pub mod discovery;
 
 pub use home::*;
 pub use authors::*;
@@ -11,3 +12,4 @@ pub use conferences::*;
 pub use publications::*;
 pub use admin::*;
 pub use about::*;
+pub use discovery::*;

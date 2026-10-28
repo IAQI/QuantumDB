@@ -1938,3 +1938,178 @@ async fn test_delete_conference_with_publications_conflicts() {
         .await
         .assert_status(axum::http::StatusCode::NO_CONTENT);
 }
+
+// ============================================================================
+// Bulk export + discovery files
+// ============================================================================
+
+#[tokio::test]
+async fn test_conference_export_json_and_csv() {
+    let server = setup().await;
+    // Slugs only parse for years 1990–2100, and a far-future year would sort
+    // first in /conferences (other tests use conferences[0]). TQC 1991 is free.
+    let year = 1991;
+    let suffix = Uuid::new_v4().simple().to_string();
+
+    let response = server
+        .post("/conferences")
+        .json(&json!({"venue": "TQC", "year": year, "city": "Testville", "creator": "test_user", "modifier": "test_user"}))
+        .await;
+    response.assert_status(axum::http::StatusCode::CREATED);
+    let conference: serde_json::Value = response.json();
+    let conference_id = conference["id"].as_str().unwrap().to_string();
+
+    let mut author_ids = Vec::new();
+    for name in ["Alice Exportfirst", "Bob Exportsecond"] {
+        let response = server
+            .post("/authors")
+            .json(&json!({"full_name": format!("{name} {suffix}"), "creator": "test_user", "modifier": "test_user"}))
+            .await;
+        let author: serde_json::Value = response.json();
+        author_ids.push(author["id"].as_str().unwrap().to_string());
+    }
+
+    let response = server
+        .post("/publications")
+        .json(&json!({
+            "conference_id": conference_id,
+            "canonical_key": format!("export-test-{suffix}"),
+            "title": "Export, with a comma and \"quotes\"",
+            "paper_type": "regular",
+            "arxiv_ids": ["2401.00001"],
+            "creator": "test_user",
+            "modifier": "test_user"
+        }))
+        .await;
+    let publication: serde_json::Value = response.json();
+    let publication_id = publication["id"].as_str().unwrap().to_string();
+
+    let names = [format!("Alice Exportfirst {suffix}"), format!("Bob Exportsecond {suffix}")];
+    for (i, author_id) in author_ids.iter().enumerate() {
+        let response = server
+            .post("/authorships")
+            .json(&json!({
+                "publication_id": publication_id,
+                "author_id": author_id,
+                "author_position": i + 1,
+                "published_as_name": names[i],
+                "affiliation": if i == 1 { "Test University" } else { "" },
+                "creator": "test_user",
+                "modifier": "test_user"
+            }))
+            .await;
+        response.assert_status(axum::http::StatusCode::CREATED);
+    }
+    // The second author presented.
+    server
+        .put(&format!("/publications/{publication_id}"))
+        .json(&json!({"presenter_author_id": author_ids[1], "modifier": "test_user"}))
+        .await
+        .assert_status_ok();
+
+    let response = server
+        .post("/committees")
+        .json(&json!({
+            "conference_id": conference_id,
+            "author_id": author_ids[0],
+            "committee": "PC",
+            "position": "chair",
+            "creator": "test_user",
+            "modifier": "test_user"
+        }))
+        .await;
+    let role: serde_json::Value = response.json();
+    let role_id = role["id"].as_str().unwrap().to_string();
+
+    // JSON export: both slug forms resolve; authors are inline and ordered.
+    let slug = format!("tqc-{year}");
+    for path in [slug.clone(), format!("TQC{year}"), format!("{slug}.json")] {
+        server.get(&format!("/export/conferences/{path}")).await.assert_status_ok();
+    }
+    let response = server.get(&format!("/export/conferences/{slug}")).await;
+    let export: serde_json::Value = response.json();
+    assert_eq!(export["dataset"]["license"], "CC0-1.0");
+    assert_eq!(export["conference"]["slug"], slug);
+    assert_eq!(export["conference"]["name"], format!("TQC {year}"));
+    let pubs = export["publications"].as_array().unwrap();
+    assert_eq!(pubs.len(), 1);
+    let authors = pubs[0]["authors"].as_array().unwrap();
+    assert_eq!(authors.len(), 2);
+    assert!(authors[0]["name"].as_str().unwrap().starts_with("Alice Exportfirst"));
+    assert_eq!(authors[1]["is_presenter"], true);
+    assert_eq!(authors[1]["affiliation"], "Test University");
+    assert!(authors[0]["affiliation"].is_null(), "empty affiliation is exported as null");
+    assert!(pubs[0]["presenter"].as_str().unwrap().starts_with("Bob Exportsecond"));
+    assert_eq!(export["committees"][0]["committee"], "program");
+    assert_eq!(export["committees"][0]["position"], "chair");
+
+    // talks.csv: canonical header, RFC 4180 quoting, `;`-joined lists.
+    let response = server.get(&format!("/export/conferences/{slug}/talks.csv")).await;
+    response.assert_status_ok();
+    let csv = response.text();
+    let mut lines = csv.lines();
+    assert_eq!(lines.next().unwrap(), quantumdb::handlers::TALKS_CSV_HEADER.join(","));
+    let row = lines.next().unwrap();
+    assert!(row.contains("\"Export, with a comma and \"\"quotes\"\"\""), "row: {row}");
+    assert!(row.contains(&format!("Alice Exportfirst {suffix};Bob Exportsecond {suffix}")));
+    assert!(row.contains(";Test University"), "affiliations keep author order: {row}");
+    assert!(row.contains("2401.00001"));
+
+    // posters.csv is just the header for this conference.
+    let response = server.get(&format!("/export/conferences/{slug}/posters.csv")).await;
+    assert_eq!(response.text().lines().count(), 1);
+
+    let response = server.get(&format!("/export/conferences/{slug}/committees.csv")).await;
+    let csv = response.text();
+    assert!(csv.starts_with("venue,year,committee_type,position,full_name,affiliation,role_title,author_slug\n"));
+    assert!(csv.contains(&format!("TQC,{year},program,chair,Alice Exportfirst {suffix}")));
+
+    // Index and sitemap list the new conference.
+    let index: serde_json::Value = server.get("/export/all.json").await.json();
+    assert!(index["conferences"].as_array().unwrap().iter().any(|c| c["slug"] == slug));
+    let sitemap = server.get("/sitemap.xml").await.text();
+    assert!(sitemap.contains(&format!("/conferences/{slug}</loc>")));
+
+    // Cleanup
+    server.delete(&format!("/committees/{role_id}")).await;
+    server.delete(&format!("/publications/{publication_id}")).await;
+    for id in &author_ids {
+        server.delete(&format!("/authors/{id}")).await;
+    }
+    server.delete(&format!("/conferences/{conference_id}")).await;
+}
+
+#[tokio::test]
+async fn test_export_unknown_conference_is_404() {
+    let server = setup().await;
+    for path in ["/export/conferences/qip-1", "/export/conferences/nonsense", "/export/conferences/qip-1/talks.csv"] {
+        let response = server.get(path).await;
+        assert_eq!(response.status_code().as_u16(), 404, "{path}");
+    }
+}
+
+#[tokio::test]
+async fn test_discovery_files() {
+    let server = setup().await;
+
+    let response = server.get("/robots.txt").await;
+    response.assert_status_ok();
+    let robots = response.text();
+    assert!(robots.contains("User-agent: *") && robots.contains("Disallow: /admin/"));
+    assert!(robots.contains("Sitemap: ") && robots.contains("/sitemap.xml"));
+
+    let response = server.get("/llms.txt").await;
+    response.assert_status_ok();
+    assert!(response.header("content-type").to_str().unwrap().starts_with("text/markdown"));
+    let llms = response.text();
+    assert!(llms.starts_with("# QuantumDB"));
+    assert!(llms.contains("/api/v1/export/conferences/") && llms.contains("CC0"));
+
+    let response = server.get("/sitemap.xml").await;
+    response.assert_status_ok();
+    assert!(response.header("content-type").to_str().unwrap().starts_with("application/xml"));
+    assert!(response.text().contains("<urlset"));
+
+    let authors: serde_json::Value = server.get("/export/authors.json").await.json();
+    assert!(!authors["authors"].as_array().unwrap().is_empty());
+}
