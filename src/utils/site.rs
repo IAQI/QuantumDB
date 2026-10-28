@@ -28,7 +28,18 @@ pub fn public_base_url() -> &'static str {
 
 /// Quote one CSV field per RFC 4180: wrap in quotes when it contains a comma,
 /// quote, CR or LF, doubling any embedded quotes.
+///
+/// Fields starting with `=`, `+`, `-`, `@`, tab or CR get a leading `'` so a
+/// spreadsheet opening the export treats them as text, not a formula (CSV
+/// injection). No current value starts with these characters.
 pub fn csv_field(s: &str) -> String {
+    let neutralized;
+    let s = if s.starts_with(['=', '+', '-', '@', '\t', '\r']) {
+        neutralized = format!("'{s}");
+        neutralized.as_str()
+    } else {
+        s
+    };
     if s.contains([',', '"', '\n', '\r']) {
         format!("\"{}\"", s.replace('"', "\"\""))
     } else {
@@ -105,6 +116,15 @@ mod tests {
         assert_eq!(csv_field("say \"hi\""), "\"say \"\"hi\"\"\"");
         assert_eq!(csv_field("two\nlines"), "\"two\nlines\"");
         assert_eq!(csv_field(""), "");
+    }
+
+    #[test]
+    fn neutralizes_spreadsheet_formulas() {
+        assert_eq!(csv_field("=HYPERLINK(\"x\")"), "\"'=HYPERLINK(\"\"x\"\")\"");
+        assert_eq!(csv_field("+1"), "'+1");
+        assert_eq!(csv_field("-2"), "'-2");
+        assert_eq!(csv_field("@SUM(A1)"), "'@SUM(A1)");
+        assert_eq!(csv_field("a=b"), "a=b");
     }
 
     #[test]
