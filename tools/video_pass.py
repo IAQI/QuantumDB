@@ -151,7 +151,7 @@ def fetch_video(video_id, refresh=False, sleep=1.5):
         return json.loads(cache.read_text())
     try:
         out = _run_yt_dlp([
-            "--skip-download", "--dump-json",
+            "--skip-download", "--dump-json", "--ignore-no-formats-error",
             f"https://www.youtube.com/watch?v={video_id}",
         ])
         data = json.loads(out)
