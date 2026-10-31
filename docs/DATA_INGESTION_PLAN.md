@@ -221,7 +221,7 @@ Committees count is row count.
 | 2023 | 79 | 118 (117/117/108/0) | ✓ schedule from Indico timetable; +8 tutorials +1 invited added; 1 row (Liu Copy-Protection) lacks slot in archived JSON |
 | 2024 | 85 | 131 (20/16/0/0) | partial schedule |
 | 2025 |  – | – | not seeded |
-| 2026 | 154 | 158 (152/152/0/0) | ✓ JSON-backed talks; 6 talks missing schedule; posters pending separate JSON |
+| 2026 | 154 | 164 (158/158/154/154) | ✓ JSON-backed talks; videos + speaker check from YouTube descriptions (2026-10-29); 4 tutorials + 2 invited added |
 
 ### QCrypt (2011–2024 seeded; 2025/2026 CSVs present; no proceedings/workshop)
 
@@ -242,7 +242,7 @@ Committees count is row count.
 | 2023 | 50 | 47 (47/47/0/0) | no video |
 | 2024 | 49 | 50 (50/50/0/0) | no video |
 | 2025 | – | – | not seeded |
-| 2026 | 51 | 46 (46/46/46/0/0) + 112 posters | ✓ live-site scrape 2026-09-26 (`tools/one_off/conf2026/`); authors initials-only on site → arXiv-resolved, residue tagged `names=initials_new` / `names=initials_ambiguous`; no videos yet |
+| 2026 | 51 | 46 (46/46/45/45) + 112 posters | ✓ live-site scrape 2026-09-26 (`tools/one_off/conf2026/`); full author names from the site (`names=site`); videos 2026-10-29; presenters for 44/46 talks (31 inferred from the recordings) |
 
 QCrypt is the most complete venue. Schedule data is essentially 100%.
 Video URLs only for 2011–2014; YouTube playlist enrichment would
@@ -353,7 +353,7 @@ YouTube enrichment pass (deferred — see below), not re-scraping HTML.
 |------|-----|--------|
 | 2011–2024 | sparse video / yt fields | YouTube enrichment (deferred) |
 | 2025 | not seeded | seed when archive is published |
-| 2026 | CSVs built; full author names for rows tagged `names=initials_ambiguous` (45); video links once posted | hand-fix residue; re-run `convert_qcrypt_2026.py` (reads the `~/Web` mirror, else the live site) |
+| 2026 | presenters unknown for 2 talks (entropy estimation via layer cakes; NI-MPC); CV-QKD tutorial video not posted | ask the organizers / check the session chair notes |
 
 ### TQC
 

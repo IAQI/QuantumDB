@@ -32,6 +32,25 @@ were added to the page after the first scrape; they were backfilled on
 > one: its `sessions/lecture/{brassard,pan}` pages are 2025 leftovers (not in the
 > 2026 schedule, already in `qcrypt_2025/talks.csv`) and are ignored.
 
+> **QCrypt 2026 presenters** (`speakers` column of `qcrypt_2026/talks.csv`): the
+> program names presenters only for invited/tutorial/industry slots. For the
+> contributed talks they were inferred on 2026-10-29 from the YouTube recordings
+> (`@QCrypt2026-OttawaCanada`): the opening title slide (presenter in bold /
+> underlined / the only name), else the auto-captions (chair intro, self-intro,
+> or exclusion via "joint work with ..."). Decisions + evidence per talk live in
+> `qcrypt_2026/raw/video_speakers.json` and are applied by
+> `tools/one_off/conf2026/apply_qcrypt_2026_video_speakers.py`; rows are tagged
+> `speaker_source=video_title_slide|video_captions` and `speaker_confidence=`.
+> Undetermined: "Reliable Entropy Estimation ... Layer-Cake ..." and
+> "Non Interactive MPC, (Quantumly) Revisited".
+
+> **QIP 2026 videos + speakers** come from the structured YouTube descriptions
+> on `@QIPconferencevideos` (TITLE / SPEAKER / AUTHORS per talk), via
+> `tools/one_off/conf2026/qip_2026_videos.py`; 8 program speakers were corrected
+> to the co-author who actually gave the talk (tag `speaker_source=video_description`).
+> The 4 tutorials (`raw/tutorials.csv`) and the 2 invited plenaries (Boixo,
+> Watrous; from their video descriptions) were added as rows.
+
 > **QCrypt student paper prizes** (the `Best Student Paper Award …` values in
 > the `award` column of each `qcrypt_<year>/talks.csv`) come from the official
 > history page <https://qcrypt.net/2026/history/#student-paper-prizes>

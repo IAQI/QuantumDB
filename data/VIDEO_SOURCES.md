@@ -17,7 +17,7 @@ Maintained alongside `tools/video_channels.json` (the machine-readable YouTube s
   harvestable YouTube playlist/channel (would need a different scraper).
 - `pending` — too recent; recordings may still be published.
 
-Last updated: 2026-07-05.
+Last updated: 2026-10-29.
 
 ## QIP
 
@@ -40,7 +40,7 @@ Last updated: 2026-07-05.
 | 2023 | 97% | `@QIP2023` | recorded |
 | 2024 | 80% | `@QIP2024` | recorded |
 | 2025 | 28% | `@QIP2025` | partial — recent; more may be posted |
-| 2026 | 0% | — | pending (Riga, Jan 2026) |
+| 2026 | 94% | `@QIPconferencevideos` (11 `QIP2026: <TOPIC>` playlists) | recorded — linked 2026-10-29 by `tools/one_off/conf2026/qip_2026_videos.py` (structured descriptions: TITLE/SPEAKER/AUTHORS per talk; merged-slot videos linked with `&t=` offsets); 10 talks not on the channel |
 
 ## QCrypt
 
@@ -58,7 +58,7 @@ Last updated: 2026-07-05.
 | 2023 | 68% | playlist `PLbY0Lk6JsgBEph5CPYTQZs6cOKBPGSnnI` (UMaryland) | recorded — added 2026-06 |
 | 2024 | 0% | videos on `2024.qcrypt.net` (Vigo) | none — source not on YouTube |
 | 2025 | 98% | (prior enrichment) | recorded |
-| 2026 | — | — | pending (no talk data yet) |
+| 2026 | 98% | `@QCrypt2026-OttawaCanada` | recorded — linked 2026-10-29 (`video_pass` + `tools/one_off/conf2026/apply_qcrypt_2026_video_speakers.py`); presenters inferred from title slides / captions (`raw/video_speakers.json`); CV-QKD tutorial not uploaded |
 
 **Note:** the `@qcryptconference239` channel hosts **only 2020/2021/2022** (verified by enumeration).
 
@@ -82,4 +82,5 @@ Last updated: 2026-07-05.
 - **QCrypt 2022**: channel has 86 videos but they're titled by speaker; would need a
   speaker-keyed matcher rather than title-Jaccard.
 - **TQC 2020 / 2022**: 2020 is livestream-only; 2022 (Illinois) has no public recordings found.
-- **QIP 2025 / 2026**: recent — re-run `video_pass` as more videos are posted.
+- **QIP 2025**: recent — re-run `video_pass` as more videos are posted.
+- **QIP 2026**: 10 talks missing from the channel (e.g. "A Constant Rate Quantum Computer on a Line", "Two bases suffice for QMA1-completeness"); re-run `video_pass qip 2026` (to refresh the cache) and `qip_2026_videos.py --write` if more appear.
