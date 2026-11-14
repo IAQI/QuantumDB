@@ -268,24 +268,21 @@ async def import_talk(
         )
         logger.info(f"Created publication: {talk.get('title')}")
 
-    # Clear the presenter before touching authorships. Re-importing replaces the
-    # authorship rows below (delete + re-insert); if the presenter's authorship is
-    # deleted while presenter_author_id still points at it, the presenter is left
-    # dangling and the authorships->publications sync trigger
-    # (trg_authorships_sync_author_names) trips the ensure_presenter_is_author
-    # check mid-delete. We restore the presenter after re-inserting authorships.
-    # (The 20260702180000 migration also enforces this at the DB level; this keeps
-    # the importer correct even against a schema without that trigger.)
-    await conn.execute(
-        "UPDATE publications SET presenter_author_id = NULL WHERE id = $1",
-        publication_id
-    )
-
     # Clear existing authorships (for updates)
     await conn.execute(
         "DELETE FROM authorships WHERE publication_id = $1",
         publication_id
     )
+
+    # Presenters: `speakers` lists one or more names. A speaker who is one of the
+    # authors gets `is_presenter` on their authorship row (a talk may have several
+    # presenters). A speaker who is NOT an author (rare: the authors could not
+    # travel) is kept as plain text in metadata.presenter_name ("; "-separated),
+    # deliberately not linked to an author record. Unmatched speakers are logged
+    # as warnings, because they are often name-spelling mismatches to fix in the
+    # CSV rather than real stand-ins.
+    speaker_keys = {normalize_name(s).lower(): s for s in (speakers or []) if s and s.strip()}
+    matched_speakers = set()
 
     # Create authorships
     name_to_author_id = {}
@@ -297,45 +294,34 @@ async def import_talk(
 
         # Get or create author
         author_id = await get_or_create_author(conn, author_name, affiliation)
-        name_to_author_id[normalize_name(author_name).lower()] = author_id
+        author_key = normalize_name(author_name).lower()
+        name_to_author_id[author_key] = author_id
+        is_presenter = author_key in speaker_keys
+        if is_presenter:
+            matched_speakers.add(author_key)
 
         # Create authorship
         await conn.execute(
             """
             INSERT INTO authorships (
                 publication_id, author_id, author_position, published_as_name, affiliation,
-                metadata, creator, modifier
+                metadata, is_presenter, creator, modifier
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, 'import_from_csv', 'import_from_csv'
+                $1, $2, $3, $4, $5, $6, $7, 'import_from_csv', 'import_from_csv'
             )
             """,
-            publication_id, author_id, idx, author_name, affiliation, json.dumps(enriched_metadata)
+            publication_id, author_id, idx, author_name, affiliation, json.dumps(enriched_metadata),
+            is_presenter
         )
 
-    # Set the presenter from the `speakers` column. Only a single speaker can be
-    # represented (presenter_author_id is single-valued); the speaker must be one
-    # of the talk's authors (DB trigger enforces this). Always written so re-imports
-    # stay idempotent — resolves to NULL when there is no unambiguous speaker.
-    #
-    # When the lone speaker is NOT among the authors, it's a stand-in presentation
-    # (e.g. a co-author/colleague presented on behalf of the authors). The trigger
-    # forbids a non-author presenter_author_id, so we follow the documented
-    # convention instead: leave presenter_author_id NULL and record the presenter
-    # in metadata.presenter_name (+ presenter_note).
-    presenter_id = None
-    presenter_name = None
-    if speakers and len(speakers) == 1:
-        presenter_id = name_to_author_id.get(normalize_name(speakers[0]).lower())
-        if presenter_id is None:
-            presenter_name = speakers[0]
-            logger.debug(
-                f"Stand-in presenter '{speakers[0]}' not among authors of "
-                f"'{talk.get('title')}' — recording in metadata.presenter_name"
-            )
-    await conn.execute(
-        "UPDATE publications SET presenter_author_id = $1 WHERE id = $2",
-        presenter_id, publication_id
-    )
+    non_author_speakers = [name for key, name in speaker_keys.items() if key not in matched_speakers]
+    presenter_name = "; ".join(non_author_speakers) or None
+    for name in non_author_speakers:
+        logger.warning(
+            f"Speaker '{name}' is not among the authors of '{talk.get('title')}' — "
+            "recorded as a non-author presenter (metadata.presenter_name); "
+            "check the CSV for a name mismatch"
+        )
     # Merge or strip the metadata presenter keys (idempotent across re-imports).
     if presenter_name:
         await conn.execute(

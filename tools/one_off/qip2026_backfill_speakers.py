@@ -223,7 +223,7 @@ def main():
 
     # QIP CSVs historically used a singular `speaker` header, but the talks importer
     # only reads `speakers` (plural) — so presenters from a singular column never reach
-    # presenter_author_id. Read from whichever exists and standardize the output to
+    # the presenter flags. Read from whichever exists and standardize the output to
     # `speakers` so the identified presenters actually import.
     spk_col = "speaker" if "speaker" in fieldnames else "speakers"
     for r in rows:

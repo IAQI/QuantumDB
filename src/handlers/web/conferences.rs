@@ -468,7 +468,6 @@ pub async fn conference_detail(
             p.talk_date,
             p.talk_time,
             p.duration_minutes,
-            p.presenter_author_id,
             COALESCE(p.arxiv_ids, ARRAY[]::text[]) as "arxiv_ids!",
             COALESCE(p.abstract, '') as "abstract_text!",
             COALESCE(p.video_url, '') as "video_url!",
@@ -506,14 +505,13 @@ pub async fn conference_detail(
             SELECT
                 a.slug as "slug!",
                 a.full_name,
-                COALESCE(a.id = $2, false) as "is_speaker!"
+                au.is_presenter as "is_speaker!"
             FROM authorships au
             JOIN authors a ON au.author_id = a.id
             WHERE au.publication_id = $1
             ORDER BY au.author_position
             "#,
-            pub_record.id,
-            pub_record.presenter_author_id
+            pub_record.id
         )
         .fetch_all(&pool)
         .await

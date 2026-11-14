@@ -84,7 +84,7 @@ Order in `affiliations` must match the order in `authors`.
 | `year`             | Conference year                                                                          |
 | `paper_type`       | `regular`, `poster`, `invited`, `tutorial`, `keynote`, `plenary`, `plenary_short`, `plenary_long`, `industry` |
 | `title`            | Paper / talk title                                                                       |
-| `speakers`         | `;`-separated speaker names (who actually presented)                                     |
+| `speakers`         | `;`-separated presenter names; several allowed, empty when unknown (never guess)        |
 | `authors`          | `;`-separated author names (defaults to `speakers` when empty)                           |
 | `affiliations`     | `;`-separated affiliations matching the order of `authors`                               |
 | `abstract`         | Abstract text (optional)                                                                 |

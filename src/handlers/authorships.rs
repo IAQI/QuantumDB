@@ -39,7 +39,7 @@ pub async fn list_authorships(
         (Some(pub_id), Some(auth_id)) => {
             sqlx::query_as::<_, Authorship>(
                 r#"SELECT id, publication_id, author_id, author_position, published_as_name, 
-                   affiliation, COALESCE(metadata, '{}'::jsonb) as metadata, created_at, updated_at 
+                   affiliation, is_presenter, COALESCE(metadata, '{}'::jsonb) as metadata, created_at, updated_at 
                    FROM authorships WHERE publication_id = $1 AND author_id = $2 ORDER BY author_position"#,
             )
             .bind(pub_id)
@@ -50,7 +50,7 @@ pub async fn list_authorships(
         (Some(pub_id), None) => {
             sqlx::query_as::<_, Authorship>(
                 r#"SELECT id, publication_id, author_id, author_position, published_as_name, 
-                   affiliation, COALESCE(metadata, '{}'::jsonb) as metadata, created_at, updated_at 
+                   affiliation, is_presenter, COALESCE(metadata, '{}'::jsonb) as metadata, created_at, updated_at 
                    FROM authorships WHERE publication_id = $1 ORDER BY author_position"#,
             )
             .bind(pub_id)
@@ -60,7 +60,7 @@ pub async fn list_authorships(
         (None, Some(auth_id)) => {
             sqlx::query_as::<_, Authorship>(
                 r#"SELECT id, publication_id, author_id, author_position, published_as_name, 
-                   affiliation, COALESCE(metadata, '{}'::jsonb) as metadata, created_at, updated_at 
+                   affiliation, is_presenter, COALESCE(metadata, '{}'::jsonb) as metadata, created_at, updated_at 
                    FROM authorships WHERE author_id = $1 ORDER BY created_at DESC"#,
             )
             .bind(auth_id)
@@ -70,7 +70,7 @@ pub async fn list_authorships(
         (None, None) => {
             sqlx::query_as::<_, Authorship>(
                 r#"SELECT id, publication_id, author_id, author_position, published_as_name, 
-                   affiliation, COALESCE(metadata, '{}'::jsonb) as metadata, created_at, updated_at 
+                   affiliation, is_presenter, COALESCE(metadata, '{}'::jsonb) as metadata, created_at, updated_at 
                    FROM authorships ORDER BY created_at DESC LIMIT 100"#,
             )
             .fetch_all(&pool)
@@ -99,7 +99,7 @@ pub async fn get_authorship(
 ) -> Result<Json<Authorship>, StatusCode> {
     sqlx::query_as::<_, Authorship>(
         r#"SELECT id, publication_id, author_id, author_position, published_as_name, 
-           affiliation, COALESCE(metadata, '{}'::jsonb) as metadata, created_at, updated_at 
+           affiliation, is_presenter, COALESCE(metadata, '{}'::jsonb) as metadata, created_at, updated_at 
            FROM authorships WHERE id = $1"#
     )
         .bind(id)
@@ -138,11 +138,11 @@ pub async fn create_authorship(
         r#"
         INSERT INTO authorships (
             publication_id, author_id, author_position, published_as_name,
-            affiliation, metadata, creator, modifier
+            affiliation, metadata, creator, modifier, is_presenter
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
         RETURNING id, publication_id, author_id, author_position, published_as_name, 
-                  affiliation, COALESCE(metadata, '{}'::jsonb) as metadata, created_at, updated_at
+                  affiliation, is_presenter, COALESCE(metadata, '{}'::jsonb) as metadata, created_at, updated_at
         "#,
     )
     .bind(&payload.publication_id)
@@ -153,6 +153,7 @@ pub async fn create_authorship(
     .bind(payload.metadata.unwrap_or_else(|| serde_json::json!({})))
     .bind(&payload.creator)
     .bind(&payload.modifier)
+    .bind(payload.is_presenter.unwrap_or(false))
     .fetch_one(&pool)
     .await
     .map_err(|e| {
@@ -198,7 +199,7 @@ pub async fn update_authorship(
     // First check if authorship exists
     let existing = sqlx::query_as::<_, Authorship>(
         r#"SELECT id, publication_id, author_id, author_position, published_as_name, 
-           affiliation, COALESCE(metadata, '{}'::jsonb) as metadata, created_at, updated_at 
+           affiliation, is_presenter, COALESCE(metadata, '{}'::jsonb) as metadata, created_at, updated_at 
            FROM authorships WHERE id = $1"#
     )
         .bind(id)
@@ -214,17 +215,19 @@ pub async fn update_authorship(
             published_as_name = COALESCE($2, published_as_name),
             affiliation = COALESCE($3, affiliation),
             metadata = COALESCE($4, metadata),
-            modifier = $5,
+            is_presenter = COALESCE($5, is_presenter),
+            modifier = $6,
             updated_at = NOW()
-        WHERE id = $6
+        WHERE id = $7
         RETURNING id, publication_id, author_id, author_position, published_as_name, 
-                  affiliation, COALESCE(metadata, '{}'::jsonb) as metadata, created_at, updated_at
+                  affiliation, is_presenter, COALESCE(metadata, '{}'::jsonb) as metadata, created_at, updated_at
         "#,
     )
     .bind(payload.author_position.or(Some(existing.author_position)))
     .bind(payload.published_as_name.or(Some(existing.published_as_name)))
     .bind(payload.affiliation.or(existing.affiliation))
     .bind(payload.metadata.or(Some(existing.metadata)))
+    .bind(payload.is_presenter)
     .bind(&payload.modifier)
     .bind(id)
     .fetch_one(&pool)

@@ -33,9 +33,13 @@ COPY templates ./templates
 COPY static ./static
 COPY .sqlx ./.sqlx
 
-# Build for release with SQLX_OFFLINE mode
+# Build for release with SQLX_OFFLINE mode.
+# Touch the crate roots first: COPY keeps the host mtimes, which are older than
+# the dummy build above, and newer cargo versions keep their fingerprints outside
+# the paths removed above, so without this cargo can treat the dummy
+# "Hello, world!" binary as up to date and ship it.
 ENV SQLX_OFFLINE=true
-RUN cargo build --release
+RUN touch src/main.rs src/lib.rs && cargo build --release
 
 # Runtime stage
 FROM debian:bookworm-slim

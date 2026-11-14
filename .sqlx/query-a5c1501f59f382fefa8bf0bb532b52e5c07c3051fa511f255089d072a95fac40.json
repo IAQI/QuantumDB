@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n            SELECT\n                a.slug as \"slug!\",\n                a.full_name,\n                COALESCE(a.id = $2, false) as \"is_speaker!\"\n            FROM authorships au\n            JOIN authors a ON au.author_id = a.id\n            WHERE au.publication_id = $1\n            ORDER BY au.author_position\n            ",
+  "query": "\n            SELECT\n                a.slug as \"slug!\",\n                a.full_name,\n                au.is_presenter as \"is_speaker!\"\n            FROM authorships au\n            JOIN authors a ON au.author_id = a.id\n            WHERE au.publication_id = $1\n            ORDER BY au.author_position\n            ",
   "describe": {
     "columns": [
       {
@@ -21,15 +21,14 @@
     ],
     "parameters": {
       "Left": [
-        "Uuid",
         "Uuid"
       ]
     },
     "nullable": [
       false,
       false,
-      null
+      false
     ]
   },
-  "hash": "bc08cacd757d52b0769c14ba46dfe9e680808bc207604e751550624cd5690858"
+  "hash": "a5c1501f59f382fefa8bf0bb532b52e5c07c3051fa511f255089d072a95fac40"
 }

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        SELECT\n            id, conference_id, canonical_key, doi,\n            COALESCE(arxiv_ids, ARRAY[]::text[]) as \"arxiv_ids!\",\n            title, abstract as \"abstract_text\",\n            paper_type as \"paper_type: PaperType\",\n            pages, session_name, presentation_url, video_url, youtube_id,\n            award, award_date, published_date,\n            presenter_author_id, is_proceedings_track,\n            talk_date, talk_time, duration_minutes,\n            created_at, updated_at\n        FROM publications\n        WHERE id = $1\n        ",
+  "query": "\n        INSERT INTO publications (\n            conference_id, canonical_key, doi, arxiv_ids,\n            title, abstract, paper_type,\n            pages, session_name, presentation_url, video_url, youtube_id,\n            award, award_date, published_date,\n            is_proceedings_track,\n            talk_date, talk_time, duration_minutes,\n            creator, modifier\n        )\n        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)\n        RETURNING\n            id, conference_id, canonical_key, doi,\n            COALESCE(arxiv_ids, ARRAY[]::text[]) as \"arxiv_ids!\",\n            title, abstract as \"abstract_text\",\n            paper_type as \"paper_type: PaperType\",\n            pages, session_name, presentation_url, video_url, youtube_id,\n            award, award_date, published_date,\n            ARRAY(SELECT au.author_id FROM authorships au\n                  WHERE au.publication_id = publications.id AND au.is_presenter\n                  ORDER BY au.author_position) as \"presenter_author_ids!\",\n            COALESCE(string_to_array(metadata->>'presenter_name', '; '), ARRAY[]::text[]) as \"presenter_names!\",\n            is_proceedings_track,\n            talk_date, talk_time, duration_minutes,\n            created_at, updated_at\n        ",
   "describe": {
     "columns": [
       {
@@ -102,43 +102,85 @@
       },
       {
         "ordinal": 16,
-        "name": "presenter_author_id",
-        "type_info": "Uuid"
+        "name": "presenter_author_ids!",
+        "type_info": "UuidArray"
       },
       {
         "ordinal": 17,
+        "name": "presenter_names!",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 18,
         "name": "is_proceedings_track",
         "type_info": "Bool"
       },
       {
-        "ordinal": 18,
+        "ordinal": 19,
         "name": "talk_date",
         "type_info": "Date"
       },
       {
-        "ordinal": 19,
+        "ordinal": 20,
         "name": "talk_time",
         "type_info": "Time"
       },
       {
-        "ordinal": 20,
+        "ordinal": 21,
         "name": "duration_minutes",
         "type_info": "Int4"
       },
       {
-        "ordinal": 21,
+        "ordinal": 22,
         "name": "created_at",
         "type_info": "Timestamptz"
       },
       {
-        "ordinal": 22,
+        "ordinal": 23,
         "name": "updated_at",
         "type_info": "Timestamptz"
       }
     ],
     "parameters": {
       "Left": [
-        "Uuid"
+        "Uuid",
+        "Text",
+        "Text",
+        "TextArray",
+        "Text",
+        "Text",
+        {
+          "Custom": {
+            "name": "paper_type",
+            "kind": {
+              "Enum": [
+                "regular",
+                "poster",
+                "invited",
+                "tutorial",
+                "keynote",
+                "plenary",
+                "plenary_short",
+                "plenary_long",
+                "industry"
+              ]
+            }
+          }
+        },
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Date",
+        "Date",
+        "Bool",
+        "Date",
+        "Time",
+        "Int4",
+        "Text",
+        "Text"
       ]
     },
     "nullable": [
@@ -158,7 +200,8 @@
       true,
       true,
       true,
-      true,
+      null,
+      null,
       false,
       true,
       true,
@@ -167,5 +210,5 @@
       false
     ]
   },
-  "hash": "c8ad554c8ed0a2069eeb15d529949a4e86b66228be5b8212da15f7805525ad28"
+  "hash": "d89ba184ce904880f142d002972a08a1e3c866ee0b5cb04c281bb7abd914db13"
 }

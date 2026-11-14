@@ -167,8 +167,9 @@ pub struct ExportPublication {
     /// TQC only: published in the formal (LIPIcs/LNCS) proceedings track.
     pub is_proceedings_track: bool,
     pub authors: Vec<ExportAuthorRef>,
-    /// Presenter's name (an author, or a non-author recorded in metadata).
-    pub presenter: Option<String>,
+    /// Who presented the talk, in author order: presenting authors first, then
+    /// any non-author presenters (rare; kept as plain names). Empty when unknown.
+    pub presenters: Vec<String>,
     pub arxiv_ids: Vec<String>,
     pub doi: Option<String>,
     pub pages: Option<String>,
@@ -353,7 +354,7 @@ pub async fn load_conference_exports(
             a.slug as "slug!",
             a.full_name,
             a.orcid,
-            COALESCE(p.presenter_author_id = a.id, false) as "is_presenter!"
+            au.is_presenter as "is_presenter!"
         FROM authorships au
         JOIN publications p ON p.id = au.publication_id
         JOIN authors a ON a.id = au.author_id
@@ -413,11 +414,24 @@ pub async fn load_conference_exports(
     let mut pubs_by_conf: HashMap<Uuid, Vec<ExportPublication>> = HashMap::new();
     for r in pub_rows {
         let authors = authors_by_pub.remove(&r.id).unwrap_or_default();
-        let presenter = authors
+        let mut presenters: Vec<String> = authors
             .iter()
-            .find(|a| a.is_presenter)
-            .map(|a| a.published_as_name.clone().unwrap_or_else(|| a.name.clone()))
-            .or_else(|| non_empty(r.presenter_name));
+            .filter(|a| a.is_presenter)
+            .map(|a| {
+                a.published_as_name
+                    .clone()
+                    .unwrap_or_else(|| a.name.clone())
+            })
+            .collect();
+        if let Some(names) = non_empty(r.presenter_name) {
+            presenters.extend(
+                names
+                    .split(';')
+                    .map(str::trim)
+                    .filter(|n| !n.is_empty())
+                    .map(String::from),
+            );
+        }
         pubs_by_conf
             .entry(r.conference_id)
             .or_default()
@@ -427,7 +441,7 @@ pub async fn load_conference_exports(
                 paper_type: r.paper_type,
                 is_proceedings_track: r.is_proceedings_track,
                 authors,
-                presenter,
+                presenters,
                 arxiv_ids: r.arxiv_ids,
                 doi: non_empty(r.doi),
                 pages: non_empty(r.pages),
@@ -677,7 +691,7 @@ fn publications_csv(export: &ConferenceExport, posters: bool) -> String {
             year.clone(),
             p.paper_type.clone(),
             p.title.clone(),
-            opt(&p.presenter),
+            p.presenters.join(";"),
             authors.join(";"),
             affiliations,
             opt(&p.abstract_text),

@@ -40,7 +40,7 @@ covering:
 3. Source-tracking convention so DB rows carry which method produced
    them (re-runnable scraper vs one-shot AI extraction).
 4. Deferred future track: YouTube playlist mining for `video_url`,
-   `youtube_id`, and `presenter_author_id` inference.
+   `youtube_id`, and presenter inference.
 
 ## Tipping-point heuristic (scraper vs claude-direct)
 
@@ -382,7 +382,7 @@ YouTube enrichment pass (deferred — see below), not re-scraping HTML.
 preserved when the work is picked up later. Not part of the current
 ingestion pass.
 
-Goal: populate `video_url`, `youtube_id`, and infer `presenter_author_id`.
+Goal: populate `video_url`, `youtube_id`, and infer presenters (the CSV `speakers` column; a talk may have several).
 
 ### Sources
 
@@ -404,8 +404,8 @@ Goal: populate `video_url`, `youtube_id`, and infer `presenter_author_id`.
    - `"[Year] Speaker Name: Title"`
 
    Parse with a few alternative regexes; the speaker-side is matched
-   against the publication's `authors` list. Only set
-   `presenter_author_id` when there's a confident author match;
+   against the publication's `authors` list. Only fill `speakers`
+   when there's a confident author match;
    otherwise stash the inferred name in `metadata.presenter_inferred`
    for human review.
 4. **Update CSV in place** rather than DB-direct, so the workflow
@@ -419,6 +419,31 @@ Goal: populate `video_url`, `youtube_id`, and infer `presenter_author_id`.
   (most QCrypt playlists ~ contributed-talk count).
 - Never overwrite an existing non-null `video_url` without explicit
   flag; treat the human-curated 2011–2014 entries as ground truth.
+
+## Presenter inference (planned, 2026-11)
+
+About 806 multi-author talks (posters excluded) have no confirmed presenter:
+their `speakers` column is empty, either never filled or cleared because it
+was a guess (first author, or the full author list). Fill them per year, in
+this order, and never fall back to guessing:
+
+1. **Archived program pages**: scan each year's mirror under `~/Web/` for
+   presenter markup (bold, underline, asterisk). Known to work: QIP 2009
+   (bold on the homepage), QIP 2014 (bold in `cgi-bin/talks/allprint.pl.html`),
+   QCrypt 2011 (underline), QIP 2026 posters (underline). No marking: QIP 2008,
+   QIP 2016.
+2. **Recordings** (336 talks have one): the speaker suffix in the YouTube title,
+   then the auto-captions of the first ~3 minutes (self-introduction, or
+   "joint work with" naming every co-author but one). See
+   `tools/one_off/fix_qip_first_author_presenters.py` (QIP 2024) and the
+   TQC 2020/2021 `*_speakers_from_videos.py` scripts. Throttle caption
+   downloads (YouTube returns HTTP 429).
+3. **Manual check** of whatever remains, in the Speaker Picker artifact
+   (Claude seeds a batch of talks; the picks are applied to the CSVs by a
+   one-off script).
+
+Each pass writes the CSV `speakers` column only; the importer turns matched
+names into `authorships.is_presenter` flags.
 
 ## Verification plan (overall)
 

@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 # particle variants that normalize_name() cannot collapse). Same file that
 # dedup_authors.py Phase A consumes; the importer now applies it at ingest so
 # the DB is a pure function of the CSVs and no author row is ever
-# created-then-deleted (which would silently null publications.presenter_author_id).
+# created-then-deleted (which would silently drop its authorships and presenter flags).
 AUTHOR_ALIASES_PATH = Path(__file__).resolve().parents[2] / 'data' / 'author_aliases.csv'
 
 

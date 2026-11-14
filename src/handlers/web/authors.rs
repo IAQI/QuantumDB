@@ -601,10 +601,10 @@ pub async fn author_detail(
                 ARRAY[]::text[]
             ) as "coauthor_names!",
             COALESCE(
-                array_agg(COALESCE(a2.id = p.presenter_author_id, false) ORDER BY au2.author_position) FILTER (WHERE a2.id IS NOT NULL),
+                array_agg(au2.is_presenter ORDER BY au2.author_position) FILTER (WHERE a2.id IS NOT NULL),
                 ARRAY[]::boolean[]
             ) as "coauthor_is_speaker!",
-            COALESCE(p.presenter_author_id = $1, false) as "presenter_is_self!",
+            COALESCE(bool_or(au.is_presenter), false) as "presenter_is_self!",
             COALESCE(p.arxiv_ids, ARRAY[]::text[]) as "arxiv_ids!",
             COALESCE(p.abstract, '') as "abstract_text!",
             COALESCE(p.video_url, '') as "video_url!",

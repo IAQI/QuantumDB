@@ -12,7 +12,7 @@ returns a list of poster dicts with the contract::
     }
 
 ``speakers`` is normally absent — most poster pages mark no distinct presenter, so
-the importer resolves ``presenter_author_id`` to NULL. The exception is QIP 2026,
+the importer marks no presenter. The exception is QIP 2026,
 whose page underlines (``<u>``) the presenter: ``parse_qip_2026`` emits ``speakers``
 (and a ``scheduled_date``) so the importer sets the presenter. ``scheduled_time`` /
 ``duration_minutes`` are absent too (posters legitimately lack them). The runner

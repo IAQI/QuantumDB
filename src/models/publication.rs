@@ -52,9 +52,13 @@ pub struct Publication {
     pub award: Option<String>,
     pub award_date: Option<NaiveDate>,
     pub published_date: Option<NaiveDate>,
-    /// Author who presented the talk (must be one of the authors)
-    /// Often unknown for contributed talks, may be inferred from video/slides
-    pub presenter_author_id: Option<Uuid>,
+    /// Authors who presented the talk, in author order (set via the
+    /// authorships' `is_presenter` flag). Often unknown for contributed talks;
+    /// a talk may have several presenters.
+    pub presenter_author_ids: Vec<Uuid>,
+    /// Presenters who are not authors (rare: the authors could not travel),
+    /// kept as plain names and not linked to an author record.
+    pub presenter_names: Vec<String>,
     /// Whether this is in the formal proceedings track (TQC only)
     /// TQC has both proceedings and workshop tracks; QIP/QCrypt are workshop-style only
     pub is_proceedings_track: bool,
@@ -87,8 +91,6 @@ pub struct CreatePublication {
     pub award: Option<String>,
     pub award_date: Option<NaiveDate>,
     pub published_date: Option<NaiveDate>,
-    /// Author who presented the talk (must be one of the authors)
-    pub presenter_author_id: Option<Uuid>,
     /// Whether this is in the formal proceedings track
     pub is_proceedings_track: Option<bool>,
     /// Date when the talk was given
@@ -118,8 +120,6 @@ pub struct UpdatePublication {
     pub award: Option<String>,
     pub award_date: Option<NaiveDate>,
     pub published_date: Option<NaiveDate>,
-    /// Author who presented the talk (must be one of the authors)
-    pub presenter_author_id: Option<Uuid>,
     /// Whether this is in the formal proceedings track
     pub is_proceedings_track: Option<bool>,
     /// Date when the talk was given
@@ -140,6 +140,8 @@ pub struct Authorship {
     pub author_position: i32,
     pub published_as_name: String,
     pub affiliation: Option<String>,
+    /// Whether this author presented the talk (a talk may have several presenters)
+    pub is_presenter: bool,
     pub metadata: serde_json::Value,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
@@ -153,6 +155,8 @@ pub struct CreateAuthorship {
     pub author_position: i32,
     pub published_as_name: String,
     pub affiliation: Option<String>,
+    /// Whether this author presented the talk (default: false)
+    pub is_presenter: Option<bool>,
     pub metadata: Option<serde_json::Value>,
     pub creator: String,
     pub modifier: String,
@@ -164,6 +168,8 @@ pub struct UpdateAuthorship {
     pub author_position: Option<i32>,
     pub published_as_name: Option<String>,
     pub affiliation: Option<String>,
+    /// Whether this author presented the talk
+    pub is_presenter: Option<bool>,
     pub metadata: Option<serde_json::Value>,
     pub modifier: String,
 }

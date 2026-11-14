@@ -9,7 +9,7 @@ frames of every talk video, the presenter was read off each title card.
 
 This script embeds that video-derived mapping (youtube_id -> presenter, confidence)
 and writes the HIGH-confidence presenters into the `speakers` column, canonicalized to
-the row's own author spelling so the talks importer resolves presenter_author_id. Rows
+the row's own author spelling so the talks importer flags the presenting author. Rows
 whose confidence is MEDIUM (presenter inferred from first-author + webcam, no explicit
 slide marker) or LOW (unresolved: no marker / merged talk) are left untouched and
 listed for manual review.

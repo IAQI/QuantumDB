@@ -173,9 +173,6 @@ CREATE TABLE publications (
     video_url           TEXT,                 -- Video recording
     youtube_id          TEXT,                 -- YouTube video ID
 
-    -- Presenter tracking
-    presenter_author_id UUID REFERENCES authors(id) ON DELETE SET NULL,  -- Who presented the talk
-
     -- Proceedings tracking
     is_proceedings_track BOOLEAN NOT NULL DEFAULT FALSE,  -- Formal proceedings vs workshop
 
@@ -217,7 +214,6 @@ CREATE INDEX idx_publications_arxiv ON publications USING GIN(arxiv_ids) WHERE a
 CREATE INDEX idx_publications_doi ON publications(doi) WHERE doi IS NOT NULL;
 CREATE INDEX idx_publications_award ON publications(award) WHERE award IS NOT NULL;
 CREATE INDEX idx_publications_metadata ON publications USING GIN(metadata);
-CREATE INDEX idx_publications_presenter ON publications(presenter_author_id) WHERE presenter_author_id IS NOT NULL;
 ```
 
 **Author-name search (migration 20260702000000):** `search_vector` weights title as `A`, abstract as `B`, and author names as `C`, so a search matches on any of the three. Because a `GENERATED` column can't join to `authorships`/`authors`, author names are materialized into `publications.author_names_text` and kept current by `publications_author_names_text()` plus triggers: `trg_authorships_sync_author_names` (on `authorships` INSERT/UPDATE/DELETE) and `trg_authors_sync_publication_author_names` (on author name changes). Author names use the `simple` config (no stemming); title/abstract use `english`.
@@ -243,10 +239,9 @@ Paper types represent what appears in conference programs, not the selection mec
 - Types represent what appears in the conference program, not the selection mechanism (PC-reviewed vs SC-invited)
 
 **Presenter vs Authors:**
-- `presenter_author_id`: The author who actually gave the talk
-- Must be one of the authors in the `authorships` table (enforced by database trigger)
-- Often unknown for contributed talks, may be inferred from videos/slides
-- For rare cases where presenter is not an author, leave this NULL and store presenter info in `metadata` field
+- Presenters are flagged on their authorship row: `authorships.is_presenter`. A talk can have several presenters
+- Often unknown for contributed talks (all flags false); may be inferred from videos/slides, never defaulted to the first author
+- For rare cases where a presenter is not an author, the name stays plain text in `publications.metadata.presenter_name` (`"; "`-separated), deliberately not linked to an author record
 
 **Proceedings Track:**
 - `is_proceedings_track`: Boolean flag indicating formal proceedings vs workshop track
@@ -272,6 +267,7 @@ CREATE TABLE authorships (
     author_position     INT NOT NULL,         -- 1-indexed author order
     published_as_name   TEXT NOT NULL,        -- Name as it appeared on the paper
     affiliation         TEXT,                 -- Affiliation at time of publication
+    is_presenter        BOOLEAN NOT NULL DEFAULT FALSE,  -- This author presented the talk (several allowed)
     metadata            JSONB DEFAULT '{}'::jsonb,  -- Source tracking and additional data
 
     -- Audit fields
