@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        UPDATE publications\n        SET\n            doi = $1,\n            arxiv_ids = $2,\n            title = $3,\n            abstract = $4,\n            paper_type = $5,\n            pages = $6,\n            session_name = $7,\n            presentation_url = $8,\n            video_url = $9,\n            youtube_id = $10,\n            award = $11,\n            award_date = $12,\n            published_date = $13,\n            presenter_author_id = $14,\n            is_proceedings_track = $15,\n            talk_date = $16,\n            talk_time = $17,\n            duration_minutes = $18,\n            modifier = $19,\n            updated_at = NOW()\n        WHERE id = $20\n        RETURNING\n            id, conference_id, canonical_key, doi,\n            COALESCE(arxiv_ids, ARRAY[]::text[]) as \"arxiv_ids!\",\n            title, abstract as \"abstract_text\",\n            paper_type as \"paper_type: PaperType\",\n            pages, session_name, presentation_url, video_url, youtube_id,\n            award, award_date, published_date,\n            presenter_author_id, is_proceedings_track,\n            talk_date, talk_time, duration_minutes,\n            created_at, updated_at\n        ",
+  "query": "\n            SELECT\n                id, conference_id, canonical_key, doi,\n                COALESCE(arxiv_ids, ARRAY[]::text[]) as \"arxiv_ids!\",\n                title, abstract as \"abstract_text\",\n                paper_type as \"paper_type: PaperType\",\n                pages, session_name, presentation_url, video_url, youtube_id,\n                award, award_date, published_date,\n                ARRAY(SELECT au.author_id FROM authorships au\n                      WHERE au.publication_id = publications.id AND au.is_presenter\n                      ORDER BY au.author_position) as \"presenter_author_ids!\",\n                COALESCE(string_to_array(metadata->>'presenter_name', '; '), ARRAY[]::text[]) as \"presenter_names!\",\n                is_proceedings_track,\n                talk_date, talk_time, duration_minutes,\n                created_at, updated_at\n            FROM publications\n            WHERE conference_id = $1\n            ORDER BY session_name, title\n            LIMIT $2 OFFSET $3\n            ",
   "describe": {
     "columns": [
       {
@@ -102,79 +102,50 @@
       },
       {
         "ordinal": 16,
-        "name": "presenter_author_id",
-        "type_info": "Uuid"
+        "name": "presenter_author_ids!",
+        "type_info": "UuidArray"
       },
       {
         "ordinal": 17,
+        "name": "presenter_names!",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 18,
         "name": "is_proceedings_track",
         "type_info": "Bool"
       },
       {
-        "ordinal": 18,
+        "ordinal": 19,
         "name": "talk_date",
         "type_info": "Date"
       },
       {
-        "ordinal": 19,
+        "ordinal": 20,
         "name": "talk_time",
         "type_info": "Time"
       },
       {
-        "ordinal": 20,
+        "ordinal": 21,
         "name": "duration_minutes",
         "type_info": "Int4"
       },
       {
-        "ordinal": 21,
+        "ordinal": 22,
         "name": "created_at",
         "type_info": "Timestamptz"
       },
       {
-        "ordinal": 22,
+        "ordinal": 23,
         "name": "updated_at",
         "type_info": "Timestamptz"
       }
     ],
     "parameters": {
       "Left": [
-        "Text",
-        "TextArray",
-        "Text",
-        "Text",
-        {
-          "Custom": {
-            "name": "paper_type",
-            "kind": {
-              "Enum": [
-                "regular",
-                "poster",
-                "invited",
-                "tutorial",
-                "keynote",
-                "plenary",
-                "plenary_short",
-                "plenary_long",
-                "industry"
-              ]
-            }
-          }
-        },
-        "Text",
-        "Text",
-        "Text",
-        "Text",
-        "Text",
-        "Text",
-        "Date",
-        "Date",
         "Uuid",
-        "Bool",
-        "Date",
-        "Time",
-        "Int4",
-        "Text",
-        "Uuid"
+        "Int8",
+        "Int8"
       ]
     },
     "nullable": [
@@ -194,7 +165,8 @@
       true,
       true,
       true,
-      true,
+      null,
+      null,
       false,
       true,
       true,
@@ -203,5 +175,5 @@
       false
     ]
   },
-  "hash": "a6c08fcdf4677a7e0bc706f84c12ccc245bc5b649a63c7d7771b6196851115af"
+  "hash": "96f0de0665901c25cdcbcaeb2f1eac075179bd4252a2033bd71618c87683e117"
 }

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n            SELECT\n                id, conference_id, canonical_key, doi,\n                COALESCE(arxiv_ids, ARRAY[]::text[]) as \"arxiv_ids!\",\n                title, abstract as \"abstract_text\",\n                paper_type as \"paper_type: PaperType\",\n                pages, session_name, presentation_url, video_url, youtube_id,\n                award, award_date, published_date,\n                presenter_author_id, is_proceedings_track,\n                talk_date, talk_time, duration_minutes,\n                created_at, updated_at\n            FROM publications\n            WHERE search_vector @@ plainto_tsquery('english', $1)\n               OR search_vector @@ plainto_tsquery('simple', $1)\n            ORDER BY ts_rank(search_vector, plainto_tsquery('english', $1))\n                   + ts_rank(search_vector, plainto_tsquery('simple', $1)) DESC\n            LIMIT $2 OFFSET $3\n            ",
+  "query": "\n        SELECT\n            id, conference_id, canonical_key, doi,\n            COALESCE(arxiv_ids, ARRAY[]::text[]) as \"arxiv_ids!\",\n            title, abstract as \"abstract_text\",\n            paper_type as \"paper_type: PaperType\",\n            pages, session_name, presentation_url, video_url, youtube_id,\n            award, award_date, published_date,\n            ARRAY(SELECT au.author_id FROM authorships au\n                  WHERE au.publication_id = publications.id AND au.is_presenter\n                  ORDER BY au.author_position) as \"presenter_author_ids!\",\n            COALESCE(string_to_array(metadata->>'presenter_name', '; '), ARRAY[]::text[]) as \"presenter_names!\",\n            is_proceedings_track,\n            talk_date, talk_time, duration_minutes,\n            created_at, updated_at\n        FROM publications\n        WHERE id = $1\n        ",
   "describe": {
     "columns": [
       {
@@ -102,45 +102,48 @@
       },
       {
         "ordinal": 16,
-        "name": "presenter_author_id",
-        "type_info": "Uuid"
+        "name": "presenter_author_ids!",
+        "type_info": "UuidArray"
       },
       {
         "ordinal": 17,
+        "name": "presenter_names!",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 18,
         "name": "is_proceedings_track",
         "type_info": "Bool"
       },
       {
-        "ordinal": 18,
+        "ordinal": 19,
         "name": "talk_date",
         "type_info": "Date"
       },
       {
-        "ordinal": 19,
+        "ordinal": 20,
         "name": "talk_time",
         "type_info": "Time"
       },
       {
-        "ordinal": 20,
+        "ordinal": 21,
         "name": "duration_minutes",
         "type_info": "Int4"
       },
       {
-        "ordinal": 21,
+        "ordinal": 22,
         "name": "created_at",
         "type_info": "Timestamptz"
       },
       {
-        "ordinal": 22,
+        "ordinal": 23,
         "name": "updated_at",
         "type_info": "Timestamptz"
       }
     ],
     "parameters": {
       "Left": [
-        "Text",
-        "Int8",
-        "Int8"
+        "Uuid"
       ]
     },
     "nullable": [
@@ -160,7 +163,8 @@
       true,
       true,
       true,
-      true,
+      null,
+      null,
       false,
       true,
       true,
@@ -169,5 +173,5 @@
       false
     ]
   },
-  "hash": "27ccc74083f5e55b51b1f4aedd5097623e2662dfcc4a99050c284163c8a2e72f"
+  "hash": "5705c456f099ef18776b471aaca34aa3bdd1e8a239b099163ba850fb361e133c"
 }

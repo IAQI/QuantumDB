@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        SELECT\n            p.id,\n            p.title,\n            p.paper_type::text as \"paper_type!\",\n            p.award,\n            p.talk_date,\n            p.talk_time,\n            p.duration_minutes,\n            p.presenter_author_id,\n            COALESCE(p.arxiv_ids, ARRAY[]::text[]) as \"arxiv_ids!\",\n            COALESCE(p.abstract, '') as \"abstract_text!\",\n            COALESCE(p.video_url, '') as \"video_url!\",\n            COALESCE(p.metadata->>'presenter_name', '') as \"presenter_name!\"\n        FROM publications p\n        WHERE p.conference_id = $1\n        ORDER BY\n            COALESCE(p.talk_date, '9999-12-31'::date),\n            COALESCE(p.talk_time, '23:59:59'::time),\n            p.paper_type,\n            p.title\n        ",
+  "query": "\n        SELECT\n            p.id,\n            p.title,\n            p.paper_type::text as \"paper_type!\",\n            p.award,\n            p.talk_date,\n            p.talk_time,\n            p.duration_minutes,\n            COALESCE(p.arxiv_ids, ARRAY[]::text[]) as \"arxiv_ids!\",\n            COALESCE(p.abstract, '') as \"abstract_text!\",\n            COALESCE(p.video_url, '') as \"video_url!\",\n            COALESCE(p.metadata->>'presenter_name', '') as \"presenter_name!\"\n        FROM publications p\n        WHERE p.conference_id = $1\n        ORDER BY\n            COALESCE(p.talk_date, '9999-12-31'::date),\n            COALESCE(p.talk_time, '23:59:59'::time),\n            p.paper_type,\n            p.title\n        ",
   "describe": {
     "columns": [
       {
@@ -40,26 +40,21 @@
       },
       {
         "ordinal": 7,
-        "name": "presenter_author_id",
-        "type_info": "Uuid"
-      },
-      {
-        "ordinal": 8,
         "name": "arxiv_ids!",
         "type_info": "TextArray"
       },
       {
-        "ordinal": 9,
+        "ordinal": 8,
         "name": "abstract_text!",
         "type_info": "Text"
       },
       {
-        "ordinal": 10,
+        "ordinal": 9,
         "name": "video_url!",
         "type_info": "Text"
       },
       {
-        "ordinal": 11,
+        "ordinal": 10,
         "name": "presenter_name!",
         "type_info": "Text"
       }
@@ -77,12 +72,11 @@
       true,
       true,
       true,
-      true,
       null,
       null,
       null,
       null
     ]
   },
-  "hash": "1b9cf2506769fdf61bd95fad722c4ce896e0b147311a33016f598f18384fa8e7"
+  "hash": "82524f7782768699584d5ab4db9004dc44c0a6ece30295e62a4857a9a4467a62"
 }

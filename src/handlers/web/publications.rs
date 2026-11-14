@@ -72,7 +72,7 @@ pub async fn publications_list(
                 ARRAY[]::text[]
             ) as "author_names!",
             COALESCE(
-                array_agg(COALESCE(a.id = p.presenter_author_id, false) ORDER BY au.author_position)
+                array_agg(au.is_presenter ORDER BY au.author_position)
                     FILTER (WHERE a.id IS NOT NULL),
                 ARRAY[]::boolean[]
             ) as "author_is_speaker!",

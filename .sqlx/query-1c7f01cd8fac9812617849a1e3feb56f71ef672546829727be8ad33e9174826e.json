@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        SELECT\n            au.publication_id,\n            au.author_position,\n            au.published_as_name,\n            au.affiliation,\n            a.id as author_id,\n            a.slug as \"slug!\",\n            a.full_name,\n            a.orcid,\n            COALESCE(p.presenter_author_id = a.id, false) as \"is_presenter!\"\n        FROM authorships au\n        JOIN publications p ON p.id = au.publication_id\n        JOIN authors a ON a.id = au.author_id\n        WHERE p.conference_id = ANY($1::uuid[])\n        ORDER BY au.publication_id, au.author_position\n        ",
+  "query": "\n        SELECT\n            au.publication_id,\n            au.author_position,\n            au.published_as_name,\n            au.affiliation,\n            a.id as author_id,\n            a.slug as \"slug!\",\n            a.full_name,\n            a.orcid,\n            au.is_presenter as \"is_presenter!\"\n        FROM authorships au\n        JOIN publications p ON p.id = au.publication_id\n        JOIN authors a ON a.id = au.author_id\n        WHERE p.conference_id = ANY($1::uuid[])\n        ORDER BY au.publication_id, au.author_position\n        ",
   "describe": {
     "columns": [
       {
@@ -63,8 +63,8 @@
       false,
       false,
       true,
-      null
+      false
     ]
   },
-  "hash": "5343f5e8ccba849c07d81108c2bf5945b00baf26a27e5f037aaf2368fba9dd6e"
+  "hash": "1c7f01cd8fac9812617849a1e3feb56f71ef672546829727be8ad33e9174826e"
 }

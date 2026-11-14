@@ -12,7 +12,7 @@ no video links at all.
 This script embeds the video-derived presenter mapping (title -> presenter +
 confidence) and the per-talk day-video offset, then:
   - writes the HIGH-confidence presenters into `speakers`, canonicalized to each
-    row's author spelling (so the importer resolves presenter_author_id),
+    row's author spelling (so the importer flags the presenting author),
   - sets `video_url` to the timestamped day-video link and `youtube_id` to the day
     video for every mapped talk.
 MEDIUM/LOW rows keep their existing `speakers` (listed for manual review).

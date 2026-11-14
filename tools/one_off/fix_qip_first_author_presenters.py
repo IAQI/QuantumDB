@@ -3,12 +3,12 @@
 
 The historical QIP talk scraper (tools/one_off/historical/scrape_qip_talks_historical.py)
 filled `speakers` with author_list[0] whenever the source page didn't mark a presenter.
-The importer turns speakers[0] into publications.presenter_author_id, so for QIP 2008,
+The importer marks the speakers as the talk's presenters, so for QIP 2008,
 2009, 2014, 2016 and 2024 every multi-author talk showed its first author as presenter
 (reported by a site visitor for QIP 2014, 2026-11-13).
 
 Policy: a multi-author talk keeps a presenter only if a source names it; otherwise
-`speakers` is cleared and presenter_author_id becomes NULL on re-import.
+`speakers` is cleared and the talk has no presenter after re-import.
 Single-author talks are untouched (the sole author is the presenter).
 
 Sources:

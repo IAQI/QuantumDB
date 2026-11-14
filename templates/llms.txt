@@ -7,7 +7,7 @@ It currently holds {{ conference_count }} conference instances, {{ talk_count }}
 ## Recommended: bulk exports (one request, no pagination, author names inline)
 
 - [Index of all conferences]({{ base }}/api/v1/export/all.json): every conference with its dates, location, counts and the URLs of its exports
-- [One conference, complete]({{ base }}/api/v1/export/conferences/qip-2015): committees, talks and posters with ordered authors (name, slug, ORCID, affiliation, presenter flag), abstracts, arXiv ids, video/slide links and business-meeting figures. Replace `qip-2015` with any `<venue>-<year>` (venues: `qip`, `qcrypt`, `tqc`)
+- [One conference, complete]({{ base }}/api/v1/export/conferences/qip-2015): committees, talks and posters with ordered authors (name, slug, ORCID, affiliation, presenter flags; a talk can have several presenters), abstracts, arXiv ids, video/slide links and business-meeting figures. Replace `qip-2015` with any `<venue>-<year>` (venues: `qip`, `qcrypt`, `tqc`)
 - Per-conference CSVs: `{{ base }}/api/v1/export/conferences/<slug>/talks.csv`, `.../posters.csv` and `.../committees.csv`. They use the same columns as the CSV files in the GitHub repository; lists inside a cell are separated by `;`
 - [Full dataset]({{ base }}/api/v1/export/all-full.json): every conference, nested, in one file (about 19 MB, or 4 MB gzip-compressed)
 - [All authors]({{ base }}/api/v1/export/authors.json): permanent slugs, ORCID and Google Scholar ids, activity summary

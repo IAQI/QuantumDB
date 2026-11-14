@@ -665,22 +665,12 @@ async fn test_publication_search_authorship_removal() {
 
 #[tokio::test]
 #[serial]
-async fn test_authorship_removal_clears_presenter() {
+async fn test_authorship_removal_drops_presenter() {
     let server = setup().await;
     let unique_suffix = Uuid::new_v4().simple().to_string();
 
-    // Regression test for the presenter/authorship consistency invariant.
-    //
-    // Rewriting a talk's authorships (delete + re-insert, as the CSV importer
-    // does) used to fail when the deleted authorship was the presenter's: the
-    // authorships DELETE fires trg_authorships_sync_author_names, whose
-    // `UPDATE publications SET author_names_text = ...` re-ran
-    // ensure_presenter_is_author mid-delete and raised
-    // "presenter_author_id must be one of the publication authors".
-    //
-    // trg_clear_presenter_on_authorship_delete (BEFORE DELETE on authorships)
-    // now clears the presenter first, so removing the presenter's authorship
-    // must (1) succeed and (2) leave presenter_author_id NULL.
+    // A presenter is a flag on the authorship row, so removing the presenter's
+    // authorship must succeed and leave the publication with no presenters.
     let author_token = format!("zzqpresenter{}", unique_suffix);
     let author_body = json!({
         "full_name": format!("Presenter {}", author_token),
@@ -708,33 +698,30 @@ async fn test_authorship_removal_clears_presenter() {
     let publication: serde_json::Value = response.json();
     let publication_id = publication["id"].as_str().unwrap();
 
-    // Link the author, then make that author the talk's presenter.
+    // Link the author as the talk's presenter.
     let authorship_body = json!({
         "publication_id": publication_id,
         "author_id": author_id,
         "author_position": 1,
         "published_as_name": format!("Presenter {}", author_token),
+        "is_presenter": true,
         "creator": "test_user",
         "modifier": "test_user"
     });
     let response = server.post("/authorships").json(&authorship_body).await;
     let authorship: serde_json::Value = response.json();
+    assert_eq!(authorship["is_presenter"], true);
     let authorship_id = authorship["id"].as_str().unwrap();
 
-    let response = server
-        .put(&format!("/publications/{}", publication_id))
-        .json(&json!({ "presenter_author_id": author_id, "modifier": "test_user" }))
-        .await;
+    let response = server.get(&format!("/publications/{}", publication_id)).await;
     response.assert_status_ok();
-    let updated: serde_json::Value = response.json();
+    let before: serde_json::Value = response.json();
     assert_eq!(
-        updated["presenter_author_id"].as_str(),
-        Some(author_id),
+        before["presenter_author_ids"],
+        json!([author_id]),
         "Presenter should be set before its authorship is removed"
     );
 
-    // Removing the presenter's authorship must succeed (204), not 500 from the
-    // presenter-validation trigger firing mid-delete.
     let response = server
         .delete(&format!("/authorships/{}", authorship_id))
         .await;
@@ -745,14 +732,13 @@ async fn test_authorship_removal_clears_presenter() {
         response.status_code()
     );
 
-    // ...and the presenter must have been cleared to NULL.
     let response = server.get(&format!("/publications/{}", publication_id)).await;
     response.assert_status_ok();
     let after: serde_json::Value = response.json();
-    assert!(
-        after["presenter_author_id"].is_null(),
-        "presenter_author_id must be cleared after its authorship is removed, got {:?}",
-        after["presenter_author_id"]
+    assert_eq!(
+        after["presenter_author_ids"],
+        json!([]),
+        "presenter_author_ids must be empty after the presenter's authorship is removed"
     );
 
     // Cleanup
@@ -1555,15 +1541,17 @@ async fn test_publication_with_presenter() {
     let publication: serde_json::Value = response.json();
     let publication_id = publication["id"].as_str().unwrap();
 
-    // Verify presenter_author_id is initially null
-    assert!(publication["presenter_author_id"].is_null(), "presenter_author_id should be null initially");
+    // A new publication has no presenters
+    assert_eq!(publication["presenter_author_ids"], json!([]), "no presenters initially");
+    assert_eq!(publication["presenter_names"], json!([]), "no non-author presenters initially");
 
-    // Create authorships for both authors
+    // Author one presents from the start; author two is added as a plain author
     let authorship1_body = json!({
         "publication_id": publication_id,
         "author_id": author1_id,
         "author_position": 1,
         "published_as_name": format!("Author One {}", unique_suffix),
+        "is_presenter": true,
         "creator": "test_user",
         "modifier": "test_user"
     });
@@ -1571,6 +1559,7 @@ async fn test_publication_with_presenter() {
     response.assert_status(axum::http::StatusCode::CREATED);
     let authorship1: serde_json::Value = response.json();
     let authorship1_id = authorship1["id"].as_str().unwrap();
+    assert_eq!(authorship1["is_presenter"], true);
 
     let authorship2_body = json!({
         "publication_id": publication_id,
@@ -1584,18 +1573,39 @@ async fn test_publication_with_presenter() {
     response.assert_status(axum::http::StatusCode::CREATED);
     let authorship2: serde_json::Value = response.json();
     let authorship2_id = authorship2["id"].as_str().unwrap();
+    assert_eq!(authorship2["is_presenter"], false, "is_presenter defaults to false");
 
-    // Update publication to set presenter_author_id to one of the authors
-    let update_body = json!({
-        "presenter_author_id": author1_id,
-        "modifier": "test_user"
-    });
-    let response = server.put(&format!("/publications/{}", publication_id)).json(&update_body).await;
+    let response = server.get(&format!("/publications/{}", publication_id)).await;
     response.assert_status_ok();
-    let updated: serde_json::Value = response.json();
+    let one: serde_json::Value = response.json();
+    assert_eq!(one["presenter_author_ids"], json!([author1_id]));
 
-    // Verify presenter is set correctly
-    assert_eq!(updated["presenter_author_id"].as_str().unwrap(), author1_id, "presenter_author_id should be set to author1");
+    // Make author two a presenter as well: a talk can have several presenters
+    let response = server
+        .put(&format!("/authorships/{}", authorship2_id))
+        .json(&json!({"is_presenter": true, "modifier": "test_user"}))
+        .await;
+    response.assert_status_ok();
+    let updated_authorship: serde_json::Value = response.json();
+    assert_eq!(updated_authorship["is_presenter"], true);
+
+    let response = server.get(&format!("/publications/{}", publication_id)).await;
+    response.assert_status_ok();
+    let both: serde_json::Value = response.json();
+    assert_eq!(
+        both["presenter_author_ids"],
+        json!([author1_id, author2_id]),
+        "both presenters, in author order"
+    );
+
+    // An update that omits is_presenter leaves the flag alone
+    let response = server
+        .put(&format!("/authorships/{}", authorship2_id))
+        .json(&json!({"affiliation": "Somewhere", "modifier": "test_user"}))
+        .await;
+    response.assert_status_ok();
+    let kept: serde_json::Value = response.json();
+    assert_eq!(kept["is_presenter"], true);
 
     // Cleanup
     server.delete(&format!("/authorships/{}", authorship1_id)).await;
@@ -1720,91 +1730,6 @@ async fn test_proceedings_track_flag() {
     // Cleanup
     server.delete(&format!("/publications/{}", workshop_id)).await;
     server.delete(&format!("/publications/{}", proceedings_id)).await;
-}
-
-#[tokio::test]
-#[serial]
-async fn test_presenter_validation_trigger() {
-    let server = setup().await;
-    let unique_suffix = Uuid::new_v4().simple().to_string();
-
-    // Create two authors
-    let author1_body = json!({
-        "full_name": format!("Author One {}", unique_suffix),
-        "creator": "test_user",
-        "modifier": "test_user"
-    });
-    let response = server.post("/authors").json(&author1_body).await;
-    response.assert_status(axum::http::StatusCode::CREATED);
-    let author1: serde_json::Value = response.json();
-    let author1_id = author1["id"].as_str().unwrap();
-
-    let author2_body = json!({
-        "full_name": format!("Non-Author {}", unique_suffix),
-        "creator": "test_user",
-        "modifier": "test_user"
-    });
-    let response = server.post("/authors").json(&author2_body).await;
-    response.assert_status(axum::http::StatusCode::CREATED);
-    let author2: serde_json::Value = response.json();
-    let author2_id = author2["id"].as_str().unwrap();
-
-    // Get a conference ID
-    let response = server.get("/conferences").await;
-    let conferences: Vec<serde_json::Value> = response.json();
-    let conference_id = conferences[0]["id"].as_str().unwrap();
-
-    // Create publication
-    let pub_body = json!({
-        "conference_id": conference_id,
-        "canonical_key": format!("trigger-test-{}", unique_suffix),
-        "title": "Presenter Validation Test",
-        "creator": "test_user",
-        "modifier": "test_user"
-    });
-    let response = server.post("/publications").json(&pub_body).await;
-    response.assert_status(axum::http::StatusCode::CREATED);
-    let publication: serde_json::Value = response.json();
-    let publication_id = publication["id"].as_str().unwrap();
-
-    // Add author1 as an author
-    let authorship_body = json!({
-        "publication_id": publication_id,
-        "author_id": author1_id,
-        "author_position": 1,
-        "published_as_name": format!("Author One {}", unique_suffix),
-        "creator": "test_user",
-        "modifier": "test_user"
-    });
-    let response = server.post("/authorships").json(&authorship_body).await;
-    response.assert_status(axum::http::StatusCode::CREATED);
-    let authorship: serde_json::Value = response.json();
-    let authorship_id = authorship["id"].as_str().unwrap();
-
-    // Try to set presenter to author2 (not an author) - should fail
-    let update_body = json!({
-        "presenter_author_id": author2_id,
-        "modifier": "test_user"
-    });
-    let response = server.put(&format!("/publications/{}", publication_id)).json(&update_body).await;
-    // This should fail because of the trigger
-    response.assert_status(axum::http::StatusCode::INTERNAL_SERVER_ERROR);
-
-    // Try to set presenter to author1 (an author) - should succeed
-    let update_body = json!({
-        "presenter_author_id": author1_id,
-        "modifier": "test_user"
-    });
-    let response = server.put(&format!("/publications/{}", publication_id)).json(&update_body).await;
-    response.assert_status_ok();
-    let updated: serde_json::Value = response.json();
-    assert_eq!(updated["presenter_author_id"].as_str().unwrap(), author1_id, "presenter_author_id should be set to author1");
-
-    // Cleanup
-    server.delete(&format!("/authorships/{}", authorship_id)).await;
-    server.delete(&format!("/publications/{}", publication_id)).await;
-    server.delete(&format!("/authors/{}", author1_id)).await;
-    server.delete(&format!("/authors/{}", author2_id)).await;
 }
 
 #[tokio::test]
@@ -1994,19 +1919,14 @@ async fn test_conference_export_json_and_csv() {
                 "author_position": i + 1,
                 "published_as_name": names[i],
                 "affiliation": if i == 1 { "Test University" } else { "" },
+                // Both authors presented (a talk can have several presenters).
+                "is_presenter": true,
                 "creator": "test_user",
                 "modifier": "test_user"
             }))
             .await;
         response.assert_status(axum::http::StatusCode::CREATED);
     }
-    // The second author presented.
-    server
-        .put(&format!("/publications/{publication_id}"))
-        .json(&json!({"presenter_author_id": author_ids[1], "modifier": "test_user"}))
-        .await
-        .assert_status_ok();
-
     let response = server
         .post("/committees")
         .json(&json!({
@@ -2036,10 +1956,14 @@ async fn test_conference_export_json_and_csv() {
     let authors = pubs[0]["authors"].as_array().unwrap();
     assert_eq!(authors.len(), 2);
     assert!(authors[0]["name"].as_str().unwrap().starts_with("Alice Exportfirst"));
+    assert_eq!(authors[0]["is_presenter"], true);
     assert_eq!(authors[1]["is_presenter"], true);
     assert_eq!(authors[1]["affiliation"], "Test University");
     assert!(authors[0]["affiliation"].is_null(), "empty affiliation is exported as null");
-    assert!(pubs[0]["presenter"].as_str().unwrap().starts_with("Bob Exportsecond"));
+    assert_eq!(
+        pubs[0]["presenters"],
+        json!([format!("Alice Exportfirst {suffix}"), format!("Bob Exportsecond {suffix}")])
+    );
     assert_eq!(export["committees"][0]["committee"], "program");
     assert_eq!(export["committees"][0]["position"], "chair");
 
@@ -2051,7 +1975,9 @@ async fn test_conference_export_json_and_csv() {
     assert_eq!(lines.next().unwrap(), quantumdb::handlers::TALKS_CSV_HEADER.join(","));
     let row = lines.next().unwrap();
     assert!(row.contains("\"Export, with a comma and \"\"quotes\"\"\""), "row: {row}");
-    assert!(row.contains(&format!("Alice Exportfirst {suffix};Bob Exportsecond {suffix}")));
+    // speakers column, then authors column: both list Alice and Bob.
+    let both = format!("Alice Exportfirst {suffix};Bob Exportsecond {suffix}");
+    assert!(row.contains(&format!(",{both},{both},")), "row: {row}");
     assert!(row.contains(";Test University"), "affiliations keep author order: {row}");
     assert!(row.contains("2401.00001"));
 

@@ -341,12 +341,12 @@ The `paper_type` enum has 9 values representing different publication/talk types
 
 ### Presenter Tracking
 
-Publications can specify who presented the talk via `presenter_author_id`:
-- Must be one of the authors in the `authorships` table
-- Validated by database trigger `ensure_presenter_is_author`
-- Optional field (nullable) - often unknown for contributed talks
-- May be inferred later from videos, slides, or other sources
-- For rare cases where presenter is not an author, leave `presenter_author_id` as NULL and store presenter information in the `metadata` JSONB field (e.g., `{"presenter_name": "...", "presenter_note": "..."}`)
+A talk can have **several presenters** (panels, merged talks, posters with two presenters). Presenting is a flag on the authorship row, `authorships.is_presenter` (migration 20261114000000):
+- A presenting author is an author by construction; no triggers are needed
+- Often unknown for contributed talks; leave every flag false rather than guess. Never default to the first author (that bug seeded wrong presenters for QIP 2008/2009/2014/2016/2024)
+- The API exposes `is_presenter` on authorships (read/write) and `presenter_author_ids` (author order) on publications
+- For rare cases where a presenter is **not** an author (the authors couldn't travel), the name stays plain text in `publications.metadata.presenter_name` (`"; "`-separated if several). This is deliberate: it is not linked to an author record and does not count as that person's talk. The API returns these as `presenter_names`
+- In the CSVs, `speakers` lists one or more `;`-separated names. The importer flags each speaker who matches an author and records the others in `metadata.presenter_name`, logging a warning for each (often a spelling mismatch to fix in the CSV)
 
 ### Proceedings vs Workshop Tracks
 
@@ -417,6 +417,7 @@ All handlers use SQLx query macros (`query!`, `query_as!`) for compile-time veri
   - `20260623000000_add_business_meeting_slides.sql` - Adds `conference_business_meetings.slides` (JSONB array of `{label, url}`) linking the business-meeting slide decks (PC-chair report, local-organizers report). In the tall CSV these are `slide:<label>` rows.
   - `20260702000000_publications_search_authors.sql` - Extends publication full-text search to cover **author names** (weight C) alongside title (A) and abstract (B). Adds a maintained `publications.author_names_text` column (denormalized author `full_name`/`published_as_name`), folds it into the regenerated `search_vector` generated column, and keeps it in sync via triggers on `authorships` (`trg_authorships_sync_author_names`) and on author name changes (`trg_authors_sync_publication_author_names`); backfills existing rows.
   - `20260702180000_authorship_delete_clears_presenter.sql` - Adds a BEFORE DELETE trigger on `authorships` (`clear_presenter_on_authorship_delete`) that NULLs `publications.presenter_author_id` when the presenter's own authorship row is removed. Makes the presenter-must-be-an-author invariant self-maintaining for authorship rewrites (talk-importer delete-then-reinsert, author merges) — previously such a delete either dangled the presenter or, via `trg_authorships_sync_author_names`, re-fired `ensure_presenter_is_author` mid-delete and errored.
+  - `20261114000000_multiple_presenters.sql` - Replaces `publications.presenter_author_id` (and both presenter triggers) with `authorships.is_presenter`, so a talk can have several presenting authors. No backfill: the importer sets the flag from the CSV `speakers` column.
 - **seeds/** - Initial data (run manually after migrations)
   - `insert_qip_conferences.sql` - Historical QIP data (1998-2024)
   - `insert_qcrypt_conferences.sql` - Historical QCrypt data
@@ -449,6 +450,8 @@ All handlers use SQLx query macros (`query!`, `query_as!`) for compile-time veri
 ## Development Workflow
 
 Hybrid: stack runs in Docker, Rust toolchain runs on the host.
+
+**The production DB is rebuilt from the CSVs** (wipe + migrate + re-import; see docs/DEPLOYMENT.md) and is never edited live. So data fixes go into `data/conferences/` (usually via a one-off script in `tools/one_off/`), and schema changes need no data backfill or API compatibility aliases.
 
 1. **Bring the stack up**: `docker compose up -d` (rebuilds only on `--build`). The DB volume persists across restarts; on first start, `docker-init.sh` runs every file in `migrations/` and `seeds/` in order.
 2. **Apply a new migration**: drop the `<timestamp>_<name>.sql` file into `migrations/`. For an existing DB, run it manually with `docker exec quantumdb-db-1 psql -U quantumdb -d quantumdb -v ON_ERROR_STOP=1 -f /migrations/<file>.sql`. (For a fresh DB, `docker compose down -v && docker compose up -d` re-runs everything.)
