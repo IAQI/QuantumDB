@@ -31,6 +31,8 @@ NOTE = "presenter=unknown (speakers was the full author list)"
 KEEP = {
     # Industry panel: every panellist spoke (https://qcrypt.net/2026/speakers/).
     ("qcrypt_2026", "Quantum Satellite Infrastructure and Applications"),
+    # QCrypt 2014 roundtable: all four panellists spoke (checked in the recording).
+    ("qcrypt_2014", "Conference and Roundtable"),
     # The QIP 2026 poster page underlines both names as presenters.
     ("qip_2026", "Lifting the maximally-entangledness assumption in robust self-testing"),
 }
