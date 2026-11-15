@@ -445,6 +445,20 @@ this order, and never fall back to guessing:
 Each pass writes the CSV `speakers` column only; the importer turns matched
 names into `authorships.is_presenter` flags.
 
+**Progress (2026-11-14, `tools/one_off/infer_presenters_2026_11.py`)**: 246 of
+810 gap talks resolved: 31 from archive markup (TQC 2014 bold, TQC 2015
+italics, TQC 2016 underline, QIP 2014 bold), 154 from YouTube titles, 61 from
+auto-captions (every one read and checked by hand; the "all co-authors but one"
+rule is fooled when the session chair names the speaker, so never apply it
+unchecked). Archive markup that looked promising but marks no presenter: QCrypt
+business-meeting pages (award notices), QIP 2016, TQC 2012 and TQC 2025 (bold or
+italics around the whole author list).
+
+Left: 564 talks, 125 with a recording (mostly TQC 2025, 54, and QCrypt 2017,
+26; YouTube titles and captions name no speaker there) for the Speaker Picker.
+The other 439 have no recording; sources still to try are Web Archive copies
+of QIP 2020 and QCrypt 2019/2022/2024 programs and slide-file names/metadata.
+
 ## Verification plan (overall)
 
 For any CSV produced (whether by scraper or by Claude direct):
