@@ -46,5 +46,6 @@ pub fn create_test_app(pool: Pool<Postgres>) -> Router {
         .route("/robots.txt", get(handlers::web::robots_txt))
         .route("/sitemap.xml", get(handlers::web::sitemap_xml))
         .route("/llms.txt", get(handlers::web::llms_txt))
+        .route("/google0bfcb07478a021f4.html", get(handlers::web::google_site_verification))
         .with_state(pool)
 }

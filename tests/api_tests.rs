@@ -2034,6 +2034,10 @@ async fn test_discovery_files() {
     let response = server.get("/sitemap.xml").await;
     response.assert_status_ok();
     assert!(response.header("content-type").to_str().unwrap().starts_with("application/xml"));
+
+    let response = server.get("/google0bfcb07478a021f4.html").await;
+    response.assert_status_ok();
+    assert_eq!(response.text(), "google-site-verification: google0bfcb07478a021f4.html");
     assert!(response.text().contains("<urlset"));
 
     let authors: serde_json::Value = server.get("/export/authors.json").await.json();

@@ -1,4 +1,5 @@
-//! Discovery files for crawlers and AI agents: robots.txt, sitemap.xml, llms.txt.
+//! Discovery files for crawlers and AI agents: robots.txt, sitemap.xml, llms.txt,
+//! plus the Google Search Console verification file.
 
 use askama::Template;
 use axum::extract::State;
@@ -42,6 +43,17 @@ pub async fn robots_txt() -> Response {
              \n\
              Sitemap: {base}/sitemap.xml\n"
         ),
+    )
+}
+
+/// Google Search Console ownership proof for https://quantumdb.iaqi.org/ (HTML-file method).
+/// The token belongs to the IAQI Google account; removing this route un-verifies the site.
+pub const GOOGLE_SITE_VERIFICATION: &str = "google0bfcb07478a021f4";
+
+pub async fn google_site_verification() -> Response {
+    text(
+        "text/html; charset=utf-8",
+        format!("google-site-verification: {GOOGLE_SITE_VERIFICATION}.html"),
     )
 }
 
