@@ -225,6 +225,7 @@ async fn main() -> Result<(), sqlx::Error> {
         .route("/robots.txt", get(handlers::web::robots_txt))
         .route("/sitemap.xml", get(handlers::web::sitemap_xml))
         .route("/llms.txt", get(handlers::web::llms_txt))
+        .route("/google0bfcb07478a021f4.html", get(handlers::web::google_site_verification))
         .route("/health", get(health));
 
     // Protected web routes (admin operations)
