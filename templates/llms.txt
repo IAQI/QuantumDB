@@ -25,6 +25,16 @@ It currently holds {{ conference_count }} conference instances, {{ talk_count }}
 - [Publication search]({{ base }}/publications), full-text over titles, abstracts and author names
 - [Sitemap]({{ base }}/sitemap.xml)
 
+## Archived conference websites
+
+Static copies of the past conference websites (programs, abstracts, slides as published), each with its own guide for LLMs:
+
+- [qip.iaqi.org/llms.txt](https://qip.iaqi.org/llms.txt): QIP
+- [qcrypt.iaqi.org/llms.txt](https://qcrypt.iaqi.org/llms.txt): QCrypt
+- [tqc.iaqi.org/llms.txt](https://tqc.iaqi.org/llms.txt): TQC
+
+The `archive_url` of each conference (in the exports) points to its copy.
+
 ## Source data
 
 - [GitHub repository]({{ source_repo }}): the source-of-truth CSVs live in `data/conferences/<venue>_<year>/` (`committees.csv`, `talks.csv`, `posters.csv`, `business_meeting.csv`; TQC uses `proceedings.csv` and `workshop.csv`). Schemas are in `data/README.md` and provenance in `data/SOURCES.md`. The live exports above are generated from the database and include identifiers (author slugs, ORCIDs) that the CSVs lack
